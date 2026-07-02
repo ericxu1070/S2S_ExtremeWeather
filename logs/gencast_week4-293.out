@@ -1,0 +1,62 @@
+Host: nucla3m-a3meganodeset-3
+Start: Tue Jun 23 09:04:31 UTC 2026
+GPU 0: NVIDIA H100 80GB HBM3 (UUID: GPU-b8ea1035-0007-7515-3dd6-af91b019c0d5)
+GPU 1: NVIDIA H100 80GB HBM3 (UUID: GPU-d6d50080-e779-0925-0ed6-43a4555a210a)
+GPU 2: NVIDIA H100 80GB HBM3 (UUID: GPU-511024c1-3c7e-7c77-1079-2f1703c3eab2)
+GPU 3: NVIDIA H100 80GB HBM3 (UUID: GPU-5af99110-d654-920b-c96a-2bd40ba27b5f)
+GPU 4: NVIDIA H100 80GB HBM3 (UUID: GPU-d99414f2-afb8-63e6-e2f0-9c1d091423da)
+GPU 5: NVIDIA H100 80GB HBM3 (UUID: GPU-85259381-d999-65b3-d62c-cdcff9d594cb)
+GPU 6: NVIDIA H100 80GB HBM3 (UUID: GPU-dee27eeb-a837-8f09-94f0-3f975e31b9e4)
+GPU 7: NVIDIA H100 80GB HBM3 (UUID: GPU-af7e590f-89d8-8ce1-c223-d556791a6b06)
+JAX devices: [CudaDevice(id=0), CudaDevice(id=1), CudaDevice(id=2), CudaDevice(id=3), CudaDevice(id=4), CudaDevice(id=5), CudaDevice(id=6), CudaDevice(id=7)]
+[model] checkpoint: GenCast 1p0deg Mini <2019.npz
+[model] stats: diffs_stddev_by_level.nc
+[model] stats: mean_by_level.nc
+[model] stats: stddev_by_level.nc
+[model] stats: min_by_level.nc
+[model] statics (orography + land-sea mask)
+[clim] cached: clim_1990_2019_t2m_conus.nc
+[model] done
+[truth] cached: PNW_HeatDome_2021_verif_t2m_anom.nc
+[truth] cached: Southwest_HeatWave_2020_verif_t2m_anom.nc
+[truth] cached: California_HeatWave_2022_verif_t2m_anom.nc
+[truth] cached: WinterStorm_Uri_2021_verif_t2m_anom.nc
+[truth] cached: PolarVortex_2019_verif_t2m_anom.nc
+[truth] cached: WinterStorm_Elliott_2022_verif_t2m_anom.nc
+[inputs week4] PNW_HeatDome_2021: init=peak-28d -> PNW_HeatDome_2021_gencast_inputs.nc
+[inputs week4] Southwest_HeatWave_2020: init=peak-28d -> Southwest_HeatWave_2020_gencast_inputs.nc
+[inputs week4] California_HeatWave_2022: init=peak-28d -> California_HeatWave_2022_gencast_inputs.nc
+[inputs week4] WinterStorm_Uri_2021: init=peak-28d -> WinterStorm_Uri_2021_gencast_inputs.nc
+[inputs week4] PolarVortex_2019: init=peak-28d -> PolarVortex_2019_gencast_inputs.nc
+[inputs week4] WinterStorm_Elliott_2022: init=peak-28d -> WinterStorm_Elliott_2022_gencast_inputs.nc
+[model] GenCast loaded on 8 device(s); ensemble=24 (3 wave(s) of 8). task pressure levels: 13
+=== week4: lead 28d, 56 steps, 24 members ===
+PNW_HeatDome_2021 [week4] init=peak-28d ...
+  grid-node input channels = 5104 (inputs 176 + targets 4704 + forcings 224)
+  saved PNW_HeatDome_2021_gencast_verif_t2m_anom_members.nc  members=24 spread=1.676K
+Southwest_HeatWave_2020 [week4] init=peak-28d ...
+  grid-node input channels = 5104 (inputs 176 + targets 4704 + forcings 224)
+  saved Southwest_HeatWave_2020_gencast_verif_t2m_anom_members.nc  members=24 spread=1.427K
+California_HeatWave_2022 [week4] init=peak-28d ...
+  grid-node input channels = 5104 (inputs 176 + targets 4704 + forcings 224)
+  saved California_HeatWave_2022_gencast_verif_t2m_anom_members.nc  members=24 spread=1.564K
+WinterStorm_Uri_2021 [week4] init=peak-28d ...
+  grid-node input channels = 5104 (inputs 176 + targets 4704 + forcings 224)
+  saved WinterStorm_Uri_2021_gencast_verif_t2m_anom_members.nc  members=24 spread=3.075K
+PolarVortex_2019 [week4] init=peak-28d ...
+  grid-node input channels = 5104 (inputs 176 + targets 4704 + forcings 224)
+  saved PolarVortex_2019_gencast_verif_t2m_anom_members.nc  members=24 spread=2.986K
+WinterStorm_Elliott_2022 [week4] init=peak-28d ...
+  grid-node input channels = 5104 (inputs 176 + targets 4704 + forcings 224)
+  saved WinterStorm_Elliott_2022_gencast_verif_t2m_anom_members.nc  members=24 spread=2.864K
+[pdf week4] wrote 6 + combined -> /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/week4/figures/pdf
+[maps week4] wrote 6 + combined -> /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/week4/figures/maps
+[scores week4]
+                   event  gencast_crps  gencast_spread
+       PNW_HeatDome_2021      1.005066        1.676248
+ Southwest_HeatWave_2020      1.136416        1.427065
+California_HeatWave_2022      1.287952        1.564031
+    WinterStorm_Uri_2021      4.410810        3.074822
+        PolarVortex_2019      2.041121        2.985992
+WinterStorm_Elliott_2022      3.053115        2.864321
+End: Tue Jun 23 09:25:38 UTC 2026

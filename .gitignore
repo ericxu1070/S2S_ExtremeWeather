@@ -15,6 +15,10 @@ env/
 .vscode/
 .idea/
 
+# Third-party code & run outputs
+third_party/
+runs/
+
 # Data & large outputs (uncomment if you don't want to track these)
 # *.nc
 # *.zarr/

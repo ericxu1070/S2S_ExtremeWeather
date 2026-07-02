@@ -1,0 +1,35 @@
+/home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/third_party/graphcast/graphcast/rollout.py:328: FutureWarning: The return type of `Dataset.dims` will be changed to return a set of dimension names in future, in order to be more consistent with `DataArray.dims`. To access a mapping from dimension names to lengths, please use `Dataset.sizes`.
+  num_target_steps = targets_template.dims["time"]
+/home/ubuntu/miniconda3/envs/moe/lib/python3.12/site-packages/scipy/sparse/_index.py:210: SparseEfficiencyWarning: Changing the sparsity structure of a csr_matrix is expensive. lil and dok are more efficient.
+  self._set_arrayXarray(i, j, x)
+/home/ubuntu/miniconda3/envs/moe/lib/python3.12/site-packages/scipy/sparse/_index.py:210: SparseEfficiencyWarning: Changing the sparsity structure of a csr_matrix is expensive. lil and dok are more efficient.
+  self._set_arrayXarray(i, j, x)
+/home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/third_party/graphcast/graphcast/rollout.py:435: FutureWarning: The return type of `Dataset.dims` will be changed to return a set of dimension names in future, in order to be more consistent with `DataArray.dims`. To access a mapping from dimension names to lengths, please use `Dataset.sizes`.
+  num_inputs = prev_inputs.dims["time"]
+/home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/third_party/graphcast/graphcast/rollout.py:437: FutureWarning: In a future version of xarray the default value for compat will change from compat='equals' to compat='override'. This change will result in the following ValueError: Cannot specify both data_vars='different' and compat='override'. The recommendation is to set compat explicitly for this case.
+  xarray.concat(
+/home/ubuntu/miniconda3/envs/moe/lib/python3.12/site-packages/cartopy/io/__init__.py:242: DownloadWarning: Downloading: https://naturalearth.s3.amazonaws.com/50m_physical/ne_50m_coastline.zip
+  warnings.warn(f'Downloading: {url}', DownloadWarning)
+/home/ubuntu/miniconda3/envs/moe/lib/python3.12/site-packages/cartopy/io/__init__.py:242: DownloadWarning: Downloading: https://naturalearth.s3.amazonaws.com/50m_cultural/ne_50m_admin_0_boundary_lines_land.zip
+  warnings.warn(f'Downloading: {url}', DownloadWarning)
+Traceback (most recent call last):
+  File "/home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/run_experiment.py", line 53, in <module>
+    main()
+  File "/home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/run_experiment.py", line 49, in main
+    plotting.make_all(args.weeks)
+  File "/home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/gencast_s2s/plotting.py", line 279, in make_all
+    plot_maps(weeks, model=model)
+  File "/home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/gencast_s2s/plotting.py", line 196, in plot_maps
+    _panel(fig, (nrows, 3, 3 * i + 1), truth, f"{name}\nObserved (ERA5)", "RdBu_r", amax, ccrs)
+  File "/home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/gencast_s2s/plotting.py", line 132, in _panel
+    ax = fig.add_subplot(gs_pos, projection=ccrs.PlateCarree())
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ubuntu/miniconda3/envs/moe/lib/python3.12/site-packages/matplotlib/figure.py", line 768, in add_subplot
+    ax = projection_class(self, *args, **pkw)
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ubuntu/miniconda3/envs/moe/lib/python3.12/site-packages/cartopy/mpl/geoaxes.py", line 392, in __init__
+    super().__init__(*args, **kwargs)
+  File "/home/ubuntu/miniconda3/envs/moe/lib/python3.12/site-packages/matplotlib/axes/_base.py", line 689, in __init__
+    self._position = mtransforms.Bbox.from_bounds(*args[0])
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: Bbox.from_bounds() missing 1 required positional argument: 'height'

@@ -1,0 +1,63 @@
+Host: nucla3m-a3meganodeset-1
+Start: Tue Jun 23 09:04:31 UTC 2026
+GPU 0: NVIDIA H100 80GB HBM3 (UUID: GPU-88533e8f-0b62-55aa-fded-d02f3a5c0949)
+GPU 1: NVIDIA H100 80GB HBM3 (UUID: GPU-73faab78-9bfe-d972-c528-b7dea56e33ce)
+GPU 2: NVIDIA H100 80GB HBM3 (UUID: GPU-454356e6-1737-4b75-2f39-4608bf068042)
+GPU 3: NVIDIA H100 80GB HBM3 (UUID: GPU-61c6fed8-55d2-6c54-2af7-0e1c632a266e)
+GPU 4: NVIDIA H100 80GB HBM3 (UUID: GPU-da758d3b-2c07-5a0e-53f7-2e585b037d9d)
+GPU 5: NVIDIA H100 80GB HBM3 (UUID: GPU-f0fd960f-b3c8-79a7-dbb5-3b9b4c2f4df3)
+GPU 6: NVIDIA H100 80GB HBM3 (UUID: GPU-5e63f164-bb6d-ca5b-2855-e3434498f5c5)
+GPU 7: NVIDIA H100 80GB HBM3 (UUID: GPU-f5eef0b6-3af0-a04a-7d9a-5bbd9fe6746f)
+JAX devices: [CudaDevice(id=0), CudaDevice(id=1), CudaDevice(id=2), CudaDevice(id=3), CudaDevice(id=4), CudaDevice(id=5), CudaDevice(id=6), CudaDevice(id=7)]
+[model] checkpoint: GenCast 1p0deg Mini <2019.npz
+[model] stats: diffs_stddev_by_level.nc
+[model] stats: mean_by_level.nc
+[model] stats: stddev_by_level.nc
+[model] stats: min_by_level.nc
+[model] statics (orography + land-sea mask)
+[clim] cached: clim_1990_2019_t2m_conus.nc
+[model] done
+[truth] cached: PNW_HeatDome_2021_verif_t2m_anom.nc
+[truth] Southwest_HeatWave_2020: mean=+1.54K max=+6.30K -> Southwest_HeatWave_2020_verif_t2m_anom.nc
+[truth] California_HeatWave_2022: mean=+1.70K max=+8.64K -> California_HeatWave_2022_verif_t2m_anom.nc
+[truth] WinterStorm_Uri_2021: mean=-4.36K max=+5.99K -> WinterStorm_Uri_2021_verif_t2m_anom.nc
+[truth] PolarVortex_2019: mean=-1.37K max=+5.75K -> PolarVortex_2019_verif_t2m_anom.nc
+[truth] WinterStorm_Elliott_2022: mean=-2.92K max=+7.00K -> WinterStorm_Elliott_2022_verif_t2m_anom.nc
+[inputs week2] cached: PNW_HeatDome_2021_gencast_inputs.nc
+[inputs week2] Southwest_HeatWave_2020: init=peak-14d -> Southwest_HeatWave_2020_gencast_inputs.nc
+[inputs week2] California_HeatWave_2022: init=peak-14d -> California_HeatWave_2022_gencast_inputs.nc
+[inputs week2] WinterStorm_Uri_2021: init=peak-14d -> WinterStorm_Uri_2021_gencast_inputs.nc
+[inputs week2] PolarVortex_2019: init=peak-14d -> PolarVortex_2019_gencast_inputs.nc
+[inputs week2] WinterStorm_Elliott_2022: init=peak-14d -> WinterStorm_Elliott_2022_gencast_inputs.nc
+[model] GenCast loaded on 8 device(s); ensemble=24 (3 wave(s) of 8). task pressure levels: 13
+=== week2: lead 14d, 28 steps, 24 members ===
+PNW_HeatDome_2021 [week2] init=peak-14d ...
+  stale cache (8 members != 24) -> re-running
+  grid-node input channels = 2640 (inputs 176 + targets 2352 + forcings 112)
+  saved PNW_HeatDome_2021_gencast_verif_t2m_anom_members.nc  members=24 spread=1.224K
+Southwest_HeatWave_2020 [week2] init=peak-14d ...
+  grid-node input channels = 2640 (inputs 176 + targets 2352 + forcings 112)
+  saved Southwest_HeatWave_2020_gencast_verif_t2m_anom_members.nc  members=24 spread=1.104K
+California_HeatWave_2022 [week2] init=peak-14d ...
+  grid-node input channels = 2640 (inputs 176 + targets 2352 + forcings 112)
+  saved California_HeatWave_2022_gencast_verif_t2m_anom_members.nc  members=24 spread=1.220K
+WinterStorm_Uri_2021 [week2] init=peak-14d ...
+  grid-node input channels = 2640 (inputs 176 + targets 2352 + forcings 112)
+  saved WinterStorm_Uri_2021_gencast_verif_t2m_anom_members.nc  members=24 spread=2.679K
+PolarVortex_2019 [week2] init=peak-14d ...
+  grid-node input channels = 2640 (inputs 176 + targets 2352 + forcings 112)
+  saved PolarVortex_2019_gencast_verif_t2m_anom_members.nc  members=24 spread=2.546K
+WinterStorm_Elliott_2022 [week2] init=peak-14d ...
+  grid-node input channels = 2640 (inputs 176 + targets 2352 + forcings 112)
+  saved WinterStorm_Elliott_2022_gencast_verif_t2m_anom_members.nc  members=24 spread=2.297K
+[pdf week2] wrote 6 + combined -> /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/week2/figures/pdf
+[maps week2] wrote 6 + combined -> /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/week2/figures/maps
+[scores week2]
+                   event  gencast_crps  gencast_spread
+       PNW_HeatDome_2021      0.638271        1.224022
+ Southwest_HeatWave_2020      0.563850        1.103770
+California_HeatWave_2022      0.964269        1.219869
+    WinterStorm_Uri_2021      2.434113        2.679449
+        PolarVortex_2019      0.941148        2.545703
+WinterStorm_Elliott_2022      1.670843        2.296926
+End: Tue Jun 23 09:17:13 UTC 2026

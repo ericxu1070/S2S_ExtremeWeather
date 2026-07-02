@@ -1,0 +1,27 @@
+Host: nucla3m-a3meganodeset-1
+Start: Tue Jun 23 08:56:48 UTC 2026
+GPU 0: NVIDIA H100 80GB HBM3 (UUID: GPU-88533e8f-0b62-55aa-fded-d02f3a5c0949)
+GPU 1: NVIDIA H100 80GB HBM3 (UUID: GPU-73faab78-9bfe-d972-c528-b7dea56e33ce)
+GPU 2: NVIDIA H100 80GB HBM3 (UUID: GPU-454356e6-1737-4b75-2f39-4608bf068042)
+GPU 3: NVIDIA H100 80GB HBM3 (UUID: GPU-61c6fed8-55d2-6c54-2af7-0e1c632a266e)
+GPU 4: NVIDIA H100 80GB HBM3 (UUID: GPU-da758d3b-2c07-5a0e-53f7-2e585b037d9d)
+GPU 5: NVIDIA H100 80GB HBM3 (UUID: GPU-f0fd960f-b3c8-79a7-dbb5-3b9b4c2f4df3)
+GPU 6: NVIDIA H100 80GB HBM3 (UUID: GPU-5e63f164-bb6d-ca5b-2855-e3434498f5c5)
+GPU 7: NVIDIA H100 80GB HBM3 (UUID: GPU-f5eef0b6-3af0-a04a-7d9a-5bbd9fe6746f)
+JAX devices: [CudaDevice(id=0), CudaDevice(id=1), CudaDevice(id=2), CudaDevice(id=3), CudaDevice(id=4), CudaDevice(id=5), CudaDevice(id=6), CudaDevice(id=7)]
+[model] checkpoint: GenCast 1p0deg Mini <2019.npz
+[model] stats: diffs_stddev_by_level.nc
+[model] stats: mean_by_level.nc
+[model] stats: stddev_by_level.nc
+[model] stats: min_by_level.nc
+[model] statics (orography + land-sea mask)
+[clim] saved CONUS 1990-2019 climatology -> clim_1990_2019_t2m_conus.nc
+[model] done
+[truth] PNW_HeatDome_2021: mean=+0.72K max=+9.87K -> PNW_HeatDome_2021_verif_t2m_anom.nc
+[inputs week2] PNW_HeatDome_2021: init=peak-14d -> PNW_HeatDome_2021_gencast_inputs.nc
+[model] GenCast loaded on 8 device(s); ensemble=8 (1 wave(s) of 8). task pressure levels: 13
+=== week2: lead 14d, 28 steps, 8 members ===
+PNW_HeatDome_2021 [week2] init=peak-14d ...
+  grid-node input channels = 2640 (inputs 176 + targets 2352 + forcings 112)
+  saved PNW_HeatDome_2021_gencast_verif_t2m_anom_members.nc  members=8 spread=1.158K
+[pdf week2] wrote 1 + combined -> /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/week2/figures/pdf
