@@ -90,6 +90,12 @@ CONUS cube per event and resolution:
 - `runs/xres/<res>/week2/cache/<event>_cube.nc` — full `(member, time, level, lat, lon)` cube.
 - `runs/xres/<res>/week2/verif/<event>_<metric>_members.nc` — derived per-member metric fields.
 
+This experiment is week-2 only (`14`-day lead) and uses the full `<2019` checkpoints at both
+native grids:
+
+- **`0p25`**: `GenCast 0p25deg <2019.npz>`
+- **`1p0`**: `GenCast 1p0deg <2019.npz>`
+
 High-level stages:
 
 - **prep**: download both checkpoints + shared stats/statics/climatology; build ERA5 + HRRR
@@ -98,6 +104,26 @@ High-level stages:
   verification fields for each event (logs live under `logs/xres_*.log`).
 - **compare**: build cross-resolution maps and combined PDFs from both resolutions + ERA5/HRRR
   truth (CPU).
+
+### GPU / VRAM requirements
+
+The two checkpoints have very different memory footprints on GPU:
+
+- **1.0° model**: the lighter configuration. This is the practical path on Derecho and is run
+  with `4x A100-40GB` GPUs (`pbs/xres_res1p0_week2.pbs` uses `ngpus=4`).
+- **0.25° model**: much heavier. The current PBS notes and job script show a peak of roughly
+  **`~50 GiB` VRAM per ensemble member**, so it does **not** fit in the normal multi-GPU
+  `pmap` path on Derecho's `40 GB` A100s.
+
+Because of that, the 0.25° run on Derecho uses a fallback configuration:
+
+- single visible GPU (`CUDA_VISIBLE_DEVICES=0`)
+- serial rollout (`XRES_SERIAL_INFER=1`)
+- bfloat16 casting (`XRES_BF16=1`) to reduce pressure
+
+In short: for this repo's current Derecho setup, assume **1.0° fits on 40 GB A100s**, while
+**0.25° wants about 50 GiB per member** and therefore must be run in the reduced-memory serial
+mode rather than standard parallel `pmap`.
 
 CLI entry point:
 
@@ -116,7 +142,9 @@ python run_xres.py --stage compare
 On Derecho, the same flow can be submitted via the PBS job files in `pbs/`
 (`xres_prep.pbs`, `xres_res0p25_week2.pbs`, `xres_res1p0_week2.pbs`, `xres_compare.pbs`),
 which simply wrap these `run_xres.py` stages with the cluster-specific queue and resource
-requests.
+requests. In particular, `pbs/xres_res0p25_week2.pbs` is configured for the serial,
+memory-constrained 0.25° path, while `pbs/xres_res1p0_week2.pbs` uses the standard multi-GPU
+1.0° path.
 
 ## Outputs
 

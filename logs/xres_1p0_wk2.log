@@ -571,3 +571,10 @@ PolarVortex_2019 [1p0 week2] init=peak-14d ...
   num_target_steps = targets_template.dims["time"]
 /glade/derecho/scratch/exu/S2S_ExtremeWeather/third_party/graphcast/graphcast/rollout.py:435: FutureWarning: The return type of `Dataset.dims` will be changed to return a set of dimension names in future, in order to be more consistent with `DataArray.dims`. To access a mapping from dimension names to lengths, please use `Dataset.sizes`.
   num_inputs = prev_inputs.dims["time"]
+  saved cube PolarVortex_2019_cube.nc  members=24 steps=28 vars=12 size=267MB
+    verif [t2m_anom]: members=24 mean=-1.51 -> PolarVortex_2019_t2m_anom_members.nc
+WinterStorm_Elliott_2022 [1p0 week2] init=peak-14d ...
+/glade/derecho/scratch/exu/S2S_ExtremeWeather/third_party/graphcast/graphcast/rollout.py:328: FutureWarning: The return type of `Dataset.dims` will be changed to return a set of dimension names in future, in order to be more consistent with `DataArray.dims`. To access a mapping from dimension names to lengths, please use `Dataset.sizes`.
+  num_target_steps = targets_template.dims["time"]
+/glade/derecho/scratch/exu/S2S_ExtremeWeather/third_party/graphcast/graphcast/rollout.py:435: FutureWarning: The return type of `Dataset.dims` will be changed to return a set of dimension names in future, in order to be more consistent with `DataArray.dims`. To access a mapping from dimension names to lengths, please use `Dataset.sizes`.
+  num_inputs = prev_inputs.dims["time"]

@@ -1176,3 +1176,25 @@ I0707 00:48:28.995670 22752513238848 rollout.py:361] Chunk 0/28
 /glade/work/exu/conda-envs/my-env/lib/python3.10/site-packages/scipy/sparse/_index.py:210: SparseEfficiencyWarning: Changing the sparsity structure of a csr_matrix is expensive. lil and dok are more efficient.
   self._set_arrayXarray(i, j, x)
 I0707 00:53:28.168619 22752513238848 sparse_transformer.py:507] mask_block_size: 10273.
+/glade/derecho/scratch/exu/S2S_ExtremeWeather/third_party/graphcast/graphcast/rollout.py:435: FutureWarning: The return type of `Dataset.dims` will be changed to return a set of dimension names in future, in order to be more consistent with `DataArray.dims`. To access a mapping from dimension names to lengths, please use `Dataset.sizes`.
+  num_inputs = prev_inputs.dims["time"]
+  [0p25] PNW_HeatDome_2021: step 1/28  member 1/24  (chunk 1/672)
+I0707 00:59:45.550688 22752513238848 rollout.py:361] Chunk 1/28
+  [0p25] PNW_HeatDome_2021: step 2/28  member 1/24  (chunk 2/672)
+I0707 01:01:05.099679 22752513238848 rollout.py:361] Chunk 2/28
+  [0p25] PNW_HeatDome_2021: step 3/28  member 1/24  (chunk 3/672)
+I0707 01:02:25.078269 22752513238848 rollout.py:361] Chunk 3/28
+  [0p25] PNW_HeatDome_2021: step 4/28  member 1/24  (chunk 4/672)
+I0707 01:03:45.068081 22752513238848 rollout.py:361] Chunk 4/28
+  [0p25] PNW_HeatDome_2021: step 5/28  member 1/24  (chunk 5/672)
+I0707 01:05:05.052574 22752513238848 rollout.py:361] Chunk 5/28
+  [0p25] PNW_HeatDome_2021: step 6/28  member 1/24  (chunk 6/672)
+I0707 01:06:25.022189 22752513238848 rollout.py:361] Chunk 6/28
+  [0p25] PNW_HeatDome_2021: step 7/28  member 1/24  (chunk 7/672)
+I0707 01:07:44.993081 22752513238848 rollout.py:361] Chunk 7/28
+  [0p25] PNW_HeatDome_2021: step 8/28  member 1/24  (chunk 8/672)
+I0707 01:09:04.957832 22752513238848 rollout.py:361] Chunk 8/28
+  [0p25] PNW_HeatDome_2021: step 9/28  member 1/24  (chunk 9/672)
+I0707 01:10:24.947978 22752513238848 rollout.py:361] Chunk 9/28
+  [0p25] PNW_HeatDome_2021: step 10/28  member 1/24  (chunk 10/672)
+I0707 01:11:44.927326 22752513238848 rollout.py:361] Chunk 10/28
