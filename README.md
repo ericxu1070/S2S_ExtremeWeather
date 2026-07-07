@@ -1,11 +1,12 @@
-# GenCast S2S extreme-weather ensemble — batch pipeline (8×H100 / Slurm)
+# GenCast S2S extreme-weather ensemble — batch pipeline (8×H100 / Slurm, Derecho PBS)
 
 Batch port of `gencast_extreme_events_ensemble.ipynb`. For each out-of-sample extreme
 event we initialize GenCast (1.0° "Mini" diffusion checkpoint, `<2019`) some weeks before
 the event's peak and ask whether the forecast **distribution** over the verification week
 captures the observed extreme. The deterministic Google-Drive/Colab path is gone:
 everything is pulled to local NFS and organized into folders, and the ensemble runs across
-all 8 H100s of one `a3mega` node.
+all 8 H100s of one `a3mega` node. On NCAR Derecho, the same pipeline and an extended
+cross-resolution experiment (`xres/`) can be driven via PBS job files under `pbs/`.
 
 ## Three experiments (forecast horizon)
 
@@ -34,8 +35,10 @@ S2S_ExtremeWeather/
 │   ├── hrrr.py            # HRRR observed overlay truth (week-mean T2m anomaly, offline)
 │   └── combined_pdfs.py   # the three weeks-2/3/4 overlay PDFs at the project root
 ├── run_experiment.py      # CLI: --weeks {2,3,4} --stage {prep,infer,plot,combined,all}
+├── run_xres.py            # CLI: --stage {prep,infer,compare,all} for cross-resolution
 ├── setup_env.sh           # one-time install into the `moe` conda env
 ├── slurm/                 # gencast_week{2,3,4}.slurm + gencast_smoke.slurm
+├── pbs/                   # Derecho PBS drivers for xres prep/infer/compare + logs
 ├── third_party/graphcast/ # graphcast source (cloned by setup_env.sh)
 ├── logs/                  # slurm stdout/stderr
 └── runs/                  # all outputs (created at runtime)
@@ -50,7 +53,7 @@ S2S_ExtremeWeather/
         └── figures/{pdf,maps,scores}/
 ```
 
-## Run it
+## Run it (original week-2/3/4 pipeline)
 
 ```bash
 # 0) one-time, on the login node (has internet):
@@ -75,6 +78,45 @@ Each `*.slurm` runs `--stage all` (prep → infer → plot). `prep` is cache-awa
 already ran step 1 on the login node it is instant; if the compute node has internet it
 self-heals. The three jobs are independent and can run on the 8 idle `a3mega` nodes at once;
 writes to shared files (checkpoint, truth) are atomic.
+
+## Cross-resolution experiment (0.25° vs 1.0°, week-2 only)
+
+The `xres/` package and `run_xres.py` add a second experiment that compares GenCast skill at
+0.25° and 1.0° resolution over the same set of events and verification metrics (T2m anomaly,
+U850 wind, precip). Unlike the original pipeline (which keeps only the verification-week
+T2m field), `xres` rolls the full ensemble for all target variables and caches the complete
+CONUS cube per event and resolution:
+
+- `runs/xres/<res>/week2/cache/<event>_cube.nc` — full `(member, time, level, lat, lon)` cube.
+- `runs/xres/<res>/week2/verif/<event>_<metric>_members.nc` — derived per-member metric fields.
+
+High-level stages:
+
+- **prep**: download both checkpoints + shared stats/statics/climatology; build ERA5 + HRRR
+  observed truth for all metrics; build per-resolution init frames at the model-native grid.
+- **infer**: run one resolution's ensemble on a GPU node, caching the full cube and per-member
+  verification fields for each event (logs live under `logs/xres_*.log`).
+- **compare**: build cross-resolution maps and combined PDFs from both resolutions + ERA5/HRRR
+  truth (CPU).
+
+CLI entry point:
+
+```bash
+# 0) login node (CPU, internet): prep both resolutions
+python run_xres.py --stage prep
+
+# 1) GPU nodes (one PBS job per resolution; week-2 only)
+python run_xres.py --stage infer --res 0p25
+python run_xres.py --stage infer --res 1p0
+
+# 2) after both infer stages finish (login node, CPU)
+python run_xres.py --stage compare
+```
+
+On Derecho, the same flow can be submitted via the PBS job files in `pbs/`
+(`xres_prep.pbs`, `xres_res0p25_week2.pbs`, `xres_res1p0_week2.pbs`, `xres_compare.pbs`),
+which simply wrap these `run_xres.py` stages with the cluster-specific queue and resource
+requests.
 
 ## Outputs
 
