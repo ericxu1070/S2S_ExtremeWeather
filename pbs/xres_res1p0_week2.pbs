@@ -1,0 +1,33 @@
+#!/bin/bash
+#PBS -N xres_1p0_wk2
+#PBS -A UCSC0009
+#PBS -q main
+#PBS -l job_priority=regular
+#PBS -l select=1:ncpus=64:ngpus=4
+#PBS -l walltime=06:00:00
+#PBS -j oe
+#PBS -o /glade/derecho/scratch/exu/S2S_ExtremeWeather/logs/xres_1p0_wk2.log
+
+set -eo pipefail
+
+module load conda
+conda activate my-env
+
+SITE=$(python -c "import site; print(site.getsitepackages()[0])")
+export LD_LIBRARY_PATH="$(echo "$SITE"/nvidia/*/lib | tr ' ' ':')${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
+
+export XLA_PYTHON_CLIENT_PREALLOCATE=false
+export XLA_PYTHON_CLIENT_MEM_FRACTION=.95
+export PYTHONUNBUFFERED=1
+export JAX_CAPTURED_CONSTANTS_WARN_BYTES=-1
+
+cd /glade/derecho/scratch/exu/S2S_ExtremeWeather
+
+echo "Host: $(hostname)"; echo "Start: $(date)"
+nvidia-smi -L || true
+python -c "import jax; print('JAX devices:', jax.devices())"
+
+python run_xres.py --stage prep  --res 1p0
+python run_xres.py --stage infer --res 1p0
+
+echo "End: $(date)"

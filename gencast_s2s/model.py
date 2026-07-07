@@ -7,6 +7,7 @@ loops the waves, so the member count must be a multiple of the device count.
 """
 from __future__ import annotations
 
+import os
 import dataclasses
 import functools
 
@@ -15,7 +16,7 @@ import haiku as hk
 import xarray as xr
 
 from graphcast import (checkpoint, normalization, xarray_jax,
-                       gencast, nan_cleaning)
+                       gencast, nan_cleaning, casting)
 
 from . import config as C
 
@@ -70,7 +71,13 @@ def load_gencast(n_members: int | None = None, params_file: str | None = None,
     ``GenCast 0p25deg <2019.npz`` checkpoints here. The GPU attention swap below is applied
     identically regardless of checkpoint."""
     cfg = C.model_cfg("gencast", res=res, params_file=params_file)
-    devices = jax.local_devices()
+    devices = list(jax.local_devices())
+    n_cap = os.environ.get("XRES_INFER_GPUS")
+    if n_cap is not None:
+        n_cap = int(n_cap)
+        if 0 < n_cap < len(devices):
+            devices = devices[:n_cap]
+            print(f"[model] limiting JAX to {n_cap} GPU(s) via XRES_INFER_GPUS")
     n_dev = len(devices)
     requested = C.N_MEMBERS if n_members is None else n_members
     n_members = n_members_for_devices(requested, n_dev)
@@ -97,6 +104,10 @@ def load_gencast(n_members: int | None = None, params_file: str | None = None,
                             denoiser_architecture_config=darch,
                             noise_config=ckpt.noise_config,
                             noise_encoder_config=ckpt.noise_encoder_config)
+        # Optional memory-reduction: cast inputs/activations to bfloat16.
+        # This may reduce GPU VRAM pressure for the 0.25° model on smaller cards.
+        if os.environ.get("XRES_BF16") == "1":
+            p = casting.Bfloat16Cast(p)
         p = normalization.InputsAndResiduals(
                 p, diffs_stddev_by_level=st["diffs_stddev_by_level"],
                 mean_by_level=st["mean_by_level"], stddev_by_level=st["stddev_by_level"])
@@ -110,9 +121,16 @@ def load_gencast(n_members: int | None = None, params_file: str | None = None,
         return _wrap()(inputs, targets_template=targets_template, forcings=forcings)
 
     jitted = _drop_state(_with_params(jax.jit(_forward.apply), params, state))
-    pmapped = xarray_jax.pmap(jitted, dim="sample")
-
-    print(f"[model] GenCast loaded on {n_dev} device(s); ensemble={n_members} "
-          f"({n_members // n_dev} wave(s) of {n_dev}). "
-          f"task pressure levels: {len(task.pressure_levels)}")
-    return dict(forward=pmapped, task_config=task, n_members=n_members, devices=devices)
+    serial = os.environ.get("XRES_SERIAL_INFER") == "1"
+    if serial:
+        forward = jitted
+        print(f"[model] serial infer on {n_dev} device(s); ensemble={n_members} "
+              f"({n_members} sample(s), one at a time). "
+              f"task pressure levels: {len(task.pressure_levels)}")
+    else:
+        forward = xarray_jax.pmap(jitted, dim="sample")
+        print(f"[model] GenCast loaded on {n_dev} device(s); ensemble={n_members} "
+              f"({n_members // n_dev} wave(s) of {n_dev}). "
+              f"task pressure levels: {len(task.pressure_levels)}")
+    return dict(forward=forward, forward_jit=jitted, task_config=task,
+                n_members=n_members, devices=devices, serial=serial)

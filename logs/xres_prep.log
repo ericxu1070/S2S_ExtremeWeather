@@ -1,0 +1,238 @@
+Host: dec2441
+Start: Mon Jul  6 05:02:33 PM MDT 2026
+/glade/work/exu/conda-envs/my-env/lib/python3.10/site-packages/google/api_core/_python_version_support.py:255: FutureWarning: You are using a Python version (3.10.20) which Google will stop supporting in new releases of google.api_core once it reaches its end of life (2026-10-04). Please upgrade to the latest Python version, or at least Python 3.11, to continue receiving updates for google.api_core past that date.
+  warnings.warn(message, FutureWarning)
+/glade/work/exu/conda-envs/my-env/lib/python3.10/site-packages/google/api_core/_python_version_support.py:255: FutureWarning: You are using a Python version (3.10.20) which Google will stop supporting in new releases of google.cloud._storage_v2 once it reaches its end of life (2026-10-04). Please upgrade to the latest Python version, or at least Python 3.11, to continue receiving updates for google.cloud._storage_v2 past that date.
+  warnings.warn(message, FutureWarning)
+/glade/work/exu/conda-envs/my-env/lib/python3.10/site-packages/google/api_core/_python_version_support.py:255: FutureWarning: You are using a Python version (3.10.20) which Google will stop supporting in new releases of google.cloud.storage_control_v2 once it reaches its end of life (2026-10-04). Please upgrade to the latest Python version, or at least Python 3.11, to continue receiving updates for google.cloud.storage_control_v2 past that date.
+  warnings.warn(message, FutureWarning)
+/var/spool/pbs/mom_priv/jobs/6651105.desched1.SC: line 19: 149018 Killed                  python run_xres.py --stage prep
+Cgroup mem limit exceeded: oom-kill:constraint=CONSTRAINT_MEMCG,nodemask=(null),cpuset=6651105.desched1,mems_allowed=0-7,oom_memcg=/pbs_jobs.service/jobid/6651105.desched1,task_memcg=/pbs_jobs.service/jobid/6651105.desched1,task=python,pid=149018,uid=49429
+
+Host: dec2441
+Start: Mon Jul  6 07:25:10 PM MDT 2026
+/glade/work/exu/conda-envs/my-env/lib/python3.10/site-packages/google/api_core/_python_version_support.py:255: FutureWarning: You are using a Python version (3.10.20) which Google will stop supporting in new releases of google.api_core once it reaches its end of life (2026-10-04). Please upgrade to the latest Python version, or at least Python 3.11, to continue receiving updates for google.api_core past that date.
+  warnings.warn(message, FutureWarning)
+/glade/work/exu/conda-envs/my-env/lib/python3.10/site-packages/google/api_core/_python_version_support.py:255: FutureWarning: You are using a Python version (3.10.20) which Google will stop supporting in new releases of google.cloud._storage_v2 once it reaches its end of life (2026-10-04). Please upgrade to the latest Python version, or at least Python 3.11, to continue receiving updates for google.cloud._storage_v2 past that date.
+  warnings.warn(message, FutureWarning)
+/glade/work/exu/conda-envs/my-env/lib/python3.10/site-packages/google/api_core/_python_version_support.py:255: FutureWarning: You are using a Python version (3.10.20) which Google will stop supporting in new releases of google.cloud.storage_control_v2 once it reaches its end of life (2026-10-04). Please upgrade to the latest Python version, or at least Python 3.11, to continue receiving updates for google.cloud.storage_control_v2 past that date.
+  warnings.warn(message, FutureWarning)
+/var/spool/pbs/mom_priv/jobs/6652181.desched1.SC: line 19: 213322 Killed                  python run_xres.py --stage prep
+Cgroup mem limit exceeded: oom-kill:constraint=CONSTRAINT_MEMCG,nodemask=(null),cpuset=6652181.desched1,mems_allowed=0-7,oom_memcg=/pbs_jobs.service/jobid/6652181.desched1,task_memcg=/pbs_jobs.service/jobid/6652181.desched1,task=python,pid=213322,uid=49429
+
+Host: dec2451
+Start: Mon Jul  6 07:41:47 PM MDT 2026
+/glade/work/exu/conda-envs/my-env/lib/python3.10/site-packages/google/api_core/_python_version_support.py:255: FutureWarning: You are using a Python version (3.10.20) which Google will stop supporting in new releases of google.api_core once it reaches its end of life (2026-10-04). Please upgrade to the latest Python version, or at least Python 3.11, to continue receiving updates for google.api_core past that date.
+  warnings.warn(message, FutureWarning)
+/glade/work/exu/conda-envs/my-env/lib/python3.10/site-packages/google/api_core/_python_version_support.py:255: FutureWarning: You are using a Python version (3.10.20) which Google will stop supporting in new releases of google.cloud._storage_v2 once it reaches its end of life (2026-10-04). Please upgrade to the latest Python version, or at least Python 3.11, to continue receiving updates for google.cloud._storage_v2 past that date.
+  warnings.warn(message, FutureWarning)
+/glade/work/exu/conda-envs/my-env/lib/python3.10/site-packages/google/api_core/_python_version_support.py:255: FutureWarning: You are using a Python version (3.10.20) which Google will stop supporting in new releases of google.cloud.storage_control_v2 once it reaches its end of life (2026-10-04). Please upgrade to the latest Python version, or at least Python 3.11, to continue receiving updates for google.cloud.storage_control_v2 past that date.
+  warnings.warn(message, FutureWarning)
+[model] checkpoint (0p25): GenCast 0p25deg <2019.npz
+[model] checkpoint (1p0): GenCast 1p0deg <2019.npz
+[model] stats: diffs_stddev_by_level.nc
+[model] stats: mean_by_level.nc
+[model] stats: stddev_by_level.nc
+[model] stats: min_by_level.nc
+[model] statics (orography + land-sea mask)
+[model] statics cached: statics.nc
+[clim] cached: clim_1990_2019_t2m_conus.nc
+[model] done
+[era5-truth] cached: PNW_HeatDome_2021_verif_t2m_anom.nc
+[era5-truth] cached: Southwest_HeatWave_2020_verif_t2m_anom.nc
+[era5-truth] cached: California_HeatWave_2022_verif_t2m_anom.nc
+[era5-truth] cached: WinterStorm_Uri_2021_verif_t2m_anom.nc
+[era5-truth] cached: PolarVortex_2019_verif_t2m_anom.nc
+[era5-truth] cached: WinterStorm_Elliott_2022_verif_t2m_anom.nc
+[era5-truth] cached: HurricaneIda_2021_verif_u850_speed.nc
+[era5-truth] cached: HurricaneIda_2021_verif_u850_speed_max.nc
+[era5-truth] cached: HurricaneIan_2022_verif_u850_speed.nc
+[era5-truth] cached: HurricaneIan_2022_verif_u850_speed_max.nc
+/var/spool/pbs/mom_priv/jobs/6652312.desched1.SC: line 21: 123903 Killed                  python run_xres.py --stage prep
+Cgroup mem limit exceeded: oom-kill:constraint=CONSTRAINT_MEMCG,nodemask=(null),cpuset=6652312.desched1,mems_allowed=0-7,oom_memcg=/pbs_jobs.service/jobid/6652312.desched1,task_memcg=/pbs_jobs.service/jobid/6652312.desched1,task=python,pid=123903,uid=49429
+
+Host: dec2441
+Start: Mon Jul  6 08:07:47 PM MDT 2026
+/glade/work/exu/conda-envs/my-env/lib/python3.10/site-packages/google/api_core/_python_version_support.py:255: FutureWarning: You are using a Python version (3.10.20) which Google will stop supporting in new releases of google.api_core once it reaches its end of life (2026-10-04). Please upgrade to the latest Python version, or at least Python 3.11, to continue receiving updates for google.api_core past that date.
+  warnings.warn(message, FutureWarning)
+/glade/work/exu/conda-envs/my-env/lib/python3.10/site-packages/google/api_core/_python_version_support.py:255: FutureWarning: You are using a Python version (3.10.20) which Google will stop supporting in new releases of google.cloud._storage_v2 once it reaches its end of life (2026-10-04). Please upgrade to the latest Python version, or at least Python 3.11, to continue receiving updates for google.cloud._storage_v2 past that date.
+  warnings.warn(message, FutureWarning)
+/glade/work/exu/conda-envs/my-env/lib/python3.10/site-packages/google/api_core/_python_version_support.py:255: FutureWarning: You are using a Python version (3.10.20) which Google will stop supporting in new releases of google.cloud.storage_control_v2 once it reaches its end of life (2026-10-04). Please upgrade to the latest Python version, or at least Python 3.11, to continue receiving updates for google.cloud.storage_control_v2 past that date.
+  warnings.warn(message, FutureWarning)
+[model] checkpoint (0p25): GenCast 0p25deg <2019.npz
+[model] checkpoint (1p0): GenCast 1p0deg <2019.npz
+[model] stats: diffs_stddev_by_level.nc
+[model] stats: mean_by_level.nc
+[model] stats: stddev_by_level.nc
+[model] stats: min_by_level.nc
+[model] statics (orography + land-sea mask)
+[model] statics cached: statics.nc
+[clim] cached: clim_1990_2019_t2m_conus.nc
+[model] done
+[prep] subprocess event=PNW_HeatDome_2021
+/glade/work/exu/conda-envs/my-env/lib/python3.10/site-packages/google/api_core/_python_version_support.py:255: FutureWarning: You are using a Python version (3.10.20) which Google will stop supporting in new releases of google.api_core once it reaches its end of life (2026-10-04). Please upgrade to the latest Python version, or at least Python 3.11, to continue receiving updates for google.api_core past that date.
+  warnings.warn(message, FutureWarning)
+/glade/work/exu/conda-envs/my-env/lib/python3.10/site-packages/google/api_core/_python_version_support.py:255: FutureWarning: You are using a Python version (3.10.20) which Google will stop supporting in new releases of google.cloud._storage_v2 once it reaches its end of life (2026-10-04). Please upgrade to the latest Python version, or at least Python 3.11, to continue receiving updates for google.cloud._storage_v2 past that date.
+  warnings.warn(message, FutureWarning)
+/glade/work/exu/conda-envs/my-env/lib/python3.10/site-packages/google/api_core/_python_version_support.py:255: FutureWarning: You are using a Python version (3.10.20) which Google will stop supporting in new releases of google.cloud.storage_control_v2 once it reaches its end of life (2026-10-04). Please upgrade to the latest Python version, or at least Python 3.11, to continue receiving updates for google.cloud.storage_control_v2 past that date.
+  warnings.warn(message, FutureWarning)
+[era5-truth] cached: PNW_HeatDome_2021_verif_t2m_anom.nc
+[hrrr-truth] shard archive not found at /glade/u/home/exu/Vayuh/data/moein/hrrr_work/shards_v1; skipping HRRR
+[inputs 0p25 week2] PNW_HeatDome_2021: init=peak-14d -> PNW_HeatDome_2021_inputs.nc
+[inputs 1p0 week2] PNW_HeatDome_2021: init=peak-14d -> PNW_HeatDome_2021_inputs.nc
+[prep] subprocess event=Southwest_HeatWave_2020
+/glade/work/exu/conda-envs/my-env/lib/python3.10/site-packages/google/api_core/_python_version_support.py:255: FutureWarning: You are using a Python version (3.10.20) which Google will stop supporting in new releases of google.api_core once it reaches its end of life (2026-10-04). Please upgrade to the latest Python version, or at least Python 3.11, to continue receiving updates for google.api_core past that date.
+  warnings.warn(message, FutureWarning)
+/glade/work/exu/conda-envs/my-env/lib/python3.10/site-packages/google/api_core/_python_version_support.py:255: FutureWarning: You are using a Python version (3.10.20) which Google will stop supporting in new releases of google.cloud._storage_v2 once it reaches its end of life (2026-10-04). Please upgrade to the latest Python version, or at least Python 3.11, to continue receiving updates for google.cloud._storage_v2 past that date.
+  warnings.warn(message, FutureWarning)
+/glade/work/exu/conda-envs/my-env/lib/python3.10/site-packages/google/api_core/_python_version_support.py:255: FutureWarning: You are using a Python version (3.10.20) which Google will stop supporting in new releases of google.cloud.storage_control_v2 once it reaches its end of life (2026-10-04). Please upgrade to the latest Python version, or at least Python 3.11, to continue receiving updates for google.cloud.storage_control_v2 past that date.
+  warnings.warn(message, FutureWarning)
+[era5-truth] cached: Southwest_HeatWave_2020_verif_t2m_anom.nc
+[hrrr-truth] shard archive not found at /glade/u/home/exu/Vayuh/data/moein/hrrr_work/shards_v1; skipping HRRR
+[inputs 0p25 week2] Southwest_HeatWave_2020: init=peak-14d -> Southwest_HeatWave_2020_inputs.nc
+[inputs 1p0 week2] Southwest_HeatWave_2020: init=peak-14d -> Southwest_HeatWave_2020_inputs.nc
+[prep] subprocess event=California_HeatWave_2022
+/glade/work/exu/conda-envs/my-env/lib/python3.10/site-packages/google/api_core/_python_version_support.py:255: FutureWarning: You are using a Python version (3.10.20) which Google will stop supporting in new releases of google.api_core once it reaches its end of life (2026-10-04). Please upgrade to the latest Python version, or at least Python 3.11, to continue receiving updates for google.api_core past that date.
+  warnings.warn(message, FutureWarning)
+/glade/work/exu/conda-envs/my-env/lib/python3.10/site-packages/google/api_core/_python_version_support.py:255: FutureWarning: You are using a Python version (3.10.20) which Google will stop supporting in new releases of google.cloud._storage_v2 once it reaches its end of life (2026-10-04). Please upgrade to the latest Python version, or at least Python 3.11, to continue receiving updates for google.cloud._storage_v2 past that date.
+  warnings.warn(message, FutureWarning)
+/glade/work/exu/conda-envs/my-env/lib/python3.10/site-packages/google/api_core/_python_version_support.py:255: FutureWarning: You are using a Python version (3.10.20) which Google will stop supporting in new releases of google.cloud.storage_control_v2 once it reaches its end of life (2026-10-04). Please upgrade to the latest Python version, or at least Python 3.11, to continue receiving updates for google.cloud.storage_control_v2 past that date.
+  warnings.warn(message, FutureWarning)
+[era5-truth] cached: California_HeatWave_2022_verif_t2m_anom.nc
+[hrrr-truth] shard archive not found at /glade/u/home/exu/Vayuh/data/moein/hrrr_work/shards_v1; skipping HRRR
+[inputs 0p25 week2] California_HeatWave_2022: init=peak-14d -> California_HeatWave_2022_inputs.nc
+[inputs 1p0 week2] California_HeatWave_2022: init=peak-14d -> California_HeatWave_2022_inputs.nc
+[prep] subprocess event=WinterStorm_Uri_2021
+/glade/work/exu/conda-envs/my-env/lib/python3.10/site-packages/google/api_core/_python_version_support.py:255: FutureWarning: You are using a Python version (3.10.20) which Google will stop supporting in new releases of google.api_core once it reaches its end of life (2026-10-04). Please upgrade to the latest Python version, or at least Python 3.11, to continue receiving updates for google.api_core past that date.
+  warnings.warn(message, FutureWarning)
+/glade/work/exu/conda-envs/my-env/lib/python3.10/site-packages/google/api_core/_python_version_support.py:255: FutureWarning: You are using a Python version (3.10.20) which Google will stop supporting in new releases of google.cloud._storage_v2 once it reaches its end of life (2026-10-04). Please upgrade to the latest Python version, or at least Python 3.11, to continue receiving updates for google.cloud._storage_v2 past that date.
+  warnings.warn(message, FutureWarning)
+/glade/work/exu/conda-envs/my-env/lib/python3.10/site-packages/google/api_core/_python_version_support.py:255: FutureWarning: You are using a Python version (3.10.20) which Google will stop supporting in new releases of google.cloud.storage_control_v2 once it reaches its end of life (2026-10-04). Please upgrade to the latest Python version, or at least Python 3.11, to continue receiving updates for google.cloud.storage_control_v2 past that date.
+  warnings.warn(message, FutureWarning)
+[era5-truth] cached: WinterStorm_Uri_2021_verif_t2m_anom.nc
+[hrrr-truth] shard archive not found at /glade/u/home/exu/Vayuh/data/moein/hrrr_work/shards_v1; skipping HRRR
+[inputs 0p25 week2] WinterStorm_Uri_2021: init=peak-14d -> WinterStorm_Uri_2021_inputs.nc
+[inputs 1p0 week2] WinterStorm_Uri_2021: init=peak-14d -> WinterStorm_Uri_2021_inputs.nc
+[prep] subprocess event=PolarVortex_2019
+/glade/work/exu/conda-envs/my-env/lib/python3.10/site-packages/google/api_core/_python_version_support.py:255: FutureWarning: You are using a Python version (3.10.20) which Google will stop supporting in new releases of google.api_core once it reaches its end of life (2026-10-04). Please upgrade to the latest Python version, or at least Python 3.11, to continue receiving updates for google.api_core past that date.
+  warnings.warn(message, FutureWarning)
+/glade/work/exu/conda-envs/my-env/lib/python3.10/site-packages/google/api_core/_python_version_support.py:255: FutureWarning: You are using a Python version (3.10.20) which Google will stop supporting in new releases of google.cloud._storage_v2 once it reaches its end of life (2026-10-04). Please upgrade to the latest Python version, or at least Python 3.11, to continue receiving updates for google.cloud._storage_v2 past that date.
+  warnings.warn(message, FutureWarning)
+/glade/work/exu/conda-envs/my-env/lib/python3.10/site-packages/google/api_core/_python_version_support.py:255: FutureWarning: You are using a Python version (3.10.20) which Google will stop supporting in new releases of google.cloud.storage_control_v2 once it reaches its end of life (2026-10-04). Please upgrade to the latest Python version, or at least Python 3.11, to continue receiving updates for google.cloud.storage_control_v2 past that date.
+  warnings.warn(message, FutureWarning)
+[era5-truth] cached: PolarVortex_2019_verif_t2m_anom.nc
+[hrrr-truth] shard archive not found at /glade/u/home/exu/Vayuh/data/moein/hrrr_work/shards_v1; skipping HRRR
+[inputs 0p25 week2] PolarVortex_2019: init=peak-14d -> PolarVortex_2019_inputs.nc
+[inputs 1p0 week2] PolarVortex_2019: init=peak-14d -> PolarVortex_2019_inputs.nc
+[prep] subprocess event=WinterStorm_Elliott_2022
+/glade/work/exu/conda-envs/my-env/lib/python3.10/site-packages/google/api_core/_python_version_support.py:255: FutureWarning: You are using a Python version (3.10.20) which Google will stop supporting in new releases of google.api_core once it reaches its end of life (2026-10-04). Please upgrade to the latest Python version, or at least Python 3.11, to continue receiving updates for google.api_core past that date.
+  warnings.warn(message, FutureWarning)
+/glade/work/exu/conda-envs/my-env/lib/python3.10/site-packages/google/api_core/_python_version_support.py:255: FutureWarning: You are using a Python version (3.10.20) which Google will stop supporting in new releases of google.cloud._storage_v2 once it reaches its end of life (2026-10-04). Please upgrade to the latest Python version, or at least Python 3.11, to continue receiving updates for google.cloud._storage_v2 past that date.
+  warnings.warn(message, FutureWarning)
+/glade/work/exu/conda-envs/my-env/lib/python3.10/site-packages/google/api_core/_python_version_support.py:255: FutureWarning: You are using a Python version (3.10.20) which Google will stop supporting in new releases of google.cloud.storage_control_v2 once it reaches its end of life (2026-10-04). Please upgrade to the latest Python version, or at least Python 3.11, to continue receiving updates for google.cloud.storage_control_v2 past that date.
+  warnings.warn(message, FutureWarning)
+[era5-truth] cached: WinterStorm_Elliott_2022_verif_t2m_anom.nc
+[hrrr-truth] shard archive not found at /glade/u/home/exu/Vayuh/data/moein/hrrr_work/shards_v1; skipping HRRR
+[inputs 0p25 week2] WinterStorm_Elliott_2022: init=peak-14d -> WinterStorm_Elliott_2022_inputs.nc
+[inputs 1p0 week2] WinterStorm_Elliott_2022: init=peak-14d -> WinterStorm_Elliott_2022_inputs.nc
+[prep] subprocess event=HurricaneIda_2021
+/glade/work/exu/conda-envs/my-env/lib/python3.10/site-packages/google/api_core/_python_version_support.py:255: FutureWarning: You are using a Python version (3.10.20) which Google will stop supporting in new releases of google.api_core once it reaches its end of life (2026-10-04). Please upgrade to the latest Python version, or at least Python 3.11, to continue receiving updates for google.api_core past that date.
+  warnings.warn(message, FutureWarning)
+/glade/work/exu/conda-envs/my-env/lib/python3.10/site-packages/google/api_core/_python_version_support.py:255: FutureWarning: You are using a Python version (3.10.20) which Google will stop supporting in new releases of google.cloud._storage_v2 once it reaches its end of life (2026-10-04). Please upgrade to the latest Python version, or at least Python 3.11, to continue receiving updates for google.cloud._storage_v2 past that date.
+  warnings.warn(message, FutureWarning)
+/glade/work/exu/conda-envs/my-env/lib/python3.10/site-packages/google/api_core/_python_version_support.py:255: FutureWarning: You are using a Python version (3.10.20) which Google will stop supporting in new releases of google.cloud.storage_control_v2 once it reaches its end of life (2026-10-04). Please upgrade to the latest Python version, or at least Python 3.11, to continue receiving updates for google.cloud.storage_control_v2 past that date.
+  warnings.warn(message, FutureWarning)
+[era5-truth] cached: HurricaneIda_2021_verif_u850_speed.nc
+[era5-truth] cached: HurricaneIda_2021_verif_u850_speed_max.nc
+[hrrr-truth] shard archive not found at /glade/u/home/exu/Vayuh/data/moein/hrrr_work/shards_v1; skipping HRRR
+[inputs 0p25 week2] HurricaneIda_2021: init=peak-14d -> HurricaneIda_2021_inputs.nc
+[inputs 1p0 week2] HurricaneIda_2021: init=peak-14d -> HurricaneIda_2021_inputs.nc
+[prep] subprocess event=HurricaneIan_2022
+/glade/work/exu/conda-envs/my-env/lib/python3.10/site-packages/google/api_core/_python_version_support.py:255: FutureWarning: You are using a Python version (3.10.20) which Google will stop supporting in new releases of google.api_core once it reaches its end of life (2026-10-04). Please upgrade to the latest Python version, or at least Python 3.11, to continue receiving updates for google.api_core past that date.
+  warnings.warn(message, FutureWarning)
+/glade/work/exu/conda-envs/my-env/lib/python3.10/site-packages/google/api_core/_python_version_support.py:255: FutureWarning: You are using a Python version (3.10.20) which Google will stop supporting in new releases of google.cloud._storage_v2 once it reaches its end of life (2026-10-04). Please upgrade to the latest Python version, or at least Python 3.11, to continue receiving updates for google.cloud._storage_v2 past that date.
+  warnings.warn(message, FutureWarning)
+/glade/work/exu/conda-envs/my-env/lib/python3.10/site-packages/google/api_core/_python_version_support.py:255: FutureWarning: You are using a Python version (3.10.20) which Google will stop supporting in new releases of google.cloud.storage_control_v2 once it reaches its end of life (2026-10-04). Please upgrade to the latest Python version, or at least Python 3.11, to continue receiving updates for google.cloud.storage_control_v2 past that date.
+  warnings.warn(message, FutureWarning)
+[era5-truth] cached: HurricaneIan_2022_verif_u850_speed.nc
+[era5-truth] cached: HurricaneIan_2022_verif_u850_speed_max.nc
+[hrrr-truth] shard archive not found at /glade/u/home/exu/Vayuh/data/moein/hrrr_work/shards_v1; skipping HRRR
+[inputs 0p25 week2] HurricaneIan_2022: init=peak-14d -> HurricaneIan_2022_inputs.nc
+[inputs 1p0 week2] HurricaneIan_2022: init=peak-14d -> HurricaneIan_2022_inputs.nc
+[prep] subprocess event=HurricaneIdalia_2023
+/glade/work/exu/conda-envs/my-env/lib/python3.10/site-packages/google/api_core/_python_version_support.py:255: FutureWarning: You are using a Python version (3.10.20) which Google will stop supporting in new releases of google.api_core once it reaches its end of life (2026-10-04). Please upgrade to the latest Python version, or at least Python 3.11, to continue receiving updates for google.api_core past that date.
+  warnings.warn(message, FutureWarning)
+/glade/work/exu/conda-envs/my-env/lib/python3.10/site-packages/google/api_core/_python_version_support.py:255: FutureWarning: You are using a Python version (3.10.20) which Google will stop supporting in new releases of google.cloud._storage_v2 once it reaches its end of life (2026-10-04). Please upgrade to the latest Python version, or at least Python 3.11, to continue receiving updates for google.cloud._storage_v2 past that date.
+  warnings.warn(message, FutureWarning)
+/glade/work/exu/conda-envs/my-env/lib/python3.10/site-packages/google/api_core/_python_version_support.py:255: FutureWarning: You are using a Python version (3.10.20) which Google will stop supporting in new releases of google.cloud.storage_control_v2 once it reaches its end of life (2026-10-04). Please upgrade to the latest Python version, or at least Python 3.11, to continue receiving updates for google.cloud.storage_control_v2 past that date.
+  warnings.warn(message, FutureWarning)
+[era5-truth] cached: HurricaneIdalia_2023_verif_u850_speed.nc
+[era5-truth] cached: HurricaneIdalia_2023_verif_u850_speed_max.nc
+[hrrr-truth] shard archive not found at /glade/u/home/exu/Vayuh/data/moein/hrrr_work/shards_v1; skipping HRRR
+[inputs 0p25 week2] cached: HurricaneIdalia_2023_inputs.nc
+[inputs 1p0 week2] cached: HurricaneIdalia_2023_inputs.nc
+[prep] subprocess event=California_AR_Floods_2023
+/glade/work/exu/conda-envs/my-env/lib/python3.10/site-packages/google/api_core/_python_version_support.py:255: FutureWarning: You are using a Python version (3.10.20) which Google will stop supporting in new releases of google.api_core once it reaches its end of life (2026-10-04). Please upgrade to the latest Python version, or at least Python 3.11, to continue receiving updates for google.api_core past that date.
+  warnings.warn(message, FutureWarning)
+/glade/work/exu/conda-envs/my-env/lib/python3.10/site-packages/google/api_core/_python_version_support.py:255: FutureWarning: You are using a Python version (3.10.20) which Google will stop supporting in new releases of google.cloud._storage_v2 once it reaches its end of life (2026-10-04). Please upgrade to the latest Python version, or at least Python 3.11, to continue receiving updates for google.cloud._storage_v2 past that date.
+  warnings.warn(message, FutureWarning)
+/glade/work/exu/conda-envs/my-env/lib/python3.10/site-packages/google/api_core/_python_version_support.py:255: FutureWarning: You are using a Python version (3.10.20) which Google will stop supporting in new releases of google.cloud.storage_control_v2 once it reaches its end of life (2026-10-04). Please upgrade to the latest Python version, or at least Python 3.11, to continue receiving updates for google.cloud.storage_control_v2 past that date.
+  warnings.warn(message, FutureWarning)
+[era5-truth] California_AR_Floods_2023 [tp_total]: mean=+14 max=+259 -> California_AR_Floods_2023_verif_tp_total.nc
+[era5-truth] California_AR_Floods_2023 [tp_max12h]: mean=+6.63 max=+77.1 -> California_AR_Floods_2023_verif_tp_max12h.nc
+[hrrr-truth] shard archive not found at /glade/u/home/exu/Vayuh/data/moein/hrrr_work/shards_v1; skipping HRRR
+[inputs 0p25 week2] California_AR_Floods_2023: init=peak-14d -> California_AR_Floods_2023_inputs.nc
+[inputs 1p0 week2] California_AR_Floods_2023: init=peak-14d -> California_AR_Floods_2023_inputs.nc
+[prep] subprocess event=Kentucky_Floods_2022
+/glade/work/exu/conda-envs/my-env/lib/python3.10/site-packages/google/api_core/_python_version_support.py:255: FutureWarning: You are using a Python version (3.10.20) which Google will stop supporting in new releases of google.api_core once it reaches its end of life (2026-10-04). Please upgrade to the latest Python version, or at least Python 3.11, to continue receiving updates for google.api_core past that date.
+  warnings.warn(message, FutureWarning)
+/glade/work/exu/conda-envs/my-env/lib/python3.10/site-packages/google/api_core/_python_version_support.py:255: FutureWarning: You are using a Python version (3.10.20) which Google will stop supporting in new releases of google.cloud._storage_v2 once it reaches its end of life (2026-10-04). Please upgrade to the latest Python version, or at least Python 3.11, to continue receiving updates for google.cloud._storage_v2 past that date.
+  warnings.warn(message, FutureWarning)
+/glade/work/exu/conda-envs/my-env/lib/python3.10/site-packages/google/api_core/_python_version_support.py:255: FutureWarning: You are using a Python version (3.10.20) which Google will stop supporting in new releases of google.cloud.storage_control_v2 once it reaches its end of life (2026-10-04). Please upgrade to the latest Python version, or at least Python 3.11, to continue receiving updates for google.cloud.storage_control_v2 past that date.
+  warnings.warn(message, FutureWarning)
+[era5-truth] Kentucky_Floods_2022 [tp_total]: mean=+12.9 max=+128 -> Kentucky_Floods_2022_verif_tp_total.nc
+[era5-truth] Kentucky_Floods_2022 [tp_max12h]: mean=+6.61 max=+85.2 -> Kentucky_Floods_2022_verif_tp_max12h.nc
+[hrrr-truth] shard archive not found at /glade/u/home/exu/Vayuh/data/moein/hrrr_work/shards_v1; skipping HRRR
+[inputs 0p25 week2] Kentucky_Floods_2022: init=peak-14d -> Kentucky_Floods_2022_inputs.nc
+[inputs 1p0 week2] Kentucky_Floods_2022: init=peak-14d -> Kentucky_Floods_2022_inputs.nc
+[prep] subprocess event=Vermont_Floods_2023
+/glade/work/exu/conda-envs/my-env/lib/python3.10/site-packages/google/api_core/_python_version_support.py:255: FutureWarning: You are using a Python version (3.10.20) which Google will stop supporting in new releases of google.api_core once it reaches its end of life (2026-10-04). Please upgrade to the latest Python version, or at least Python 3.11, to continue receiving updates for google.api_core past that date.
+  warnings.warn(message, FutureWarning)
+/glade/work/exu/conda-envs/my-env/lib/python3.10/site-packages/google/api_core/_python_version_support.py:255: FutureWarning: You are using a Python version (3.10.20) which Google will stop supporting in new releases of google.cloud._storage_v2 once it reaches its end of life (2026-10-04). Please upgrade to the latest Python version, or at least Python 3.11, to continue receiving updates for google.cloud._storage_v2 past that date.
+  warnings.warn(message, FutureWarning)
+/glade/work/exu/conda-envs/my-env/lib/python3.10/site-packages/google/api_core/_python_version_support.py:255: FutureWarning: You are using a Python version (3.10.20) which Google will stop supporting in new releases of google.cloud.storage_control_v2 once it reaches its end of life (2026-10-04). Please upgrade to the latest Python version, or at least Python 3.11, to continue receiving updates for google.cloud.storage_control_v2 past that date.
+  warnings.warn(message, FutureWarning)
+[era5-truth] Vermont_Floods_2023 [tp_total]: mean=+13.5 max=+284 -> Vermont_Floods_2023_verif_tp_total.nc
+[era5-truth] Vermont_Floods_2023 [tp_max12h]: mean=+6.72 max=+138 -> Vermont_Floods_2023_verif_tp_max12h.nc
+[hrrr-truth] shard archive not found at /glade/u/home/exu/Vayuh/data/moein/hrrr_work/shards_v1; skipping HRRR
+   (using ARCO-ERA5: past WB2 coverage)
+[inputs 0p25 week2] Vermont_Floods_2023: init=peak-14d -> Vermont_Floods_2023_inputs.nc
+   (using ARCO-ERA5: past WB2 coverage)
+[inputs 1p0 week2] Vermont_Floods_2023: init=peak-14d -> Vermont_Floods_2023_inputs.nc
+End: Mon Jul  6 09:34:09 PM MDT 2026
+50
+runs/models/params/:
+total 439M
+-rw-r--r-- 1 exu ncar 220M Jul  6 16:55 GenCast 0p25deg <2019.npz
+-rw-r--r-- 1 exu ncar 220M Jul  6 16:55 GenCast 1p0deg <2019.npz
+
+runs/observations/:
+total 2.0M
+-rw-r--r-- 1 exu ncar 107K Jul  6 20:51 California_AR_Floods_2023_verif_tp_max12h.nc
+-rw-r--r-- 1 exu ncar 107K Jul  6 20:38 California_AR_Floods_2023_verif_tp_total.nc
+-rw-r--r-- 1 exu ncar 107K Jul  6 17:03 California_HeatWave_2022_verif_t2m_anom.nc
+-rw-r--r-- 1 exu ncar 107K Jul  6 17:05 HurricaneIan_2022_verif_u850_speed_max.nc
+-rw-r--r-- 1 exu ncar 107K Jul  6 17:05 HurricaneIan_2022_verif_u850_speed.nc
+-rw-r--r-- 1 exu ncar 107K Jul  6 17:04 HurricaneIda_2021_verif_u850_speed_max.nc
+-rw-r--r-- 1 exu ncar 107K Jul  6 17:04 HurricaneIda_2021_verif_u850_speed.nc
+-rw-r--r-- 1 exu ncar 107K Jul  6 20:01 HurricaneIdalia_2023_verif_u850_speed_max.nc
+-rw-r--r-- 1 exu ncar 107K Jul  6 20:00 HurricaneIdalia_2023_verif_u850_speed.nc
+-rw-r--r-- 1 exu ncar 107K Jul  6 21:21 Kentucky_Floods_2022_verif_tp_max12h.nc
+-rw-r--r-- 1 exu ncar 107K Jul  6 21:08 Kentucky_Floods_2022_verif_tp_total.nc
+-rw-r--r-- 1 exu ncar 107K Jul  6 17:03 PNW_HeatDome_2021_verif_t2m_anom.nc
+-rw-r--r-- 1 exu ncar 107K Jul  6 17:03 PolarVortex_2019_verif_t2m_anom.nc
+-rw-r--r-- 1 exu ncar 107K Jul  6 17:03 Southwest_HeatWave_2020_verif_t2m_anom.nc
+-rw-r--r-- 1 exu ncar 204K Jul  6 21:29 Vermont_Floods_2023_verif_tp_max12h.nc
+-rw-r--r-- 1 exu ncar 107K Jul  6 21:28 Vermont_Floods_2023_verif_tp_total.nc
+-rw-r--r-- 1 exu ncar 107K Jul  6 17:03 WinterStorm_Elliott_2022_verif_t2m_anom.nc
+-rw-r--r-- 1 exu ncar 107K Jul  6 17:03 WinterStorm_Uri_2021_verif_t2m_anom.nc

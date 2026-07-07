@@ -1,0 +1,23 @@
+#!/bin/bash
+#PBS -N xres_compare
+#PBS -A UCSC0009
+#PBS -q main
+#PBS -l job_priority=regular
+#PBS -l select=1:ncpus=1
+#PBS -l walltime=02:00:00
+#PBS -j oe
+#PBS -o /glade/derecho/scratch/exu/S2S_ExtremeWeather/logs/xres_compare.log
+
+set -eo pipefail
+
+module load conda
+conda activate my-env
+
+cd /glade/derecho/scratch/exu/S2S_ExtremeWeather
+
+echo "Host: $(hostname)"; echo "Start: $(date)"
+
+python run_xres.py --stage compare
+
+echo "End: $(date)"
+ls -la xres_combined_*.png runs/xres/figures/ 2>/dev/null || true

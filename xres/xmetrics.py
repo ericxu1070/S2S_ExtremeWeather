@@ -85,6 +85,8 @@ def fc_times_in_window(cube: xr.Dataset, peak, inclusive_left: bool) -> np.ndarr
     """The forecast-cube valid timestamps (absolute datetime axis) inside the verif week."""
     peak = pd.Timestamp(peak)
     t = pd.DatetimeIndex(cube["time"].values)
+    if not t.is_unique:
+        t = t[~t.duplicated(keep="first")]
     lo = (t >= peak - 6 * DAY) if inclusive_left else (t > peak - 6 * DAY)
     return t[lo & (t <= peak)].values
 
@@ -95,16 +97,26 @@ def fc_times_in_window(cube: xr.Dataset, peak, inclusive_left: bool) -> np.ndarr
 # already cropped to the CONUS box (see xinference).
 # --------------------------------------------------------------------------- #
 def _wind_speed_850(cube: xr.Dataset, times) -> xr.DataArray:
-    u = cube["u_component_of_wind"].sel(level=850, time=times)
-    v = cube["v_component_of_wind"].sel(level=850, time=times)
+    u = _sel_times(cube["u_component_of_wind"].sel(level=850), times)
+    v = _sel_times(cube["v_component_of_wind"].sel(level=850), times)
     return np.sqrt(u ** 2 + v ** 2)
+
+
+def _sel_times(da: xr.DataArray, times) -> xr.DataArray:
+    """Select forecast times; use isel when the cube time coord has duplicates."""
+    t = pd.DatetimeIndex(da["time"].values)
+    want = pd.DatetimeIndex(times)
+    if t.is_unique:
+        return da.sel(time=want)
+    mask = t.isin(want)
+    return da.isel(time=mask)
 
 
 def forecast_field(cube: xr.Dataset, peak, metric: str) -> xr.DataArray:
     m = metric
     if m == "t2m_anom":
         w = fc_times_in_window(cube, peak, inclusive_left=True)
-        t2m = cube["2m_temperature"].sel(time=w).mean("time")
+        t2m = _sel_times(cube["2m_temperature"], w).mean("time")
         clim = D.clim_for(pd.DatetimeIndex(w)).mean("time")     # 0.25deg clim grid
         anom = t2m - clim                                       # aligns on shared coords
         return anom
@@ -114,7 +126,7 @@ def forecast_field(cube: xr.Dataset, peak, metric: str) -> xr.DataArray:
         return spd.max("time") if m.endswith("_max") else spd.mean("time")
     if m in ("tp_total", "tp_max12h"):
         w = fc_times_in_window(cube, peak, inclusive_left=False)   # accumulation blocks
-        tp = cube["total_precipitation_12hr"].sel(time=w) * 1000.0  # m -> mm (per 12h)
+        tp = _sel_times(cube["total_precipitation_12hr"], w) * 1000.0  # m -> mm (per 12h)
         return tp.max("time") if m == "tp_max12h" else tp.sum("time")
     raise ValueError(f"unknown metric {m!r}")
 
@@ -122,8 +134,36 @@ def forecast_field(cube: xr.Dataset, peak, metric: str) -> xr.DataArray:
 # --------------------------------------------------------------------------- #
 # ERA5 observed-truth reductions -> (lat, lon) on the native 0.25deg CONUS grid.
 # --------------------------------------------------------------------------- #
-def _era5_src(times):
-    return D._arco() if D.past_wb2(times) else D._surf()
+def _era5_u850_speed(peak, use_max: bool) -> xr.DataArray:
+    """CONUS 850 hPa wind speed reduced over the verification week (low-RAM path)."""
+    import gc
+
+    win = inst_window(peak, "6h")
+    use_arco = D.past_wb2(win)
+    lat_c, lon_c = (D._arco_lat_lon_coords(conus=True, stride=1) if use_arco
+                    else (None, None))
+    sum_spd = max_spd = None
+    n = 0
+    for t in win:
+        if use_arco:
+            u = D.arco_read("u_component_of_wind", t, levels=[850], conus=True)[0]
+            v = D.arco_read("v_component_of_wind", t, levels=[850], conus=True)[0]
+        else:
+            src = D._surf()
+            u = src["u_component_of_wind"].sel(time=t, level=850, lat=C.LAT, lon=C.LON).load().values
+            v = src["v_component_of_wind"].sel(time=t, level=850, lat=C.LAT, lon=C.LON).load().values
+            if lat_c is None:
+                lat_c = src["u_component_of_wind"].sel(time=t, level=850, lat=C.LAT, lon=C.LON).lat.values
+                lon_c = src["u_component_of_wind"].sel(time=t, level=850, lat=C.LAT, lon=C.LON).lon.values
+        spd = np.sqrt(u ** 2 + v ** 2)
+        sum_spd = spd if sum_spd is None else sum_spd + spd
+        max_spd = spd if max_spd is None else np.maximum(max_spd, spd)
+        n += 1
+        del u, v, spd
+        D.release_stores()
+        gc.collect()
+    data = max_spd if use_max else sum_spd / n
+    return xr.DataArray(data, dims=("lat", "lon"), coords={"lat": lat_c, "lon": lon_c})
 
 
 def era5_field(peak, metric: str) -> xr.DataArray:
@@ -131,13 +171,7 @@ def era5_field(peak, metric: str) -> xr.DataArray:
     if m == "t2m_anom":
         return D.true_verif_anom(peak)                          # reuse existing recipe
     if m in ("u850_speed", "u850_speed_max"):
-        win = inst_window(peak, "6h")
-        src = _era5_src(win).sel(lat=C.LAT, lon=C.LON)          # crop CONUS before reducing
-        u = src["u_component_of_wind"].sel(time=win, level=850)
-        v = src["v_component_of_wind"].sel(time=win, level=850)
-        spd = np.sqrt(u ** 2 + v ** 2)
-        red = spd.max("time") if m.endswith("_max") else spd.mean("time")
-        return red.compute()
+        return _era5_u850_speed(peak, use_max=m.endswith("_max"))
     if m in ("tp_total", "tp_max12h"):
         return _era5_precip(peak, m)
     raise ValueError(f"unknown metric {m!r}")
@@ -148,26 +182,59 @@ def _era5_precip(peak, metric: str) -> xr.DataArray:
 
     WB2 surface store carries ready-made 6h/12h accumulations; ARCO carries hourly
     ``total_precipitation`` which we accumulate ourselves."""
+    import gc
+
     peak = pd.Timestamp(peak)
     win6 = accum_window(peak, "6h")
     if not D.past_wb2(pd.date_range(peak - 6 * DAY, peak, freq="6h")):
-        src = D._surf().sel(lat=C.LAT, lon=C.LON)                      # crop CONUS first
-        tp6 = src["total_precipitation_6hr"].sel(time=win6) * 1000.0   # m -> mm
-        if metric == "tp_total":
-            out = tp6.sum("time")
-        else:   # tp_max12h: pairs of consecutive 6h blocks
-            tp12 = tp6.rolling(time=2).sum().dropna("time")
-            out = tp12.max("time")
-        return out.compute()
-    # ARCO: hourly accumulation in metres
-    src = D._arco().sel(lat=C.LAT, lon=C.LON)                          # crop CONUS first
+        src = D._surf()
+        sum_tp = None
+        max_tp12 = None
+        prev6 = None
+        template = None
+        for t in win6:
+            frame = src["total_precipitation_6hr"].sel(time=t, lat=C.LAT, lon=C.LON).load()
+            tp = frame.values * 1000.0
+            if template is None:
+                template = frame.copy(data=np.zeros_like(frame.values, dtype=np.float64))
+            if metric == "tp_total":
+                sum_tp = tp if sum_tp is None else sum_tp + tp
+            else:
+                if prev6 is not None:
+                    tp12 = prev6 + tp
+                    max_tp12 = tp12 if max_tp12 is None else np.maximum(max_tp12, tp12)
+                prev6 = tp
+            del frame, tp
+            D.release_stores()
+            gc.collect()
+            src = D._surf()
+        data = sum_tp if metric == "tp_total" else max_tp12
+        out = template.copy(data=data)
+        D.release_stores()
+        gc.collect()
+        return out
+    # ARCO: hourly accumulation in metres — one CONUS hour at a time
     win1 = accum_window(peak, "1h")
-    tp1 = src["total_precipitation"].sel(time=win1) * 1000.0           # m -> mm per hour
-    if metric == "tp_total":
-        out = tp1.sum("time")
-    else:
-        out = tp1.rolling(time=12).sum().dropna("time").max("time")    # max 12h running sum
-    return out.compute()
+    lat_c, lon_c = D._arco_lat_lon_coords(conus=True, stride=1)
+    sum_tp = max_tp12 = None
+    roll = None
+    for t in win1:
+        tp = D.arco_read("total_precipitation", t, conus=True) * 1000.0
+        if metric == "tp_total":
+            sum_tp = tp if sum_tp is None else sum_tp + tp
+        else:
+            if roll is None:
+                roll = np.zeros((12,) + tp.shape, dtype=np.float64)
+            roll = np.roll(roll, -1, axis=0)
+            roll[-1] = tp
+            block = roll.sum(axis=0)
+            max_tp12 = block if max_tp12 is None else np.maximum(max_tp12, block)
+        del tp
+        D.release_stores()
+        gc.collect()
+    data = sum_tp if metric == "tp_total" else max_tp12
+    out = xr.DataArray(data, dims=("lat", "lon"), coords={"lat": lat_c, "lon": lon_c})
+    return out
 
 
 # --------------------------------------------------------------------------- #

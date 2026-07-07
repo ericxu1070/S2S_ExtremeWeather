@@ -1,0 +1,25 @@
+#!/bin/bash
+#PBS -N xres_prep
+#PBS -A UCSC0009
+#PBS -q develop
+#PBS -l select=1:ncpus=8:mem=120GB
+#PBS -l walltime=04:00:00
+#PBS -j oe
+#PBS -o /glade/derecho/scratch/exu/S2S_ExtremeWeather/logs/xres_prep.log
+
+export PYTHONUNBUFFERED=1
+
+set -eo pipefail
+
+module load conda
+conda activate my-env
+
+cd /glade/derecho/scratch/exu/S2S_ExtremeWeather
+
+echo "Host: $(hostname)"; echo "Start: $(date)"
+
+python run_xres.py --stage prep
+
+echo "End: $(date)"
+find runs -type f | wc -l
+ls -lh runs/models/params/ runs/observations/ 2>/dev/null | head -40

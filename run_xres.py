@@ -24,13 +24,37 @@ Examples
 from __future__ import annotations
 
 import argparse
+import os
+import subprocess
+import sys
 
 from xres import xconfig as X
 
 
 def do_prep(res_list, weeks):
     from xres import xdata, xhrrr
-    xdata.download_models()
+
+    skip_models = os.environ.get("XRES_PREP_SKIP_MODELS") == "1"
+    isolate = os.environ.get("XRES_PREP_ISOLATE", "1") != "0"
+
+    if not skip_models:
+        xdata.download_models()
+
+    if isolate and not skip_models:
+        py = sys.executable
+        script = os.path.abspath(__file__)
+        for name in X.events():
+            env = os.environ.copy()
+            env["XRES_EVENTS_SEL"] = name
+            env["XRES_PREP_SKIP_MODELS"] = "1"
+            env["XRES_PREP_ISOLATE"] = "0"
+            cmd = [py, script, "--stage", "prep", "--weeks", str(weeks)]
+            if len(res_list) == 1:
+                cmd += ["--res", res_list[0]]
+            print(f"[prep] subprocess event={name}", flush=True)
+            subprocess.run(cmd, check=True, env=env)
+        return
+
     xdata.build_era5_truth()
     xhrrr.build_hrrr_truth()
     for res in res_list:

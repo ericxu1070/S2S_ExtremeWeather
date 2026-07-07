@@ -1,0 +1,43 @@
+#!/bin/bash
+#PBS -N xres_0p25_wk2
+#PBS -A UCSC0009
+#PBS -q main
+#PBS -l job_priority=regular
+#PBS -l select=1:ncpus=16:ngpus=1
+#PBS -l walltime=12:00:00
+#PBS -j oe
+#PBS -o /glade/derecho/scratch/exu/S2S_ExtremeWeather/logs/xres_0p25_wk2.log
+
+set -eo pipefail
+
+module load conda
+conda activate my-env
+
+SITE=$(python -c "import site; print(site.getsitepackages()[0])")
+export LD_LIBRARY_PATH="$(echo "$SITE"/nvidia/*/lib | tr ' ' ':')${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
+
+# 0.25deg GenCast needs ~50 GiB peak per ensemble member on GPU. Derecho gpu nodes
+# are 4x A100-40GB; pmap OOMs even with 1 device (see logs/xres_0p25_wk2.log).
+# Use GraphCast's serial (non-pmap) rollout: one member at a time on one GPU.
+export CUDA_VISIBLE_DEVICES=0
+export XRES_INFER_GPUS=1
+export XRES_SERIAL_INFER=1
+export XRES_BF16=1
+export XLA_PYTHON_CLIENT_PREALLOCATE=false
+export XLA_PYTHON_CLIENT_MEM_FRACTION=.90
+export XLA_PYTHON_CLIENT_ALLOCATOR=platform
+export TF_GPU_ALLOCATOR=cuda_malloc_async
+export PYTHONUNBUFFERED=1
+export JAX_CAPTURED_CONSTANTS_WARN_BYTES=-1
+
+cd /glade/derecho/scratch/exu/S2S_ExtremeWeather
+
+echo "Host: $(hostname)"; echo "Start: $(date)"
+nvidia-smi -L || true
+python -c "import jax; print('JAX devices:', jax.devices())"
+
+# prep is cache-aware (instant when inputs already exist)
+python run_xres.py --stage prep  --res 0p25
+python run_xres.py --stage infer --res 0p25
+
+echo "End: $(date)"

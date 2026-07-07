@@ -1,31 +1,32 @@
 #!/bin/bash
-# One-time setup for the GenCast S2S pipeline, into the existing `moe` conda env.
-# Run on the login node (it has internet). Everything lands on NFS, so the a3mega
-# compute nodes see it too.
+# One-time setup for the GenCast S2S pipeline, into the existing `my-env` conda env.
+# Run on the login node (it has internet). Outputs land on GLADE scratch.
 #
 #   bash setup_env.sh
 #
 set -eo pipefail
 
-PROJ="/home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather"
+PROJ="/glade/derecho/scratch/exu/S2S_ExtremeWeather"
 cd "$PROJ"
 
-source /home/ubuntu/miniconda3/etc/profile.d/conda.sh
-conda activate moe
+module load conda
+conda activate my-env
 echo "python: $(which python)"
 
+# --- runtime deps (graphcast installed with --no-deps below) -------------------
+pip install -U \
+  "jax[cuda12]" \
+  dm-haiku jraph dm-tree trimesh rtree chex \
+  dask gcsfs zarr netCDF4 cartopy matplotlib pandas properscoring \
+  dinosaur-dycore
+
 # --- graphcast (provides gencast/rollout/normalization/...) -------------------
-# moe already has all real runtime deps (jax[cuda], haiku, jraph, dm-tree, trimesh,
-# rtree, chex, xarray, dask, ...). Install with --no-deps so pip does NOT try to pull
-# graphcast's colab-only / unused extras (colabtools, dinosaur-dycore, xarray_tensorstore)
-# or downgrade moe's jax 0.10.2.
 if [ ! -d third_party/graphcast/graphcast ]; then
   echo "cloning graphcast ..."
   git clone --depth 1 https://github.com/google-deepmind/graphcast.git third_party/graphcast
 fi
 
 # Patch rollout.py for modern xarray: Dataset(Dataset) copy-construct was removed.
-# Idempotent: after the first rewrite the original pattern is gone.
 ROLL="third_party/graphcast/graphcast/rollout.py"
 python - "$ROLL" <<'PY'
 import sys
@@ -33,15 +34,20 @@ p = sys.argv[1]
 s = open(p).read()
 for v in ("inputs", "targets_template", "forcings"):
     s = s.replace(f"{v} = xarray.Dataset({v})", f"{v} = {v}.copy()")
+# jax.P was removed from the jax namespace; use PartitionSpec instead.
+if "from jax.sharding import PartitionSpec as P" not in s:
+    s = s.replace(
+        "import jax.numpy as jnp\n",
+        "import jax.numpy as jnp\nfrom jax.sharding import PartitionSpec as P\n",
+    )
+s = s.replace("jax.P(", "P(")
 open(p, "w").write(s)
 print("patched", p)
 PY
 
 pip install --no-deps -e third_party/graphcast
-pip install --no-deps properscoring
 
-# --- cartopy Natural Earth features (so the CONUS maps render offline on a3mega) ---
-# Cached under ~/.local/share/cartopy on NFS -> visible to compute nodes.
+# --- cartopy Natural Earth features (offline maps on compute nodes) ----------
 echo "pre-fetching cartopy Natural Earth features ..."
 python - <<'PY'
 import cartopy.io.shapereader as shp
@@ -62,9 +68,10 @@ PY
 # --- sanity: imports + GenCast submodule resolve --------------------------------
 python - <<'PY'
 from graphcast import gencast, rollout, normalization, nan_cleaning, data_utils, xarray_jax
-import properscoring, cartopy
+import properscoring, cartopy, jax
 print("imports OK: gencast/rollout/properscoring/cartopy all import")
 print("multiple_runs:", hasattr(rollout, "chunked_prediction_generator_multiple_runs"))
+print("jax version:", jax.__version__)
 PY
 
 echo "setup_env.sh: done."

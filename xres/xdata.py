@@ -56,7 +56,10 @@ def download_models() -> None:
         print(f"[model] stats: {nm}")
         _copy_from_gcs(C.STATS_DIR_GCS.replace("gs://", "") + nm, C.STATS_DIR / nm)
     print("[model] statics (orography + land-sea mask)")
-    D.load_statics()
+    if C.STATICS_FILE.exists():
+        print(f"[model] statics cached: {C.STATICS_FILE.name}")
+    else:
+        D.load_statics()
     if not C.CLIM_FILE.exists():
         print("[clim] building CONUS 1990-2019 T2m climatology")
         clim = D.build_clim_conus()
@@ -83,6 +86,8 @@ def metrics_for_event(name: str) -> list[str]:
 
 
 def build_era5_truth(overwrite: bool = False) -> None:
+    import gc
+
     C.ensure_dirs()
     for name, (peak, _metric) in X.events().items():
         for metric in metrics_for_event(name):
@@ -94,6 +99,9 @@ def build_era5_truth(overwrite: bool = False) -> None:
             D._atomic_to_netcdf(da.to_dataset(name=metric), f)
             print(f"[era5-truth] {name} [{metric}]: "
                   f"mean={float(da.mean()):+.3g} max={float(da.max()):+.3g} -> {f.name}")
+            del da
+        D.release_stores()
+        gc.collect()
 
 
 # --------------------------------------------------------------------------- #
@@ -117,6 +125,8 @@ def load_or_build_inputs(res: str, weeks: int, name: str, peak,
 
 
 def build_inputs(res: str, weeks: int) -> None:
+    import gc
+
     X.ensure_dirs(res, weeks)
     statics = D.load_statics()
     for name, (peak, _m) in X.events().items():
@@ -124,5 +134,8 @@ def build_inputs(res: str, weeks: int) -> None:
         if f.exists():
             print(f"[inputs {res} week{weeks}] cached: {f.name}")
             continue
-        load_or_build_inputs(res, weeks, name, peak, statics=statics)
+        ds = load_or_build_inputs(res, weeks, name, peak, statics=statics)
+        del ds
+        D.release_stores()
+        gc.collect()
         print(f"[inputs {res} week{weeks}] {name}: init=peak-{C.lead_days_for(weeks)}d -> {f.name}")

@@ -38,8 +38,13 @@ def open_anon(url: str) -> xr.Dataset:
 # Lazily-opened singletons (opening a zarr store is cheap metadata only).
 _surf_src = None
 _atm37_src = None
-_arco_src = None
 _clim = None
+
+# ARCO is a flat 277-variable zarr tree; xr.open_zarr(root) OOMs.  Read arrays directly.
+_arco_root = None
+_arco_lat = _arco_lon = _arco_lev = None
+ARCO_EPOCH = pd.Timestamp("1959-01-01T00:00:00")
+_ARCO_LEVELED = frozenset(C.ATM)
 
 
 def _surf():
@@ -56,11 +61,139 @@ def _atm37():
     return _atm37_src
 
 
-def _arco():
-    global _arco_src
-    if _arco_src is None:
-        _arco_src = open_anon(ARCO_STORE)
-    return _arco_src
+def _arco_group():
+    """Lightweight zarr group handle (metadata only; do not xr.open_zarr the root)."""
+    global _arco_root
+    if _arco_root is None:
+        import gcsfs
+        import zarr
+        fs = gcsfs.GCSFileSystem(token="anon")
+        _arco_root = zarr.open(fs.get_mapper(ARCO_STORE.replace("gs://", "")), mode="r")
+    return _arco_root
+
+
+def _arco_coords():
+    global _arco_lat, _arco_lon, _arco_lev
+    if _arco_lat is None:
+        root = _arco_group()
+        _arco_lat = root["latitude"][:]
+        _arco_lon = root["longitude"][:]
+        _arco_lev = root["level"][:]
+    return _arco_lat, _arco_lon, _arco_lev
+
+
+def _arco_tindex(t) -> int:
+    return int((pd.Timestamp(t) - ARCO_EPOCH) / pd.Timedelta(hours=1))
+
+
+def _arco_spatial_slice(*, conus: bool, stride: int) -> tuple[slice, slice]:
+    lat, lon, _ = _arco_coords()
+    if conus:
+        li = np.where((lat >= 24) & (lat <= 50))[0]
+        lo = np.where((lon >= 235) & (lon <= 294))[0]
+        return slice(li[0], li[-1] + 1, stride), slice(lo[0], lo[-1] + 1, stride)
+    return slice(None, None, stride), slice(None, None, stride)
+
+
+def _arco_lat_lon_coords(*, conus: bool, stride: int) -> tuple[np.ndarray, np.ndarray]:
+    lat, lon, _ = _arco_coords()
+    lat_sl, lon_sl = _arco_spatial_slice(conus=conus, stride=stride)
+    lat_c = lat[lat_sl]
+    lon_c = lon[lon_sl]
+    if lat_c[0] > lat_c[-1]:
+        lat_c = lat_c[::-1]
+    return lat_c, lon_c
+
+
+def arco_read(var: str, t, *, levels=None, conus: bool = False, stride: int = 1) -> np.ndarray:
+    """Read one ARCO timestep (optionally a list of pressure levels) without xarray."""
+    root = _arco_group()
+    ti = _arco_tindex(t)
+    lat_sl, lon_sl = _arco_spatial_slice(conus=conus, stride=stride)
+    arr = root[var]
+    if levels is not None:
+        _, _, lev = _arco_coords()
+        slabs = [np.asarray(arr[ti, int(np.where(lev == p)[0][0]), lat_sl, lon_sl])
+                 for p in levels]
+        out = np.stack(slabs, axis=0)
+    else:
+        out = np.asarray(arr[ti, lat_sl, lon_sl])
+    if out.ndim >= 2 and out.shape[-2] > 1:
+        lat, _, _ = _arco_coords()
+        if lat[lat_sl][0] > lat[lat_sl][-1]:
+            out = out[..., ::-1, :]
+    return out
+
+
+def _arco_load_var_times(var: str, times, *, levels=None, stride: int = 1) -> xr.DataArray:
+    lat_c, lon_c = _arco_lat_lon_coords(conus=False, stride=stride)
+    frames = []
+    for t in pd.DatetimeIndex(times):
+        if levels is not None:
+            data = arco_read(var, t, levels=levels, conus=False, stride=stride)
+            frames.append(xr.DataArray(
+                data, dims=["level", "lat", "lon"],
+                coords={"level": list(levels), "lat": lat_c, "lon": lon_c}))
+        else:
+            data = arco_read(var, t, conus=False, stride=stride)
+            frames.append(xr.DataArray(data, dims=["lat", "lon"],
+                                         coords={"lat": lat_c, "lon": lon_c}))
+    return xr.concat(frames, dim="time", coords="minimal").assign_coords(time=list(times))
+
+
+def _arco_precip_accum(times, win_h: int, out_name: str, stride: int = 1) -> xr.Dataset:
+    times = pd.DatetimeIndex(times)
+    lat_c, lon_c = _arco_lat_lon_coords(conus=False, stride=stride)
+    frames = []
+    for t in times:
+        win = pd.date_range(t - pd.Timedelta(hours=win_h - 1), t, freq="1h")
+        parts = [arco_read("total_precipitation", ti, conus=False, stride=stride) for ti in win]
+        frames.append(xr.DataArray(sum(parts), dims=["lat", "lon"],
+                                   coords={"lat": lat_c, "lon": lon_c}))
+    return xr.concat(frames, dim="time").assign_coords(
+        time=list(times)).to_dataset(name=out_name)
+
+
+def release_stores() -> None:
+    """Drop cached zarr handles so heavy prep stages can reclaim RAM."""
+    global _surf_src, _atm37_src, _clim
+    global _arco_root, _arco_lat, _arco_lon, _arco_lev
+    for name in ("_surf_src", "_atm37_src"):
+        ds = globals()[name]
+        if ds is not None:
+            try:
+                ds.close()
+            except Exception:
+                pass
+        globals()[name] = None
+    _arco_root = _arco_lat = _arco_lon = _arco_lev = None
+    _clim = None
+
+
+def _stride_isel(da: xr.DataArray, stride: int) -> xr.DataArray:
+    if stride <= 1:
+        return da
+    return da.isel(lat=slice(None, None, stride), lon=slice(None, None, stride))
+
+
+def _load_var_at_times(src: xr.Dataset, var: str, times, *,
+                       levels=None, stride: int = 1) -> xr.DataArray:
+    """Load one variable for a few timesteps, coarsening before materializing each slice.
+
+    ERA5 zarr stores chunk only on ``time``, so a multi-time ``.compute()`` on the global
+    grid can pull enormous graphs into RAM.  Loading one timestep at a time keeps peak
+    memory proportional to one CONUS/global slice.
+    """
+    frames = []
+    for t in pd.DatetimeIndex(times):
+        da = src[var].sel(time=t)
+        if levels is not None and "level" in da.dims:
+            da = da.sel(level=levels)
+        frames.append(_stride_isel(da, stride).load())
+        del da
+    out = xr.concat(frames, dim="time")
+    del frames
+    return out
 
 
 def _clim_src():
@@ -117,7 +250,7 @@ def load_statics(use_cache: bool = True) -> dict[str, xr.DataArray]:
 # --------------------------------------------------------------------------- #
 # Precip accumulation helper (build the win_h-hour accumulation ending at each frame).
 # --------------------------------------------------------------------------- #
-def _precip_accum(src, times, win_h, out_name) -> xr.Dataset:
+def _precip_accum(src, times, win_h, out_name, stride: int = 1) -> xr.Dataset:
     times = pd.DatetimeIndex(times)
     if "total_precipitation_6hr" in src and win_h % 6 == 0:
         var, step = "total_precipitation_6hr", 6
@@ -125,9 +258,12 @@ def _precip_accum(src, times, win_h, out_name) -> xr.Dataset:
         var, step = "total_precipitation", 1
     else:
         raise KeyError(f"no precipitation source in store to build {out_name}")
-    frames = [src[var].sel(
-                  time=pd.date_range(t - pd.Timedelta(hours=win_h - step), t, freq=f"{step}h")
-              ).sum("time") for t in times]
+    frames = []
+    for t in times:
+        win = pd.date_range(t - pd.Timedelta(hours=win_h - step), t, freq=f"{step}h")
+        parts = [_stride_isel(src[var].sel(time=ti), stride).load()
+                 for ti in win]
+        frames.append(sum(parts))
     return xr.concat(frames, dim="time").assign_coords(
         time=list(times)).to_dataset(name=out_name)
 
@@ -139,52 +275,73 @@ def _precip_accum(src, times, win_h, out_name) -> xr.Dataset:
 def build_raw_inputs(peak, lead_days: int, model: str = "gencast",
                      statics: dict | None = None, verbose: bool = False,
                      res: float = 1.0) -> xr.Dataset:
+    import gc
+
     cfg = C.model_cfg(model, res=res)
     step_h = cfg["step_h"]
     init = pd.Timestamp(peak) - pd.Timedelta(days=lead_days)
     times = pd.to_datetime([init - pd.Timedelta(hours=step_h), init])  # 2 input frames
+    stride = int(round(cfg["res"] / 0.25))
 
     if past_wb2(times):
-        surf_src = atm_src = _arco()
         if verbose:
             print("   (using ARCO-ERA5: past WB2 coverage)")
+        atm_vars = [v for v in C.ATM if v in _arco_group()]
+        sv = [v for v in cfg["surf"] if v in _arco_group()]
+        parts = []
+        for var in atm_vars:
+            parts.append(_arco_load_var_times(var, times, levels=cfg["levels_hpa"],
+                                              stride=stride).rename(var))
+            release_stores()
+            gc.collect()
+        for var in sv:
+            parts.append(_arco_load_var_times(var, times, stride=stride).rename(var))
+            release_stores()
+            gc.collect()
+        if cfg["precip_in"]:
+            pname = cfg["precip_in"]
+            win_h = int(pname.rsplit("_", 1)[1].removesuffix("hr"))
+            if pname in _arco_group():
+                parts.append(_arco_load_var_times(pname, times, stride=stride)
+                             .to_dataset(name=pname))
+            else:
+                parts.append(_arco_precip_accum(times, win_h, pname, stride=stride))
     else:
         surf_src = _surf()
         atm_src = _atm37() if cfg["levels"] == 37 else _surf()
-
-    sv = [v for v in cfg["surf"] if v in surf_src]
-    parts = [atm_src[C.ATM].sel(time=times, level=cfg["levels_hpa"]),
-             surf_src[sv].sel(time=times)]
-
-    if cfg["precip_in"]:
-        pname = cfg["precip_in"]
-        win_h = int(pname.rsplit("_", 1)[1].removesuffix("hr"))   # ..._12hr -> 12
-        if pname in surf_src:
-            parts.append(surf_src[[pname]].sel(time=times))
-        else:
-            psrc = (surf_src if ("total_precipitation_6hr" in surf_src
-                                 or "total_precipitation" in surf_src) else _arco())
-            parts.append(_precip_accum(psrc, times, win_h, pname))
+        sv = [v for v in cfg["surf"] if v in surf_src]
+        atm_vars = [v for v in C.ATM if v in atm_src]
+        parts = []
+        for var in atm_vars:
+            parts.append(_load_var_at_times(atm_src, var, times,
+                                            levels=cfg["levels_hpa"], stride=stride).rename(var))
+            release_stores()
+            gc.collect()
+        for var in sv:
+            parts.append(_load_var_at_times(surf_src, var, times, stride=stride).rename(var))
+            release_stores()
+            gc.collect()
+        if cfg["precip_in"]:
+            pname = cfg["precip_in"]
+            win_h = int(pname.rsplit("_", 1)[1].removesuffix("hr"))
+            if pname in surf_src:
+                parts.append(_load_var_at_times(surf_src, pname, times, stride=stride)
+                             .to_dataset(name=pname))
+            else:
+                psrc = surf_src if ("total_precipitation_6hr" in surf_src
+                                    or "total_precipitation" in surf_src) else _atm37()
+                parts.append(_precip_accum(psrc, times, win_h, pname, stride=stride))
 
     ds = xr.merge(parts).expand_dims(batch=1)
-
-    # Coarsen the GLOBAL field to the model's native grid (Mini = 1.0deg from the 0.25deg
-    # stores: stride 4 -> 181x360). GenCast is a global model; we keep the whole globe and
-    # only subset to CONUS *after* prediction.
-    stride = int(round(cfg["res"] / 0.25))
-    sub = ((lambda a: a.isel(lat=slice(None, None, stride), lon=slice(None, None, stride)))
-           if stride > 1 else (lambda a: a))
-    ds = sub(ds)
 
     if statics is None:
         statics = load_statics()
     for k, v in statics.items():
-        ds[k] = sub(v)
+        ds[k] = _stride_isel(v, stride)
 
-    # Keep the *absolute* datetime time axis. The relative-time axis and NaN target
-    # template are built later in build_example_batch (and would not round-trip cleanly
-    # through NetCDF as a negative timedelta index coordinate).
-    return ds.compute()
+    release_stores()
+    gc.collect()
+    return ds
 
 
 # --------------------------------------------------------------------------- #
@@ -199,12 +356,36 @@ def clim_for(times) -> xr.DataArray:
 
 
 def true_verif_anom(peak) -> xr.DataArray:
+    import gc
+
     peak = pd.Timestamp(peak)
-    win = pd.date_range(peak - pd.Timedelta(days=6), peak, freq="6h")  # the verification week
-    src = _arco() if past_wb2(win) else _surf()
-    obs = src["2m_temperature"].sel(time=win)
-    anom = obs.mean("time") - clim_for(win).mean("time")              # clim is 1990-2019 (always WB2)
-    return anom.sel(lat=C.LAT, lon=C.LON).compute()                  # (lat, lon)
+    win = pd.date_range(peak - pd.Timedelta(days=6), peak, freq="6h")
+    sum_obs = None
+    lat_c = lon_c = None
+    if past_wb2(win):
+        lat_c, lon_c = _arco_lat_lon_coords(conus=True, stride=1)
+        for t in win:
+            frame = arco_read("2m_temperature", t, conus=True, stride=1)
+            sum_obs = frame if sum_obs is None else sum_obs + frame
+            release_stores()
+            gc.collect()
+    else:
+        src = _surf()
+        for t in win:
+            da = src["2m_temperature"].sel(time=t, lat=C.LAT, lon=C.LON).load()
+            if lat_c is None:
+                lat_c, lon_c = da.lat.values, da.lon.values
+            sum_obs = da.values if sum_obs is None else sum_obs + da.values
+            del da
+            release_stores()
+            gc.collect()
+            src = _surf()
+    obs = xr.DataArray(sum_obs / len(win), dims=("lat", "lon"),
+                       coords={"lat": lat_c, "lon": lon_c})
+    anom = obs - clim_for(win).mean("time")
+    release_stores()
+    gc.collect()
+    return anom.load()
 
 
 # --------------------------------------------------------------------------- #

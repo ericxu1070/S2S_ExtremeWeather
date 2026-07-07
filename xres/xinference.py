@@ -65,6 +65,9 @@ def run_event(bundle: dict, res: str, weeks: int, name: str, peak: str) -> None:
     lead_days = C.lead_days_for(weeks)
     init = pd.Timestamp(peak) - pd.Timedelta(days=lead_days)
     nm = bundle["n_members"]
+    serial = bundle.get("serial", False)
+    n_dev = 1 if serial else len(bundle["devices"])
+    pmap_devices = None if serial else bundle["devices"]
     X.ensure_dirs(res, weeks)
 
     cube_f = cube_path(res, weeks, name)
@@ -92,14 +95,47 @@ def run_event(bundle: dict, res: str, weeks: int, name: str, peak: str) -> None:
         predictor_fn=bundle["forward"], rngs=rngs,
         inputs=eval_inputs, targets_template=eval_targets * np.nan,
         forcings=eval_forcings, num_steps_per_chunk=1,
-        num_samples=nm, pmap_devices=bundle["devices"])
+        num_samples=nm, pmap_devices=pmap_devices, verbose=True)
 
-    kept = []   # every step, ALL variables, cropped to CONUS before leaving the device
-    for chunk in gen:
+    # The multi-run generator yields ``n_waves * n_steps`` chunks (one chunk per
+    # ensemble wave per rollout step).  Concatenate each wave along ``time``,
+    # then stack waves on ``sample`` — NOT all chunks along ``time``.
+    n_steps = C.n_rollout_steps(weeks)
+    n_waves = nm // n_dev
+    total_chunks = n_steps * n_waves
+    mode = "serial" if serial else f"pmap x{n_dev}"
+    print(f"  rollout: {n_steps} steps x {n_waves} waves of {n_dev} members "
+          f"({nm} total, {mode}); JAX compile on first step often takes 15-40 min",
+          flush=True)
+    waves, buf = [], []
+    for chunk_i, chunk in enumerate(gen, start=1):
+        wave = (chunk_i - 1) // n_steps
+        step = (chunk_i - 1) % n_steps
+        m0 = wave * n_dev
+        m1 = m0 + int(chunk.sizes.get("sample", n_dev)) - 1
+        if serial:
+            print(f"  [{res}] {name}: step {step + 1}/{n_steps}  "
+                  f"member {wave + 1}/{nm}  (chunk {chunk_i}/{total_chunks})",
+                  flush=True)
+        else:
+            print(f"  [{res}] {name}: step {step + 1}/{n_steps}  "
+                  f"members {m0}-{m1}  (chunk {chunk_i}/{total_chunks})",
+                  flush=True)
         sub = chunk.sel(lat=C.LAT, lon=C.LON).compute()
-        kept.append(sub)
-        del chunk
-    cube = xr.concat(kept, dim="time", coords="minimal", compat="override")
+        buf.append(sub)
+        if len(buf) == n_steps:
+            waves.append(xr.concat(buf, dim="time", coords="minimal", compat="override"))
+            if serial:
+                print(f"  [{res}] {name}: member {len(waves)}/{nm} complete "
+                      f"(steps 1-{n_steps})", flush=True)
+            else:
+                print(f"  [{res}] {name}: wave {len(waves)}/{n_waves} complete "
+                      f"(members {m0}-{m1})", flush=True)
+            buf = []
+    if buf:
+        raise RuntimeError(
+            f"rollout ended with {len(buf)}/{n_steps} steps buffered for {name}")
+    cube = xr.concat(waves, dim="sample", coords="minimal", compat="override")
 
     # member axis + drop the singleton batch
     if "sample" in cube.dims:
@@ -143,11 +179,21 @@ def _derive_metrics(res: str, weeks: int, name: str, peak: str,
 
 
 def run_all(res: str, weeks: int, n_members: int | None = None) -> None:
+    # Surface graphcast rollout's absl logging (Chunk N/M, Samples X/Y) in PBS logs.
+    try:
+        from absl import logging as absl_logging
+        absl_logging.set_verbosity(absl_logging.INFO)
+        absl_logging.use_absl_handler()
+    except Exception:
+        pass
+
     rs = X.res_spec(res)
     requested = X.N_MEMBERS[res] if n_members is None else n_members
     bundle = M.load_gencast(n_members=requested, params_file=rs["params"], res=rs["res"])
     print(f"=== xres {res} ({rs['label']}): week{weeks}, lead {C.lead_days_for(weeks)}d, "
           f"{C.n_rollout_steps(weeks)} steps, {bundle['n_members']} members ===")
-    for name, (peak, _metric) in X.events().items():
-        print(f"{name} [{res} week{weeks}] init=peak-{C.lead_days_for(weeks)}d ...", flush=True)
+    events = list(X.events().items())
+    for ev_i, (name, (peak, _metric)) in enumerate(events, start=1):
+        print(f"{name} [{res} week{weeks}] init=peak-{C.lead_days_for(weeks)}d ... "
+              f"(event {ev_i}/{len(events)})", flush=True)
         run_event(bundle, res, weeks, name, peak)
