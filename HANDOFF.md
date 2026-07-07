@@ -4,6 +4,32 @@
 **1.0°** full checkpoints on **12 out-of-sample extreme events** at **week-2**
 (14-day lead), then produce cross-resolution comparison figures.
 
+---
+
+## STATUS (Jul 7 2026) — 1.0° DONE, 0.25° ABANDONED
+
+- **Prep: complete.** 18/18 ERA5 truth files, 12/12 inputs per resolution.
+- **1.0° infer: complete & verified.** All 12 cubes (24 members × 28 steps) in
+  `runs/xres/1p0/week2/cache/`, all 18 verif files in `runs/xres/1p0/week2/verif/`.
+  Log shows clean end Jul 7 03:40 (third attempt in `logs/xres_1p0_wk2.log`; the
+  first two runs in that log failed on a jax `P` AttributeError and a pandas
+  InvalidIndexError, both fixed before the final run).
+- **0.25° infer: ABANDONED (user decision Jul 7).** Job hit the 12 h walltime with
+  **zero** events completed — cache/verif dirs are empty. At 24 members the first
+  event alone (PNW_HeatDome) needed ~15 h (672 chunks × ~80 s); cubes are only
+  written after all members finish, so nothing was saved. Even one-event-per-job
+  doesn't fit the 12 h limit at 24 members (would need `XRES_N_MEMBERS_0P25=16`
+  ≈ 10 h/event if ever revived).
+- **Compare/figures: DONE (Jul 7 17:19).** Ran via new `pbs/xres_compare_dev.pbs`
+  (develop queue — the original `pbs/xres_compare.pbs` routes to the `cpu` queue which
+  had ~1800 queued jobs; submission `6664453` was qdel'd). Job `6664462` produced all
+  figures; job `6664470` regenerated them after `xres/xplotting.py::plot_event` was
+  changed to drop missing panels (HRRR + 0.25°) instead of leaving blank axes, so
+  per-event maps are now 3 panels: ERA5 | 1.0° mean | 1.0° error.
+  Outputs: `xres_combined_{mean,best,extreme}.png` at project root (all 12 events,
+  ERA5 black vs GenCast 1.0° orange) and 12 maps in `runs/xres/figures/maps/`.
+  **The experiment is complete** unless the 0.25° arm is ever revived.
+
 **System:** NCAR **Derecho** (PBS Pro). Conda env: **`my-env`**
 (`/glade/work/exu/conda-envs/my-env`, Python 3.10). Project dir:
 `/glade/derecho/scratch/exu/S2S_ExtremeWeather/`.

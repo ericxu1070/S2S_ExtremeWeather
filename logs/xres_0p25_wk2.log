@@ -1198,3 +1198,1088 @@ I0707 01:09:04.957832 22752513238848 rollout.py:361] Chunk 8/28
 I0707 01:10:24.947978 22752513238848 rollout.py:361] Chunk 9/28
   [0p25] PNW_HeatDome_2021: step 10/28  member 1/24  (chunk 10/672)
 I0707 01:11:44.927326 22752513238848 rollout.py:361] Chunk 10/28
+  [0p25] PNW_HeatDome_2021: step 11/28  member 1/24  (chunk 11/672)
+I0707 01:13:04.876918 22752513238848 rollout.py:361] Chunk 11/28
+  [0p25] PNW_HeatDome_2021: step 12/28  member 1/24  (chunk 12/672)
+I0707 01:14:24.857231 22752513238848 rollout.py:361] Chunk 12/28
+  [0p25] PNW_HeatDome_2021: step 13/28  member 1/24  (chunk 13/672)
+I0707 01:15:44.866558 22752513238848 rollout.py:361] Chunk 13/28
+  [0p25] PNW_HeatDome_2021: step 14/28  member 1/24  (chunk 14/672)
+I0707 01:17:04.807181 22752513238848 rollout.py:361] Chunk 14/28
+  [0p25] PNW_HeatDome_2021: step 15/28  member 1/24  (chunk 15/672)
+I0707 01:18:24.767383 22752513238848 rollout.py:361] Chunk 15/28
+  [0p25] PNW_HeatDome_2021: step 16/28  member 1/24  (chunk 16/672)
+I0707 01:19:44.737473 22752513238848 rollout.py:361] Chunk 16/28
+  [0p25] PNW_HeatDome_2021: step 17/28  member 1/24  (chunk 17/672)
+I0707 01:21:04.724400 22752513238848 rollout.py:361] Chunk 17/28
+  [0p25] PNW_HeatDome_2021: step 18/28  member 1/24  (chunk 18/672)
+I0707 01:22:24.689196 22752513238848 rollout.py:361] Chunk 18/28
+  [0p25] PNW_HeatDome_2021: step 19/28  member 1/24  (chunk 19/672)
+I0707 01:23:44.664228 22752513238848 rollout.py:361] Chunk 19/28
+  [0p25] PNW_HeatDome_2021: step 20/28  member 1/24  (chunk 20/672)
+I0707 01:25:04.692095 22752513238848 rollout.py:361] Chunk 20/28
+  [0p25] PNW_HeatDome_2021: step 21/28  member 1/24  (chunk 21/672)
+I0707 01:26:24.620516 22752513238848 rollout.py:361] Chunk 21/28
+  [0p25] PNW_HeatDome_2021: step 22/28  member 1/24  (chunk 22/672)
+I0707 01:27:44.598277 22752513238848 rollout.py:361] Chunk 22/28
+  [0p25] PNW_HeatDome_2021: step 23/28  member 1/24  (chunk 23/672)
+I0707 01:29:04.610170 22752513238848 rollout.py:361] Chunk 23/28
+  [0p25] PNW_HeatDome_2021: step 24/28  member 1/24  (chunk 24/672)
+I0707 01:30:24.542465 22752513238848 rollout.py:361] Chunk 24/28
+  [0p25] PNW_HeatDome_2021: step 25/28  member 1/24  (chunk 25/672)
+I0707 01:31:44.518287 22752513238848 rollout.py:361] Chunk 25/28
+  [0p25] PNW_HeatDome_2021: step 26/28  member 1/24  (chunk 26/672)
+I0707 01:33:04.512535 22752513238848 rollout.py:361] Chunk 26/28
+  [0p25] PNW_HeatDome_2021: step 27/28  member 1/24  (chunk 27/672)
+I0707 01:34:24.474019 22752513238848 rollout.py:361] Chunk 27/28
+  [0p25] PNW_HeatDome_2021: step 28/28  member 1/24  (chunk 28/672)
+  [0p25] PNW_HeatDome_2021: member 1/24 complete (steps 1-28)
+I0707 01:35:44.925886 22752513238848 rollout.py:206] Sample 1/24
+/glade/derecho/scratch/exu/S2S_ExtremeWeather/third_party/graphcast/graphcast/rollout.py:328: FutureWarning: The return type of `Dataset.dims` will be changed to return a set of dimension names in future, in order to be more consistent with `DataArray.dims`. To access a mapping from dimension names to lengths, please use `Dataset.sizes`.
+  num_target_steps = targets_template.dims["time"]
+I0707 01:35:44.927368 22752513238848 rollout.py:361] Chunk 0/28
+  [0p25] PNW_HeatDome_2021: step 1/28  member 2/24  (chunk 29/672)
+I0707 01:37:04.556251 22752513238848 rollout.py:361] Chunk 1/28
+  [0p25] PNW_HeatDome_2021: step 2/28  member 2/24  (chunk 30/672)
+I0707 01:38:24.458649 22752513238848 rollout.py:361] Chunk 2/28
+  [0p25] PNW_HeatDome_2021: step 3/28  member 2/24  (chunk 31/672)
+I0707 01:39:44.426507 22752513238848 rollout.py:361] Chunk 3/28
+  [0p25] PNW_HeatDome_2021: step 4/28  member 2/24  (chunk 32/672)
+I0707 01:41:04.439338 22752513238848 rollout.py:361] Chunk 4/28
+  [0p25] PNW_HeatDome_2021: step 5/28  member 2/24  (chunk 33/672)
+I0707 01:42:24.417691 22752513238848 rollout.py:361] Chunk 5/28
+  [0p25] PNW_HeatDome_2021: step 6/28  member 2/24  (chunk 34/672)
+I0707 01:43:44.379306 22752513238848 rollout.py:361] Chunk 6/28
+  [0p25] PNW_HeatDome_2021: step 7/28  member 2/24  (chunk 35/672)
+I0707 01:45:04.341578 22752513238848 rollout.py:361] Chunk 7/28
+  [0p25] PNW_HeatDome_2021: step 8/28  member 2/24  (chunk 36/672)
+I0707 01:46:24.319324 22752513238848 rollout.py:361] Chunk 8/28
+  [0p25] PNW_HeatDome_2021: step 9/28  member 2/24  (chunk 37/672)
+I0707 01:47:44.304616 22752513238848 rollout.py:361] Chunk 9/28
+  [0p25] PNW_HeatDome_2021: step 10/28  member 2/24  (chunk 38/672)
+I0707 01:49:04.275667 22752513238848 rollout.py:361] Chunk 10/28
+  [0p25] PNW_HeatDome_2021: step 11/28  member 2/24  (chunk 39/672)
+I0707 01:50:24.245332 22752513238848 rollout.py:361] Chunk 11/28
+  [0p25] PNW_HeatDome_2021: step 12/28  member 2/24  (chunk 40/672)
+I0707 01:51:44.264671 22752513238848 rollout.py:361] Chunk 12/28
+  [0p25] PNW_HeatDome_2021: step 13/28  member 2/24  (chunk 41/672)
+I0707 01:53:04.201390 22752513238848 rollout.py:361] Chunk 13/28
+  [0p25] PNW_HeatDome_2021: step 14/28  member 2/24  (chunk 42/672)
+I0707 01:54:24.193254 22752513238848 rollout.py:361] Chunk 14/28
+  [0p25] PNW_HeatDome_2021: step 15/28  member 2/24  (chunk 43/672)
+I0707 01:55:44.158649 22752513238848 rollout.py:361] Chunk 15/28
+  [0p25] PNW_HeatDome_2021: step 16/28  member 2/24  (chunk 44/672)
+I0707 01:57:04.128255 22752513238848 rollout.py:361] Chunk 16/28
+  [0p25] PNW_HeatDome_2021: step 17/28  member 2/24  (chunk 45/672)
+I0707 01:58:24.105853 22752513238848 rollout.py:361] Chunk 17/28
+  [0p25] PNW_HeatDome_2021: step 18/28  member 2/24  (chunk 46/672)
+I0707 01:59:44.084871 22752513238848 rollout.py:361] Chunk 18/28
+  [0p25] PNW_HeatDome_2021: step 19/28  member 2/24  (chunk 47/672)
+I0707 02:01:04.036923 22752513238848 rollout.py:361] Chunk 19/28
+  [0p25] PNW_HeatDome_2021: step 20/28  member 2/24  (chunk 48/672)
+I0707 02:02:24.016427 22752513238848 rollout.py:361] Chunk 20/28
+  [0p25] PNW_HeatDome_2021: step 21/28  member 2/24  (chunk 49/672)
+I0707 02:03:44.003599 22752513238848 rollout.py:361] Chunk 21/28
+  [0p25] PNW_HeatDome_2021: step 22/28  member 2/24  (chunk 50/672)
+I0707 02:05:03.969440 22752513238848 rollout.py:361] Chunk 22/28
+  [0p25] PNW_HeatDome_2021: step 23/28  member 2/24  (chunk 51/672)
+I0707 02:06:23.929349 22752513238848 rollout.py:361] Chunk 23/28
+  [0p25] PNW_HeatDome_2021: step 24/28  member 2/24  (chunk 52/672)
+I0707 02:07:43.903931 22752513238848 rollout.py:361] Chunk 24/28
+  [0p25] PNW_HeatDome_2021: step 25/28  member 2/24  (chunk 53/672)
+I0707 02:09:03.881134 22752513238848 rollout.py:361] Chunk 25/28
+  [0p25] PNW_HeatDome_2021: step 26/28  member 2/24  (chunk 54/672)
+I0707 02:10:23.868828 22752513238848 rollout.py:361] Chunk 26/28
+  [0p25] PNW_HeatDome_2021: step 27/28  member 2/24  (chunk 55/672)
+I0707 02:11:43.844070 22752513238848 rollout.py:361] Chunk 27/28
+  [0p25] PNW_HeatDome_2021: step 28/28  member 2/24  (chunk 56/672)
+  [0p25] PNW_HeatDome_2021: member 2/24 complete (steps 1-28)
+I0707 02:13:03.850133 22752513238848 rollout.py:206] Sample 2/24
+I0707 02:13:03.851368 22752513238848 rollout.py:361] Chunk 0/28
+  [0p25] PNW_HeatDome_2021: step 1/28  member 3/24  (chunk 57/672)
+I0707 02:14:23.895177 22752513238848 rollout.py:361] Chunk 1/28
+  [0p25] PNW_HeatDome_2021: step 2/28  member 3/24  (chunk 58/672)
+I0707 02:15:43.789001 22752513238848 rollout.py:361] Chunk 2/28
+  [0p25] PNW_HeatDome_2021: step 3/28  member 3/24  (chunk 59/672)
+I0707 02:17:03.792985 22752513238848 rollout.py:361] Chunk 3/28
+  [0p25] PNW_HeatDome_2021: step 4/28  member 3/24  (chunk 60/672)
+I0707 02:18:23.739549 22752513238848 rollout.py:361] Chunk 4/28
+  [0p25] PNW_HeatDome_2021: step 5/28  member 3/24  (chunk 61/672)
+I0707 02:19:43.712769 22752513238848 rollout.py:361] Chunk 5/28
+  [0p25] PNW_HeatDome_2021: step 6/28  member 3/24  (chunk 62/672)
+I0707 02:21:03.701468 22752513238848 rollout.py:361] Chunk 6/28
+  [0p25] PNW_HeatDome_2021: step 7/28  member 3/24  (chunk 63/672)
+I0707 02:22:23.686263 22752513238848 rollout.py:361] Chunk 7/28
+  [0p25] PNW_HeatDome_2021: step 8/28  member 3/24  (chunk 64/672)
+I0707 02:23:43.659167 22752513238848 rollout.py:361] Chunk 8/28
+  [0p25] PNW_HeatDome_2021: step 9/28  member 3/24  (chunk 65/672)
+I0707 02:25:03.614622 22752513238848 rollout.py:361] Chunk 9/28
+  [0p25] PNW_HeatDome_2021: step 10/28  member 3/24  (chunk 66/672)
+I0707 02:26:23.584863 22752513238848 rollout.py:361] Chunk 10/28
+  [0p25] PNW_HeatDome_2021: step 11/28  member 3/24  (chunk 67/672)
+I0707 02:27:43.596053 22752513238848 rollout.py:361] Chunk 11/28
+  [0p25] PNW_HeatDome_2021: step 12/28  member 3/24  (chunk 68/672)
+I0707 02:29:03.521995 22752513238848 rollout.py:361] Chunk 12/28
+  [0p25] PNW_HeatDome_2021: step 13/28  member 3/24  (chunk 69/672)
+I0707 02:30:23.499374 22752513238848 rollout.py:361] Chunk 13/28
+  [0p25] PNW_HeatDome_2021: step 14/28  member 3/24  (chunk 70/672)
+I0707 02:31:43.469400 22752513238848 rollout.py:361] Chunk 14/28
+  [0p25] PNW_HeatDome_2021: step 15/28  member 3/24  (chunk 71/672)
+I0707 02:33:03.447640 22752513238848 rollout.py:361] Chunk 15/28
+  [0p25] PNW_HeatDome_2021: step 16/28  member 3/24  (chunk 72/672)
+I0707 02:34:23.444112 22752513238848 rollout.py:361] Chunk 16/28
+  [0p25] PNW_HeatDome_2021: step 17/28  member 3/24  (chunk 73/672)
+I0707 02:35:43.396181 22752513238848 rollout.py:361] Chunk 17/28
+  [0p25] PNW_HeatDome_2021: step 18/28  member 3/24  (chunk 74/672)
+I0707 02:37:03.389052 22752513238848 rollout.py:361] Chunk 18/28
+  [0p25] PNW_HeatDome_2021: step 19/28  member 3/24  (chunk 75/672)
+I0707 02:38:23.379004 22752513238848 rollout.py:361] Chunk 19/28
+  [0p25] PNW_HeatDome_2021: step 20/28  member 3/24  (chunk 76/672)
+I0707 02:39:43.306507 22752513238848 rollout.py:361] Chunk 20/28
+  [0p25] PNW_HeatDome_2021: step 21/28  member 3/24  (chunk 77/672)
+I0707 02:41:03.311594 22752513238848 rollout.py:361] Chunk 21/28
+  [0p25] PNW_HeatDome_2021: step 22/28  member 3/24  (chunk 78/672)
+I0707 02:42:23.262351 22752513238848 rollout.py:361] Chunk 22/28
+  [0p25] PNW_HeatDome_2021: step 23/28  member 3/24  (chunk 79/672)
+I0707 02:43:43.226528 22752513238848 rollout.py:361] Chunk 23/28
+  [0p25] PNW_HeatDome_2021: step 24/28  member 3/24  (chunk 80/672)
+I0707 02:45:03.210563 22752513238848 rollout.py:361] Chunk 24/28
+  [0p25] PNW_HeatDome_2021: step 25/28  member 3/24  (chunk 81/672)
+I0707 02:46:23.205005 22752513238848 rollout.py:361] Chunk 25/28
+  [0p25] PNW_HeatDome_2021: step 26/28  member 3/24  (chunk 82/672)
+I0707 02:47:43.158467 22752513238848 rollout.py:361] Chunk 26/28
+  [0p25] PNW_HeatDome_2021: step 27/28  member 3/24  (chunk 83/672)
+I0707 02:49:03.120396 22752513238848 rollout.py:361] Chunk 27/28
+  [0p25] PNW_HeatDome_2021: step 28/28  member 3/24  (chunk 84/672)
+  [0p25] PNW_HeatDome_2021: member 3/24 complete (steps 1-28)
+I0707 02:50:23.118820 22752513238848 rollout.py:206] Sample 3/24
+I0707 02:50:23.120050 22752513238848 rollout.py:361] Chunk 0/28
+  [0p25] PNW_HeatDome_2021: step 1/28  member 4/24  (chunk 85/672)
+I0707 02:51:43.175884 22752513238848 rollout.py:361] Chunk 1/28
+  [0p25] PNW_HeatDome_2021: step 2/28  member 4/24  (chunk 86/672)
+I0707 02:53:03.070788 22752513238848 rollout.py:361] Chunk 2/28
+  [0p25] PNW_HeatDome_2021: step 3/28  member 4/24  (chunk 87/672)
+I0707 02:54:23.049868 22752513238848 rollout.py:361] Chunk 3/28
+  [0p25] PNW_HeatDome_2021: step 4/28  member 4/24  (chunk 88/672)
+I0707 02:55:43.019076 22752513238848 rollout.py:361] Chunk 4/28
+  [0p25] PNW_HeatDome_2021: step 5/28  member 4/24  (chunk 89/672)
+I0707 02:57:02.997046 22752513238848 rollout.py:361] Chunk 5/28
+  [0p25] PNW_HeatDome_2021: step 6/28  member 4/24  (chunk 90/672)
+I0707 02:58:22.989792 22752513238848 rollout.py:361] Chunk 6/28
+  [0p25] PNW_HeatDome_2021: step 7/28  member 4/24  (chunk 91/672)
+I0707 02:59:43.003382 22752513238848 rollout.py:361] Chunk 7/28
+  [0p25] PNW_HeatDome_2021: step 8/28  member 4/24  (chunk 92/672)
+I0707 03:01:02.939524 22752513238848 rollout.py:361] Chunk 8/28
+  [0p25] PNW_HeatDome_2021: step 9/28  member 4/24  (chunk 93/672)
+I0707 03:02:22.901828 22752513238848 rollout.py:361] Chunk 9/28
+  [0p25] PNW_HeatDome_2021: step 10/28  member 4/24  (chunk 94/672)
+I0707 03:03:42.930503 22752513238848 rollout.py:361] Chunk 10/28
+  [0p25] PNW_HeatDome_2021: step 11/28  member 4/24  (chunk 95/672)
+I0707 03:05:02.850266 22752513238848 rollout.py:361] Chunk 11/28
+  [0p25] PNW_HeatDome_2021: step 12/28  member 4/24  (chunk 96/672)
+I0707 03:06:22.845586 22752513238848 rollout.py:361] Chunk 12/28
+  [0p25] PNW_HeatDome_2021: step 13/28  member 4/24  (chunk 97/672)
+I0707 03:07:42.828974 22752513238848 rollout.py:361] Chunk 13/28
+  [0p25] PNW_HeatDome_2021: step 14/28  member 4/24  (chunk 98/672)
+I0707 03:09:02.792489 22752513238848 rollout.py:361] Chunk 14/28
+  [0p25] PNW_HeatDome_2021: step 15/28  member 4/24  (chunk 99/672)
+I0707 03:10:22.753604 22752513238848 rollout.py:361] Chunk 15/28
+  [0p25] PNW_HeatDome_2021: step 16/28  member 4/24  (chunk 100/672)
+I0707 03:11:42.732083 22752513238848 rollout.py:361] Chunk 16/28
+  [0p25] PNW_HeatDome_2021: step 17/28  member 4/24  (chunk 101/672)
+I0707 03:13:02.709971 22752513238848 rollout.py:361] Chunk 17/28
+  [0p25] PNW_HeatDome_2021: step 18/28  member 4/24  (chunk 102/672)
+I0707 03:14:22.680981 22752513238848 rollout.py:361] Chunk 18/28
+  [0p25] PNW_HeatDome_2021: step 19/28  member 4/24  (chunk 103/672)
+I0707 03:15:42.628535 22752513238848 rollout.py:361] Chunk 19/28
+  [0p25] PNW_HeatDome_2021: step 20/28  member 4/24  (chunk 104/672)
+I0707 03:17:02.602849 22752513238848 rollout.py:361] Chunk 20/28
+  [0p25] PNW_HeatDome_2021: step 21/28  member 4/24  (chunk 105/672)
+I0707 03:18:22.595621 22752513238848 rollout.py:361] Chunk 21/28
+  [0p25] PNW_HeatDome_2021: step 22/28  member 4/24  (chunk 106/672)
+I0707 03:19:42.556269 22752513238848 rollout.py:361] Chunk 22/28
+  [0p25] PNW_HeatDome_2021: step 23/28  member 4/24  (chunk 107/672)
+I0707 03:21:02.538578 22752513238848 rollout.py:361] Chunk 23/28
+  [0p25] PNW_HeatDome_2021: step 24/28  member 4/24  (chunk 108/672)
+I0707 03:22:22.526020 22752513238848 rollout.py:361] Chunk 24/28
+  [0p25] PNW_HeatDome_2021: step 25/28  member 4/24  (chunk 109/672)
+I0707 03:23:42.469411 22752513238848 rollout.py:361] Chunk 25/28
+  [0p25] PNW_HeatDome_2021: step 26/28  member 4/24  (chunk 110/672)
+I0707 03:25:02.488777 22752513238848 rollout.py:361] Chunk 26/28
+  [0p25] PNW_HeatDome_2021: step 27/28  member 4/24  (chunk 111/672)
+I0707 03:26:22.441849 22752513238848 rollout.py:361] Chunk 27/28
+  [0p25] PNW_HeatDome_2021: step 28/28  member 4/24  (chunk 112/672)
+  [0p25] PNW_HeatDome_2021: member 4/24 complete (steps 1-28)
+I0707 03:27:42.424552 22752513238848 rollout.py:206] Sample 4/24
+I0707 03:27:42.425784 22752513238848 rollout.py:361] Chunk 0/28
+  [0p25] PNW_HeatDome_2021: step 1/28  member 5/24  (chunk 113/672)
+I0707 03:29:02.490726 22752513238848 rollout.py:361] Chunk 1/28
+  [0p25] PNW_HeatDome_2021: step 2/28  member 5/24  (chunk 114/672)
+I0707 03:30:22.371135 22752513238848 rollout.py:361] Chunk 2/28
+  [0p25] PNW_HeatDome_2021: step 3/28  member 5/24  (chunk 115/672)
+I0707 03:31:42.354892 22752513238848 rollout.py:361] Chunk 3/28
+  [0p25] PNW_HeatDome_2021: step 4/28  member 5/24  (chunk 116/672)
+I0707 03:33:02.302989 22752513238848 rollout.py:361] Chunk 4/28
+  [0p25] PNW_HeatDome_2021: step 5/28  member 5/24  (chunk 117/672)
+I0707 03:34:22.298580 22752513238848 rollout.py:361] Chunk 5/28
+  [0p25] PNW_HeatDome_2021: step 6/28  member 5/24  (chunk 118/672)
+I0707 03:35:42.247752 22752513238848 rollout.py:361] Chunk 6/28
+  [0p25] PNW_HeatDome_2021: step 7/28  member 5/24  (chunk 119/672)
+I0707 03:37:02.226683 22752513238848 rollout.py:361] Chunk 7/28
+  [0p25] PNW_HeatDome_2021: step 8/28  member 5/24  (chunk 120/672)
+I0707 03:38:22.195813 22752513238848 rollout.py:361] Chunk 8/28
+  [0p25] PNW_HeatDome_2021: step 9/28  member 5/24  (chunk 121/672)
+I0707 03:39:42.199191 22752513238848 rollout.py:361] Chunk 9/28
+  [0p25] PNW_HeatDome_2021: step 10/28  member 5/24  (chunk 122/672)
+I0707 03:41:02.153026 22752513238848 rollout.py:361] Chunk 10/28
+  [0p25] PNW_HeatDome_2021: step 11/28  member 5/24  (chunk 123/672)
+I0707 03:42:22.118563 22752513238848 rollout.py:361] Chunk 11/28
+  [0p25] PNW_HeatDome_2021: step 12/28  member 5/24  (chunk 124/672)
+I0707 03:43:42.083999 22752513238848 rollout.py:361] Chunk 12/28
+  [0p25] PNW_HeatDome_2021: step 13/28  member 5/24  (chunk 125/672)
+I0707 03:45:02.053321 22752513238848 rollout.py:361] Chunk 13/28
+  [0p25] PNW_HeatDome_2021: step 14/28  member 5/24  (chunk 126/672)
+I0707 03:46:22.038413 22752513238848 rollout.py:361] Chunk 14/28
+  [0p25] PNW_HeatDome_2021: step 15/28  member 5/24  (chunk 127/672)
+I0707 03:47:42.019924 22752513238848 rollout.py:361] Chunk 15/28
+  [0p25] PNW_HeatDome_2021: step 16/28  member 5/24  (chunk 128/672)
+I0707 03:49:01.996539 22752513238848 rollout.py:361] Chunk 16/28
+  [0p25] PNW_HeatDome_2021: step 17/28  member 5/24  (chunk 129/672)
+I0707 03:50:21.958681 22752513238848 rollout.py:361] Chunk 17/28
+  [0p25] PNW_HeatDome_2021: step 18/28  member 5/24  (chunk 130/672)
+I0707 03:51:41.961545 22752513238848 rollout.py:361] Chunk 18/28
+  [0p25] PNW_HeatDome_2021: step 19/28  member 5/24  (chunk 131/672)
+I0707 03:53:01.889600 22752513238848 rollout.py:361] Chunk 19/28
+  [0p25] PNW_HeatDome_2021: step 20/28  member 5/24  (chunk 132/672)
+I0707 03:54:21.848208 22752513238848 rollout.py:361] Chunk 20/28
+  [0p25] PNW_HeatDome_2021: step 21/28  member 5/24  (chunk 133/672)
+I0707 03:55:41.813395 22752513238848 rollout.py:361] Chunk 21/28
+  [0p25] PNW_HeatDome_2021: step 22/28  member 5/24  (chunk 134/672)
+I0707 03:57:01.791275 22752513238848 rollout.py:361] Chunk 22/28
+  [0p25] PNW_HeatDome_2021: step 23/28  member 5/24  (chunk 135/672)
+I0707 03:58:21.766662 22752513238848 rollout.py:361] Chunk 23/28
+  [0p25] PNW_HeatDome_2021: step 24/28  member 5/24  (chunk 136/672)
+I0707 03:59:41.731297 22752513238848 rollout.py:361] Chunk 24/28
+  [0p25] PNW_HeatDome_2021: step 25/28  member 5/24  (chunk 137/672)
+I0707 04:01:01.707648 22752513238848 rollout.py:361] Chunk 25/28
+  [0p25] PNW_HeatDome_2021: step 26/28  member 5/24  (chunk 138/672)
+I0707 04:02:21.672573 22752513238848 rollout.py:361] Chunk 26/28
+  [0p25] PNW_HeatDome_2021: step 27/28  member 5/24  (chunk 139/672)
+I0707 04:03:41.648441 22752513238848 rollout.py:361] Chunk 27/28
+  [0p25] PNW_HeatDome_2021: step 28/28  member 5/24  (chunk 140/672)
+  [0p25] PNW_HeatDome_2021: member 5/24 complete (steps 1-28)
+I0707 04:05:01.669200 22752513238848 rollout.py:206] Sample 5/24
+I0707 04:05:01.670454 22752513238848 rollout.py:361] Chunk 0/28
+  [0p25] PNW_HeatDome_2021: step 1/28  member 6/24  (chunk 141/672)
+I0707 04:06:21.711078 22752513238848 rollout.py:361] Chunk 1/28
+  [0p25] PNW_HeatDome_2021: step 2/28  member 6/24  (chunk 142/672)
+I0707 04:07:41.633214 22752513238848 rollout.py:361] Chunk 2/28
+  [0p25] PNW_HeatDome_2021: step 3/28  member 6/24  (chunk 143/672)
+I0707 04:09:01.600228 22752513238848 rollout.py:361] Chunk 3/28
+  [0p25] PNW_HeatDome_2021: step 4/28  member 6/24  (chunk 144/672)
+I0707 04:10:21.586358 22752513238848 rollout.py:361] Chunk 4/28
+  [0p25] PNW_HeatDome_2021: step 5/28  member 6/24  (chunk 145/672)
+I0707 04:11:41.545371 22752513238848 rollout.py:361] Chunk 5/28
+  [0p25] PNW_HeatDome_2021: step 6/28  member 6/24  (chunk 146/672)
+I0707 04:13:01.551749 22752513238848 rollout.py:361] Chunk 6/28
+  [0p25] PNW_HeatDome_2021: step 7/28  member 6/24  (chunk 147/672)
+I0707 04:14:21.497851 22752513238848 rollout.py:361] Chunk 7/28
+  [0p25] PNW_HeatDome_2021: step 8/28  member 6/24  (chunk 148/672)
+I0707 04:15:41.477284 22752513238848 rollout.py:361] Chunk 8/28
+  [0p25] PNW_HeatDome_2021: step 9/28  member 6/24  (chunk 149/672)
+I0707 04:17:01.452639 22752513238848 rollout.py:361] Chunk 9/28
+  [0p25] PNW_HeatDome_2021: step 10/28  member 6/24  (chunk 150/672)
+I0707 04:18:21.428380 22752513238848 rollout.py:361] Chunk 10/28
+  [0p25] PNW_HeatDome_2021: step 11/28  member 6/24  (chunk 151/672)
+I0707 04:19:41.446586 22752513238848 rollout.py:361] Chunk 11/28
+  [0p25] PNW_HeatDome_2021: step 12/28  member 6/24  (chunk 152/672)
+I0707 04:21:01.420029 22752513238848 rollout.py:361] Chunk 12/28
+  [0p25] PNW_HeatDome_2021: step 13/28  member 6/24  (chunk 153/672)
+I0707 04:22:21.359342 22752513238848 rollout.py:361] Chunk 13/28
+  [0p25] PNW_HeatDome_2021: step 14/28  member 6/24  (chunk 154/672)
+I0707 04:23:41.389592 22752513238848 rollout.py:361] Chunk 14/28
+  [0p25] PNW_HeatDome_2021: step 15/28  member 6/24  (chunk 155/672)
+I0707 04:25:01.341771 22752513238848 rollout.py:361] Chunk 15/28
+  [0p25] PNW_HeatDome_2021: step 16/28  member 6/24  (chunk 156/672)
+I0707 04:26:21.292761 22752513238848 rollout.py:361] Chunk 16/28
+  [0p25] PNW_HeatDome_2021: step 17/28  member 6/24  (chunk 157/672)
+I0707 04:27:41.273077 22752513238848 rollout.py:361] Chunk 17/28
+  [0p25] PNW_HeatDome_2021: step 18/28  member 6/24  (chunk 158/672)
+I0707 04:29:01.249417 22752513238848 rollout.py:361] Chunk 18/28
+  [0p25] PNW_HeatDome_2021: step 19/28  member 6/24  (chunk 159/672)
+I0707 04:30:21.237108 22752513238848 rollout.py:361] Chunk 19/28
+  [0p25] PNW_HeatDome_2021: step 20/28  member 6/24  (chunk 160/672)
+I0707 04:31:41.217980 22752513238848 rollout.py:361] Chunk 20/28
+  [0p25] PNW_HeatDome_2021: step 21/28  member 6/24  (chunk 161/672)
+I0707 04:33:01.237326 22752513238848 rollout.py:361] Chunk 21/28
+  [0p25] PNW_HeatDome_2021: step 22/28  member 6/24  (chunk 162/672)
+I0707 04:34:21.181194 22752513238848 rollout.py:361] Chunk 22/28
+  [0p25] PNW_HeatDome_2021: step 23/28  member 6/24  (chunk 163/672)
+I0707 04:35:41.125034 22752513238848 rollout.py:361] Chunk 23/28
+  [0p25] PNW_HeatDome_2021: step 24/28  member 6/24  (chunk 164/672)
+I0707 04:37:01.086551 22752513238848 rollout.py:361] Chunk 24/28
+  [0p25] PNW_HeatDome_2021: step 25/28  member 6/24  (chunk 165/672)
+I0707 04:38:21.097807 22752513238848 rollout.py:361] Chunk 25/28
+  [0p25] PNW_HeatDome_2021: step 26/28  member 6/24  (chunk 166/672)
+I0707 04:39:41.052847 22752513238848 rollout.py:361] Chunk 26/28
+  [0p25] PNW_HeatDome_2021: step 27/28  member 6/24  (chunk 167/672)
+I0707 04:41:01.057099 22752513238848 rollout.py:361] Chunk 27/28
+  [0p25] PNW_HeatDome_2021: step 28/28  member 6/24  (chunk 168/672)
+  [0p25] PNW_HeatDome_2021: member 6/24 complete (steps 1-28)
+I0707 04:42:21.031497 22752513238848 rollout.py:206] Sample 6/24
+I0707 04:42:21.032733 22752513238848 rollout.py:361] Chunk 0/28
+  [0p25] PNW_HeatDome_2021: step 1/28  member 7/24  (chunk 169/672)
+I0707 04:43:41.141305 22752513238848 rollout.py:361] Chunk 1/28
+  [0p25] PNW_HeatDome_2021: step 2/28  member 7/24  (chunk 170/672)
+I0707 04:45:00.992731 22752513238848 rollout.py:361] Chunk 2/28
+  [0p25] PNW_HeatDome_2021: step 3/28  member 7/24  (chunk 171/672)
+I0707 04:46:20.972168 22752513238848 rollout.py:361] Chunk 3/28
+  [0p25] PNW_HeatDome_2021: step 4/28  member 7/24  (chunk 172/672)
+I0707 04:47:40.945058 22752513238848 rollout.py:361] Chunk 4/28
+  [0p25] PNW_HeatDome_2021: step 5/28  member 7/24  (chunk 173/672)
+I0707 04:49:00.923753 22752513238848 rollout.py:361] Chunk 5/28
+  [0p25] PNW_HeatDome_2021: step 6/28  member 7/24  (chunk 174/672)
+I0707 04:50:20.907113 22752513238848 rollout.py:361] Chunk 6/28
+  [0p25] PNW_HeatDome_2021: step 7/28  member 7/24  (chunk 175/672)
+I0707 04:51:40.876474 22752513238848 rollout.py:361] Chunk 7/28
+  [0p25] PNW_HeatDome_2021: step 8/28  member 7/24  (chunk 176/672)
+I0707 04:53:00.891590 22752513238848 rollout.py:361] Chunk 8/28
+  [0p25] PNW_HeatDome_2021: step 9/28  member 7/24  (chunk 177/672)
+I0707 04:54:20.886642 22752513238848 rollout.py:361] Chunk 9/28
+  [0p25] PNW_HeatDome_2021: step 10/28  member 7/24  (chunk 178/672)
+I0707 04:55:40.826253 22752513238848 rollout.py:361] Chunk 10/28
+  [0p25] PNW_HeatDome_2021: step 11/28  member 7/24  (chunk 179/672)
+I0707 04:57:00.784155 22752513238848 rollout.py:361] Chunk 11/28
+  [0p25] PNW_HeatDome_2021: step 12/28  member 7/24  (chunk 180/672)
+I0707 04:58:20.773815 22752513238848 rollout.py:361] Chunk 12/28
+  [0p25] PNW_HeatDome_2021: step 13/28  member 7/24  (chunk 181/672)
+I0707 04:59:40.717568 22752513238848 rollout.py:361] Chunk 13/28
+  [0p25] PNW_HeatDome_2021: step 14/28  member 7/24  (chunk 182/672)
+I0707 05:01:00.682565 22752513238848 rollout.py:361] Chunk 14/28
+  [0p25] PNW_HeatDome_2021: step 15/28  member 7/24  (chunk 183/672)
+I0707 05:02:20.707005 22752513238848 rollout.py:361] Chunk 15/28
+  [0p25] PNW_HeatDome_2021: step 16/28  member 7/24  (chunk 184/672)
+I0707 05:03:40.668287 22752513238848 rollout.py:361] Chunk 16/28
+  [0p25] PNW_HeatDome_2021: step 17/28  member 7/24  (chunk 185/672)
+I0707 05:05:00.586834 22752513238848 rollout.py:361] Chunk 17/28
+  [0p25] PNW_HeatDome_2021: step 18/28  member 7/24  (chunk 186/672)
+I0707 05:06:20.556115 22752513238848 rollout.py:361] Chunk 18/28
+  [0p25] PNW_HeatDome_2021: step 19/28  member 7/24  (chunk 187/672)
+I0707 05:07:40.520577 22752513238848 rollout.py:361] Chunk 19/28
+  [0p25] PNW_HeatDome_2021: step 20/28  member 7/24  (chunk 188/672)
+I0707 05:09:00.491180 22752513238848 rollout.py:361] Chunk 20/28
+  [0p25] PNW_HeatDome_2021: step 21/28  member 7/24  (chunk 189/672)
+I0707 05:10:20.462229 22752513238848 rollout.py:361] Chunk 21/28
+  [0p25] PNW_HeatDome_2021: step 22/28  member 7/24  (chunk 190/672)
+I0707 05:11:40.454005 22752513238848 rollout.py:361] Chunk 22/28
+  [0p25] PNW_HeatDome_2021: step 23/28  member 7/24  (chunk 191/672)
+I0707 05:13:00.431230 22752513238848 rollout.py:361] Chunk 23/28
+  [0p25] PNW_HeatDome_2021: step 24/28  member 7/24  (chunk 192/672)
+I0707 05:14:20.387272 22752513238848 rollout.py:361] Chunk 24/28
+  [0p25] PNW_HeatDome_2021: step 25/28  member 7/24  (chunk 193/672)
+I0707 05:15:40.338469 22752513238848 rollout.py:361] Chunk 25/28
+  [0p25] PNW_HeatDome_2021: step 26/28  member 7/24  (chunk 194/672)
+I0707 05:17:00.323106 22752513238848 rollout.py:361] Chunk 26/28
+  [0p25] PNW_HeatDome_2021: step 27/28  member 7/24  (chunk 195/672)
+I0707 05:18:20.276111 22752513238848 rollout.py:361] Chunk 27/28
+  [0p25] PNW_HeatDome_2021: step 28/28  member 7/24  (chunk 196/672)
+  [0p25] PNW_HeatDome_2021: member 7/24 complete (steps 1-28)
+I0707 05:19:40.318390 22752513238848 rollout.py:206] Sample 7/24
+I0707 05:19:40.319636 22752513238848 rollout.py:361] Chunk 0/28
+  [0p25] PNW_HeatDome_2021: step 1/28  member 8/24  (chunk 197/672)
+I0707 05:21:00.381026 22752513238848 rollout.py:361] Chunk 1/28
+  [0p25] PNW_HeatDome_2021: step 2/28  member 8/24  (chunk 198/672)
+I0707 05:22:20.255872 22752513238848 rollout.py:361] Chunk 2/28
+  [0p25] PNW_HeatDome_2021: step 3/28  member 8/24  (chunk 199/672)
+I0707 05:23:40.214421 22752513238848 rollout.py:361] Chunk 3/28
+  [0p25] PNW_HeatDome_2021: step 4/28  member 8/24  (chunk 200/672)
+I0707 05:25:00.199208 22752513238848 rollout.py:361] Chunk 4/28
+  [0p25] PNW_HeatDome_2021: step 5/28  member 8/24  (chunk 201/672)
+I0707 05:26:20.170990 22752513238848 rollout.py:361] Chunk 5/28
+  [0p25] PNW_HeatDome_2021: step 6/28  member 8/24  (chunk 202/672)
+I0707 05:27:40.136557 22752513238848 rollout.py:361] Chunk 6/28
+  [0p25] PNW_HeatDome_2021: step 7/28  member 8/24  (chunk 203/672)
+I0707 05:29:00.113626 22752513238848 rollout.py:361] Chunk 7/28
+  [0p25] PNW_HeatDome_2021: step 8/28  member 8/24  (chunk 204/672)
+I0707 05:30:20.084344 22752513238848 rollout.py:361] Chunk 8/28
+  [0p25] PNW_HeatDome_2021: step 9/28  member 8/24  (chunk 205/672)
+I0707 05:31:40.059781 22752513238848 rollout.py:361] Chunk 9/28
+  [0p25] PNW_HeatDome_2021: step 10/28  member 8/24  (chunk 206/672)
+I0707 05:33:00.034664 22752513238848 rollout.py:361] Chunk 10/28
+  [0p25] PNW_HeatDome_2021: step 11/28  member 8/24  (chunk 207/672)
+I0707 05:34:19.989314 22752513238848 rollout.py:361] Chunk 11/28
+  [0p25] PNW_HeatDome_2021: step 12/28  member 8/24  (chunk 208/672)
+I0707 05:35:40.025551 22752513238848 rollout.py:361] Chunk 12/28
+  [0p25] PNW_HeatDome_2021: step 13/28  member 8/24  (chunk 209/672)
+I0707 05:36:59.943986 22752513238848 rollout.py:361] Chunk 13/28
+  [0p25] PNW_HeatDome_2021: step 14/28  member 8/24  (chunk 210/672)
+I0707 05:38:19.928203 22752513238848 rollout.py:361] Chunk 14/28
+  [0p25] PNW_HeatDome_2021: step 15/28  member 8/24  (chunk 211/672)
+I0707 05:39:39.891432 22752513238848 rollout.py:361] Chunk 15/28
+  [0p25] PNW_HeatDome_2021: step 16/28  member 8/24  (chunk 212/672)
+I0707 05:40:59.875862 22752513238848 rollout.py:361] Chunk 16/28
+  [0p25] PNW_HeatDome_2021: step 17/28  member 8/24  (chunk 213/672)
+I0707 05:42:19.845209 22752513238848 rollout.py:361] Chunk 17/28
+  [0p25] PNW_HeatDome_2021: step 18/28  member 8/24  (chunk 214/672)
+I0707 05:43:39.804982 22752513238848 rollout.py:361] Chunk 18/28
+  [0p25] PNW_HeatDome_2021: step 19/28  member 8/24  (chunk 215/672)
+I0707 05:44:59.806978 22752513238848 rollout.py:361] Chunk 19/28
+  [0p25] PNW_HeatDome_2021: step 20/28  member 8/24  (chunk 216/672)
+I0707 05:46:19.757627 22752513238848 rollout.py:361] Chunk 20/28
+  [0p25] PNW_HeatDome_2021: step 21/28  member 8/24  (chunk 217/672)
+I0707 05:47:39.761145 22752513238848 rollout.py:361] Chunk 21/28
+  [0p25] PNW_HeatDome_2021: step 22/28  member 8/24  (chunk 218/672)
+I0707 05:48:59.704003 22752513238848 rollout.py:361] Chunk 22/28
+  [0p25] PNW_HeatDome_2021: step 23/28  member 8/24  (chunk 219/672)
+I0707 05:50:19.671131 22752513238848 rollout.py:361] Chunk 23/28
+  [0p25] PNW_HeatDome_2021: step 24/28  member 8/24  (chunk 220/672)
+I0707 05:51:39.638885 22752513238848 rollout.py:361] Chunk 24/28
+  [0p25] PNW_HeatDome_2021: step 25/28  member 8/24  (chunk 221/672)
+I0707 05:52:59.630811 22752513238848 rollout.py:361] Chunk 25/28
+  [0p25] PNW_HeatDome_2021: step 26/28  member 8/24  (chunk 222/672)
+I0707 05:54:19.570680 22752513238848 rollout.py:361] Chunk 26/28
+  [0p25] PNW_HeatDome_2021: step 27/28  member 8/24  (chunk 223/672)
+I0707 05:55:39.538640 22752513238848 rollout.py:361] Chunk 27/28
+  [0p25] PNW_HeatDome_2021: step 28/28  member 8/24  (chunk 224/672)
+  [0p25] PNW_HeatDome_2021: member 8/24 complete (steps 1-28)
+I0707 05:56:59.553663 22752513238848 rollout.py:206] Sample 8/24
+I0707 05:56:59.554916 22752513238848 rollout.py:361] Chunk 0/28
+  [0p25] PNW_HeatDome_2021: step 1/28  member 9/24  (chunk 225/672)
+I0707 05:58:19.635750 22752513238848 rollout.py:361] Chunk 1/28
+  [0p25] PNW_HeatDome_2021: step 2/28  member 9/24  (chunk 226/672)
+I0707 05:59:39.532013 22752513238848 rollout.py:361] Chunk 2/28
+  [0p25] PNW_HeatDome_2021: step 3/28  member 9/24  (chunk 227/672)
+I0707 06:00:59.474112 22752513238848 rollout.py:361] Chunk 3/28
+  [0p25] PNW_HeatDome_2021: step 4/28  member 9/24  (chunk 228/672)
+I0707 06:02:19.451155 22752513238848 rollout.py:361] Chunk 4/28
+  [0p25] PNW_HeatDome_2021: step 5/28  member 9/24  (chunk 229/672)
+I0707 06:03:39.461498 22752513238848 rollout.py:361] Chunk 5/28
+  [0p25] PNW_HeatDome_2021: step 6/28  member 9/24  (chunk 230/672)
+I0707 06:04:59.411424 22752513238848 rollout.py:361] Chunk 6/28
+  [0p25] PNW_HeatDome_2021: step 7/28  member 9/24  (chunk 231/672)
+I0707 06:06:19.406442 22752513238848 rollout.py:361] Chunk 7/28
+  [0p25] PNW_HeatDome_2021: step 8/28  member 9/24  (chunk 232/672)
+I0707 06:07:39.399546 22752513238848 rollout.py:361] Chunk 8/28
+  [0p25] PNW_HeatDome_2021: step 9/28  member 9/24  (chunk 233/672)
+I0707 06:08:59.343723 22752513238848 rollout.py:361] Chunk 9/28
+  [0p25] PNW_HeatDome_2021: step 10/28  member 9/24  (chunk 234/672)
+I0707 06:10:19.332986 22752513238848 rollout.py:361] Chunk 10/28
+  [0p25] PNW_HeatDome_2021: step 11/28  member 9/24  (chunk 235/672)
+I0707 06:11:39.292150 22752513238848 rollout.py:361] Chunk 11/28
+  [0p25] PNW_HeatDome_2021: step 12/28  member 9/24  (chunk 236/672)
+I0707 06:12:59.275118 22752513238848 rollout.py:361] Chunk 12/28
+  [0p25] PNW_HeatDome_2021: step 13/28  member 9/24  (chunk 237/672)
+I0707 06:14:19.238652 22752513238848 rollout.py:361] Chunk 13/28
+  [0p25] PNW_HeatDome_2021: step 14/28  member 9/24  (chunk 238/672)
+I0707 06:15:39.212905 22752513238848 rollout.py:361] Chunk 14/28
+  [0p25] PNW_HeatDome_2021: step 15/28  member 9/24  (chunk 239/672)
+I0707 06:16:59.219331 22752513238848 rollout.py:361] Chunk 15/28
+  [0p25] PNW_HeatDome_2021: step 16/28  member 9/24  (chunk 240/672)
+I0707 06:18:19.162880 22752513238848 rollout.py:361] Chunk 16/28
+  [0p25] PNW_HeatDome_2021: step 17/28  member 9/24  (chunk 241/672)
+I0707 06:19:39.126989 22752513238848 rollout.py:361] Chunk 17/28
+  [0p25] PNW_HeatDome_2021: step 18/28  member 9/24  (chunk 242/672)
+I0707 06:20:59.104046 22752513238848 rollout.py:361] Chunk 18/28
+  [0p25] PNW_HeatDome_2021: step 19/28  member 9/24  (chunk 243/672)
+I0707 06:22:19.060845 22752513238848 rollout.py:361] Chunk 19/28
+  [0p25] PNW_HeatDome_2021: step 20/28  member 9/24  (chunk 244/672)
+I0707 06:23:39.024568 22752513238848 rollout.py:361] Chunk 20/28
+  [0p25] PNW_HeatDome_2021: step 21/28  member 9/24  (chunk 245/672)
+I0707 06:24:59.043278 22752513238848 rollout.py:361] Chunk 21/28
+  [0p25] PNW_HeatDome_2021: step 22/28  member 9/24  (chunk 246/672)
+I0707 06:26:18.974238 22752513238848 rollout.py:361] Chunk 22/28
+  [0p25] PNW_HeatDome_2021: step 23/28  member 9/24  (chunk 247/672)
+I0707 06:27:38.965790 22752513238848 rollout.py:361] Chunk 23/28
+  [0p25] PNW_HeatDome_2021: step 24/28  member 9/24  (chunk 248/672)
+I0707 06:28:58.933422 22752513238848 rollout.py:361] Chunk 24/28
+  [0p25] PNW_HeatDome_2021: step 25/28  member 9/24  (chunk 249/672)
+I0707 06:30:18.941854 22752513238848 rollout.py:361] Chunk 25/28
+  [0p25] PNW_HeatDome_2021: step 26/28  member 9/24  (chunk 250/672)
+I0707 06:31:38.879332 22752513238848 rollout.py:361] Chunk 26/28
+  [0p25] PNW_HeatDome_2021: step 27/28  member 9/24  (chunk 251/672)
+I0707 06:32:58.873127 22752513238848 rollout.py:361] Chunk 27/28
+  [0p25] PNW_HeatDome_2021: step 28/28  member 9/24  (chunk 252/672)
+  [0p25] PNW_HeatDome_2021: member 9/24 complete (steps 1-28)
+I0707 06:34:18.891463 22752513238848 rollout.py:206] Sample 9/24
+I0707 06:34:18.892766 22752513238848 rollout.py:361] Chunk 0/28
+  [0p25] PNW_HeatDome_2021: step 1/28  member 10/24  (chunk 253/672)
+I0707 06:35:38.935077 22752513238848 rollout.py:361] Chunk 1/28
+  [0p25] PNW_HeatDome_2021: step 2/28  member 10/24  (chunk 254/672)
+I0707 06:36:58.830711 22752513238848 rollout.py:361] Chunk 2/28
+  [0p25] PNW_HeatDome_2021: step 3/28  member 10/24  (chunk 255/672)
+I0707 06:38:18.845588 22752513238848 rollout.py:361] Chunk 3/28
+  [0p25] PNW_HeatDome_2021: step 4/28  member 10/24  (chunk 256/672)
+I0707 06:39:38.822165 22752513238848 rollout.py:361] Chunk 4/28
+  [0p25] PNW_HeatDome_2021: step 5/28  member 10/24  (chunk 257/672)
+I0707 06:40:58.750594 22752513238848 rollout.py:361] Chunk 5/28
+  [0p25] PNW_HeatDome_2021: step 6/28  member 10/24  (chunk 258/672)
+I0707 06:42:18.746276 22752513238848 rollout.py:361] Chunk 6/28
+  [0p25] PNW_HeatDome_2021: step 7/28  member 10/24  (chunk 259/672)
+I0707 06:43:38.735310 22752513238848 rollout.py:361] Chunk 7/28
+  [0p25] PNW_HeatDome_2021: step 8/28  member 10/24  (chunk 260/672)
+I0707 06:44:58.676747 22752513238848 rollout.py:361] Chunk 8/28
+  [0p25] PNW_HeatDome_2021: step 9/28  member 10/24  (chunk 261/672)
+I0707 06:46:18.654814 22752513238848 rollout.py:361] Chunk 9/28
+  [0p25] PNW_HeatDome_2021: step 10/28  member 10/24  (chunk 262/672)
+I0707 06:47:38.647820 22752513238848 rollout.py:361] Chunk 10/28
+  [0p25] PNW_HeatDome_2021: step 11/28  member 10/24  (chunk 263/672)
+I0707 06:48:58.611826 22752513238848 rollout.py:361] Chunk 11/28
+  [0p25] PNW_HeatDome_2021: step 12/28  member 10/24  (chunk 264/672)
+I0707 06:50:18.591029 22752513238848 rollout.py:361] Chunk 12/28
+  [0p25] PNW_HeatDome_2021: step 13/28  member 10/24  (chunk 265/672)
+I0707 06:51:38.560926 22752513238848 rollout.py:361] Chunk 13/28
+  [0p25] PNW_HeatDome_2021: step 14/28  member 10/24  (chunk 266/672)
+I0707 06:52:58.535624 22752513238848 rollout.py:361] Chunk 14/28
+  [0p25] PNW_HeatDome_2021: step 15/28  member 10/24  (chunk 267/672)
+I0707 06:54:18.499158 22752513238848 rollout.py:361] Chunk 15/28
+  [0p25] PNW_HeatDome_2021: step 16/28  member 10/24  (chunk 268/672)
+I0707 06:55:38.474087 22752513238848 rollout.py:361] Chunk 16/28
+  [0p25] PNW_HeatDome_2021: step 17/28  member 10/24  (chunk 269/672)
+I0707 06:56:58.471158 22752513238848 rollout.py:361] Chunk 17/28
+  [0p25] PNW_HeatDome_2021: step 18/28  member 10/24  (chunk 270/672)
+I0707 06:58:18.424293 22752513238848 rollout.py:361] Chunk 18/28
+  [0p25] PNW_HeatDome_2021: step 19/28  member 10/24  (chunk 271/672)
+I0707 06:59:38.380113 22752513238848 rollout.py:361] Chunk 19/28
+  [0p25] PNW_HeatDome_2021: step 20/28  member 10/24  (chunk 272/672)
+I0707 07:00:58.341806 22752513238848 rollout.py:361] Chunk 20/28
+  [0p25] PNW_HeatDome_2021: step 21/28  member 10/24  (chunk 273/672)
+I0707 07:02:18.318548 22752513238848 rollout.py:361] Chunk 21/28
+  [0p25] PNW_HeatDome_2021: step 22/28  member 10/24  (chunk 274/672)
+I0707 07:03:38.315483 22752513238848 rollout.py:361] Chunk 22/28
+  [0p25] PNW_HeatDome_2021: step 23/28  member 10/24  (chunk 275/672)
+I0707 07:04:58.277822 22752513238848 rollout.py:361] Chunk 23/28
+  [0p25] PNW_HeatDome_2021: step 24/28  member 10/24  (chunk 276/672)
+I0707 07:06:18.224704 22752513238848 rollout.py:361] Chunk 24/28
+  [0p25] PNW_HeatDome_2021: step 25/28  member 10/24  (chunk 277/672)
+I0707 07:07:38.238483 22752513238848 rollout.py:361] Chunk 25/28
+  [0p25] PNW_HeatDome_2021: step 26/28  member 10/24  (chunk 278/672)
+I0707 07:08:58.149076 22752513238848 rollout.py:361] Chunk 26/28
+  [0p25] PNW_HeatDome_2021: step 27/28  member 10/24  (chunk 279/672)
+I0707 07:10:18.127979 22752513238848 rollout.py:361] Chunk 27/28
+  [0p25] PNW_HeatDome_2021: step 28/28  member 10/24  (chunk 280/672)
+  [0p25] PNW_HeatDome_2021: member 10/24 complete (steps 1-28)
+I0707 07:11:38.200711 22752513238848 rollout.py:206] Sample 10/24
+I0707 07:11:38.201946 22752513238848 rollout.py:361] Chunk 0/28
+  [0p25] PNW_HeatDome_2021: step 1/28  member 11/24  (chunk 281/672)
+I0707 07:12:58.236518 22752513238848 rollout.py:361] Chunk 1/28
+  [0p25] PNW_HeatDome_2021: step 2/28  member 11/24  (chunk 282/672)
+I0707 07:14:18.099556 22752513238848 rollout.py:361] Chunk 2/28
+  [0p25] PNW_HeatDome_2021: step 3/28  member 11/24  (chunk 283/672)
+I0707 07:15:38.080936 22752513238848 rollout.py:361] Chunk 3/28
+  [0p25] PNW_HeatDome_2021: step 4/28  member 11/24  (chunk 284/672)
+I0707 07:16:58.075301 22752513238848 rollout.py:361] Chunk 4/28
+  [0p25] PNW_HeatDome_2021: step 5/28  member 11/24  (chunk 285/672)
+I0707 07:18:18.055104 22752513238848 rollout.py:361] Chunk 5/28
+  [0p25] PNW_HeatDome_2021: step 6/28  member 11/24  (chunk 286/672)
+I0707 07:19:38.012974 22752513238848 rollout.py:361] Chunk 6/28
+  [0p25] PNW_HeatDome_2021: step 7/28  member 11/24  (chunk 287/672)
+I0707 07:20:57.980512 22752513238848 rollout.py:361] Chunk 7/28
+  [0p25] PNW_HeatDome_2021: step 8/28  member 11/24  (chunk 288/672)
+I0707 07:22:17.949305 22752513238848 rollout.py:361] Chunk 8/28
+  [0p25] PNW_HeatDome_2021: step 9/28  member 11/24  (chunk 289/672)
+I0707 07:23:37.949033 22752513238848 rollout.py:361] Chunk 9/28
+  [0p25] PNW_HeatDome_2021: step 10/28  member 11/24  (chunk 290/672)
+I0707 07:24:57.894824 22752513238848 rollout.py:361] Chunk 10/28
+  [0p25] PNW_HeatDome_2021: step 11/28  member 11/24  (chunk 291/672)
+I0707 07:26:17.913712 22752513238848 rollout.py:361] Chunk 11/28
+  [0p25] PNW_HeatDome_2021: step 12/28  member 11/24  (chunk 292/672)
+I0707 07:27:37.838029 22752513238848 rollout.py:361] Chunk 12/28
+  [0p25] PNW_HeatDome_2021: step 13/28  member 11/24  (chunk 293/672)
+I0707 07:28:57.817609 22752513238848 rollout.py:361] Chunk 13/28
+  [0p25] PNW_HeatDome_2021: step 14/28  member 11/24  (chunk 294/672)
+I0707 07:30:17.774041 22752513238848 rollout.py:361] Chunk 14/28
+  [0p25] PNW_HeatDome_2021: step 15/28  member 11/24  (chunk 295/672)
+I0707 07:31:37.751133 22752513238848 rollout.py:361] Chunk 15/28
+  [0p25] PNW_HeatDome_2021: step 16/28  member 11/24  (chunk 296/672)
+I0707 07:32:57.728660 22752513238848 rollout.py:361] Chunk 16/28
+  [0p25] PNW_HeatDome_2021: step 17/28  member 11/24  (chunk 297/672)
+I0707 07:34:17.695641 22752513238848 rollout.py:361] Chunk 17/28
+  [0p25] PNW_HeatDome_2021: step 18/28  member 11/24  (chunk 298/672)
+I0707 07:35:37.667656 22752513238848 rollout.py:361] Chunk 18/28
+  [0p25] PNW_HeatDome_2021: step 19/28  member 11/24  (chunk 299/672)
+I0707 07:36:57.641483 22752513238848 rollout.py:361] Chunk 19/28
+  [0p25] PNW_HeatDome_2021: step 20/28  member 11/24  (chunk 300/672)
+I0707 07:38:17.619297 22752513238848 rollout.py:361] Chunk 20/28
+  [0p25] PNW_HeatDome_2021: step 21/28  member 11/24  (chunk 301/672)
+I0707 07:39:37.592448 22752513238848 rollout.py:361] Chunk 21/28
+  [0p25] PNW_HeatDome_2021: step 22/28  member 11/24  (chunk 302/672)
+I0707 07:40:57.564888 22752513238848 rollout.py:361] Chunk 22/28
+  [0p25] PNW_HeatDome_2021: step 23/28  member 11/24  (chunk 303/672)
+I0707 07:42:17.541755 22752513238848 rollout.py:361] Chunk 23/28
+  [0p25] PNW_HeatDome_2021: step 24/28  member 11/24  (chunk 304/672)
+I0707 07:43:37.515013 22752513238848 rollout.py:361] Chunk 24/28
+  [0p25] PNW_HeatDome_2021: step 25/28  member 11/24  (chunk 305/672)
+I0707 07:44:57.487891 22752513238848 rollout.py:361] Chunk 25/28
+  [0p25] PNW_HeatDome_2021: step 26/28  member 11/24  (chunk 306/672)
+I0707 07:46:17.466777 22752513238848 rollout.py:361] Chunk 26/28
+  [0p25] PNW_HeatDome_2021: step 27/28  member 11/24  (chunk 307/672)
+I0707 07:47:37.440982 22752513238848 rollout.py:361] Chunk 27/28
+  [0p25] PNW_HeatDome_2021: step 28/28  member 11/24  (chunk 308/672)
+  [0p25] PNW_HeatDome_2021: member 11/24 complete (steps 1-28)
+I0707 07:48:57.461367 22752513238848 rollout.py:206] Sample 11/24
+I0707 07:48:57.462595 22752513238848 rollout.py:361] Chunk 0/28
+  [0p25] PNW_HeatDome_2021: step 1/28  member 12/24  (chunk 309/672)
+I0707 07:50:17.528986 22752513238848 rollout.py:361] Chunk 1/28
+  [0p25] PNW_HeatDome_2021: step 2/28  member 12/24  (chunk 310/672)
+I0707 07:51:37.423345 22752513238848 rollout.py:361] Chunk 2/28
+  [0p25] PNW_HeatDome_2021: step 3/28  member 12/24  (chunk 311/672)
+I0707 07:52:57.397349 22752513238848 rollout.py:361] Chunk 3/28
+  [0p25] PNW_HeatDome_2021: step 4/28  member 12/24  (chunk 312/672)
+I0707 07:54:17.357511 22752513238848 rollout.py:361] Chunk 4/28
+  [0p25] PNW_HeatDome_2021: step 5/28  member 12/24  (chunk 313/672)
+I0707 07:55:37.327547 22752513238848 rollout.py:361] Chunk 5/28
+  [0p25] PNW_HeatDome_2021: step 6/28  member 12/24  (chunk 314/672)
+I0707 07:56:57.300167 22752513238848 rollout.py:361] Chunk 6/28
+  [0p25] PNW_HeatDome_2021: step 7/28  member 12/24  (chunk 315/672)
+I0707 07:58:17.269793 22752513238848 rollout.py:361] Chunk 7/28
+  [0p25] PNW_HeatDome_2021: step 8/28  member 12/24  (chunk 316/672)
+I0707 07:59:37.246896 22752513238848 rollout.py:361] Chunk 8/28
+  [0p25] PNW_HeatDome_2021: step 9/28  member 12/24  (chunk 317/672)
+I0707 08:00:57.226971 22752513238848 rollout.py:361] Chunk 9/28
+  [0p25] PNW_HeatDome_2021: step 10/28  member 12/24  (chunk 318/672)
+I0707 08:02:17.202458 22752513238848 rollout.py:361] Chunk 10/28
+  [0p25] PNW_HeatDome_2021: step 11/28  member 12/24  (chunk 319/672)
+I0707 08:03:37.173387 22752513238848 rollout.py:361] Chunk 11/28
+  [0p25] PNW_HeatDome_2021: step 12/28  member 12/24  (chunk 320/672)
+I0707 08:04:57.144808 22752513238848 rollout.py:361] Chunk 12/28
+  [0p25] PNW_HeatDome_2021: step 13/28  member 12/24  (chunk 321/672)
+I0707 08:06:17.111183 22752513238848 rollout.py:361] Chunk 13/28
+  [0p25] PNW_HeatDome_2021: step 14/28  member 12/24  (chunk 322/672)
+I0707 08:07:37.082049 22752513238848 rollout.py:361] Chunk 14/28
+  [0p25] PNW_HeatDome_2021: step 15/28  member 12/24  (chunk 323/672)
+I0707 08:08:57.060886 22752513238848 rollout.py:361] Chunk 15/28
+  [0p25] PNW_HeatDome_2021: step 16/28  member 12/24  (chunk 324/672)
+I0707 08:10:17.040789 22752513238848 rollout.py:361] Chunk 16/28
+  [0p25] PNW_HeatDome_2021: step 17/28  member 12/24  (chunk 325/672)
+I0707 08:11:37.015555 22752513238848 rollout.py:361] Chunk 17/28
+  [0p25] PNW_HeatDome_2021: step 18/28  member 12/24  (chunk 326/672)
+I0707 08:12:56.991358 22752513238848 rollout.py:361] Chunk 18/28
+  [0p25] PNW_HeatDome_2021: step 19/28  member 12/24  (chunk 327/672)
+I0707 08:14:16.965009 22752513238848 rollout.py:361] Chunk 19/28
+  [0p25] PNW_HeatDome_2021: step 20/28  member 12/24  (chunk 328/672)
+I0707 08:15:36.934792 22752513238848 rollout.py:361] Chunk 20/28
+  [0p25] PNW_HeatDome_2021: step 21/28  member 12/24  (chunk 329/672)
+I0707 08:16:56.902864 22752513238848 rollout.py:361] Chunk 21/28
+  [0p25] PNW_HeatDome_2021: step 22/28  member 12/24  (chunk 330/672)
+I0707 08:18:16.873427 22752513238848 rollout.py:361] Chunk 22/28
+  [0p25] PNW_HeatDome_2021: step 23/28  member 12/24  (chunk 331/672)
+I0707 08:19:36.846700 22752513238848 rollout.py:361] Chunk 23/28
+  [0p25] PNW_HeatDome_2021: step 24/28  member 12/24  (chunk 332/672)
+I0707 08:20:56.814971 22752513238848 rollout.py:361] Chunk 24/28
+  [0p25] PNW_HeatDome_2021: step 25/28  member 12/24  (chunk 333/672)
+I0707 08:22:16.786458 22752513238848 rollout.py:361] Chunk 25/28
+  [0p25] PNW_HeatDome_2021: step 26/28  member 12/24  (chunk 334/672)
+I0707 08:23:36.749979 22752513238848 rollout.py:361] Chunk 26/28
+  [0p25] PNW_HeatDome_2021: step 27/28  member 12/24  (chunk 335/672)
+I0707 08:24:56.728187 22752513238848 rollout.py:361] Chunk 27/28
+  [0p25] PNW_HeatDome_2021: step 28/28  member 12/24  (chunk 336/672)
+  [0p25] PNW_HeatDome_2021: member 12/24 complete (steps 1-28)
+I0707 08:26:16.758886 22752513238848 rollout.py:206] Sample 12/24
+I0707 08:26:16.760124 22752513238848 rollout.py:361] Chunk 0/28
+  [0p25] PNW_HeatDome_2021: step 1/28  member 13/24  (chunk 337/672)
+I0707 08:27:36.830126 22752513238848 rollout.py:361] Chunk 1/28
+  [0p25] PNW_HeatDome_2021: step 2/28  member 13/24  (chunk 338/672)
+I0707 08:28:56.729985 22752513238848 rollout.py:361] Chunk 2/28
+  [0p25] PNW_HeatDome_2021: step 3/28  member 13/24  (chunk 339/672)
+I0707 08:30:16.702297 22752513238848 rollout.py:361] Chunk 3/28
+  [0p25] PNW_HeatDome_2021: step 4/28  member 13/24  (chunk 340/672)
+I0707 08:31:36.675654 22752513238848 rollout.py:361] Chunk 4/28
+  [0p25] PNW_HeatDome_2021: step 5/28  member 13/24  (chunk 341/672)
+I0707 08:32:56.646092 22752513238848 rollout.py:361] Chunk 5/28
+  [0p25] PNW_HeatDome_2021: step 6/28  member 13/24  (chunk 342/672)
+I0707 08:34:16.615117 22752513238848 rollout.py:361] Chunk 6/28
+  [0p25] PNW_HeatDome_2021: step 7/28  member 13/24  (chunk 343/672)
+I0707 08:35:36.590607 22752513238848 rollout.py:361] Chunk 7/28
+  [0p25] PNW_HeatDome_2021: step 8/28  member 13/24  (chunk 344/672)
+I0707 08:36:56.565641 22752513238848 rollout.py:361] Chunk 8/28
+  [0p25] PNW_HeatDome_2021: step 9/28  member 13/24  (chunk 345/672)
+I0707 08:38:16.541334 22752513238848 rollout.py:361] Chunk 9/28
+  [0p25] PNW_HeatDome_2021: step 10/28  member 13/24  (chunk 346/672)
+I0707 08:39:36.512294 22752513238848 rollout.py:361] Chunk 10/28
+  [0p25] PNW_HeatDome_2021: step 11/28  member 13/24  (chunk 347/672)
+I0707 08:40:56.486725 22752513238848 rollout.py:361] Chunk 11/28
+  [0p25] PNW_HeatDome_2021: step 12/28  member 13/24  (chunk 348/672)
+I0707 08:42:16.459615 22752513238848 rollout.py:361] Chunk 12/28
+  [0p25] PNW_HeatDome_2021: step 13/28  member 13/24  (chunk 349/672)
+I0707 08:43:36.434113 22752513238848 rollout.py:361] Chunk 13/28
+  [0p25] PNW_HeatDome_2021: step 14/28  member 13/24  (chunk 350/672)
+I0707 08:44:56.406146 22752513238848 rollout.py:361] Chunk 14/28
+  [0p25] PNW_HeatDome_2021: step 15/28  member 13/24  (chunk 351/672)
+I0707 08:46:16.384028 22752513238848 rollout.py:361] Chunk 15/28
+  [0p25] PNW_HeatDome_2021: step 16/28  member 13/24  (chunk 352/672)
+I0707 08:47:36.367771 22752513238848 rollout.py:361] Chunk 16/28
+  [0p25] PNW_HeatDome_2021: step 17/28  member 13/24  (chunk 353/672)
+I0707 08:48:56.341942 22752513238848 rollout.py:361] Chunk 17/28
+  [0p25] PNW_HeatDome_2021: step 18/28  member 13/24  (chunk 354/672)
+I0707 08:50:16.317937 22752513238848 rollout.py:361] Chunk 18/28
+  [0p25] PNW_HeatDome_2021: step 19/28  member 13/24  (chunk 355/672)
+I0707 08:51:36.296435 22752513238848 rollout.py:361] Chunk 19/28
+  [0p25] PNW_HeatDome_2021: step 20/28  member 13/24  (chunk 356/672)
+I0707 08:52:56.272357 22752513238848 rollout.py:361] Chunk 20/28
+  [0p25] PNW_HeatDome_2021: step 21/28  member 13/24  (chunk 357/672)
+I0707 08:54:16.254716 22752513238848 rollout.py:361] Chunk 21/28
+  [0p25] PNW_HeatDome_2021: step 22/28  member 13/24  (chunk 358/672)
+I0707 08:55:36.226485 22752513238848 rollout.py:361] Chunk 22/28
+  [0p25] PNW_HeatDome_2021: step 23/28  member 13/24  (chunk 359/672)
+I0707 08:56:56.203805 22752513238848 rollout.py:361] Chunk 23/28
+  [0p25] PNW_HeatDome_2021: step 24/28  member 13/24  (chunk 360/672)
+I0707 08:58:16.178158 22752513238848 rollout.py:361] Chunk 24/28
+  [0p25] PNW_HeatDome_2021: step 25/28  member 13/24  (chunk 361/672)
+I0707 08:59:36.148391 22752513238848 rollout.py:361] Chunk 25/28
+  [0p25] PNW_HeatDome_2021: step 26/28  member 13/24  (chunk 362/672)
+I0707 09:00:56.120484 22752513238848 rollout.py:361] Chunk 26/28
+  [0p25] PNW_HeatDome_2021: step 27/28  member 13/24  (chunk 363/672)
+I0707 09:02:16.098934 22752513238848 rollout.py:361] Chunk 27/28
+  [0p25] PNW_HeatDome_2021: step 28/28  member 13/24  (chunk 364/672)
+  [0p25] PNW_HeatDome_2021: member 13/24 complete (steps 1-28)
+I0707 09:03:36.118232 22752513238848 rollout.py:206] Sample 13/24
+I0707 09:03:36.119475 22752513238848 rollout.py:361] Chunk 0/28
+  [0p25] PNW_HeatDome_2021: step 1/28  member 14/24  (chunk 365/672)
+I0707 09:04:56.179923 22752513238848 rollout.py:361] Chunk 1/28
+  [0p25] PNW_HeatDome_2021: step 2/28  member 14/24  (chunk 366/672)
+I0707 09:06:16.074587 22752513238848 rollout.py:361] Chunk 2/28
+  [0p25] PNW_HeatDome_2021: step 3/28  member 14/24  (chunk 367/672)
+I0707 09:07:36.052272 22752513238848 rollout.py:361] Chunk 3/28
+  [0p25] PNW_HeatDome_2021: step 4/28  member 14/24  (chunk 368/672)
+I0707 09:08:56.031419 22752513238848 rollout.py:361] Chunk 4/28
+  [0p25] PNW_HeatDome_2021: step 5/28  member 14/24  (chunk 369/672)
+I0707 09:10:16.003996 22752513238848 rollout.py:361] Chunk 5/28
+  [0p25] PNW_HeatDome_2021: step 6/28  member 14/24  (chunk 370/672)
+I0707 09:11:35.973529 22752513238848 rollout.py:361] Chunk 6/28
+  [0p25] PNW_HeatDome_2021: step 7/28  member 14/24  (chunk 371/672)
+I0707 09:12:55.945538 22752513238848 rollout.py:361] Chunk 7/28
+  [0p25] PNW_HeatDome_2021: step 8/28  member 14/24  (chunk 372/672)
+I0707 09:14:15.924490 22752513238848 rollout.py:361] Chunk 8/28
+  [0p25] PNW_HeatDome_2021: step 9/28  member 14/24  (chunk 373/672)
+I0707 09:15:35.901176 22752513238848 rollout.py:361] Chunk 9/28
+  [0p25] PNW_HeatDome_2021: step 10/28  member 14/24  (chunk 374/672)
+I0707 09:16:55.882367 22752513238848 rollout.py:361] Chunk 10/28
+  [0p25] PNW_HeatDome_2021: step 11/28  member 14/24  (chunk 375/672)
+I0707 09:18:15.851960 22752513238848 rollout.py:361] Chunk 11/28
+  [0p25] PNW_HeatDome_2021: step 12/28  member 14/24  (chunk 376/672)
+I0707 09:19:35.825317 22752513238848 rollout.py:361] Chunk 12/28
+  [0p25] PNW_HeatDome_2021: step 13/28  member 14/24  (chunk 377/672)
+I0707 09:20:55.790221 22752513238848 rollout.py:361] Chunk 13/28
+  [0p25] PNW_HeatDome_2021: step 14/28  member 14/24  (chunk 378/672)
+I0707 09:22:15.758898 22752513238848 rollout.py:361] Chunk 14/28
+  [0p25] PNW_HeatDome_2021: step 15/28  member 14/24  (chunk 379/672)
+I0707 09:23:35.736593 22752513238848 rollout.py:361] Chunk 15/28
+  [0p25] PNW_HeatDome_2021: step 16/28  member 14/24  (chunk 380/672)
+I0707 09:24:55.715050 22752513238848 rollout.py:361] Chunk 16/28
+  [0p25] PNW_HeatDome_2021: step 17/28  member 14/24  (chunk 381/672)
+I0707 09:26:15.687944 22752513238848 rollout.py:361] Chunk 17/28
+  [0p25] PNW_HeatDome_2021: step 18/28  member 14/24  (chunk 382/672)
+I0707 09:27:35.652499 22752513238848 rollout.py:361] Chunk 18/28
+  [0p25] PNW_HeatDome_2021: step 19/28  member 14/24  (chunk 383/672)
+I0707 09:28:55.621889 22752513238848 rollout.py:361] Chunk 19/28
+  [0p25] PNW_HeatDome_2021: step 20/28  member 14/24  (chunk 384/672)
+I0707 09:30:15.600435 22752513238848 rollout.py:361] Chunk 20/28
+  [0p25] PNW_HeatDome_2021: step 21/28  member 14/24  (chunk 385/672)
+I0707 09:31:35.578670 22752513238848 rollout.py:361] Chunk 21/28
+  [0p25] PNW_HeatDome_2021: step 22/28  member 14/24  (chunk 386/672)
+I0707 09:32:55.550022 22752513238848 rollout.py:361] Chunk 22/28
+  [0p25] PNW_HeatDome_2021: step 23/28  member 14/24  (chunk 387/672)
+I0707 09:34:15.530645 22752513238848 rollout.py:361] Chunk 23/28
+  [0p25] PNW_HeatDome_2021: step 24/28  member 14/24  (chunk 388/672)
+I0707 09:35:35.503552 22752513238848 rollout.py:361] Chunk 24/28
+  [0p25] PNW_HeatDome_2021: step 25/28  member 14/24  (chunk 389/672)
+I0707 09:36:55.469903 22752513238848 rollout.py:361] Chunk 25/28
+  [0p25] PNW_HeatDome_2021: step 26/28  member 14/24  (chunk 390/672)
+I0707 09:38:15.447800 22752513238848 rollout.py:361] Chunk 26/28
+  [0p25] PNW_HeatDome_2021: step 27/28  member 14/24  (chunk 391/672)
+I0707 09:39:35.423815 22752513238848 rollout.py:361] Chunk 27/28
+  [0p25] PNW_HeatDome_2021: step 28/28  member 14/24  (chunk 392/672)
+  [0p25] PNW_HeatDome_2021: member 14/24 complete (steps 1-28)
+I0707 09:40:55.442883 22752513238848 rollout.py:206] Sample 14/24
+I0707 09:40:55.444187 22752513238848 rollout.py:361] Chunk 0/28
+  [0p25] PNW_HeatDome_2021: step 1/28  member 15/24  (chunk 393/672)
+I0707 09:42:15.501032 22752513238848 rollout.py:361] Chunk 1/28
+  [0p25] PNW_HeatDome_2021: step 2/28  member 15/24  (chunk 394/672)
+I0707 09:43:35.390977 22752513238848 rollout.py:361] Chunk 2/28
+  [0p25] PNW_HeatDome_2021: step 3/28  member 15/24  (chunk 395/672)
+I0707 09:44:55.365630 22752513238848 rollout.py:361] Chunk 3/28
+  [0p25] PNW_HeatDome_2021: step 4/28  member 15/24  (chunk 396/672)
+I0707 09:46:15.343128 22752513238848 rollout.py:361] Chunk 4/28
+  [0p25] PNW_HeatDome_2021: step 5/28  member 15/24  (chunk 397/672)
+I0707 09:47:35.314542 22752513238848 rollout.py:361] Chunk 5/28
+  [0p25] PNW_HeatDome_2021: step 6/28  member 15/24  (chunk 398/672)
+I0707 09:48:55.276811 22752513238848 rollout.py:361] Chunk 6/28
+  [0p25] PNW_HeatDome_2021: step 7/28  member 15/24  (chunk 399/672)
+I0707 09:50:15.248970 22752513238848 rollout.py:361] Chunk 7/28
+  [0p25] PNW_HeatDome_2021: step 8/28  member 15/24  (chunk 400/672)
+I0707 09:51:35.219472 22752513238848 rollout.py:361] Chunk 8/28
+  [0p25] PNW_HeatDome_2021: step 9/28  member 15/24  (chunk 401/672)
+I0707 09:52:55.193283 22752513238848 rollout.py:361] Chunk 9/28
+  [0p25] PNW_HeatDome_2021: step 10/28  member 15/24  (chunk 402/672)
+I0707 09:54:15.162090 22752513238848 rollout.py:361] Chunk 10/28
+  [0p25] PNW_HeatDome_2021: step 11/28  member 15/24  (chunk 403/672)
+I0707 09:55:35.133516 22752513238848 rollout.py:361] Chunk 11/28
+  [0p25] PNW_HeatDome_2021: step 12/28  member 15/24  (chunk 404/672)
+I0707 09:56:55.096529 22752513238848 rollout.py:361] Chunk 12/28
+  [0p25] PNW_HeatDome_2021: step 13/28  member 15/24  (chunk 405/672)
+I0707 09:58:15.068125 22752513238848 rollout.py:361] Chunk 13/28
+  [0p25] PNW_HeatDome_2021: step 14/28  member 15/24  (chunk 406/672)
+I0707 09:59:35.039379 22752513238848 rollout.py:361] Chunk 14/28
+  [0p25] PNW_HeatDome_2021: step 15/28  member 15/24  (chunk 407/672)
+I0707 10:00:55.009857 22752513238848 rollout.py:361] Chunk 15/28
+  [0p25] PNW_HeatDome_2021: step 16/28  member 15/24  (chunk 408/672)
+I0707 10:02:14.988404 22752513238848 rollout.py:361] Chunk 16/28
+  [0p25] PNW_HeatDome_2021: step 17/28  member 15/24  (chunk 409/672)
+I0707 10:03:34.954368 22752513238848 rollout.py:361] Chunk 17/28
+  [0p25] PNW_HeatDome_2021: step 18/28  member 15/24  (chunk 410/672)
+I0707 10:04:54.928915 22752513238848 rollout.py:361] Chunk 18/28
+  [0p25] PNW_HeatDome_2021: step 19/28  member 15/24  (chunk 411/672)
+I0707 10:06:14.901006 22752513238848 rollout.py:361] Chunk 19/28
+  [0p25] PNW_HeatDome_2021: step 20/28  member 15/24  (chunk 412/672)
+I0707 10:07:34.871592 22752513238848 rollout.py:361] Chunk 20/28
+  [0p25] PNW_HeatDome_2021: step 21/28  member 15/24  (chunk 413/672)
+I0707 10:08:54.847839 22752513238848 rollout.py:361] Chunk 21/28
+  [0p25] PNW_HeatDome_2021: step 22/28  member 15/24  (chunk 414/672)
+I0707 10:10:14.824201 22752513238848 rollout.py:361] Chunk 22/28
+  [0p25] PNW_HeatDome_2021: step 23/28  member 15/24  (chunk 415/672)
+I0707 10:11:34.802947 22752513238848 rollout.py:361] Chunk 23/28
+  [0p25] PNW_HeatDome_2021: step 24/28  member 15/24  (chunk 416/672)
+I0707 10:12:54.771977 22752513238848 rollout.py:361] Chunk 24/28
+  [0p25] PNW_HeatDome_2021: step 25/28  member 15/24  (chunk 417/672)
+I0707 10:14:14.737872 22752513238848 rollout.py:361] Chunk 25/28
+  [0p25] PNW_HeatDome_2021: step 26/28  member 15/24  (chunk 418/672)
+I0707 10:15:34.711613 22752513238848 rollout.py:361] Chunk 26/28
+  [0p25] PNW_HeatDome_2021: step 27/28  member 15/24  (chunk 419/672)
+I0707 10:16:54.683354 22752513238848 rollout.py:361] Chunk 27/28
+  [0p25] PNW_HeatDome_2021: step 28/28  member 15/24  (chunk 420/672)
+  [0p25] PNW_HeatDome_2021: member 15/24 complete (steps 1-28)
+I0707 10:18:14.696736 22752513238848 rollout.py:206] Sample 15/24
+I0707 10:18:14.697992 22752513238848 rollout.py:361] Chunk 0/28
+  [0p25] PNW_HeatDome_2021: step 1/28  member 16/24  (chunk 421/672)
+I0707 10:19:34.749713 22752513238848 rollout.py:361] Chunk 1/28
+  [0p25] PNW_HeatDome_2021: step 2/28  member 16/24  (chunk 422/672)
+I0707 10:20:54.645888 22752513238848 rollout.py:361] Chunk 2/28
+  [0p25] PNW_HeatDome_2021: step 3/28  member 16/24  (chunk 423/672)
+I0707 10:22:14.615363 22752513238848 rollout.py:361] Chunk 3/28
+  [0p25] PNW_HeatDome_2021: step 4/28  member 16/24  (chunk 424/672)
+I0707 10:23:34.588093 22752513238848 rollout.py:361] Chunk 4/28
+  [0p25] PNW_HeatDome_2021: step 5/28  member 16/24  (chunk 425/672)
+I0707 10:24:54.563266 22752513238848 rollout.py:361] Chunk 5/28
+  [0p25] PNW_HeatDome_2021: step 6/28  member 16/24  (chunk 426/672)
+I0707 10:26:14.539169 22752513238848 rollout.py:361] Chunk 6/28
+  [0p25] PNW_HeatDome_2021: step 7/28  member 16/24  (chunk 427/672)
+I0707 10:27:34.512563 22752513238848 rollout.py:361] Chunk 7/28
+  [0p25] PNW_HeatDome_2021: step 8/28  member 16/24  (chunk 428/672)
+I0707 10:28:54.491211 22752513238848 rollout.py:361] Chunk 8/28
+  [0p25] PNW_HeatDome_2021: step 9/28  member 16/24  (chunk 429/672)
+I0707 10:30:14.461802 22752513238848 rollout.py:361] Chunk 9/28
+  [0p25] PNW_HeatDome_2021: step 10/28  member 16/24  (chunk 430/672)
+I0707 10:31:34.435030 22752513238848 rollout.py:361] Chunk 10/28
+  [0p25] PNW_HeatDome_2021: step 11/28  member 16/24  (chunk 431/672)
+I0707 10:32:54.414340 22752513238848 rollout.py:361] Chunk 11/28
+  [0p25] PNW_HeatDome_2021: step 12/28  member 16/24  (chunk 432/672)
+I0707 10:34:14.392811 22752513238848 rollout.py:361] Chunk 12/28
+  [0p25] PNW_HeatDome_2021: step 13/28  member 16/24  (chunk 433/672)
+I0707 10:35:34.371313 22752513238848 rollout.py:361] Chunk 13/28
+  [0p25] PNW_HeatDome_2021: step 14/28  member 16/24  (chunk 434/672)
+I0707 10:36:54.349403 22752513238848 rollout.py:361] Chunk 14/28
+  [0p25] PNW_HeatDome_2021: step 15/28  member 16/24  (chunk 435/672)
+I0707 10:38:14.321150 22752513238848 rollout.py:361] Chunk 15/28
+  [0p25] PNW_HeatDome_2021: step 16/28  member 16/24  (chunk 436/672)
+I0707 10:39:34.301225 22752513238848 rollout.py:361] Chunk 16/28
+  [0p25] PNW_HeatDome_2021: step 17/28  member 16/24  (chunk 437/672)
+I0707 10:40:54.276987 22752513238848 rollout.py:361] Chunk 17/28
+  [0p25] PNW_HeatDome_2021: step 18/28  member 16/24  (chunk 438/672)
+I0707 10:42:14.252801 22752513238848 rollout.py:361] Chunk 18/28
+  [0p25] PNW_HeatDome_2021: step 19/28  member 16/24  (chunk 439/672)
+I0707 10:43:34.223441 22752513238848 rollout.py:361] Chunk 19/28
+  [0p25] PNW_HeatDome_2021: step 20/28  member 16/24  (chunk 440/672)
+I0707 10:44:54.191360 22752513238848 rollout.py:361] Chunk 20/28
+  [0p25] PNW_HeatDome_2021: step 21/28  member 16/24  (chunk 441/672)
+I0707 10:46:14.161434 22752513238848 rollout.py:361] Chunk 21/28
+  [0p25] PNW_HeatDome_2021: step 22/28  member 16/24  (chunk 442/672)
+I0707 10:47:34.132882 22752513238848 rollout.py:361] Chunk 22/28
+  [0p25] PNW_HeatDome_2021: step 23/28  member 16/24  (chunk 443/672)
+I0707 10:48:54.096925 22752513238848 rollout.py:361] Chunk 23/28
+  [0p25] PNW_HeatDome_2021: step 24/28  member 16/24  (chunk 444/672)
+I0707 10:50:14.063855 22752513238848 rollout.py:361] Chunk 24/28
+  [0p25] PNW_HeatDome_2021: step 25/28  member 16/24  (chunk 445/672)
+I0707 10:51:34.038533 22752513238848 rollout.py:361] Chunk 25/28
+  [0p25] PNW_HeatDome_2021: step 26/28  member 16/24  (chunk 446/672)
+I0707 10:52:53.998502 22752513238848 rollout.py:361] Chunk 26/28
+  [0p25] PNW_HeatDome_2021: step 27/28  member 16/24  (chunk 447/672)
+I0707 10:54:13.958362 22752513238848 rollout.py:361] Chunk 27/28
+  [0p25] PNW_HeatDome_2021: step 28/28  member 16/24  (chunk 448/672)
+  [0p25] PNW_HeatDome_2021: member 16/24 complete (steps 1-28)
+I0707 10:55:33.969799 22752513238848 rollout.py:206] Sample 16/24
+I0707 10:55:33.971097 22752513238848 rollout.py:361] Chunk 0/28
+  [0p25] PNW_HeatDome_2021: step 1/28  member 17/24  (chunk 449/672)
+I0707 10:56:54.032487 22752513238848 rollout.py:361] Chunk 1/28
+  [0p25] PNW_HeatDome_2021: step 2/28  member 17/24  (chunk 450/672)
+I0707 10:58:13.929273 22752513238848 rollout.py:361] Chunk 2/28
+  [0p25] PNW_HeatDome_2021: step 3/28  member 17/24  (chunk 451/672)
+I0707 10:59:33.900053 22752513238848 rollout.py:361] Chunk 3/28
+  [0p25] PNW_HeatDome_2021: step 4/28  member 17/24  (chunk 452/672)
+I0707 11:00:53.874107 22752513238848 rollout.py:361] Chunk 4/28
+  [0p25] PNW_HeatDome_2021: step 5/28  member 17/24  (chunk 453/672)
+I0707 11:02:13.841785 22752513238848 rollout.py:361] Chunk 5/28
+  [0p25] PNW_HeatDome_2021: step 6/28  member 17/24  (chunk 454/672)
+I0707 11:03:33.809463 22752513238848 rollout.py:361] Chunk 6/28
+  [0p25] PNW_HeatDome_2021: step 7/28  member 17/24  (chunk 455/672)
+I0707 11:04:53.779250 22752513238848 rollout.py:361] Chunk 7/28
+  [0p25] PNW_HeatDome_2021: step 8/28  member 17/24  (chunk 456/672)
+I0707 11:06:13.752033 22752513238848 rollout.py:361] Chunk 8/28
+  [0p25] PNW_HeatDome_2021: step 9/28  member 17/24  (chunk 457/672)
+I0707 11:07:33.721398 22752513238848 rollout.py:361] Chunk 9/28
+  [0p25] PNW_HeatDome_2021: step 10/28  member 17/24  (chunk 458/672)
+I0707 11:08:53.696931 22752513238848 rollout.py:361] Chunk 10/28
+  [0p25] PNW_HeatDome_2021: step 11/28  member 17/24  (chunk 459/672)
+I0707 11:10:13.665088 22752513238848 rollout.py:361] Chunk 11/28
+  [0p25] PNW_HeatDome_2021: step 12/28  member 17/24  (chunk 460/672)
+I0707 11:11:33.626765 22752513238848 rollout.py:361] Chunk 12/28
+  [0p25] PNW_HeatDome_2021: step 13/28  member 17/24  (chunk 461/672)
+I0707 11:12:53.607561 22752513238848 rollout.py:361] Chunk 13/28
+  [0p25] PNW_HeatDome_2021: step 14/28  member 17/24  (chunk 462/672)
+I0707 11:14:13.573492 22752513238848 rollout.py:361] Chunk 14/28
+  [0p25] PNW_HeatDome_2021: step 15/28  member 17/24  (chunk 463/672)
+I0707 11:15:33.547949 22752513238848 rollout.py:361] Chunk 15/28
+  [0p25] PNW_HeatDome_2021: step 16/28  member 17/24  (chunk 464/672)
+I0707 11:16:53.527238 22752513238848 rollout.py:361] Chunk 16/28
+  [0p25] PNW_HeatDome_2021: step 17/28  member 17/24  (chunk 465/672)
+I0707 11:18:13.493098 22752513238848 rollout.py:361] Chunk 17/28
+  [0p25] PNW_HeatDome_2021: step 18/28  member 17/24  (chunk 466/672)
+I0707 11:19:33.466827 22752513238848 rollout.py:361] Chunk 18/28
+  [0p25] PNW_HeatDome_2021: step 19/28  member 17/24  (chunk 467/672)
+I0707 11:20:53.430418 22752513238848 rollout.py:361] Chunk 19/28
+  [0p25] PNW_HeatDome_2021: step 20/28  member 17/24  (chunk 468/672)
+I0707 11:22:13.406594 22752513238848 rollout.py:361] Chunk 20/28
+  [0p25] PNW_HeatDome_2021: step 21/28  member 17/24  (chunk 469/672)
+I0707 11:23:33.377407 22752513238848 rollout.py:361] Chunk 21/28
+  [0p25] PNW_HeatDome_2021: step 22/28  member 17/24  (chunk 470/672)
+I0707 11:24:53.340224 22752513238848 rollout.py:361] Chunk 22/28
+  [0p25] PNW_HeatDome_2021: step 23/28  member 17/24  (chunk 471/672)
+I0707 11:26:13.310601 22752513238848 rollout.py:361] Chunk 23/28
+  [0p25] PNW_HeatDome_2021: step 24/28  member 17/24  (chunk 472/672)
+I0707 11:27:33.277883 22752513238848 rollout.py:361] Chunk 24/28
+  [0p25] PNW_HeatDome_2021: step 25/28  member 17/24  (chunk 473/672)
+I0707 11:28:53.245534 22752513238848 rollout.py:361] Chunk 25/28
+  [0p25] PNW_HeatDome_2021: step 26/28  member 17/24  (chunk 474/672)
+I0707 11:30:13.216807 22752513238848 rollout.py:361] Chunk 26/28
+  [0p25] PNW_HeatDome_2021: step 27/28  member 17/24  (chunk 475/672)
+I0707 11:31:33.183163 22752513238848 rollout.py:361] Chunk 27/28
+  [0p25] PNW_HeatDome_2021: step 28/28  member 17/24  (chunk 476/672)
+  [0p25] PNW_HeatDome_2021: member 17/24 complete (steps 1-28)
+I0707 11:32:53.190786 22752513238848 rollout.py:206] Sample 17/24
+I0707 11:32:53.192065 22752513238848 rollout.py:361] Chunk 0/28
+  [0p25] PNW_HeatDome_2021: step 1/28  member 18/24  (chunk 477/672)
+I0707 11:34:13.247527 22752513238848 rollout.py:361] Chunk 1/28
+  [0p25] PNW_HeatDome_2021: step 2/28  member 18/24  (chunk 478/672)
+I0707 11:35:33.133020 22752513238848 rollout.py:361] Chunk 2/28
+  [0p25] PNW_HeatDome_2021: step 3/28  member 18/24  (chunk 479/672)
+I0707 11:36:53.109463 22752513238848 rollout.py:361] Chunk 3/28
+  [0p25] PNW_HeatDome_2021: step 4/28  member 18/24  (chunk 480/672)
+I0707 11:38:13.081078 22752513238848 rollout.py:361] Chunk 4/28
+  [0p25] PNW_HeatDome_2021: step 5/28  member 18/24  (chunk 481/672)
+I0707 11:39:33.054359 22752513238848 rollout.py:361] Chunk 5/28
+  [0p25] PNW_HeatDome_2021: step 6/28  member 18/24  (chunk 482/672)
+I0707 11:40:53.021941 22752513238848 rollout.py:361] Chunk 6/28
+  [0p25] PNW_HeatDome_2021: step 7/28  member 18/24  (chunk 483/672)
+I0707 11:42:12.994868 22752513238848 rollout.py:361] Chunk 7/28
+  [0p25] PNW_HeatDome_2021: step 8/28  member 18/24  (chunk 484/672)
+I0707 11:43:32.962606 22752513238848 rollout.py:361] Chunk 8/28
+  [0p25] PNW_HeatDome_2021: step 9/28  member 18/24  (chunk 485/672)
+I0707 11:44:52.934044 22752513238848 rollout.py:361] Chunk 9/28
+  [0p25] PNW_HeatDome_2021: step 10/28  member 18/24  (chunk 486/672)
+I0707 11:46:12.897616 22752513238848 rollout.py:361] Chunk 10/28
+  [0p25] PNW_HeatDome_2021: step 11/28  member 18/24  (chunk 487/672)
+I0707 11:47:32.868680 22752513238848 rollout.py:361] Chunk 11/28
+  [0p25] PNW_HeatDome_2021: step 12/28  member 18/24  (chunk 488/672)
+I0707 11:48:52.838366 22752513238848 rollout.py:361] Chunk 12/28
+  [0p25] PNW_HeatDome_2021: step 13/28  member 18/24  (chunk 489/672)
+I0707 11:50:12.807902 22752513238848 rollout.py:361] Chunk 13/28
+  [0p25] PNW_HeatDome_2021: step 14/28  member 18/24  (chunk 490/672)
+I0707 11:51:32.783536 22752513238848 rollout.py:361] Chunk 14/28
+  [0p25] PNW_HeatDome_2021: step 15/28  member 18/24  (chunk 491/672)
+I0707 11:52:52.751626 22752513238848 rollout.py:361] Chunk 15/28
+  [0p25] PNW_HeatDome_2021: step 16/28  member 18/24  (chunk 492/672)
+I0707 11:54:12.725871 22752513238848 rollout.py:361] Chunk 16/28
+  [0p25] PNW_HeatDome_2021: step 17/28  member 18/24  (chunk 493/672)
+I0707 11:55:32.686320 22752513238848 rollout.py:361] Chunk 17/28
+  [0p25] PNW_HeatDome_2021: step 18/28  member 18/24  (chunk 494/672)
+I0707 11:56:52.661072 22752513238848 rollout.py:361] Chunk 18/28
+  [0p25] PNW_HeatDome_2021: step 19/28  member 18/24  (chunk 495/672)
+I0707 11:58:12.633069 22752513238848 rollout.py:361] Chunk 19/28
+  [0p25] PNW_HeatDome_2021: step 20/28  member 18/24  (chunk 496/672)
+I0707 11:59:32.602887 22752513238848 rollout.py:361] Chunk 20/28
+  [0p25] PNW_HeatDome_2021: step 21/28  member 18/24  (chunk 497/672)
+I0707 12:00:52.571736 22752513238848 rollout.py:361] Chunk 21/28
+  [0p25] PNW_HeatDome_2021: step 22/28  member 18/24  (chunk 498/672)
+I0707 12:02:12.543504 22752513238848 rollout.py:361] Chunk 22/28
+  [0p25] PNW_HeatDome_2021: step 23/28  member 18/24  (chunk 499/672)
+I0707 12:03:32.521592 22752513238848 rollout.py:361] Chunk 23/28
+  [0p25] PNW_HeatDome_2021: step 24/28  member 18/24  (chunk 500/672)
+I0707 12:04:52.493101 22752513238848 rollout.py:361] Chunk 24/28
+  [0p25] PNW_HeatDome_2021: step 25/28  member 18/24  (chunk 501/672)
+I0707 12:06:12.462188 22752513238848 rollout.py:361] Chunk 25/28
+  [0p25] PNW_HeatDome_2021: step 26/28  member 18/24  (chunk 502/672)
+I0707 12:07:32.438386 22752513238848 rollout.py:361] Chunk 26/28
+  [0p25] PNW_HeatDome_2021: step 27/28  member 18/24  (chunk 503/672)
+I0707 12:08:52.404587 22752513238848 rollout.py:361] Chunk 27/28
+  [0p25] PNW_HeatDome_2021: step 28/28  member 18/24  (chunk 504/672)
+  [0p25] PNW_HeatDome_2021: member 18/24 complete (steps 1-28)
+I0707 12:10:12.422282 22752513238848 rollout.py:206] Sample 18/24
+I0707 12:10:12.423586 22752513238848 rollout.py:361] Chunk 0/28
+  [0p25] PNW_HeatDome_2021: step 1/28  member 19/24  (chunk 505/672)
+I0707 12:11:32.480052 22752513238848 rollout.py:361] Chunk 1/28
+  [0p25] PNW_HeatDome_2021: step 2/28  member 19/24  (chunk 506/672)
+I0707 12:12:52.373510 22752513238848 rollout.py:361] Chunk 2/28
+  [0p25] PNW_HeatDome_2021: step 3/28  member 19/24  (chunk 507/672)
+I0707 12:14:12.345738 22752513238848 rollout.py:361] Chunk 3/28
+  [0p25] PNW_HeatDome_2021: step 4/28  member 19/24  (chunk 508/672)
+I0707 12:15:32.317280 22752513238848 rollout.py:361] Chunk 4/28
+  [0p25] PNW_HeatDome_2021: step 5/28  member 19/24  (chunk 509/672)
+I0707 12:16:52.286607 22752513238848 rollout.py:361] Chunk 5/28
+  [0p25] PNW_HeatDome_2021: step 6/28  member 19/24  (chunk 510/672)
+I0707 12:18:12.260391 22752513238848 rollout.py:361] Chunk 6/28
+  [0p25] PNW_HeatDome_2021: step 7/28  member 19/24  (chunk 511/672)
+I0707 12:19:32.231563 22752513238848 rollout.py:361] Chunk 7/28
+  [0p25] PNW_HeatDome_2021: step 8/28  member 19/24  (chunk 512/672)
+I0707 12:20:52.197235 22752513238848 rollout.py:361] Chunk 8/28
+  [0p25] PNW_HeatDome_2021: step 9/28  member 19/24  (chunk 513/672)
+I0707 12:22:12.171677 22752513238848 rollout.py:361] Chunk 9/28
+  [0p25] PNW_HeatDome_2021: step 10/28  member 19/24  (chunk 514/672)
+I0707 12:23:32.145945 22752513238848 rollout.py:361] Chunk 10/28
+  [0p25] PNW_HeatDome_2021: step 11/28  member 19/24  (chunk 515/672)
+I0707 12:24:52.125504 22752513238848 rollout.py:361] Chunk 11/28
+  [0p25] PNW_HeatDome_2021: step 12/28  member 19/24  (chunk 516/672)
+I0707 12:26:12.101399 22752513238848 rollout.py:361] Chunk 12/28
+  [0p25] PNW_HeatDome_2021: step 13/28  member 19/24  (chunk 517/672)
+I0707 12:27:32.086688 22752513238848 rollout.py:361] Chunk 13/28
+  [0p25] PNW_HeatDome_2021: step 14/28  member 19/24  (chunk 518/672)
+I0707 12:28:52.061412 22752513238848 rollout.py:361] Chunk 14/28
+  [0p25] PNW_HeatDome_2021: step 15/28  member 19/24  (chunk 519/672)
+I0707 12:30:12.037793 22752513238848 rollout.py:361] Chunk 15/28
+  [0p25] PNW_HeatDome_2021: step 16/28  member 19/24  (chunk 520/672)
+I0707 12:31:32.020503 22752513238848 rollout.py:361] Chunk 16/28
+  [0p25] PNW_HeatDome_2021: step 17/28  member 19/24  (chunk 521/672)
+I0707 12:32:52.005353 22752513238848 rollout.py:361] Chunk 17/28
+  [0p25] PNW_HeatDome_2021: step 18/28  member 19/24  (chunk 522/672)
+I0707 12:34:11.986893 22752513238848 rollout.py:361] Chunk 18/28
+  [0p25] PNW_HeatDome_2021: step 19/28  member 19/24  (chunk 523/672)
+I0707 12:35:31.962707 22752513238848 rollout.py:361] Chunk 19/28
+  [0p25] PNW_HeatDome_2021: step 20/28  member 19/24  (chunk 524/672)
+I0707 12:36:51.941199 22752513238848 rollout.py:361] Chunk 20/28
+  [0p25] PNW_HeatDome_2021: step 21/28  member 19/24  (chunk 525/672)
+I0707 12:38:11.917987 22752513238848 rollout.py:361] Chunk 21/28
+  [0p25] PNW_HeatDome_2021: step 22/28  member 19/24  (chunk 526/672)
+I0707 12:39:31.889816 22752513238848 rollout.py:361] Chunk 22/28
+  [0p25] PNW_HeatDome_2021: step 23/28  member 19/24  (chunk 527/672)
+I0707 12:40:51.870964 22752513238848 rollout.py:361] Chunk 23/28
+  [0p25] PNW_HeatDome_2021: step 24/28  member 19/24  (chunk 528/672)
+I0707 12:42:11.841217 22752513238848 rollout.py:361] Chunk 24/28
+  [0p25] PNW_HeatDome_2021: step 25/28  member 19/24  (chunk 529/672)
+I0707 12:43:31.820406 22752513238848 rollout.py:361] Chunk 25/28
+  [0p25] PNW_HeatDome_2021: step 26/28  member 19/24  (chunk 530/672)
+I0707 12:44:51.801569 22752513238848 rollout.py:361] Chunk 26/28
+  [0p25] PNW_HeatDome_2021: step 27/28  member 19/24  (chunk 531/672)
+I0707 12:46:11.776152 22752513238848 rollout.py:361] Chunk 27/28
+  [0p25] PNW_HeatDome_2021: step 28/28  member 19/24  (chunk 532/672)
+  [0p25] PNW_HeatDome_2021: member 19/24 complete (steps 1-28)
+I0707 12:47:31.795236 22752513238848 rollout.py:206] Sample 19/24
+I0707 12:47:31.796518 22752513238848 rollout.py:361] Chunk 0/28
+=>> PBS: job killed: walltime 43278 exceeded limit 43200

@@ -578,3 +578,54 @@ WinterStorm_Elliott_2022 [1p0 week2] init=peak-14d ...
   num_target_steps = targets_template.dims["time"]
 /glade/derecho/scratch/exu/S2S_ExtremeWeather/third_party/graphcast/graphcast/rollout.py:435: FutureWarning: The return type of `Dataset.dims` will be changed to return a set of dimension names in future, in order to be more consistent with `DataArray.dims`. To access a mapping from dimension names to lengths, please use `Dataset.sizes`.
   num_inputs = prev_inputs.dims["time"]
+  saved cube WinterStorm_Elliott_2022_cube.nc  members=24 steps=28 vars=12 size=266MB
+    verif [t2m_anom]: members=24 mean=-1.7 -> WinterStorm_Elliott_2022_t2m_anom_members.nc
+HurricaneIda_2021 [1p0 week2] init=peak-14d ...
+/glade/derecho/scratch/exu/S2S_ExtremeWeather/third_party/graphcast/graphcast/rollout.py:328: FutureWarning: The return type of `Dataset.dims` will be changed to return a set of dimension names in future, in order to be more consistent with `DataArray.dims`. To access a mapping from dimension names to lengths, please use `Dataset.sizes`.
+  num_target_steps = targets_template.dims["time"]
+/glade/derecho/scratch/exu/S2S_ExtremeWeather/third_party/graphcast/graphcast/rollout.py:435: FutureWarning: The return type of `Dataset.dims` will be changed to return a set of dimension names in future, in order to be more consistent with `DataArray.dims`. To access a mapping from dimension names to lengths, please use `Dataset.sizes`.
+  num_inputs = prev_inputs.dims["time"]
+  saved cube HurricaneIda_2021_cube.nc  members=24 steps=28 vars=12 size=267MB
+    verif [u850_speed]: members=24 mean=+5.98 -> HurricaneIda_2021_u850_speed_members.nc
+    verif [u850_speed_max]: members=24 mean=+11.3 -> HurricaneIda_2021_u850_speed_max_members.nc
+HurricaneIan_2022 [1p0 week2] init=peak-14d ...
+/glade/derecho/scratch/exu/S2S_ExtremeWeather/third_party/graphcast/graphcast/rollout.py:328: FutureWarning: The return type of `Dataset.dims` will be changed to return a set of dimension names in future, in order to be more consistent with `DataArray.dims`. To access a mapping from dimension names to lengths, please use `Dataset.sizes`.
+  num_target_steps = targets_template.dims["time"]
+/glade/derecho/scratch/exu/S2S_ExtremeWeather/third_party/graphcast/graphcast/rollout.py:435: FutureWarning: The return type of `Dataset.dims` will be changed to return a set of dimension names in future, in order to be more consistent with `DataArray.dims`. To access a mapping from dimension names to lengths, please use `Dataset.sizes`.
+  num_inputs = prev_inputs.dims["time"]
+  saved cube HurricaneIan_2022_cube.nc  members=24 steps=28 vars=12 size=266MB
+    verif [u850_speed]: members=24 mean=+6.5 -> HurricaneIan_2022_u850_speed_members.nc
+    verif [u850_speed_max]: members=24 mean=+12.4 -> HurricaneIan_2022_u850_speed_max_members.nc
+HurricaneIdalia_2023 [1p0 week2] init=peak-14d ...
+/glade/derecho/scratch/exu/S2S_ExtremeWeather/third_party/graphcast/graphcast/rollout.py:328: FutureWarning: The return type of `Dataset.dims` will be changed to return a set of dimension names in future, in order to be more consistent with `DataArray.dims`. To access a mapping from dimension names to lengths, please use `Dataset.sizes`.
+  num_target_steps = targets_template.dims["time"]
+/glade/derecho/scratch/exu/S2S_ExtremeWeather/third_party/graphcast/graphcast/rollout.py:435: FutureWarning: The return type of `Dataset.dims` will be changed to return a set of dimension names in future, in order to be more consistent with `DataArray.dims`. To access a mapping from dimension names to lengths, please use `Dataset.sizes`.
+  num_inputs = prev_inputs.dims["time"]
+  saved cube HurricaneIdalia_2023_cube.nc  members=24 steps=28 vars=12 size=266MB
+    verif [u850_speed]: members=24 mean=+6.15 -> HurricaneIdalia_2023_u850_speed_members.nc
+    verif [u850_speed_max]: members=24 mean=+11.2 -> HurricaneIdalia_2023_u850_speed_max_members.nc
+California_AR_Floods_2023 [1p0 week2] init=peak-14d ...
+/glade/derecho/scratch/exu/S2S_ExtremeWeather/third_party/graphcast/graphcast/rollout.py:328: FutureWarning: The return type of `Dataset.dims` will be changed to return a set of dimension names in future, in order to be more consistent with `DataArray.dims`. To access a mapping from dimension names to lengths, please use `Dataset.sizes`.
+  num_target_steps = targets_template.dims["time"]
+/glade/derecho/scratch/exu/S2S_ExtremeWeather/third_party/graphcast/graphcast/rollout.py:435: FutureWarning: The return type of `Dataset.dims` will be changed to return a set of dimension names in future, in order to be more consistent with `DataArray.dims`. To access a mapping from dimension names to lengths, please use `Dataset.sizes`.
+  num_inputs = prev_inputs.dims["time"]
+  saved cube California_AR_Floods_2023_cube.nc  members=24 steps=28 vars=12 size=267MB
+    verif [tp_total]: members=24 mean=+13.7 -> California_AR_Floods_2023_tp_total_members.nc
+    verif [tp_max12h]: members=24 mean=+6.4 -> California_AR_Floods_2023_tp_max12h_members.nc
+Kentucky_Floods_2022 [1p0 week2] init=peak-14d ...
+/glade/derecho/scratch/exu/S2S_ExtremeWeather/third_party/graphcast/graphcast/rollout.py:328: FutureWarning: The return type of `Dataset.dims` will be changed to return a set of dimension names in future, in order to be more consistent with `DataArray.dims`. To access a mapping from dimension names to lengths, please use `Dataset.sizes`.
+  num_target_steps = targets_template.dims["time"]
+/glade/derecho/scratch/exu/S2S_ExtremeWeather/third_party/graphcast/graphcast/rollout.py:435: FutureWarning: The return type of `Dataset.dims` will be changed to return a set of dimension names in future, in order to be more consistent with `DataArray.dims`. To access a mapping from dimension names to lengths, please use `Dataset.sizes`.
+  num_inputs = prev_inputs.dims["time"]
+  saved cube Kentucky_Floods_2022_cube.nc  members=24 steps=28 vars=12 size=267MB
+    verif [tp_total]: members=24 mean=+13.5 -> Kentucky_Floods_2022_tp_total_members.nc
+    verif [tp_max12h]: members=24 mean=+6.06 -> Kentucky_Floods_2022_tp_max12h_members.nc
+Vermont_Floods_2023 [1p0 week2] init=peak-14d ...
+/glade/derecho/scratch/exu/S2S_ExtremeWeather/third_party/graphcast/graphcast/rollout.py:328: FutureWarning: The return type of `Dataset.dims` will be changed to return a set of dimension names in future, in order to be more consistent with `DataArray.dims`. To access a mapping from dimension names to lengths, please use `Dataset.sizes`.
+  num_target_steps = targets_template.dims["time"]
+/glade/derecho/scratch/exu/S2S_ExtremeWeather/third_party/graphcast/graphcast/rollout.py:435: FutureWarning: The return type of `Dataset.dims` will be changed to return a set of dimension names in future, in order to be more consistent with `DataArray.dims`. To access a mapping from dimension names to lengths, please use `Dataset.sizes`.
+  num_inputs = prev_inputs.dims["time"]
+  saved cube Vermont_Floods_2023_cube.nc  members=24 steps=28 vars=12 size=267MB
+    verif [tp_total]: members=24 mean=+15.5 -> Vermont_Floods_2023_tp_total_members.nc
+    verif [tp_max12h]: members=24 mean=+6.61 -> Vermont_Floods_2023_tp_max12h_members.nc
+End: Tue Jul  7 03:40:38 AM MDT 2026

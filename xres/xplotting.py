@@ -105,18 +105,17 @@ def _row(name, weeks):
 
 def plot_event(name, weeks, ccrs):
     metric, panels, fields, errors = _row(name, weeks)
+    panels = [p for p in panels if p[0] is not None]
     sp = XM.spec(metric)
     fmin, fmax, cmap = _field_lims(metric, fields)
     emax = max((float(np.nanmax(np.abs(e.values))) for e in errors), default=1.0) or 1.0
-    fig = plt.figure(figsize=(4.2 * 6, 4.0))
+    ncol = len(panels)
+    fig = plt.figure(figsize=(4.2 * ncol, 4.0))
     for i, (da, title, kind) in enumerate(panels):
-        if da is None:
-            ax = fig.add_subplot(1, 6, i + 1); ax.axis("off"); ax.set_title(title, fontsize=9)
-            continue
         if kind == "error":
-            _panel(fig, (1, 6, i + 1), da, title, "RdBu_r", -emax, emax, ccrs, sp.units)
+            _panel(fig, (1, ncol, i + 1), da, title, "RdBu_r", -emax, emax, ccrs, sp.units)
         else:
-            _panel(fig, (1, 6, i + 1), da, title, cmap, fmin, fmax, ccrs, sp.units)
+            _panel(fig, (1, ncol, i + 1), da, title, cmap, fmin, fmax, ccrs, sp.units)
     fig.suptitle(f"{name} — week-{weeks} {sp.label} ({sp.units})  [init = peak - "
                  f"{C.lead_days_for(weeks)}d]", y=1.04, fontsize=12)
     fig.tight_layout()
