@@ -6,7 +6,21 @@
 
 ---
 
-## STATUS (Jul 9 2026) — FIGURE OVERHAUL (compare job `6677479`)
+## STATUS (Jul 9 2026, later) — SECOND VERIFICATION BATCH + ROOT DIR SORTED (job `6684088`)
+
+- Every PDF/Brier/CRPS/rank figure now comes in TWO batches: own-grid truth (no
+  suffix, as before) and a **common-baseline batch** (`*_vs_era5_0p25.png`) where
+  BOTH resolutions are verified against native 0.25deg ERA5 (1.0deg members
+  nearest-upsampled; PDF variant drops the ERA5 1.0deg curve).
+  `xres_scores.csv` gained a `truth` column (`own_grid` / `era5_0p25`).
+- **Project root sorted**: all figure PNGs now live under `figures/xres/` (xres) and
+  `figures/original/` (original-experiment combined PDFs + allbestmaps); compare
+  writes to `figures/xres/` + `runs/xres/figures/`, NOT the root anymore. Stray
+  `true.e/o*` PBS logs moved into `logs/`.
+- Forecast-curve styling made more visible (dense dots, white halo, dark marker
+  edges, slightly deeper light colors).
+
+## PREVIOUS STATUS (Jul 9 2026) — FIGURE OVERHAUL (compare job `6677479`)
 
 Per user request the compare-stage figures were reworked (all code in
 `xres/xcombined.py`, new `xres/xscores.py`, colors in `xres/xconfig.py`):

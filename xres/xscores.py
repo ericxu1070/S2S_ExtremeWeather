@@ -2,10 +2,17 @@
 
 Three figures that summarize what the combined-PDF panels show qualitatively, all built
 from the same per-member verification fields (``runs/xres/<res>/week2/verif``) and ERA5
-truth. Each resolution is verified against ERA5 sampled onto ITS OWN grid — the 0.25deg
-ensemble against native 0.25deg ERA5, the 1.0deg ensemble against ERA5 nearest-neighbour
-sampled onto the 1.0deg forecast grid — so neither resolution is penalized for scales it
-cannot represent.
+truth. Every figure is produced in TWO verification modes:
+
+    own-grid (no suffix)          each resolution vs ERA5 sampled onto ITS OWN grid —
+                                  the 0.25deg ensemble against native 0.25deg ERA5, the
+                                  1.0deg ensemble against ERA5 sampled onto the 1.0deg
+                                  grid — so neither resolution is penalized for scales
+                                  it cannot represent.
+    common baseline (_vs_era5_0p25)  BOTH ensembles vs native 0.25deg ERA5; the 1.0deg
+                                  members are nearest-neighbour upsampled onto the
+                                  0.25deg grid first, so the coarse model IS penalized
+                                  for the fine-scale structure it cannot produce.
 
     xres_brier.png        per-event (4x3) Brier score of tail exceedance vs threshold
                           percentile (75/90/95/99th of the matched-grid ERA5 truth,
@@ -40,6 +47,15 @@ from .xplotting import era5_truth, members, _on   # noqa: E402
 
 BRIER_PCTS = (75, 90, 95, 99)
 
+
+def _mode(common):
+    """(csv truth tag, title note, filename suffix) for a verification mode."""
+    if common:
+        return ("era5_0p25",
+                "BOTH resolutions vs ERA5 0.25deg; 1.0deg upsampled to the 0.25deg grid",
+                "_vs_era5_0p25")
+    return ("own_grid", "each resolution vs ERA5 on its own grid", "")
+
 # Score-figure styling: one style per resolution, redundant in hue, line style and
 # marker (colorblind-safe). Dark family shades — these curves sit on white panels.
 RES_STYLE = {
@@ -55,8 +71,14 @@ def _wmean(field, lat):
     return float((field[m] * w[m]).sum() / w[m].sum())
 
 
-def _pairs(weeks, name, metric):
-    """[(res, members(member,lat,lon), truth-on-that-grid(lat,lon))] for available res."""
+def _pairs(weeks, name, metric, common=False):
+    """[(res, members(member,lat,lon), truth(lat,lon))] for the available resolutions.
+
+    common=False: own-grid verification — ERA5 sampled onto each forecast grid.
+    common=True:  common-baseline verification — BOTH ensembles scored against native
+                  0.25deg ERA5; the 1.0deg members are nearest-neighbour upsampled onto
+                  the 0.25deg grid first.
+    """
     era5 = era5_truth(name, metric)
     if era5 is None:
         return []
@@ -65,7 +87,10 @@ def _pairs(weeks, name, metric):
         mem = members(res, weeks, name, metric)
         if mem is None:
             continue
-        out.append((res, mem, _on(era5, mem)))
+        if common:
+            out.append((res, _on(mem, era5), era5))
+        else:
+            out.append((res, mem, _on(era5, mem)))
     return out
 
 
@@ -98,11 +123,12 @@ def _brier_curve(mem, truth, sign):
     return out
 
 
-def plot_brier(weeks, outdirs, rows_out):
+def plot_brier(weeks, outdirs, rows_out, common=False):
     names = _event_names(weeks)
     if not names:
         print("[xres scores] no data yet; skipping Brier figure")
         return
+    truth_tag, note, sfx = _mode(common)
     cols = 3
     nrows = math.ceil(len(names) / cols)
     fig, axes = plt.subplots(nrows, cols, figsize=(5 * cols, 3.4 * nrows), squeeze=False)
@@ -112,14 +138,14 @@ def plot_brier(weeks, outdirs, rows_out):
         sign = XM.extreme_sign(metric, name)
         ax.plot(BRIER_PCTS, ref, color="0.55", ls=":", lw=1.5, marker="d", ms=3.5,
                 label="climatology ref f(1-f)")
-        for res, mem, truth in _pairs(weeks, name, metric):
+        for res, mem, truth in _pairs(weeks, name, metric, common):
             bs = _brier_curve(mem, truth, sign)
             st = RES_STYLE[res]
             ax.plot(BRIER_PCTS, bs, lw=2, ms=5,
                     label=f"{X.res_spec(res)['label']}", **st)
             for p, v in zip(BRIER_PCTS, bs):
                 rows_out.append(dict(event=name, metric=metric, res=res,
-                                     score=f"brier_p{p}", value=v))
+                                     truth=truth_tag, score=f"brier_p{p}", value=v))
         tail = "low tail" if sign < 0 else "high tail"
         ax.set_yscale("log")
         ax.set_xticks(BRIER_PCTS)
@@ -131,10 +157,10 @@ def plot_brier(weeks, outdirs, rows_out):
     for ax in axes.ravel()[len(names):]:
         ax.axis("off")
     fig.suptitle(f"Week-{weeks} tail-exceedance Brier scores (lower = better; "
-                 "each resolution vs ERA5 on its own grid)", y=1.0, fontsize=12)
+                 f"{note})", y=1.0, fontsize=12)
     fig.tight_layout()
-    _save(fig, "xres_brier.png", outdirs)
-    print(f"[xres scores] {len(names)} events -> xres_brier.png")
+    _save(fig, f"xres_brier{sfx}.png", outdirs)
+    print(f"[xres scores] {len(names)} events -> xres_brier{sfx}.png")
 
 
 # --------------------------------------------------------------------------- #
@@ -146,11 +172,12 @@ def _crps(mem, truth):
     return _wmean(crps, mem["lat"].values)
 
 
-def plot_crps(weeks, outdirs, rows_out):
+def plot_crps(weeks, outdirs, rows_out, common=False):
     names = _event_names(weeks)
     if not names:
         print("[xres scores] no data yet; skipping CRPS figure")
         return
+    truth_tag, note, sfx = _mode(common)
     fams = []                                   # metric families in event order
     for n in names:
         m = X.event_metric(n)
@@ -169,13 +196,13 @@ def plot_crps(weeks, outdirs, rows_out):
         vals = {res: [] for res in X.RES_ORDER}
         for name in evs:
             got = {res: _crps(mem, truth)
-                   for res, mem, truth in _pairs(weeks, name, m)}
+                   for res, mem, truth in _pairs(weeks, name, m, common)}
             for res in X.RES_ORDER:
                 v = got.get(res, np.nan)
                 vals[res].append(v)
                 if np.isfinite(v):
                     rows_out.append(dict(event=name, metric=m, res=res,
-                                         score="crps", value=v))
+                                         truth=truth_tag, score="crps", value=v))
         width = 0.38
         for i, res in enumerate(X.RES_ORDER):
             st = RES_STYLE[res]
@@ -195,11 +222,11 @@ def plot_crps(weeks, outdirs, rows_out):
         ax.grid(True, axis="y", ls="--", color="0.85", lw=0.5)
         ax.legend(fontsize=7)
     fig.suptitle(f"Week-{weeks} ensemble CRPS, latitude-weighted CONUS mean "
-                 "(lower = better; % = 0.25deg relative to 1.0deg; "
-                 "each resolution vs ERA5 on its own grid)", y=1.02, fontsize=12)
+                 f"(lower = better; % = 0.25deg relative to 1.0deg; {note})",
+                 y=1.02, fontsize=12)
     fig.tight_layout()
-    _save(fig, "xres_crps.png", outdirs)
-    print(f"[xres scores] {len(names)} events -> xres_crps.png")
+    _save(fig, f"xres_crps{sfx}.png", outdirs)
+    print(f"[xres scores] {len(names)} events -> xres_crps{sfx}.png")
 
 
 # --------------------------------------------------------------------------- #
@@ -213,11 +240,12 @@ def _rank_hist(mem, truth):
     return np.bincount(below[valid].ravel(), minlength=e.shape[0] + 1)
 
 
-def plot_rank_hists(weeks, outdirs, rows_out):
+def plot_rank_hists(weeks, outdirs, rows_out, common=False):
     names = _event_names(weeks)
     if not names:
         print("[xres scores] no data yet; skipping rank histograms")
         return
+    truth_tag, note, sfx = _mode(common)
     cols = 3
     nrows = math.ceil(len(names) / cols)
     fig, axes = plt.subplots(nrows, cols, figsize=(5 * cols, 3.2 * nrows), squeeze=False)
@@ -225,7 +253,7 @@ def plot_rank_hists(weeks, outdirs, rows_out):
     for ax, name in zip(axes.ravel(), names):
         metric = X.event_metric(name)
         nbins = None
-        for res, mem, truth in _pairs(weeks, name, metric):
+        for res, mem, truth in _pairs(weeks, name, metric, common):
             h = _rank_hist(mem, truth)
             nbins = len(h)
             pooled[res] = h.copy() if pooled[res] is None else pooled[res] + h
@@ -233,7 +261,7 @@ def plot_rank_hists(weeks, outdirs, rows_out):
             ax.step(np.arange(nbins), h / h.sum(), where="mid", lw=1.8,
                     label=X.res_spec(res)["label"], **st)
             rows_out.append(dict(event=name, metric=metric, res=res,
-                                 score="rank_hist_extreme_frac",
+                                 truth=truth_tag, score="rank_hist_extreme_frac",
                                  value=float((h[0] + h[-1]) / h.sum())))
         if nbins:
             ax.axhline(1 / nbins, color="k", ls=":", lw=1, label="flat (calibrated)")
@@ -245,10 +273,9 @@ def plot_rank_hists(weeks, outdirs, rows_out):
     for ax in axes.ravel()[len(names):]:
         ax.axis("off")
     fig.suptitle(f"Week-{weeks} rank histograms (flat = calibrated, U-shape = "
-                 "under-dispersed, end spike = biased; each resolution vs ERA5 "
-                 "on its own grid)", y=1.0, fontsize=12)
+                 f"under-dispersed, end spike = biased; {note})", y=1.0, fontsize=12)
     fig.tight_layout()
-    _save(fig, "xres_rank_hist.png", outdirs)
+    _save(fig, f"xres_rank_hist{sfx}.png", outdirs)
 
     fig, ax = plt.subplots(figsize=(6.5, 4))
     ref = None
@@ -263,13 +290,14 @@ def plot_rank_hists(weeks, outdirs, rows_out):
     if ref is not None:
         ax.axhline(ref, color="k", ls=":", lw=1)
     ax.grid(True, ls="--", color="0.85", lw=0.5)
-    ax.set_title(f"Week-{weeks} pooled rank histogram (all events)")
+    ax.set_title(f"Week-{weeks} pooled rank histogram (all events; {note})",
+                 fontsize=9)
     ax.set_xlabel("rank of ERA5 among members")
     ax.set_ylabel("frequency")
     ax.legend(fontsize=8)
     fig.tight_layout()
-    _save(fig, "xres_rank_hist_pooled.png", outdirs)
-    print(f"[xres scores] {len(names)} events -> xres_rank_hist(.pooled).png")
+    _save(fig, f"xres_rank_hist_pooled{sfx}.png", outdirs)
+    print(f"[xres scores] {len(names)} events -> xres_rank_hist(.pooled){sfx}.png")
 
 
 # --------------------------------------------------------------------------- #
@@ -282,11 +310,12 @@ def _save(fig, fname, outdirs):
 
 def make_all(weeks=None):
     weeks = X.WEEKS if weeks is None else weeks
-    outdirs = [X.XFIG_DIR, C.ROOT]
+    outdirs = [X.XFIG_DIR, C.ROOT / "figures" / "xres"]
     rows = []
-    plot_brier(weeks, outdirs, rows)
-    plot_crps(weeks, outdirs, rows)
-    plot_rank_hists(weeks, outdirs, rows)
+    for common in (False, True):        # own-grid batch + common-0.25deg-baseline batch
+        plot_brier(weeks, outdirs, rows, common=common)
+        plot_crps(weeks, outdirs, rows, common=common)
+        plot_rank_hists(weeks, outdirs, rows, common=common)
     if rows:
         df = pd.DataFrame(rows)
         df.to_csv(Path(X.XFIG_DIR) / "xres_scores.csv", index=False)

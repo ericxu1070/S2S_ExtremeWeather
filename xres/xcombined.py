@@ -28,6 +28,9 @@ forecast curve:
     xres_combined_best.png      single BEST member (lowest latitude-weighted RMSE vs ERA5)
     xres_combined_extreme.png   single most-EXTREME member (warmest/coldest for T2m;
                                  strongest winds / heaviest precip otherwise)
+
+Each also has a ``*_vs_era5_0p25.png`` variant where the ERA5 1.0deg curve is dropped and
+the single native ERA5 0.25deg curve serves as the common baseline for both forecasts.
 """
 from __future__ import annotations
 
@@ -121,7 +124,7 @@ def _era5_1p0(era5, weeks, name, metric):
     return era5.isel(lat=slice(None, None, 4), lon=slice(None, None, 4))
 
 
-def _panel(ax, name, weeks, mode):
+def _panel(ax, name, weeks, mode, baseline="both"):
     metric = X.event_metric(name)
     sp = XM.spec(metric)
     era5 = era5_truth(name, metric)
@@ -131,10 +134,12 @@ def _panel(ax, name, weeks, mode):
         (era5.values.ravel(),
          dict(color=r25["truth_color"], ls="-", lw=2.8,
               label="ERA5 0.25deg (truth)")),
-        (_era5_1p0(era5, weeks, name, metric).values.ravel(),
-         dict(color=r10["truth_color"], ls="-", lw=2.0, marker="s",
-              markevery=(3, 9), ms=4, label="ERA5 1.0deg (truth)")),
     ]
+    if baseline == "both":
+        entries.append(
+            (_era5_1p0(era5, weeks, name, metric).values.ravel(),
+             dict(color=r10["truth_color"], ls="-", lw=2.0, marker="s",
+                  markevery=(3, 9), ms=4, label="ERA5 1.0deg (truth)")))
     for res, off in (("0p25", 0), ("1p0", 6)):
         res_c = _res_curve(res, weeks, name, metric, mode, era5)
         if res_c is None:
@@ -171,7 +176,7 @@ def _panel(ax, name, weeks, mode):
     ax.set_ylabel("PDF (probability per bin)")
 
 
-def _figure(mode, title, fname, weeks, outdirs):
+def _figure(mode, title, fname, weeks, outdirs, baseline="both"):
     names = [n for n in X.events()
              if any(members(r, weeks, n, X.event_metric(n)) is not None for r in X.RES_ORDER)]
     if not names:
@@ -181,7 +186,7 @@ def _figure(mode, title, fname, weeks, outdirs):
     rows = math.ceil(len(names) / cols)
     fig, axes = plt.subplots(rows, cols, figsize=(5 * cols, 3.6 * rows), squeeze=False)
     for ax, name in zip(axes.ravel(), names):
-        _panel(ax, name, weeks, mode)
+        _panel(ax, name, weeks, mode, baseline=baseline)
         ax.legend(fontsize=6.5)
     for ax in axes.ravel()[len(names):]:
         ax.axis("off")
@@ -194,22 +199,26 @@ def _figure(mode, title, fname, weeks, outdirs):
     print(f"[xres combined] {len(names)} events -> {fname}")
 
 
+MODES = {
+    "ensemble": ("ENSEMBLE MEAN", "mean"),
+    "pooled":   ("ALL MEMBERS POOLED", "pooled"),
+    "best":     ("BEST MEMBER", "best"),
+    "extreme":  ("MOST-EXTREME MEMBER", "extreme"),
+}
+
+
 def make_all(weeks=None):
     weeks = X.WEEKS if weeks is None else weeks
-    outdirs = [X.XFIG_DIR, C.ROOT]      # cross-res figures dir + project root
-    _figure("ensemble",
-            f"CONUS verification PDFs — ENSEMBLE MEAN, week-{weeks}: "
-            "ERA5 (0.25deg + 1.0deg) vs GenCast 0.25deg vs 1.0deg",
-            "xres_combined_mean.png", weeks, outdirs)
-    _figure("pooled",
-            f"CONUS verification PDFs — ALL MEMBERS POOLED, week-{weeks}: "
-            "ERA5 (0.25deg + 1.0deg) vs GenCast 0.25deg vs 1.0deg",
-            "xres_combined_pooled.png", weeks, outdirs)
-    _figure("best",
-            f"CONUS verification PDFs — BEST MEMBER, week-{weeks}: "
-            "ERA5 (0.25deg + 1.0deg) vs GenCast 0.25deg vs 1.0deg",
-            "xres_combined_best.png", weeks, outdirs)
-    _figure("extreme",
-            f"CONUS verification PDFs — MOST-EXTREME MEMBER, week-{weeks}: "
-            "ERA5 (0.25deg + 1.0deg) vs GenCast 0.25deg vs 1.0deg",
-            "xres_combined_extreme.png", weeks, outdirs)
+    outdirs = [X.XFIG_DIR, C.ROOT / "figures" / "xres"]
+    for mode, (desc, tag) in MODES.items():
+        # Batch 1: truth at both grids (own-grid baseline for each resolution).
+        _figure(mode,
+                f"CONUS verification PDFs — {desc}, week-{weeks}: "
+                "ERA5 (0.25deg + 1.0deg) vs GenCast 0.25deg vs 1.0deg",
+                f"xres_combined_{tag}.png", weeks, outdirs, baseline="both")
+        # Batch 2: the single ERA5 0.25deg curve as the common baseline for both.
+        _figure(mode,
+                f"CONUS verification PDFs — {desc}, week-{weeks}: "
+                "common baseline ERA5 0.25deg vs GenCast 0.25deg vs 1.0deg",
+                f"xres_combined_{tag}_vs_era5_0p25.png", weeks, outdirs,
+                baseline="0p25")

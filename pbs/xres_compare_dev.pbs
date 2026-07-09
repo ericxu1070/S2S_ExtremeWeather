@@ -21,4 +21,4 @@ echo "Host: $(hostname)"; echo "Start: $(date)"
 python run_xres.py --stage compare
 
 echo "End: $(date)"
-ls -la xres_combined_*.png runs/xres/figures/ 2>/dev/null || true
+ls -la figures/xres/ runs/xres/figures/ 2>/dev/null || true
