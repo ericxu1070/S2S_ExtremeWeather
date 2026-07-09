@@ -6,8 +6,9 @@ Stages:
              truth (all metrics); build per-resolution init frames.            [CPU]
     infer    roll one resolution's ensemble, CACHE THE FULL output cube per event, derive
              the per-member verification metrics.  Requires --res.             [8x GPU node]
-    compare  build the 6-panel comparison maps + the 3 combined PDFs from BOTH
-             resolutions' verification fields + ERA5/HRRR truth.               [CPU]
+    compare  build the comparison maps, the 4 combined PDF figures and the skill
+             figures (Brier / CRPS / rank histograms) from BOTH resolutions'
+             verification fields + ERA5 truth.                                 [CPU]
 
 Examples
 --------
@@ -67,9 +68,10 @@ def do_infer(res, weeks, members):
 
 
 def do_compare(weeks):
-    from xres import xplotting, xcombined
+    from xres import xplotting, xcombined, xscores
     xplotting.make_maps(weeks)
     xcombined.make_all(weeks)
+    xscores.make_all(weeks)
 
 
 def main(argv=None) -> None:

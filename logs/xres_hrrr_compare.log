@@ -1,0 +1,58 @@
+Host: dec2439
+Start: Tue Jul  7 05:32:26 PM MDT 2026
+/glade/work/exu/conda-envs/my-env/lib/python3.10/site-packages/google/api_core/_python_version_support.py:255: FutureWarning: You are using a Python version (3.10.20) which Google will stop supporting in new releases of google.api_core once it reaches its end of life (2026-10-04). Please upgrade to the latest Python version, or at least Python 3.11, to continue receiving updates for google.api_core past that date.
+  warnings.warn(message, FutureWarning)
+/glade/work/exu/conda-envs/my-env/lib/python3.10/site-packages/google/api_core/_python_version_support.py:255: FutureWarning: You are using a Python version (3.10.20) which Google will stop supporting in new releases of google.cloud._storage_v2 once it reaches its end of life (2026-10-04). Please upgrade to the latest Python version, or at least Python 3.11, to continue receiving updates for google.cloud._storage_v2 past that date.
+  warnings.warn(message, FutureWarning)
+/glade/work/exu/conda-envs/my-env/lib/python3.10/site-packages/google/api_core/_python_version_support.py:255: FutureWarning: You are using a Python version (3.10.20) which Google will stop supporting in new releases of google.cloud.storage_control_v2 once it reaches its end of life (2026-10-04). Please upgrade to the latest Python version, or at least Python 3.11, to continue receiving updates for google.cloud.storage_control_v2 past that date.
+  warnings.warn(message, FutureWarning)
+[hrrr-truth] PNW_HeatDome_2021 [t2m_anom]: mean=+0.282 max=+14.9 -> PNW_HeatDome_2021_hrrr_verif_t2m_anom.nc
+[hrrr-truth] Southwest_HeatWave_2020 [t2m_anom]: mean=+1.19 max=+10 -> Southwest_HeatWave_2020_hrrr_verif_t2m_anom.nc
+[hrrr-truth] California_HeatWave_2022 [t2m_anom]: mean=+1.36 max=+14.3 -> California_HeatWave_2022_hrrr_verif_t2m_anom.nc
+[hrrr-truth] WinterStorm_Uri_2021 [t2m_anom]: mean=-4.51 max=+11.9 -> WinterStorm_Uri_2021_hrrr_verif_t2m_anom.nc
+[hrrr-truth] PolarVortex_2019 [t2m_anom]: mean=-1.45 max=+15.3 -> PolarVortex_2019_hrrr_verif_t2m_anom.nc
+[hrrr-truth] WinterStorm_Elliott_2022 [t2m_anom]: mean=-2.86 max=+9.19 -> WinterStorm_Elliott_2022_hrrr_verif_t2m_anom.nc
+[hrrr-truth] HurricaneIda_2021 [u850_speed]: mean=+5.85 max=+14.3 -> HurricaneIda_2021_hrrr_verif_u850_speed.nc
+[hrrr-truth] HurricaneIda_2021 [u850_speed_max]: mean=+11.9 max=+45.7 -> HurricaneIda_2021_hrrr_verif_u850_speed_max.nc
+[hrrr-truth] HurricaneIan_2022 [u850_speed]: mean=+7.11 max=+16.9 -> HurricaneIan_2022_hrrr_verif_u850_speed.nc
+[hrrr-truth] HurricaneIan_2022 [u850_speed_max]: mean=+14.6 max=+67.4 -> HurricaneIan_2022_hrrr_verif_u850_speed_max.nc
+[hrrr-truth] HurricaneIdalia_2023 [u850_speed]: mean=+5.22 max=+12.4 -> HurricaneIdalia_2023_hrrr_verif_u850_speed.nc
+[hrrr-truth] HurricaneIdalia_2023 [u850_speed_max]: mean=+11.5 max=+63.6 -> HurricaneIdalia_2023_hrrr_verif_u850_speed_max.nc
+[hrrr-truth] California_AR_Floods_2023 [tp_total]: mean=+11.6 max=+377 -> California_AR_Floods_2023_hrrr_verif_tp_total.nc
+[hrrr-truth] California_AR_Floods_2023 [tp_max12h]: mean=+6.94 max=+176 -> California_AR_Floods_2023_hrrr_verif_tp_max12h.nc
+[hrrr-truth] Kentucky_Floods_2022 [tp_total]: mean=+10.3 max=+233 -> Kentucky_Floods_2022_hrrr_verif_tp_total.nc
+[hrrr-truth] Kentucky_Floods_2022 [tp_max12h]: mean=+7.31 max=+166 -> Kentucky_Floods_2022_hrrr_verif_tp_max12h.nc
+[hrrr-truth] Vermont_Floods_2023 [tp_total]: mean=+11.8 max=+526 -> Vermont_Floods_2023_hrrr_verif_tp_total.nc
+[hrrr-truth] Vermont_Floods_2023 [tp_max12h]: mean=+8.25 max=+449 -> Vermont_Floods_2023_hrrr_verif_tp_max12h.nc
+/glade/work/exu/conda-envs/my-env/lib/python3.10/site-packages/google/api_core/_python_version_support.py:255: FutureWarning: You are using a Python version (3.10.20) which Google will stop supporting in new releases of google.api_core once it reaches its end of life (2026-10-04). Please upgrade to the latest Python version, or at least Python 3.11, to continue receiving updates for google.api_core past that date.
+  warnings.warn(message, FutureWarning)
+/glade/work/exu/conda-envs/my-env/lib/python3.10/site-packages/google/api_core/_python_version_support.py:255: FutureWarning: You are using a Python version (3.10.20) which Google will stop supporting in new releases of google.cloud._storage_v2 once it reaches its end of life (2026-10-04). Please upgrade to the latest Python version, or at least Python 3.11, to continue receiving updates for google.cloud._storage_v2 past that date.
+  warnings.warn(message, FutureWarning)
+/glade/work/exu/conda-envs/my-env/lib/python3.10/site-packages/google/api_core/_python_version_support.py:255: FutureWarning: You are using a Python version (3.10.20) which Google will stop supporting in new releases of google.cloud.storage_control_v2 once it reaches its end of life (2026-10-04). Please upgrade to the latest Python version, or at least Python 3.11, to continue receiving updates for google.cloud.storage_control_v2 past that date.
+  warnings.warn(message, FutureWarning)
+[xres maps] wrote 12 per-event compare maps -> /glade/derecho/scratch/exu/S2S_ExtremeWeather/runs/xres/figures/maps
+[xres combined] 12 events -> xres_combined_mean.png
+[xres combined] 12 events -> xres_combined_best.png
+[xres combined] 12 events -> xres_combined_extreme.png
+End: Tue Jul  7 05:34:35 PM MDT 2026
+-rw-r--r-- 1 exu ncar 108942 Jul  7 17:33 runs/observations/California_AR_Floods_2023_hrrr_verif_tp_max12h.nc
+-rw-r--r-- 1 exu ncar 108942 Jul  7 17:33 runs/observations/California_AR_Floods_2023_hrrr_verif_tp_total.nc
+-rw-r--r-- 1 exu ncar 108942 Jul  7 17:32 runs/observations/California_HeatWave_2022_hrrr_verif_t2m_anom.nc
+-rw-r--r-- 1 exu ncar 108942 Jul  7 17:33 runs/observations/HurricaneIan_2022_hrrr_verif_u850_speed_max.nc
+-rw-r--r-- 1 exu ncar 108942 Jul  7 17:33 runs/observations/HurricaneIan_2022_hrrr_verif_u850_speed.nc
+-rw-r--r-- 1 exu ncar 108942 Jul  7 17:33 runs/observations/HurricaneIda_2021_hrrr_verif_u850_speed_max.nc
+-rw-r--r-- 1 exu ncar 108942 Jul  7 17:33 runs/observations/HurricaneIda_2021_hrrr_verif_u850_speed.nc
+-rw-r--r-- 1 exu ncar 108942 Jul  7 17:33 runs/observations/HurricaneIdalia_2023_hrrr_verif_u850_speed_max.nc
+-rw-r--r-- 1 exu ncar 108942 Jul  7 17:33 runs/observations/HurricaneIdalia_2023_hrrr_verif_u850_speed.nc
+-rw-r--r-- 1 exu ncar 108942 Jul  7 17:33 runs/observations/Kentucky_Floods_2022_hrrr_verif_tp_max12h.nc
+-rw-r--r-- 1 exu ncar 108942 Jul  7 17:33 runs/observations/Kentucky_Floods_2022_hrrr_verif_tp_total.nc
+-rw-r--r-- 1 exu ncar 108942 Jul  7 17:32 runs/observations/PNW_HeatDome_2021_hrrr_verif_t2m_anom.nc
+-rw-r--r-- 1 exu ncar 108942 Jul  7 17:33 runs/observations/PolarVortex_2019_hrrr_verif_t2m_anom.nc
+-rw-r--r-- 1 exu ncar 108942 Jul  7 17:32 runs/observations/Southwest_HeatWave_2020_hrrr_verif_t2m_anom.nc
+-rw-r--r-- 1 exu ncar 108942 Jul  7 17:33 runs/observations/Vermont_Floods_2023_hrrr_verif_tp_max12h.nc
+-rw-r--r-- 1 exu ncar 108942 Jul  7 17:33 runs/observations/Vermont_Floods_2023_hrrr_verif_tp_total.nc
+-rw-r--r-- 1 exu ncar 108942 Jul  7 17:33 runs/observations/WinterStorm_Elliott_2022_hrrr_verif_t2m_anom.nc
+-rw-r--r-- 1 exu ncar 108942 Jul  7 17:32 runs/observations/WinterStorm_Uri_2021_hrrr_verif_t2m_anom.nc
+-rw-r--r-- 1 exu ncar 465336 Jul  7 17:34 xres_combined_best.png
+-rw-r--r-- 1 exu ncar 468648 Jul  7 17:34 xres_combined_extreme.png
+-rw-r--r-- 1 exu ncar 445028 Jul  7 17:34 xres_combined_mean.png

@@ -117,13 +117,30 @@ The two checkpoints have very different memory footprints on GPU:
 
 Because of that, the 0.25° run on Derecho uses a fallback configuration:
 
-- single visible GPU (`CUDA_VISIBLE_DEVICES=0`)
-- serial rollout (`XRES_SERIAL_INFER=1`)
+- serial rollout (`XRES_SERIAL_INFER=1`), one member at a time per GPU
 - bfloat16 casting (`XRES_BF16=1`) to reduce pressure
 
-In short: for this repo's current Derecho setup, assume **1.0° fits on 40 GB A100s**, while
-**0.25° wants about 50 GiB per member** and therefore must be run in the reduced-memory serial
-mode rather than standard parallel `pmap`.
+At ~80 s/model-step this is ~15 h per event (24 members × 28 steps) — more than one 12 h
+walltime allocation — so infer is decomposed around a **per-member cache**: each finished
+member is written to `runs/xres/<res>/week2/cache/<event>_memberNN.nc` immediately, and the
+cube is assembled (and member files removed) once all members exist.
+
+Two PBS execution modes build on that cache:
+
+- **Member arrays (current method, both resolutions)**: `pbs/xres_member_0p25.pbs` /
+  `pbs/xres_member_1p0.pbs` are 24-subjob arrays (`#PBS -J 0-23`); subjob N rolls only
+  ensemble member N of every event (`XRES_MEMBER_SEL=N`) on a single GPU (~8 h for 0.25°,
+  minutes-to-an-hour for 1.0°). The last subjob to finish an event assembles its cube;
+  cross-node races are safe (atomic writes + tolerant assembly). Resubmitting an array is
+  cheap: subjobs with cached members exit in ~2 min without loading the model. 0.25° subjobs
+  request `mem=243gb` (one serial process peaks at ~237 GiB), so two share a 487 GB node.
+- **Full-node worker pool (fallback)**: `pbs/xres_res0p25_week2.pbs` runs up to 4 single-GPU
+  workers coordinating through claim files in `cache/claims/` (host-RAM-gated) and
+  self-chains 12 h hops until done.
+
+In short: assume **1.0° fits on 40 GB A100s**; **0.25° wants ~50 GiB per member** and runs
+serial per-member. Submit both member arrays plus a compare job with
+`depend=afterok:<array025>:<array1p0>`.
 
 CLI entry point:
 

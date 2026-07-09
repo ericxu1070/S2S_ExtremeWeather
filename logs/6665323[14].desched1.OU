@@ -1,0 +1,158 @@
+Host: deg0010
+Start: Wed Jul  8 01:56:00 AM MDT 2026
+Job: 6665323[14].desched1  member: 14
+GPU 0: NVIDIA A100-SXM4-40GB (UUID: GPU-6ded9f49-5073-fa04-6563-076ca8c52418)
+/glade/work/exu/conda-envs/my-env/lib/python3.10/site-packages/google/api_core/_python_version_support.py:255: FutureWarning: You are using a Python version (3.10.20) which Google will stop supporting in new releases of google.api_core once it reaches its end of life (2026-10-04). Please upgrade to the latest Python version, or at least Python 3.11, to continue receiving updates for google.api_core past that date.
+  warnings.warn(message, FutureWarning)
+/glade/work/exu/conda-envs/my-env/lib/python3.10/site-packages/google/api_core/_python_version_support.py:255: FutureWarning: You are using a Python version (3.10.20) which Google will stop supporting in new releases of google.cloud._storage_v2 once it reaches its end of life (2026-10-04). Please upgrade to the latest Python version, or at least Python 3.11, to continue receiving updates for google.cloud._storage_v2 past that date.
+  warnings.warn(message, FutureWarning)
+/glade/work/exu/conda-envs/my-env/lib/python3.10/site-packages/google/api_core/_python_version_support.py:255: FutureWarning: You are using a Python version (3.10.20) which Google will stop supporting in new releases of google.cloud.storage_control_v2 once it reaches its end of life (2026-10-04). Please upgrade to the latest Python version, or at least Python 3.11, to continue receiving updates for google.cloud.storage_control_v2 past that date.
+  warnings.warn(message, FutureWarning)
+=== xres 1p0 (GenCast 1.0deg): week2, lead 14d, 28 steps, 24 members, serial member 14 only ===
+PNW_HeatDome_2021 [m14 1p0 week2] (event 1/12)
+Southwest_HeatWave_2020 [m14 1p0 week2] (event 2/12)
+California_HeatWave_2022 [m14 1p0 week2] (event 3/12)
+WinterStorm_Uri_2021 [m14 1p0 week2] (event 4/12)
+PolarVortex_2019 [m14 1p0 week2] (event 5/12)
+WinterStorm_Elliott_2022 [m14 1p0 week2] (event 6/12)
+HurricaneIda_2021 [m14 1p0 week2] (event 7/12)
+HurricaneIan_2022 [m14 1p0 week2] (event 8/12)
+HurricaneIdalia_2023 [m14 1p0 week2] (event 9/12)
+INFO:2026-07-08 01:56:05,856:jax._src.xla_bridge:752: Unable to initialize backend 'tpu': INTERNAL: Failed to open libtpu.so: libtpu.so: cannot open shared object file: No such file or directory
+WARNING: Logging before flag parsing goes to stderr.
+I0708 01:56:05.856983 22972677773120 xla_bridge.py:752] Unable to initialize backend 'tpu': INTERNAL: Failed to open libtpu.so: libtpu.so: cannot open shared object file: No such file or directory
+[model] serial infer on 1 device(s); ensemble=24 (24 sample(s), one at a time). task pressure levels: 13
+I0708 01:56:08.137773 22972677773120 rollout.py:206] Sample 0/1
+/glade/derecho/scratch/exu/S2S_ExtremeWeather/third_party/graphcast/graphcast/rollout.py:328: FutureWarning: The return type of `Dataset.dims` will be changed to return a set of dimension names in future, in order to be more consistent with `DataArray.dims`. To access a mapping from dimension names to lengths, please use `Dataset.sizes`.
+  num_target_steps = targets_template.dims["time"]
+I0708 01:56:08.155721 22972677773120 rollout.py:361] Chunk 0/28
+/glade/work/exu/conda-envs/my-env/lib/python3.10/site-packages/scipy/sparse/_index.py:210: SparseEfficiencyWarning: Changing the sparsity structure of a csr_matrix is expensive. lil and dok are more efficient.
+  self._set_arrayXarray(i, j, x)
+/glade/work/exu/conda-envs/my-env/lib/python3.10/site-packages/scipy/sparse/_index.py:210: SparseEfficiencyWarning: Changing the sparsity structure of a csr_matrix is expensive. lil and dok are more efficient.
+  self._set_arrayXarray(i, j, x)
+I0708 01:56:15.158155 22972677773120 sparse_transformer.py:507] mask_block_size: 2577.
+/glade/derecho/scratch/exu/S2S_ExtremeWeather/third_party/graphcast/graphcast/rollout.py:435: FutureWarning: The return type of `Dataset.dims` will be changed to return a set of dimension names in future, in order to be more consistent with `DataArray.dims`. To access a mapping from dimension names to lengths, please use `Dataset.sizes`.
+  num_inputs = prev_inputs.dims["time"]
+  [w14 1p0] HurricaneIdalia_2023: member 15/24  step 1/28
+I0708 01:56:56.376883 22972677773120 rollout.py:361] Chunk 1/28
+  [w14 1p0] HurricaneIdalia_2023: member 15/24  step 2/28
+I0708 01:57:04.226879 22972677773120 rollout.py:361] Chunk 2/28
+  [w14 1p0] HurricaneIdalia_2023: member 15/24  step 3/28
+I0708 01:57:12.077448 22972677773120 rollout.py:361] Chunk 3/28
+  [w14 1p0] HurricaneIdalia_2023: member 15/24  step 4/28
+I0708 01:57:19.916317 22972677773120 rollout.py:361] Chunk 4/28
+  [w14 1p0] HurricaneIdalia_2023: member 15/24  step 5/28
+I0708 01:57:27.773835 22972677773120 rollout.py:361] Chunk 5/28
+  [w14 1p0] HurricaneIdalia_2023: member 15/24  step 6/28
+I0708 01:57:35.617996 22972677773120 rollout.py:361] Chunk 6/28
+  [w14 1p0] HurricaneIdalia_2023: member 15/24  step 7/28
+I0708 01:57:43.461102 22972677773120 rollout.py:361] Chunk 7/28
+  [w14 1p0] HurricaneIdalia_2023: member 15/24  step 8/28
+I0708 01:57:51.301291 22972677773120 rollout.py:361] Chunk 8/28
+  [w14 1p0] HurricaneIdalia_2023: member 15/24  step 9/28
+I0708 01:57:59.143742 22972677773120 rollout.py:361] Chunk 9/28
+  [w14 1p0] HurricaneIdalia_2023: member 15/24  step 10/28
+I0708 01:58:06.983378 22972677773120 rollout.py:361] Chunk 10/28
+  [w14 1p0] HurricaneIdalia_2023: member 15/24  step 11/28
+I0708 01:58:14.827370 22972677773120 rollout.py:361] Chunk 11/28
+  [w14 1p0] HurricaneIdalia_2023: member 15/24  step 12/28
+I0708 01:58:22.669041 22972677773120 rollout.py:361] Chunk 12/28
+  [w14 1p0] HurricaneIdalia_2023: member 15/24  step 13/28
+I0708 01:58:30.514147 22972677773120 rollout.py:361] Chunk 13/28
+  [w14 1p0] HurricaneIdalia_2023: member 15/24  step 14/28
+I0708 01:58:38.358639 22972677773120 rollout.py:361] Chunk 14/28
+  [w14 1p0] HurricaneIdalia_2023: member 15/24  step 15/28
+I0708 01:58:46.199607 22972677773120 rollout.py:361] Chunk 15/28
+  [w14 1p0] HurricaneIdalia_2023: member 15/24  step 16/28
+I0708 01:58:54.036293 22972677773120 rollout.py:361] Chunk 16/28
+  [w14 1p0] HurricaneIdalia_2023: member 15/24  step 17/28
+I0708 01:59:01.876904 22972677773120 rollout.py:361] Chunk 17/28
+  [w14 1p0] HurricaneIdalia_2023: member 15/24  step 18/28
+I0708 01:59:09.720496 22972677773120 rollout.py:361] Chunk 18/28
+  [w14 1p0] HurricaneIdalia_2023: member 15/24  step 19/28
+I0708 01:59:17.559878 22972677773120 rollout.py:361] Chunk 19/28
+  [w14 1p0] HurricaneIdalia_2023: member 15/24  step 20/28
+I0708 01:59:25.402298 22972677773120 rollout.py:361] Chunk 20/28
+  [w14 1p0] HurricaneIdalia_2023: member 15/24  step 21/28
+I0708 01:59:33.239139 22972677773120 rollout.py:361] Chunk 21/28
+  [w14 1p0] HurricaneIdalia_2023: member 15/24  step 22/28
+I0708 01:59:41.080860 22972677773120 rollout.py:361] Chunk 22/28
+  [w14 1p0] HurricaneIdalia_2023: member 15/24  step 23/28
+I0708 01:59:48.923336 22972677773120 rollout.py:361] Chunk 23/28
+  [w14 1p0] HurricaneIdalia_2023: member 15/24  step 24/28
+I0708 01:59:56.766066 22972677773120 rollout.py:361] Chunk 24/28
+  [w14 1p0] HurricaneIdalia_2023: member 15/24  step 25/28
+I0708 02:00:04.605691 22972677773120 rollout.py:361] Chunk 25/28
+  [w14 1p0] HurricaneIdalia_2023: member 15/24  step 26/28
+I0708 02:00:12.448356 22972677773120 rollout.py:361] Chunk 26/28
+  [w14 1p0] HurricaneIdalia_2023: member 15/24  step 27/28
+I0708 02:00:20.293910 22972677773120 rollout.py:361] Chunk 27/28
+  [w14 1p0] HurricaneIdalia_2023: member 15/24  step 28/28
+  [w14 1p0] HurricaneIdalia_2023: member 15/24 saved
+California_AR_Floods_2023 [m14 1p0 week2] (event 10/12)
+Kentucky_Floods_2022 [m14 1p0 week2] (event 11/12)
+Vermont_Floods_2023 [m14 1p0 week2] (event 12/12)
+I0708 02:00:29.797769 22972677773120 rollout.py:206] Sample 0/1
+/glade/derecho/scratch/exu/S2S_ExtremeWeather/third_party/graphcast/graphcast/rollout.py:328: FutureWarning: The return type of `Dataset.dims` will be changed to return a set of dimension names in future, in order to be more consistent with `DataArray.dims`. To access a mapping from dimension names to lengths, please use `Dataset.sizes`.
+  num_target_steps = targets_template.dims["time"]
+I0708 02:00:29.798964 22972677773120 rollout.py:361] Chunk 0/28
+/glade/derecho/scratch/exu/S2S_ExtremeWeather/third_party/graphcast/graphcast/rollout.py:435: FutureWarning: The return type of `Dataset.dims` will be changed to return a set of dimension names in future, in order to be more consistent with `DataArray.dims`. To access a mapping from dimension names to lengths, please use `Dataset.sizes`.
+  num_inputs = prev_inputs.dims["time"]
+  [w14 1p0] Vermont_Floods_2023: member 15/24  step 1/28
+I0708 02:00:37.647170 22972677773120 rollout.py:361] Chunk 1/28
+  [w14 1p0] Vermont_Floods_2023: member 15/24  step 2/28
+I0708 02:00:45.489031 22972677773120 rollout.py:361] Chunk 2/28
+  [w14 1p0] Vermont_Floods_2023: member 15/24  step 3/28
+I0708 02:00:53.328941 22972677773120 rollout.py:361] Chunk 3/28
+  [w14 1p0] Vermont_Floods_2023: member 15/24  step 4/28
+I0708 02:01:01.169406 22972677773120 rollout.py:361] Chunk 4/28
+  [w14 1p0] Vermont_Floods_2023: member 15/24  step 5/28
+I0708 02:01:09.013666 22972677773120 rollout.py:361] Chunk 5/28
+  [w14 1p0] Vermont_Floods_2023: member 15/24  step 6/28
+I0708 02:01:16.855112 22972677773120 rollout.py:361] Chunk 6/28
+  [w14 1p0] Vermont_Floods_2023: member 15/24  step 7/28
+I0708 02:01:24.697940 22972677773120 rollout.py:361] Chunk 7/28
+  [w14 1p0] Vermont_Floods_2023: member 15/24  step 8/28
+I0708 02:01:32.541658 22972677773120 rollout.py:361] Chunk 8/28
+  [w14 1p0] Vermont_Floods_2023: member 15/24  step 9/28
+I0708 02:01:40.383158 22972677773120 rollout.py:361] Chunk 9/28
+  [w14 1p0] Vermont_Floods_2023: member 15/24  step 10/28
+I0708 02:01:48.226328 22972677773120 rollout.py:361] Chunk 10/28
+  [w14 1p0] Vermont_Floods_2023: member 15/24  step 11/28
+I0708 02:01:56.068031 22972677773120 rollout.py:361] Chunk 11/28
+  [w14 1p0] Vermont_Floods_2023: member 15/24  step 12/28
+I0708 02:02:03.911307 22972677773120 rollout.py:361] Chunk 12/28
+  [w14 1p0] Vermont_Floods_2023: member 15/24  step 13/28
+I0708 02:02:11.749453 22972677773120 rollout.py:361] Chunk 13/28
+  [w14 1p0] Vermont_Floods_2023: member 15/24  step 14/28
+I0708 02:02:19.591931 22972677773120 rollout.py:361] Chunk 14/28
+  [w14 1p0] Vermont_Floods_2023: member 15/24  step 15/28
+I0708 02:02:27.434085 22972677773120 rollout.py:361] Chunk 15/28
+  [w14 1p0] Vermont_Floods_2023: member 15/24  step 16/28
+I0708 02:02:35.276047 22972677773120 rollout.py:361] Chunk 16/28
+  [w14 1p0] Vermont_Floods_2023: member 15/24  step 17/28
+I0708 02:02:43.116959 22972677773120 rollout.py:361] Chunk 17/28
+  [w14 1p0] Vermont_Floods_2023: member 15/24  step 18/28
+I0708 02:02:50.956930 22972677773120 rollout.py:361] Chunk 18/28
+  [w14 1p0] Vermont_Floods_2023: member 15/24  step 19/28
+I0708 02:02:58.799960 22972677773120 rollout.py:361] Chunk 19/28
+  [w14 1p0] Vermont_Floods_2023: member 15/24  step 20/28
+I0708 02:03:06.637179 22972677773120 rollout.py:361] Chunk 20/28
+  [w14 1p0] Vermont_Floods_2023: member 15/24  step 21/28
+I0708 02:03:14.477607 22972677773120 rollout.py:361] Chunk 21/28
+  [w14 1p0] Vermont_Floods_2023: member 15/24  step 22/28
+I0708 02:03:22.317378 22972677773120 rollout.py:361] Chunk 22/28
+  [w14 1p0] Vermont_Floods_2023: member 15/24  step 23/28
+I0708 02:03:30.160163 22972677773120 rollout.py:361] Chunk 23/28
+  [w14 1p0] Vermont_Floods_2023: member 15/24  step 24/28
+I0708 02:03:37.998926 22972677773120 rollout.py:361] Chunk 24/28
+  [w14 1p0] Vermont_Floods_2023: member 15/24  step 25/28
+I0708 02:03:45.843307 22972677773120 rollout.py:361] Chunk 25/28
+  [w14 1p0] Vermont_Floods_2023: member 15/24  step 26/28
+I0708 02:03:53.685657 22972677773120 rollout.py:361] Chunk 26/28
+  [w14 1p0] Vermont_Floods_2023: member 15/24  step 27/28
+I0708 02:04:01.526010 22972677773120 rollout.py:361] Chunk 27/28
+  [w14 1p0] Vermont_Floods_2023: member 15/24  step 28/28
+  [w14 1p0] Vermont_Floods_2023: member 15/24 saved
+[m14] member 14 done for all events; 20 unit(s) still owned by other member jobs
+End: Wed Jul  8 02:04:10 AM MDT 2026

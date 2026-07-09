@@ -34,11 +34,19 @@ on Derecho it is always `my-env`). `slurm/` scripts are for that original cluste
 Derecho use `pbs/` only.
 
 ```bash
-# xres pipeline: full dependency chain (see HANDOFF.md "Resubmit")
-PREP_ID=$(qsub pbs/xres_prep.pbs)                                   # CPU, develop/cpudev
-JOB025=$(qsub -W depend=afterok:$PREP_ID pbs/xres_res0p25_week2.pbs) # GPU
-JOB10=$(qsub -W depend=afterok:$PREP_ID pbs/xres_res1p0_week2.pbs)   # GPU
-qsub -W depend=afterok:$JOB025:$JOB10 pbs/xres_compare.pbs           # CPU
+# xres infer (current method): 24-subjob single-GPU PBS ARRAYS — subjob N rolls
+# ensemble member N for all events (XRES_MEMBER_SEL mode), cached per member,
+# cube assembled by the last finisher. Resubmitting an array is cheap (cached
+# members skip in ~2 min without loading the model).
+A025=$(qsub pbs/xres_member_0p25.pbs)
+A10=$(qsub pbs/xres_member_1p0.pbs)
+qsub -W depend=afterok:$A025:$A10 pbs/xres_compare_dev.pbs
+
+# Other stages / fallbacks (independent, cache-aware):
+qsub pbs/xres_prep.pbs             # CPU, develop/cpudev
+qsub pbs/xres_compare_dev.pbs      # CPU figures (xres_compare.pbs = slow cpu queue)
+qsub pbs/xres_res0p25_week2.pbs    # fallback: full-node self-chaining worker pool
+qsub pbs/xres_res1p0_week2.pbs     # fallback: full-node pmap path
 
 # Manual stages (inside a PBS job, not the login node):
 python run_xres.py --stage prep                    # CPU + internet
@@ -90,12 +98,16 @@ patch (i.e., rerun `setup_env.sh`). `runs/` (all data/outputs) is also gitignore
 - **ARCO ERA5**: never `xr.open_zarr()` the ARCO root store (~120 GB OOM). Use
   `arco_read()` in `gencast_s2s/data.py` for post-2023 events.
 - **0.25° checkpoint needs ~50 GiB VRAM per member** — does not fit Derecho's A100-40GB in
-  the normal `pmap` path. `pbs/xres_res0p25_week2.pbs` runs it single-GPU, serial
-  (`XRES_SERIAL_INFER=1`), bfloat16 (`XRES_BF16=1`). The 1.0° model runs the standard
-  multi-GPU path.
-- **Ensemble size must be a multiple of the visible GPU count** (pmap requirement).
-  Defaults to 24; override with `XRES_N_MEMBERS_0P25`/`XRES_N_MEMBERS_1P0` or
-  `GENCAST_N_MEMBERS`.
+  the normal `pmap` path; it must run serial (`XRES_SERIAL_INFER=1`, bfloat16) at ~80 s/step
+  ⇒ ~15 h/event for 24 members. Current method: `pbs/xres_member_*.pbs` PBS arrays where
+  subjob N rolls only member N of every event (`XRES_MEMBER_SEL`) on 1 GPU (~8 h/subjob for
+  0.25°), cached to `cache/<event>_memberNN.nc`; the last finisher assembles each cube.
+  One serial process peaks at ~237 GiB host RAM ⇒ 0.25° subjobs request `mem=243gb`
+  (2 per 487 GB node). Fallback: `pbs/xres_res0p25_week2.pbs`, a full-node self-chaining
+  worker pool using the same member cache plus `cache/claims/` work-stealing.
+- **Ensemble size must be a multiple of the visible GPU count** in the pmap path (1.0°);
+  the serial 0.25° path has no such constraint. Defaults to 24; override with
+  `XRES_N_MEMBERS_0P25`/`XRES_N_MEMBERS_1P0` or `GENCAST_N_MEMBERS`.
 - **Queues**: direct `-q gpu` is denied — use `#PBS -q main` with `ngpus` and it routes to
   the gpu queue. Prep uses `develop` (cpudev); do not use gpudev for infer. Account
   walltime cap is 12 h.

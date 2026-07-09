@@ -66,6 +66,15 @@ Each slurm job re-runs `prep --res <r>` (cache-aware, instant if step 0 ran) the
 Events run sequentially with per-event cube caching, so a late failure preserves all
 completed events and a re-submit resumes.
 
+**On Derecho (PBS)** use `pbs/` instead of `slurm/`. The 0.25° model does not fit the
+pmap path on A100-40GB, so both resolutions run as **24-subjob single-GPU member arrays**
+(`pbs/xres_member_0p25.pbs` / `pbs/xres_member_1p0.pbs`): subjob N rolls ensemble member N
+of every event (`XRES_MEMBER_SEL`), cached to `cache/<event>_memberNN.nc`; the last subjob
+per event assembles the cube. Submit compare with `depend=afterok:` on both arrays.
+Resubmitting an array is cheap (cached members skip without loading the model). Fallback:
+`pbs/xres_res0p25_week2.pbs`, a full-node claim-file worker pool with self-chaining 12 h
+jobs. See `HANDOFF.md` for operations.
+
 ## Knobs (env)
 
 - `XRES_N_MEMBERS_0P25`, `XRES_N_MEMBERS_1P0` (default 24 each) — ensemble size per resolution.

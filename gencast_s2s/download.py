@@ -88,11 +88,11 @@ def prepare_truth() -> None:
 def prepare_hrrr_truth() -> None:
     """Observed HRRR week-mean T2m anomaly per event -> runs/observations/ (shared, offline).
 
-    Best-effort: needs the local HRRR shard archive (C.HRRR_SHARDS). Skipped with a notice
+    Best-effort: needs the local HRRR netCDF archive (C.HRRR_NC). Skipped with a notice
     if it is absent (e.g. a node without that mount) so prep still completes for ERA5.
     """
-    if not C.HRRR_SHARDS.exists():
-        print(f"[hrrr-truth] shard archive not found at {C.HRRR_SHARDS}; skipping HRRR overlay")
+    if not C.HRRR_NC.exists():
+        print(f"[hrrr-truth] HRRR archive not found at {C.HRRR_NC}; skipping HRRR overlay")
         return
     from . import hrrr
     hrrr.build_hrrr_truth()

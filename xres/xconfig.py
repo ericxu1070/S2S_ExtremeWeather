@@ -55,11 +55,17 @@ def ensure_dirs(res: str | None = None, weeks: int | None = None) -> None:
 # Resolutions. Both are full <2019 checkpoints; ``stride`` coarsens the 0.25deg ERA5
 # stores to the model's native grid (0.25 -> 1, 1.0 -> 4).
 # --------------------------------------------------------------------------- #
+# Line styling: one color FAMILY per resolution (reds = 0.25deg, blues = 1.0deg) with
+# the DARK shade for ERA5 truth and the LIGHT shade for the forecast, plus a distinct
+# marker per curve so panels stay readable under color-vision deficiency (lightness,
+# line style and marker all encode the same distinction redundantly).
 RES_SPECS = {
     "0p25": dict(params="GenCast 0p25deg <2019.npz", res=0.25, stride=1,
-                 color="tab:blue",   label="GenCast 0.25deg"),
+                 color="#fb6a4a", truth_color="#99000d", marker="o",
+                 label="GenCast 0.25deg"),
     "1p0":  dict(params="GenCast 1p0deg <2019.npz",  res=1.0,  stride=4,
-                 color="tab:orange", label="GenCast 1.0deg"),
+                 color="#6baed6", truth_color="#08306b", marker="^",
+                 label="GenCast 1.0deg"),
 }
 RES_ORDER = ("0p25", "1p0")                            # left-to-right in figures
 

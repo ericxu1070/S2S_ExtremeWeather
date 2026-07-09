@@ -2,18 +2,19 @@
 
 Mirrors :func:`gencast_s2s.data.true_verif_anom` exactly — the 7-day verification
 window ending at the event peak, ``obs.mean(time) - clim.mean(time)`` — but sources 2m
-temperature from the local HRRR v3 shard archive (3 km CONUS, 2015-2025, 6-hourly)
+temperature from the local HRRR v3 netCDF archive (3 km CONUS, 2015-2025, 6-hourly)
 instead of ERA5. The result is regridded (nearest-neighbour) onto the same 0.25deg
 CONUS grid as the ERA5 truth and written to
 ``runs/observations/{event}_hrrr_verif_t2m_anom.nc`` so the plotting code can overlay
 an "Observed (HRRR)" curve next to the ERA5 truth.
 
-Each shard is a per-timestamp ``.npz`` with a 41-channel ``prog_t`` stack on the native
-1059x1799 Lambert grid; t2m is channel ``C.HRRR_T2M_CHANNEL`` (37). Anomalies reuse the
-ERA5 1990-2019 climatology (there is no offline HRRR-native climatology), so a small
-HRRR-vs-ERA5 model bias is folded into the overlay — the patterns still match ERA5
-closely (spatial correlation ~0.8 on the events tested), with HRRR resolving sharper
-local extremes.
+The archive (``C.HRRR_NC``) holds one file per timestamp,
+``<year>/hrrr.YYYYMMDD.tHHz.v3.nc``, with ``t2m`` (K), ``u``/``v`` on pressure levels
+and ``log_tp`` on the native 1059x1799 Lambert grid (2-D ``latitude``/``longitude``
+coords). Anomalies reuse the ERA5 1990-2019 climatology (there is no offline
+HRRR-native climatology), so a small HRRR-vs-ERA5 model bias is folded into the
+overlay — the patterns still match ERA5 closely (spatial correlation ~0.8 on the
+events tested), with HRRR resolving sharper local extremes.
 """
 from __future__ import annotations
 
@@ -54,8 +55,8 @@ def _remap_index() -> tuple[np.ndarray, tuple[int, int]]:
             return idx, shape
 
     from scipy.spatial import cKDTree
-    g = xr.open_dataset(C.HRRR_GRID_REF)
-    src = _xyz(g["latitude"].values.ravel(), g["longitude"].values.ravel())
+    with xr.open_dataset(_grid_ref_file()) as g:
+        src = _xyz(g["latitude"].values.ravel(), g["longitude"].values.ravel())
     TLA, TLO = np.meshgrid(tlat, tlon, indexing="ij")
     _, idx = cKDTree(src).query(_xyz(TLA.ravel(), TLO.ravel()), k=1)
     idx = idx.astype(np.int64)
@@ -65,10 +66,18 @@ def _remap_index() -> tuple[np.ndarray, tuple[int, int]]:
 
 
 # --------------------------------------------------------------------------- #
-# Shard IO
+# Archive IO
 # --------------------------------------------------------------------------- #
 def _shard_path(t: pd.Timestamp):
-    return C.HRRR_SHARDS / f"{t.year}" / f"{t.strftime('%Y%m%dT%H%M%S')}.npz"
+    return C.HRRR_NC / f"{t.year}" / f"hrrr.{t.strftime('%Y%m%d')}.t{t.strftime('%H')}z.v3.nc"
+
+
+def _grid_ref_file():
+    """Any archive file (the native grid is static across the archive)."""
+    for ydir in sorted(p for p in C.HRRR_NC.iterdir() if p.is_dir()):
+        for f in sorted(ydir.glob("hrrr.*.nc")):
+            return f
+    raise FileNotFoundError(f"no HRRR .nc files under {C.HRRR_NC}")
 
 
 def _load_t2m(t: pd.Timestamp, idx: np.ndarray, shape: tuple[int, int]):
@@ -76,8 +85,8 @@ def _load_t2m(t: pd.Timestamp, idx: np.ndarray, shape: tuple[int, int]):
     f = _shard_path(t)
     if not f.exists():
         return None
-    with np.load(f) as z:
-        flat = z["prog_t"][C.HRRR_T2M_CHANNEL].ravel()
+    with xr.open_dataset(f) as ds:
+        flat = ds["t2m"].values.ravel()
     return flat[idx].reshape(shape)
 
 

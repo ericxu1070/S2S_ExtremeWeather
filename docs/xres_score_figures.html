@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>xres skill figures — how they are built and how to read them</title>
+<style>
+  :root { --ink:#1a1a1a; --muted:#555; --red:#99000d; --lred:#fb6a4a;
+          --blue:#08306b; --lblue:#6baed6; --bg:#ffffff; --box:#f6f6f4; }
+  body  { font-family: Georgia, "Times New Roman", serif; color: var(--ink);
+          background: var(--bg); max-width: 62rem; margin: 2rem auto; padding: 0 1.2rem;
+          line-height: 1.55; }
+  h1 { font-size: 1.7rem; border-bottom: 3px solid var(--red); padding-bottom: .4rem; }
+  h2 { font-size: 1.3rem; margin-top: 2.2rem; border-bottom: 1px solid #ccc;
+       padding-bottom: .2rem; }
+  h3 { font-size: 1.05rem; margin-top: 1.4rem; }
+  code, .mono { font-family: "DejaVu Sans Mono", Consolas, monospace; font-size: .88em;
+          background: var(--box); padding: .08em .3em; border-radius: 3px; }
+  .math { font-family: Georgia, serif; font-style: italic; background: var(--box);
+          display: block; padding: .7rem 1rem; margin: .8rem 0; border-left: 4px solid #bbb;
+          overflow-x: auto; white-space: nowrap; }
+  .math b { font-style: normal; }
+  .example { background: #fbf7ec; border: 1px solid #e3d9bd; border-radius: 6px;
+             padding: .8rem 1.1rem; margin: 1rem 0; }
+  .example .tag { font-variant: small-caps; letter-spacing: .06em; color: #7a6520;
+                  font-weight: bold; font-style: normal; }
+  table { border-collapse: collapse; margin: .8rem 0; }
+  td, th { border: 1px solid #ccc; padding: .3rem .7rem; font-size: .92em; }
+  th { background: var(--box); }
+  .legendline { display: inline-block; width: 3.2em; height: 0; vertical-align: middle;
+                margin-right: .45em; border-bottom-width: 3px; }
+  .sol  { border-bottom-style: solid; }
+  .dot  { border-bottom-style: dotted; }
+  .dash { border-bottom-style: dashed; }
+  .cred  { border-color: var(--red); }   .clred  { border-color: var(--lred); }
+  .cblue { border-color: var(--blue); }  .clblue { border-color: var(--lblue); }
+  ul li { margin: .25rem 0; }
+  .note { color: var(--muted); font-size: .92em; }
+  .file { font-weight: bold; }
+</style>
+</head>
+<body>
+
+<h1>Cross-resolution skill figures — a reader's guide</h1>
+
+<p>This page documents the verification figures produced by
+<code>python run_xres.py --stage compare</code> (module <code>xres/xscores.py</code>, plus the
+PDF panels in <code>xres/xcombined.py</code>). All of them are computed from the same two
+ingredients, for each of the 12 extreme events:</p>
+
+<ul>
+  <li><b>The forecast ensemble</b>: 24 GenCast members initialized 14 days (week-2)
+      before the event peak, reduced to that event's headline metric — weekly-mean T2m
+      anomaly (K), weekly-mean 850&nbsp;hPa wind speed (m/s), or weekly-total precipitation
+      (mm) — as a (member, lat, lon) field over CONUS. One ensemble at 0.25°, one at 1.0°.</li>
+  <li><b>The truth</b>: the same metric computed from ERA5 over the same verification week.</li>
+</ul>
+
+<p><b>Grid matching, one rule everywhere:</b> each resolution is verified against ERA5
+sampled onto <i>its own</i> grid. The 0.25° ensemble is scored against native 0.25° ERA5
+(the grids coincide exactly); the 1.0° ensemble is scored against ERA5 nearest-neighbour
+sampled onto the 1.0° forecast grid. This keeps the comparison fair — the 1.0° model is
+never penalized for sub-degree structure it cannot represent, and the 0.25° model is never
+flattered by comparing it to smoothed truth.</p>
+
+<p><b>Colors and styles</b> (consistent across all figures, chosen to survive
+color-vision deficiency: hue, lightness, line style and marker all encode the same
+information):</p>
+<ul>
+  <li><span class="legendline sol cred"></span> dark red, solid — ERA5 truth, 0.25° grid</li>
+  <li><span class="legendline sol cblue"></span> dark blue, solid — ERA5 truth, 1.0° grid</li>
+  <li><span class="legendline dot clred"></span> light red, dotted, circle markers — GenCast 0.25° forecast</li>
+  <li><span class="legendline dot clblue"></span> light blue, dotted, triangle markers — GenCast 1.0° forecast</li>
+</ul>
+<p class="note">Rule of thumb: <b>dark + solid = observed, light + dotted = forecast; reds =
+0.25°, blues = 1.0°.</b> In the score figures (Brier, rank histograms) both curves are
+forecasts, so the dark family shades are used with solid-red vs dashed-blue lines.</p>
+
+<h2>0. The PDF panels (<span class="file">xres_combined_*.png</span>) — what changed</h2>
+
+<p>The PDFs are now <b>binned histograms</b>, generated exactly the way
+<a href="https://github.com/moeindarman77/TransferLearning-QG">TransferLearning-QG</a> does it
+in <code>FiguresProduction.ipynb</code> (<code>PDF_histogram</code>): all values of the field over
+CONUS are pooled, counted into <b>100 equal-width bins</b> spanning mean&nbsp;±&nbsp;4σ, and each
+bin's count is divided by the total sample size N:</p>
+
+<div class="math">PDF(bin&nbsp;b) = count(x ∈ bin&nbsp;b) / N</div>
+
+<p>so the y-axis is the <b>probability of a grid point falling in that bin</b> (the QG repo
+keeps the division by bin width commented out; we match that). Two deliberate departures,
+both needed because a panel overlays four curves: the bin range is <b>shared by all curves
+in a panel</b> (otherwise per-bin probabilities would not be comparable), and the x-axis
+stays in physical units instead of the repo's x/σ standardization. The y-axis is
+logarithmic from <b>10<sup>−6</sup></b> to 1, so tails about five orders of magnitude below
+the mode remain visible. A curve pinned at the very bottom means "zero counts in this
+bin" (the floor value 10<sup>−6</sup> is only a plotting floor, not data).</p>
+
+<p class="note">Reading tip: the interesting region is the <i>tail on the extreme side</i>
+(right for heat/wind/rain, left for cold events). A forecast whose dotted curve dies off
+before the solid truth curve under-forecasts the extreme; one that extends beyond it
+over-forecasts.</p>
+
+<h2>1. Brier score (<span class="file">xres_brier.png</span>) — is the tail captured?</h2>
+
+<h3>What it is</h3>
+<p>The Brier score is the mean squared error of a <b>probability</b> forecast for a
+<b>binary event</b>. Over the G grid points (latitude-weighted, weights w<sub>g</sub> ∝ cos φ):</p>
+
+<div class="math">BS = Σ<sub>g</sub> w<sub>g</sub> (p<sub>g</sub> − o<sub>g</sub>)² / Σ<sub>g</sub> w<sub>g</sub> ,&nbsp;&nbsp; 0 ≤ BS ≤ 1,&nbsp; lower is better</div>
+
+<p>where at each grid point <b>p<sub>g</sub></b> = fraction of the 24 members exceeding a
+threshold, and <b>o<sub>g</sub></b> = 1 if ERA5 exceeded it, else 0.</p>
+
+<h3>How the figure is built</h3>
+<ul>
+  <li>The "event" is <b>tail exceedance</b>: the threshold is set at the 75th, 90th, 95th
+      and 99th percentile of the ERA5 truth field itself (on the matched grid), taken in
+      the event's <b>extreme direction</b> — for cold events (Uri, Elliott, Polar Vortex)
+      the mirrored low percentile is used and "exceedance" means <i>colder</i>.</li>
+  <li>Each panel (4×3 grid, one per event) shows BS as a function of that threshold
+      percentile, one curve per resolution.</li>
+  <li>The grey dotted reference is the score of a <b>climatological forecast</b> that always
+      issues the base rate f = 1 − p/100: since by construction a fraction f of truth
+      points exceed the threshold, its Brier score is f(1−f). A forecast curve <b>below</b>
+      the grey line has skill at that threshold; <b>above</b> it, you would have been better
+      off forecasting the climatological frequency.</li>
+</ul>
+
+<div class="example"><span class="tag">Worked example.</span>
+Take the 95th-percentile threshold, so f = 0.05: the grey reference is 0.05 × 0.95 =
+0.0475. Suppose at some grid point 6 of 24 members exceed the threshold, so p = 0.25.
+If ERA5 exceeded it there (o = 1), that point contributes (0.25 − 1)² = 0.5625; if not
+(o = 0), it contributes 0.0625. A sharp, correct ensemble (p ≈ 1 where the event happens,
+p ≈ 0 elsewhere) drives the weighted average toward 0. An ensemble whose members never
+reach the threshold scores exactly f — i.e. 0.05 — which is <i>above</i> the 0.0475
+reference: <b>completely missing the tail is worse than climatology</b>. That is precisely
+the "is the tail captured?" question this figure answers at a glance.</div>
+
+<h3>How to read it</h3>
+<ul>
+  <li>Red below blue at the 95–99th percentiles ⇒ the 0.25° ensemble captures that event's
+      tail better than the 1.0° one (and vice versa).</li>
+  <li>Both curves hugging the grey line at 99% ⇒ neither resolution has real skill for the
+      most extreme exceedances at a 14-day lead — only broad-brush probability.</li>
+  <li>Scores generally <i>decrease</i> toward higher percentiles simply because the event
+      gets rarer (both f(1−f) and BS shrink); always judge skill <b>relative to the grey
+      reference</b>, not by the raw number.</li>
+</ul>
+
+<h2>2. CRPS (<span class="file">xres_crps.png</span>) — which resolution is better overall?</h2>
+
+<h3>What it is</h3>
+<p>The Continuous Ranked Probability Score generalizes the Brier score from one threshold
+to <b>all thresholds at once</b>: it is the squared distance between the forecast's
+cumulative distribution F and the truth's step function,</p>
+
+<div class="math">CRPS(F, y) = ∫ ( F(z) − <b>1</b>{z ≥ y} )² dz</div>
+
+<p>For a finite M-member ensemble it is computed (via <code>properscoring.crps_ensemble</code>,
+which uses the standard fair estimator) as</p>
+
+<div class="math">CRPS = (1/M) Σ<sub>i</sub> |x<sub>i</sub> − y| − (1/2M²) Σ<sub>i</sub> Σ<sub>j</sub> |x<sub>i</sub> − x<sub>j</sub>|</div>
+
+<p>where x<sub>i</sub> are the member values and y the ERA5 value at that grid point. The first
+term rewards <b>accuracy</b> (members close to truth), the second rewards <b>sharpness</b>
+(it forgives spread only insofar as it is genuinely needed). CRPS has the <b>same units as
+the variable</b> (K, m/s, mm) and reduces to the absolute error when the ensemble collapses
+to a single member — think of it as "the probabilistic MAE". Lower is better.</p>
+
+<h3>How the figure is built</h3>
+<ul>
+  <li>Per event: CRPS at each grid point, then the latitude-weighted CONUS mean.</li>
+  <li>Bars grouped per event, one bar per resolution — <b>each scored against ERA5 on its
+      own grid</b> (0.25° vs native ERA5; 1.0° vs ERA5 sampled to the 1.0° grid).</li>
+  <li>Events are split into three panels by metric family so units stay homogeneous
+      (you cannot meaningfully compare Kelvin bars to millimetre bars).</li>
+  <li>The percentage above each pair is (CRPS<sub>0.25</sub> − CRPS<sub>1.0</sub>) / CRPS<sub>1.0</sub>:
+      <b>negative ⇒ 0.25° wins</b>, positive ⇒ 1.0° wins.</li>
+</ul>
+
+<div class="example"><span class="tag">Worked example.</span>
+A 3-member ensemble forecasts {−1, 0, 2} K and the truth is 1 K.
+First term: (|−1−1| + |0−1| + |2−1|)/3 = (2+1+1)/3 = 1.333.
+Second term: pairwise gaps |−1−0|, |−1−2|, |0−2| each counted twice plus zero diagonals
+⇒ Σ|x<sub>i</sub>−x<sub>j</sub>| = 2×(1+3+2) = 12, so 12/(2·3²) = 0.667.
+CRPS = 1.333 − 0.667 = <b>0.667 K</b>. A single deterministic forecast of 0 K would score
+|0−1| = 1 K — the spread-aware ensemble beats it even though no member hit the truth.</div>
+
+<h3>How to read it</h3>
+<ul>
+  <li>This is the headline "which is better, 0.25° or 1.0°?" figure: count the signs of
+      the percentages within each metric family.</li>
+  <li>Caveat: because each resolution is verified on its own grid, the two bars answer
+      "how good is this system at its own game" — the cleanest apples-to-apples framing,
+      but remember the 0.25° task (resolving sharper truth) is intrinsically harder.</li>
+</ul>
+
+<h2>3. Rank histogram (<span class="file">xres_rank_hist.png</span>, <span class="file">xres_rank_hist_pooled.png</span>) — is the ensemble honest?</h2>
+
+<h3>What it is</h3>
+<p>CRPS and Brier ask "how close?"; the rank histogram asks "is the ensemble's <b>spread</b>
+statistically honest?". At each grid point, count how many of the 24 members fall
+<i>below</i> the ERA5 value — that rank is an integer from 0 (truth below every member) to
+24 (truth above every member). If truth were statistically indistinguishable from the
+members (a perfectly calibrated ensemble), every rank would be equally likely:</p>
+
+<div class="math">P(rank = r) = 1/(M+1) = 1/25 = 0.04 &nbsp;for all r</div>
+
+<p>The histograms pool ranks over all CONUS grid points of an event (per-event panels,
+4×3) or over all events (pooled figure); the black dotted line is the flat 1/25 target.</p>
+
+<div class="example"><span class="tag">Worked example.</span>
+Truth is drawn from the same distribution as 24 members ⇒ among the 25 values
+(truth + members), truth is equally likely to land in any position ⇒ flat histogram.
+Now suppose the ensemble is <b>too narrow</b> (members hug their mean): the truth
+frequently falls outside the envelope, so ranks 0 and 24 pile up — a <b>U shape</b>.
+If the forecast has a <b>warm bias</b>, truth sits below most members, rank 0/low ranks
+spike — a one-sided ramp. If the ensemble is <b>too wide</b>, truth is almost always
+somewhere in the middle — a hump.</div>
+
+<h3>How to read it</h3>
+<table>
+  <tr><th>Shape</th><th>Diagnosis</th></tr>
+  <tr><td>Flat at 0.04</td><td>Well calibrated: spread matches actual error</td></tr>
+  <tr><td>U shape (both ends high)</td><td>Under-dispersed / over-confident: real-world
+      outcomes escape the ensemble envelope</td></tr>
+  <tr><td>Hump in the middle</td><td>Over-dispersed: ensemble wastes probability on
+      outcomes that never verify</td></tr>
+  <tr><td>One-sided spike (rank 0 <i>or</i> 24)</td><td>Systematic bias (e.g. a spike at
+      rank 24 = truth above all members = forecast biased low)</td></tr>
+</table>
+
+<ul>
+  <li>Compare red vs blue shapes per panel: a flatter histogram at one resolution means
+      its ensemble spread is more trustworthy for that event — even if its CRPS is worse.</li>
+  <li>Caution: with 24 members and one event, spatial correlation makes grid points far
+      from independent, so per-event histograms are noisy; the <b>pooled</b> figure is the
+      more robust summary.</li>
+</ul>
+
+<h2>How the three figures fit together</h2>
+<ul>
+  <li><b>PDF panels</b>: qualitative — do the forecast distributions <i>look</i> like truth,
+      especially in the extreme tail?</li>
+  <li><b>Brier</b>: quantifies exactly that tail question, threshold by threshold, with a
+      no-skill reference line.</li>
+  <li><b>CRPS</b>: one number per event over the whole distribution — the cleanest
+      0.25°-vs-1.0° scoreboard.</li>
+  <li><b>Rank histogram</b>: whether each ensemble's <i>uncertainty</i> is honest —
+      calibration, which neither CRPS nor Brier isolates on its own.</li>
+</ul>
+
+<p class="note">Everything on this page is regenerated by
+<code>qsub pbs/xres_compare_dev.pbs</code>; the numeric values behind the Brier/CRPS/rank
+figures are also written to <code>runs/xres/figures/xres_scores.csv</code>.</p>
+
+</body>
+</html>

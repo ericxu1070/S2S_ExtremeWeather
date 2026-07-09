@@ -95,7 +95,8 @@ def _row(name, weeks):
             continue
         mean = mem.mean("member")
         err = mean - _on(era5, mean) if era5 is not None else None
-        panels.append((mean, f"{X.res_spec(res)['label']} mean", "field"))
+        panels.append((mean, f"{X.res_spec(res)['label']} mean ({mem.sizes['member']} members)",
+                       "field"))
         panels.append((err, f"{X.res_spec(res)['label']} error (fc-ERA5)", "error"))
         fields.append(mean)
         if err is not None:

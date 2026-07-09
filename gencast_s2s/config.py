@@ -28,18 +28,15 @@ STATICS_FILE = MODELS_DIR / "statics.nc"
 CLIM_FILE = MODELS_DIR / "clim_1990_2019_t2m_conus.nc"
 
 # --------------------------------------------------------------------------- #
-# HRRR observed overlay. The local HRRR v3 shard archive (3km CONUS, 2015-2025,
-# 6-hourly) gives a second, higher-resolution observed truth to overlay on the
-# T2m-anomaly PDFs alongside ERA5. Shards are per-timestamp .npz with a 41-channel
-# ``prog_t`` stack; t2m is channel 37 (see hrrr.py). Anomalies reuse the ERA5
-# 1990-2019 climatology above (no HRRR-native climatology exists offline), so a
-# small HRRR-vs-ERA5 model bias is folded into the overlay.
+# HRRR observed overlay. The local HRRR v3 netCDF archive (3km CONUS, 2015-2025,
+# 6-hourly; one file per timestamp with t2m, u/v on pressure levels and
+# log_tp = ln(6h precip mm + 1e-5) on the native 1059x1799 Lambert grid) gives a
+# second, higher-resolution observed truth to overlay alongside ERA5. Anomalies
+# reuse the ERA5 1990-2019 climatology above (no HRRR-native climatology exists
+# offline), so a small HRRR-vs-ERA5 model bias is folded into the overlay.
 # --------------------------------------------------------------------------- #
-HRRR_SHARDS = Path(os.environ.get(
-    "HRRR_SHARDS", Path.home() / "Vayuh/data/moein/hrrr_work/shards_v1"))
-HRRR_GRID_REF = Path(os.environ.get(
-    "HRRR_GRID_REF", Path.home() / "Vayuh/data/moein/hrrr_work/hrrr_grid_reference.nc"))
-HRRR_T2M_CHANNEL = int(os.environ.get("HRRR_T2M_CHANNEL", 37))
+HRRR_NC = Path(os.environ.get(
+    "HRRR_NC", "/glade/derecho/scratch/mdarman/hrrr_work/hrrr_nc_v3"))
 HRRR_REMAP_CACHE = MODELS_DIR / "hrrr_to_conus_nn_index.npy"
 
 

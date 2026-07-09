@@ -1,0 +1,17 @@
+Host: dec2439
+Start: Tue Jul  7 05:45:11 PM MDT 2026
+/glade/work/exu/conda-envs/my-env/lib/python3.10/site-packages/google/api_core/_python_version_support.py:255: FutureWarning: You are using a Python version (3.10.20) which Google will stop supporting in new releases of google.api_core once it reaches its end of life (2026-10-04). Please upgrade to the latest Python version, or at least Python 3.11, to continue receiving updates for google.api_core past that date.
+  warnings.warn(message, FutureWarning)
+/glade/work/exu/conda-envs/my-env/lib/python3.10/site-packages/google/api_core/_python_version_support.py:255: FutureWarning: You are using a Python version (3.10.20) which Google will stop supporting in new releases of google.cloud._storage_v2 once it reaches its end of life (2026-10-04). Please upgrade to the latest Python version, or at least Python 3.11, to continue receiving updates for google.cloud._storage_v2 past that date.
+  warnings.warn(message, FutureWarning)
+/glade/work/exu/conda-envs/my-env/lib/python3.10/site-packages/google/api_core/_python_version_support.py:255: FutureWarning: You are using a Python version (3.10.20) which Google will stop supporting in new releases of google.cloud.storage_control_v2 once it reaches its end of life (2026-10-04). Please upgrade to the latest Python version, or at least Python 3.11, to continue receiving updates for google.cloud.storage_control_v2 past that date.
+  warnings.warn(message, FutureWarning)
+[xres combined] 12 events -> xres_combined_mean.png
+[xres combined] 12 events -> xres_combined_pooled.png
+[xres combined] 12 events -> xres_combined_best.png
+[xres combined] 12 events -> xres_combined_extreme.png
+End: Tue Jul  7 05:45:51 PM MDT 2026
+-rw-r--r-- 1 exu ncar 465336 Jul  7 17:45 runs/xres/figures/xres_combined_best.png
+-rw-r--r-- 1 exu ncar 468648 Jul  7 17:45 runs/xres/figures/xres_combined_extreme.png
+-rw-r--r-- 1 exu ncar 445028 Jul  7 17:45 runs/xres/figures/xres_combined_mean.png
+-rw-r--r-- 1 exu ncar 450254 Jul  7 17:45 runs/xres/figures/xres_combined_pooled.png

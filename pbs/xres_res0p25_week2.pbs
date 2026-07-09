@@ -3,12 +3,34 @@
 #PBS -A UCSC0009
 #PBS -q main
 #PBS -l job_priority=regular
-#PBS -l select=1:ncpus=16:ngpus=1
+#PBS -l select=1:ncpus=64:ngpus=4
 #PBS -l walltime=12:00:00
 #PBS -j oe
-#PBS -o /glade/derecho/scratch/exu/S2S_ExtremeWeather/logs/xres_0p25_wk2.log
+#PBS -o /glade/derecho/scratch/exu/S2S_ExtremeWeather/logs/
+
+# 0.25deg GenCast week-2 infer: adaptive single-GPU worker pool + self-chaining jobs.
+#
+# The 0.25deg checkpoint needs ~50 GiB VRAM per member, so it cannot use the pmap path
+# on Derecho's A100-40GB: each worker rolls ONE member at a time on ONE GPU
+# (XRES_SERIAL_INFER=1, bf16). At ~80 s/step one event = 24 members x 28 steps ~ 15 h,
+# i.e. more than one 12 h job, hence:
+#   1. per-member caching + claim files (xres/xinference.py): every finished member is
+#      written to cache/ immediately; workers coordinate by claim files, and a killed
+#      job RESUMES from the cached members instead of restarting.
+#   2. up to XRES_MAX_WORKERS workers, one per GPU. One process peaked at ~237 GiB host
+#      RAM (job 6654166), so workers 1..3 only start if MemAvailable is still above
+#      XRES_WORKER_MIN_FREE_GB after a XRES_WORKER_STAGGER wait. If host RAM only
+#      admits 1-2 workers, the job still progresses, just slower.
+#   3. self-chaining: right after prep, the job submits an afterany successor of itself
+#      (bounded by XRES_CHAIN_REMAIN, decremented each hop). When cubes+verif are
+#      complete, the finishing job qdels its successor and submits the compare job.
+#      To STOP the chain: qdel the running job AND its successor (see qstat -u exu).
+#
+# Main job log: logs/xres_0p25_wk2.o<jobid> (written when the job ends).
+# Live per-worker progress: logs/xres_0p25_wk2_<jobid>_w<i>.log
 
 set -eo pipefail
+shopt -s nullglob
 
 module load conda
 conda activate my-env
@@ -16,28 +38,102 @@ conda activate my-env
 SITE=$(python -c "import site; print(site.getsitepackages()[0])")
 export LD_LIBRARY_PATH="$(echo "$SITE"/nvidia/*/lib | tr ' ' ':')${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
 
-# 0.25deg GenCast needs ~50 GiB peak per ensemble member on GPU. Derecho gpu nodes
-# are 4x A100-40GB; pmap OOMs even with 1 device (see logs/xres_0p25_wk2.log).
-# Use GraphCast's serial (non-pmap) rollout: one member at a time on one GPU.
-export CUDA_VISIBLE_DEVICES=0
-export XRES_INFER_GPUS=1
 export XRES_SERIAL_INFER=1
 export XRES_BF16=1
 export XLA_PYTHON_CLIENT_PREALLOCATE=false
 export XLA_PYTHON_CLIENT_MEM_FRACTION=.90
-export XLA_PYTHON_CLIENT_ALLOCATOR=platform
+# 'platform' is slow (sync cudaMalloc/Free per allocation) but is the only allocator
+# proven to fit 40 GB here. To experiment: qsub -v XRES_XLA_ALLOC=default — worst case
+# the workers OOM and the chain resumes from the cached members.
+export XLA_PYTHON_CLIENT_ALLOCATOR=${XRES_XLA_ALLOC:-platform}
 export TF_GPU_ALLOCATOR=cuda_malloc_async
 export PYTHONUNBUFFERED=1
 export JAX_CAPTURED_CONSTANTS_WARN_BYTES=-1
 
 cd /glade/derecho/scratch/exu/S2S_ExtremeWeather
+CACHE=runs/xres/0p25/week2/cache
+VERIF=runs/xres/0p25/week2/verif
+N_EVENTS=12      # expected cubes
+N_VERIF=18       # expected verif files (headline + secondary metrics)
 
-echo "Host: $(hostname)"; echo "Start: $(date)"
+count() { local f=($1); echo ${#f[@]}; }
+
+echo "Host: $(hostname)"; echo "Start: $(date)"; echo "Job: $PBS_JOBID"
 nvidia-smi -L || true
-python -c "import jax; print('JAX devices:', jax.devices())"
 
 # prep is cache-aware (instant when inputs already exist)
-python run_xres.py --stage prep  --res 0p25
-python run_xres.py --stage infer --res 0p25
+python run_xres.py --stage prep --res 0p25
 
+# claims are only valid within one job (PID-based); clear leftovers from a killed job.
+# Safe because afterany-chained jobs run one at a time.
+rm -f "$CACHE"/claims/* 2>/dev/null || true
+
+cubes0=$(count "$CACHE/*_cube.nc")
+members0=$(count "$CACHE/*_member[0-9]*.nc")
+
+# Submit the successor BEFORE the long rollout: a walltime kill never reaches the end
+# of this script, so chaining at the end would break the chain exactly when needed.
+NEXT_JOB=""
+REMAIN=${XRES_CHAIN_REMAIN:-11}
+if [ "$cubes0" -lt "$N_EVENTS" ] && [ "$REMAIN" -gt 0 ]; then
+  if NEXT_JOB=$(qsub -W depend=afterany:"$PBS_JOBID" \
+                     -v XRES_CHAIN_REMAIN=$((REMAIN - 1)) pbs/xres_res0p25_week2.pbs); then
+    echo "[chain] successor $NEXT_JOB submitted ($((REMAIN - 1)) hops left after it)"
+  else
+    NEXT_JOB=""
+    echo "[chain] WARNING: could not submit successor; this job will still run 12 h" \
+         "but the chain must be resumed manually (qsub pbs/xres_res0p25_week2.pbs)"
+  fi
+fi
+
+MAX_WORKERS=${XRES_MAX_WORKERS:-4}
+STAGGER=${XRES_WORKER_STAGGER:-900}
+MIN_FREE_GB=${XRES_WORKER_MIN_FREE_GB:-250}
+JOBTAG=${PBS_JOBID%%.*}
+PIDS=(); WIDS=()
+for i in $(seq 0 $((MAX_WORKERS - 1))); do
+  if [ "$i" -gt 0 ]; then
+    sleep "$STAGGER"
+    if [ "$(count "$CACHE/*_cube.nc")" -ge "$N_EVENTS" ]; then
+      echo "[launcher] all cubes done; not starting worker $i"; break
+    fi
+    avail=$(awk '/MemAvailable/ {print int($2/1048576)}' /proc/meminfo)
+    if [ "$avail" -lt "$MIN_FREE_GB" ]; then
+      echo "[launcher] ${avail} GB host RAM free < ${MIN_FREE_GB} GB -> not starting worker $i"
+      break
+    fi
+    echo "[launcher] ${avail} GB host RAM free"
+  fi
+  echo "[launcher] worker $i on GPU $i -> logs/xres_0p25_wk2_${JOBTAG}_w$i.log"
+  CUDA_VISIBLE_DEVICES=$i XRES_WORKER=$i \
+    python run_xres.py --stage infer --res 0p25 \
+    > "logs/xres_0p25_wk2_${JOBTAG}_w$i.log" 2>&1 &
+  PIDS+=($!); WIDS+=($i)
+done
+
+FAIL=0
+for k in "${!PIDS[@]}"; do
+  if wait "${PIDS[$k]}"; then
+    echo "[launcher] worker ${WIDS[$k]} finished ok"
+  else
+    echo "[launcher] worker ${WIDS[$k]} FAILED (see its log)"; FAIL=1
+  fi
+done
+
+cubes=$(count "$CACHE/*_cube.nc")
+members=$(count "$CACHE/*_member[0-9]*.nc")
+verif=$(count "$VERIF/*_members.nc")
+echo "[status] cubes=$cubes/$N_EVENTS verif=$verif/$N_VERIF member-files=$members workers-failed=$FAIL"
+
+if [ "$cubes" -ge "$N_EVENTS" ] && [ "$verif" -ge "$N_VERIF" ]; then
+  echo "[chain] 0.25deg infer COMPLETE -> cancelling successor, submitting compare"
+  [ -n "$NEXT_JOB" ] && { qdel "$NEXT_JOB" 2>/dev/null || true; }
+  qsub pbs/xres_compare_dev.pbs || echo "[chain] compare submit failed -- run: qsub pbs/xres_compare_dev.pbs"
+elif [ "$cubes" -eq "$cubes0" ] && [ "$members" -eq "$members0" ]; then
+  echo "[chain] NO PROGRESS this job -> stopping the chain (diagnose worker logs first)"
+  [ -n "$NEXT_JOB" ] && { qdel "$NEXT_JOB" 2>/dev/null || true; }
+  exit 1
+else
+  echo "[chain] partial progress; successor $NEXT_JOB resumes from the cached members"
+fi
 echo "End: $(date)"

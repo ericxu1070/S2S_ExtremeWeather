@@ -1,0 +1,22 @@
+#!/bin/bash
+#PBS -N xres_combined_figs
+#PBS -A UCSC0009
+#PBS -q develop
+#PBS -l select=1:ncpus=1
+#PBS -l walltime=00:30:00
+#PBS -j oe
+#PBS -o /glade/derecho/scratch/exu/S2S_ExtremeWeather/logs/xres_combined_figs.log
+
+set -eo pipefail
+
+module load conda
+conda activate my-env
+
+cd /glade/derecho/scratch/exu/S2S_ExtremeWeather
+
+echo "Host: $(hostname)"; echo "Start: $(date)"
+
+python -c "from xres.xcombined import make_all; make_all()"
+
+echo "End: $(date)"
+ls -la runs/xres/figures/xres_combined_*.png

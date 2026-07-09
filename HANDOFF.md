@@ -6,7 +6,97 @@
 
 ---
 
-## STATUS (Jul 7 2026) — 1.0° DONE, 0.25° ABANDONED
+## STATUS (Jul 8 2026 morning) — ✅ EXPERIMENT COMPLETE (both resolutions + figures)
+
+The member arrays finished overnight, **all 48 subjobs exit 0**:
+
+- **0.25°: DONE.** 12/12 cubes (verified 24 members each), 18/18 verif files.
+  Subjobs queued 20:16 Jul 7 → started 00:55-01:34 (≈5 h queue wait, all 24
+  concurrent, one node each) → last done 09:46. ~7.7 h/subjob, ≈185 GPU-h total.
+- **1.0°: DONE.** Idalia + Vermont re-rolled post-epoch-fix; 12/12 cubes, 18/18
+  verif. Subjobs took only **~9 min each** (2 events, packed up to 4/node).
+- **Compare `6665324` ran automatically** (end 09:49 Jul 8): 12 maps +
+  `xres_combined_{mean,pooled,best,extreme}.png` now include ERA5 + HRRR + both
+  resolutions. Quarantine dir `runs/xres/quarantine_1964_epoch_bug/` is now safe
+  to delete after a figure sanity-check.
+
+Scheduling/charging facts confirmed (docs + qhist): Derecho GPU nodes CAN be
+shared by `ngpus=1` jobs (1.0° subjobs packed 4/node); accounting records
+NGPUs=1 per subjob, and per NCAR charging docs shared jobs are charged for the
+requested `ngpus` only. Single-GPU subjobs also backfilled ~5 h after submission
+where the earlier full-node request had waited ~24 h without starting.
+
+## PREVIOUS STATUS (Jul 7 2026, night) — INFER RESTRUCTURED AS 24-MEMBER PBS ARRAYS (both resolutions)
+
+Per user request, infer now runs as **single-GPU PBS array jobs — one subjob = one
+ensemble member across all 12 events** (cheaper than full nodes, schedules/backfills
+faster, and members cache independently). The full-node jobs `6664794` (0.25°
+self-chain) and `6665042` (1.0° re-infer) and held compare `6665043` were **qdel'd**
+and replaced Jul 7 ~19:00 by:
+
+| Job | What | Per subjob | Status |
+|---|---|---|---|
+| `6665322[]` | 0.25° infer, `pbs/xres_member_0p25.pbs`, 24 subjobs | 1 GPU, 16 cpu, **243 GB** (2/node), 12 h; ~8 h expected | Q |
+| `6665323[]` | 1.0° infer, `pbs/xres_member_1p0.pbs`, 24 subjobs | 1 GPU, 16 cpu, 100 GB (4/node), 3 h; only re-rolls Idalia+Vermont (10 cubes cached) | Q |
+| `6665324` | compare, `pbs/xres_compare_dev.pbs` | cpudev | H, `afterok:6665322[]:6665323[]` |
+
+Mechanics (`XRES_MEMBER_SEL` mode in `xres/xinference.py`): subjob N rolls ONLY
+member N of each event into `cache/<event>_memberNN.nc` (skipped if cached, and
+events with a complete cube are skipped outright — that's why the 1.0° array is
+cheap). The last subjob to finish an event assembles the cube + verif metrics and
+deletes the member files; assembly races across nodes are safe (atomic writes +
+tolerant reader), and member-0's subjob picks up any cube whose assembler died.
+No claim files, no self-chaining in this mode. **Recovery = resubmit the array**
+(`qsub pbs/xres_member_0p25.pbs`): cached subjobs exit in ~2 min without loading
+the model. Compare afterok requires ALL subjobs to exit 0 — if a few failed,
+fix/resubmit the array, then `qsub pbs/xres_compare_dev.pbs` manually.
+Per-subjob logs: `logs/xres_0p25_m.o<id>.<member>` / `logs/xres_1p0_m.o<id>.<member>`.
+Smoke-tested on cached 1.0° events (skip path + assembly wiring, exit 0).
+
+The full-node worker-pool/self-chain path (previous status below) still exists in
+`pbs/xres_res0p25_week2.pbs` as a fallback but is **superseded** by the arrays.
+
+## PREVIOUS STATUS (Jul 7 2026, late evening) — ARCO_EPOCH BUG FOUND; Idalia + Vermont REBUILDING
+
+- **ARCO_EPOCH bug (found Jul 7 ~18:30, fixed in `gencast_s2s/data.py`).** The v3 ARCO
+  store's time axis is `hours since 1900-01-01`, but `ARCO_EPOCH` was 1959-01-01 — every
+  ARCO read was shifted **59 years into the past**. Any event whose truth window or init
+  frames fall past `WB2_END` (2023-01-10T18) was built from 1964 ERA5 data:
+  **HurricaneIdalia_2023** (u850 truth + inputs) and **Vermont_Floods_2023** (tp truth +
+  inputs). California_AR_Floods_2023 (peak 2023-01-10) squeaks under the cutoff — clean.
+  All other events and the HRRR truths are unaffected. Symptom that exposed it: ERA5
+  weekly-mean |u850| for Idalia had its max over the Great Lakes and no hurricane, while
+  HRRR showed 64 m/s in the SE; Ian/Ida ERA5-vs-HRRR correlate 0.99, Idalia only 0.54.
+- **Contaminated files quarantined** (moved, not deleted) to
+  `runs/xres/quarantine_1964_epoch_bug/`: 4 ERA5 truth files, 2×2 inputs, 2 1p0 cubes,
+  4 1p0 verif files. Safe to delete once the rebuild is verified.
+- **Rebuild chain submitted:** `6665041` `xres_prep_fix1964` (develop; rebuilds the 4
+  truth files + 4 inputs via `XRES_EVENTS_SEL=HurricaneIdalia_2023,Vermont_Floods_2023`)
+  → afterok → `6665042` 1.0° re-infer (cache-aware: only the 2 missing events re-roll)
+  → afterok → `6665043` compare (regenerates all figures incl. new pooled mode).
+- **Prep-fix DONE & VERIFIED (Jul 7 18:28, exit 0).** All 4 truth + 4 input files
+  rebuilt from real 2023 data: Idalia inputs carry 2023-08-15T12/16T00 frames; Idalia
+  ERA5-vs-HRRR u850 corr 0.54 → **0.96** with hurricane-strength max (45.9 m/s) in the
+  W Atlantic; Vermont tp corr 0.50 ≈ Kentucky's 0.55 (normal for summer convection;
+  Vermont-box means agree, 24 vs 22 mm). GPU jobs `6664794` (0.25° chain) + `6665042`
+  (1.0° re-infer) auto-released to Q. Quarantine dir is safe to delete after figures
+  are confirmed.
+- **0.25° chain `6664794`: race with the prep-fix CLOSED (Jul 7 ~18:20)** via
+  `qalter -W depend=afterok:6665041 6664794` — it now waits for the prep-fix and
+  auto-releases, keeping its queue position. Verified while checking the race: all
+  truth/input writes are atomic (`tmp.<pid>` + `os.replace`, `gencast_s2s/data.py` /
+  `xres/xdata.py`), so concurrent prep could not have corrupted files; the real risk
+  was different — in `pbs/xres_res0p25_week2.pbs` prep runs BEFORE the successor is
+  submitted, so a prep crash (missing inputs + no GCS from a GPU node) would have
+  killed the job before chaining and the self-chain would silently never start.
+  If `6665041` fails, `6664794` stays Held forever: fix prep, then
+  `qalter -W depend=None 6664794` (or qdel + fresh qsub).
+- **New figure mode (Jul 7 ~17:45):** `xres/xcombined.py` gained an ALL-MEMBERS-POOLED
+  figure (`xres_combined_pooled.png`, matches the original experiment's pooled
+  `combinedpdf.png` statistic); `pbs/xres_combined_figs.pbs` regenerates just the 4
+  combined-PDF figures on develop.
+
+## PREVIOUS STATUS (Jul 7 2026, evening) — 1.0° + HRRR DONE, 0.25° RESTARTED (self-chaining job `6664794`)
 
 - **Prep: complete.** 18/18 ERA5 truth files, 12/12 inputs per resolution.
 - **1.0° infer: complete & verified.** All 12 cubes (24 members × 28 steps) in
@@ -14,12 +104,16 @@
   Log shows clean end Jul 7 03:40 (third attempt in `logs/xres_1p0_wk2.log`; the
   first two runs in that log failed on a jax `P` AttributeError and a pandas
   InvalidIndexError, both fixed before the final run).
-- **0.25° infer: ABANDONED (user decision Jul 7).** Job hit the 12 h walltime with
-  **zero** events completed — cache/verif dirs are empty. At 24 members the first
-  event alone (PNW_HeatDome) needed ~15 h (672 chunks × ~80 s); cubes are only
-  written after all members finish, so nothing was saved. Even one-event-per-job
-  doesn't fit the 12 h limit at 24 members (would need `XRES_N_MEMBERS_0P25=16`
-  ≈ 10 h/event if ever revived).
+- **0.25° infer: RESTARTED Jul 7 evening with a reworked pipeline.** The abandoned
+  Jul 6-7 attempt (job `6654166`) hit the 12 h walltime with zero output: serial
+  single-GPU rollout at ~80 s/step needs ~15 h for ONE event (24 members × 28 steps
+  = 672 chunks), and cubes were only written after ALL members finished, so 19
+  completed members were discarded. Fixed with per-member caching + resume,
+  memory-gated multi-worker rollout, and self-chaining PBS jobs (see
+  **"0.25° pipeline design"** below). First job of the chain: **`6664794`**.
+  The chain runs unattended — each hop resumes from cached members and the finishing
+  job submits compare itself. Expect several 12 h hops (≈2-5 days wall-clock
+  depending on how many workers fit in host RAM).
 - **Compare/figures: DONE (Jul 7 17:19).** Ran via new `pbs/xres_compare_dev.pbs`
   (develop queue — the original `pbs/xres_compare.pbs` routes to the `cpu` queue which
   had ~1800 queued jobs; submission `6664453` was qdel'd). Job `6664462` produced all
@@ -28,7 +122,61 @@
   per-event maps are now 3 panels: ERA5 | 1.0° mean | 1.0° error.
   Outputs: `xres_combined_{mean,best,extreme}.png` at project root (all 12 events,
   ERA5 black vs GenCast 1.0° orange) and 12 maps in `runs/xres/figures/maps/`.
-  **The experiment is complete** unless the 0.25° arm is ever revived.
+- **HRRR overlay: DONE (Jul 7 17:34, job `6664608`).** The npz shard archive never
+  existed on Derecho, but a HRRR v3 netCDF archive does:
+  `/glade/derecho/scratch/mdarman/hrrr_work/hrrr_nc_v3` (6-hourly, 2015–2025, one
+  file per timestamp with `t2m`, `u`/`v` on pressure levels, `log_tp`; full coverage
+  of all 12 event windows). `gencast_s2s/config.py` now points there (`HRRR_NC`,
+  env-overridable) and `gencast_s2s/hrrr.py` + `xres/xhrrr.py` read nc instead of npz
+  (`HRRR_SHARDS`/`HRRR_GRID_REF`/`HRRR_T2M_CHANNEL` are gone). All 18
+  `runs/observations/*_hrrr_verif_*.nc` files built via `pbs/xres_hrrr_compare.pbs`
+  (develop queue), and figures were regenerated with the red "Observed (HRRR)"
+  curve/panel. Legends now also state the ensemble size, e.g.
+  "GenCast 1.0deg wk-2 mean (24 members)".
+  When the 0.25° chain finishes, compare re-runs automatically and all figures
+  regenerate with the 0.25° panels/curves added.
+
+### 0.25° pipeline design (added Jul 7, in `xres/xinference.py` + `pbs/xres_res0p25_week2.pbs`)
+
+Why: 0.25° needs ~50 GiB VRAM/member → no pmap on A100-40GB → serial one-member-at-
+a-time rollout at ~80 s/step → ~15 h/event → longer than the 12 h walltime cap. Also
+one serial process peaked at **~237 GiB host RAM** (job `6654166`,
+`resources_used.mem`), so 4 naive per-GPU processes (~950 GiB) may not fit the
+node's 487 GB either. Design:
+
+1. **Per-member caching (resume).** In serial mode every finished member is written
+   immediately to `cache/<event>_memberNN.nc`. When all 24 exist, whichever worker
+   wrote the last one assembles the cube, derives the verif metrics, and deletes the
+   member files. A killed job loses at most the member in flight (~37 min).
+2. **Work-stealing workers.** Members are claimed via atomic claim files in
+   `cache/claims/` (PID-stamped; claims of dead PIDs are stolen). Any number of
+   concurrent worker processes cooperate with no static partition. A worker that
+   finds no claimable work exits WITHOUT loading the model (lazy load), so extra
+   workers and post-completion hops are cheap.
+3. **Adaptive worker pool.** The PBS job starts worker 0 on GPU 0, then every 15 min
+   (`XRES_WORKER_STAGGER=900`) starts the next worker (GPU 1-3) only if
+   `MemAvailable` ≥ `XRES_WORKER_MIN_FREE_GB` (250). Worst case it degrades to the
+   old 1-worker throughput — but now resumable.
+4. **Self-chaining jobs.** Right after prep, each job submits an `afterany`
+   successor of itself (`XRES_CHAIN_REMAIN` hops left, default 11, decremented per
+   hop). Walltime kills are the *expected* end of most hops. The hop that finds 12
+   cubes + 18 verif files qdels its successor and submits `pbs/xres_compare_dev.pbs`;
+   a hop that makes zero progress qdels its successor and stops the chain.
+
+**To STOP everything:** `qstat -u exu`, then `qdel` BOTH the running `xres_0p25_wk2`
+job AND its held successor (there is always at most one successor pending).
+
+**Throughput math:** 288 member-rollouts total, ~37 min each ⇒ ~180 GPU-h ⇒ ~16 hops
+at 1 worker, ~8 at 2, ~4-5 at 4. If the 11-hop budget exhausts before completion,
+just `qsub pbs/xres_res0p25_week2.pbs` — it resumes from cache with a fresh budget.
+
+**Logs per hop:** orchestration in `logs/xres_0p25_wk2.o<jobid>` (written at job
+end); live worker progress in `logs/xres_0p25_wk2_<jobid>_w<0-3>.log` (tail these).
+
+**Env knobs** (set via `qsub -v`): `XRES_MAX_WORKERS` (4), `XRES_WORKER_STAGGER`
+(900 s), `XRES_WORKER_MIN_FREE_GB` (250), `XRES_CHAIN_REMAIN` (11),
+`XRES_XLA_ALLOC` (`platform`; try `default` for the faster BFC allocator — if it
+OOMs the chain just resumes).
 
 **System:** NCAR **Derecho** (PBS Pro). Conda env: **`my-env`**
 (`/glade/work/exu/conda-envs/my-env`, Python 3.10). Project dir:
@@ -40,34 +188,30 @@ and follow the **"When a job leaves qstat"** section below.
 
 ---
 
-## Pipeline (4 PBS jobs, dependency chain)
+## Pipeline (current: member arrays)
 
 ```
-xres_prep (CPU)  ──afterok──►  xres_0p25_wk2 (GPU)  ──┐
-                     │                                  ├──afterok──►  xres_compare (CPU)
-                     └──afterok──►  xres_1p0_wk2 (GPU) ──┘
+prep (done)  ─►  xres_0p25_m[0-23]  (24 × 1-GPU subjobs) ──┐
+                                                            ├─afterok─►  xres_compare (cpudev)
+                 xres_1p0_m[0-23]   (24 × 1-GPU subjobs) ──┘
 ```
 
-| Job ID | Name | PBS script | Queue | Walltime | Log |
+| Job / array | Name | PBS script | Per subjob | Log | Status |
 |---|---|---|---|---|---|
-| `6652566` | `xres_prep` | `pbs/xres_prep.pbs` | develop → cpudev | 4 h | `logs/xres_prep.log` |
-| `6652567` | `xres_0p25_wk2` | `pbs/xres_res0p25_week2.pbs` | main → **gpu** | 12 h | `logs/xres_0p25_wk2.log` |
-| `6652568` | `xres_1p0_wk2` | `pbs/xres_res1p0_week2.pbs` | main → **gpu** | 6 h | `logs/xres_1p0_wk2.log` |
-| `6652569` | `xres_compare` | `pbs/xres_compare.pbs` | main → cpu | 2 h | `logs/xres_compare.log` |
+| `6652566` | `xres_prep` | `pbs/xres_prep.pbs` | cpudev | `logs/xres_prep.log` | done (+ fix1964 `6665041`) |
+| `6665322[]` | `xres_0p25_m` | `pbs/xres_member_0p25.pbs` | 1 GPU, 243 GB, 12 h | `logs/xres_0p25_m.o<id>.<m>` | **queued** |
+| `6665323[]` | `xres_1p0_m` | `pbs/xres_member_1p0.pbs` | 1 GPU, 100 GB, 3 h | `logs/xres_1p0_m.o<id>.<m>` | **queued** |
+| `6665324` | `xres_compare` | `pbs/xres_compare_dev.pbs` | cpudev, 2 h | `logs/xres_compare.log` | Held on both arrays |
 
-Prep `6652566` **running** on cpudev (ARCO memory fix + per-event subprocess isolation).
-Jobs 6652567–6652569 are **Held** until prep succeeds. GPU infer jobs re-run
-`prep --res <r>` first (cache-aware; instant if prep already built that resolution's
-inputs).
+Subjob N = ensemble member N for all events. `qstat -t "6665322[]"` lists per-subjob
+states. Superseded scripts kept as fallback: `pbs/xres_res0p25_week2.pbs` (full-node
+self-chaining pool) and `pbs/xres_res1p0_week2.pbs` (full-node pmap).
 
-**Expected prep runtime (post-fix):** ~2–4 h on cpudev for remaining work (6 ERA5 precip
-files + 11 input pairs per resolution). Prep is cache-aware — completed files are skipped.
-
-| Prior prep attempts | Queue | Outcome |
-|---|---|---|
-| 6651105, 6652181, 6652312 | cpudev | OOM exit 137 on ARCO events (pre-fix) |
-| 6651299 | cpu (200 GB) | Never ran (~1200 jobs ahead) |
-| 6652121 | pcpu | Cancelled when switching back to cpudev |
+Historical prep attempts (all resolved Jul 6): 6651105/6652181/6652312 OOM'd on ARCO
+events pre-fix; 6651299 sat unstarted in the `cpu` queue; 6652121 cancelled.
+Historical 0.25° attempts: 6652567/6653517/6653688/6653768/6653941/6653948/6653990
+(config/code errors), 6654166 (ran 12 h at ~80 s/step, walltime-killed at member
+19/24 of event 1 with nothing saved — the failure that motivated the redesign).
 
 ---
 
@@ -169,41 +313,37 @@ Common prep failures:
 
 ---
 
-### If `xres_0p25_wk2` or `xres_1p0_wk2` finished
+### If member-array subjobs (`xres_0p25_m` / `xres_1p0_m`) finished
 
-**Check success:**
+**Check progress / success:**
 ```bash
-# 0.25° outputs (~60 GB total across 12 events)
-ls runs/xres/0p25/week2/cache/     # expect <event>_cube.nc per event
-ls runs/xres/0p25/week2/verif/     # expect <event>_<metric>_members.nc
+# Durable outputs per resolution (0p25 shown; same for 1p0)
+ls runs/xres/0p25/week2/cache/*_cube.nc | wc -l          # 12 when done
+ls runs/xres/0p25/week2/verif/*_members.nc | wc -l       # 18 when done
+ls runs/xres/0p25/week2/cache/*_member*.nc | wc -l       # members of not-yet-assembled events
 
-# 1.0° outputs (~5 GB total)
-ls runs/xres/1p0/week2/cache/
-ls runs/xres/1p0/week2/verif/
+# Per-subjob states (X = finished):
+qstat -t "6665322[]"          # 0.25°
+qstat -t "6665323[]"          # 1.0°
 
-grep -E "End:|Traceback|CUDA|OOM|Killed" logs/xres_0p25_wk2.log
-grep -E "End:|Traceback|CUDA|OOM|Killed" logs/xres_1p0_wk2.log
+# A subjob's log (member m):
+tail -20 logs/xres_0p25_m.o<arrayid>.<m>
+
+# Any subjob failures?
+for m in $(seq 0 23); do qstat -fx "6665322[$m]" | grep -q "Exit_status = 0" || echo "member $m NOT ok"; done
 ```
 
 | Outcome | What happens next | Your action |
 |---|---|---|
-| **Success** | If *both* GPU jobs done, compare auto-starts | Wait for compare; verify figures |
-| **Failed — partial cubes** | Compare stays Held | Resubmit *only the failed resolution*; infer is per-event cached so completed events are preserved |
-| **Failed — walltime** | Job killed mid-event | Increase walltime (0.25° max is **12 h** per account limit), resubmit failed arm |
-| **Failed — GPU OOM** | JAX CUDA OOM | Reduce `XRES_N_MEMBERS_0P25` (e.g. 16 or 8); must be multiple of 4 (GPU count) |
+| **All subjobs exit 0** | 12 cubes + 18 verif per res; compare auto-releases | Verify figures after compare |
+| **A few subjobs failed** | Their members missing; affected cubes unassembled; compare stays Held (afterok) | Resubmit that array (`qsub pbs/xres_member_0p25.pbs`) — cached members skip in ~2 min; then `qsub pbs/xres_compare_dev.pbs` manually (the Held one dies with the failed dependency) |
+| **Subjob walltime kill (0.25°)** | Shouldn't happen (~8 h of ~12 h used) | Check its log for abnormal step times; resubmit array |
+| **Subjob host-mem kill** | mem=243gb vs ~237 GiB observed peak | Bump `mem=` in `pbs/xres_member_0p25.pbs` (2/node needs ≤243gb; 1/node up to 487gb), resubmit array |
 
-**Resume a failed GPU infer** (cache preserves completed events):
-```bash
-cd /glade/derecho/scratch/exu/S2S_ExtremeWeather
-# Only resubmit the failed resolution; no need to redo the other if it succeeded.
-qsub pbs/xres_res0p25_week2.pbs   # or xres_res1p0_week2.pbs
-
-# After BOTH infer jobs succeed, run compare:
-qsub pbs/xres_compare.pbs
-# Or on login/cpudev:
-module load conda && conda activate my-env
-python run_xres.py --stage compare
-```
+Cube assembly: last finisher per event assembles; if an assembler died mid-way, the
+member files are still there and **member-0's subjob assembles it on the next array
+resubmit** (or run assembly manually on cpudev: `XRES_SERIAL_INFER=1 XRES_MEMBER_SEL=0
+python run_xres.py --stage infer --res 0p25` — no GPU needed if all members exist).
 
 ---
 
@@ -223,17 +363,21 @@ ls -la runs/xres/figures/
 
 ---
 
-## Resubmit (full chain or partial)
+## Resubmit
 
 ```bash
 cd /glade/derecho/scratch/exu/S2S_ExtremeWeather
 
-# Full chain from scratch:
-PREP_ID=$(qsub pbs/xres_prep.pbs)
-JOB025=$(qsub -W depend=afterok:$PREP_ID pbs/xres_res0p25_week2.pbs)
-JOB10=$(qsub -W depend=afterok:$PREP_ID pbs/xres_res1p0_week2.pbs)
-COMPARE_ID=$(qsub -W depend=afterok:$JOB025:$JOB10 pbs/xres_compare.pbs)
-echo "PREP=$PREP_ID  0p25=$JOB025  1p0=$JOB10  COMPARE=$COMPARE_ID"
+# Member arrays (current method; fully cache-aware, resubmitting is cheap):
+A025=$(qsub pbs/xres_member_0p25.pbs)
+A10=$(qsub pbs/xres_member_1p0.pbs)
+qsub -W depend=afterok:$A025:$A10 pbs/xres_compare_dev.pbs
+
+# Only if ever needed:
+qsub pbs/xres_prep.pbs             # prep (cache-aware)
+qsub pbs/xres_compare_dev.pbs      # figures alone (develop queue; xres_compare.pbs = slow cpu queue)
+qsub pbs/xres_res0p25_week2.pbs    # fallback: full-node self-chaining worker pool
+qsub pbs/xres_res1p0_week2.pbs     # fallback: full-node pmap
 ```
 
 **Update the Job ID table at the top of this file** after resubmitting.
@@ -274,14 +418,16 @@ XRES_PREP_ISOLATE=0 python run_xres.py --stage prep
 |---|---|
 | **Direct `gpu` queue denied** | `qsub -q gpu` returns "Access to queue is denied". Use `#PBS -q main` with `select=1:ncpus=64:ngpus=4` — routes to production `gpu` queue. |
 | **Do NOT use `gpudev`** | User requested production GPU nodes. `develop` queue routes to gpudev/cpudev — only used for **prep**, not infer. |
-| **Walltime limit** | Account max is **12 h**. 0.25° infer was budgeted 12 h (original SLURM used 24 h on 8×H100). May be tight on 4×A100-40GB. |
+| **Walltime limit** | Account max is **12 h**. 0.25° infer needs ~180 GPU-h total, so it runs as a self-chain of 12 h hops with per-member resume (see "0.25° pipeline design"). |
+| **Host RAM per worker** | One serial 0.25° process peaked at ~237 GiB (job 6654166). The PBS launcher only starts extra per-GPU workers while `MemAvailable` ≥ 250 GB — expect 1-2 workers usually, not 4. |
+| **Claim files** | `runs/xres/0p25/week2/cache/claims/` coordinates same-node workers; PID-based, cleared at each hop start. If you run serial infer manually, `rm -f` that dir's contents first. |
 | **GPU hardware** | Production nodes via `main` are **4× A100-40GB** (not H100). Code works but slower than original 8×H100 Ubuntu cluster. |
-| **HRRR overlay missing** | Default `HRRR_SHARDS` path doesn't exist on Derecho. Prep skips HRRR; compare figures are ERA5-only (no red HRRR curve). |
+| **HRRR overlay (fixed Jul 7)** | Now sourced from the netCDF archive `/glade/derecho/scratch/mdarman/hrrr_work/hrrr_nc_v3` via `C.HRRR_NC`. Figures include the red HRRR curve/panel. |
 | **Login node OOM** | Never run `prep` on login node — killed with exit 137. |
 | **ARCO ERA5 OOM (fixed)** | Post-2023 events use ARCO zarr. Do **not** `xr.open_zarr` the ARCO root; use `arco_read()` in `gencast_s2s/data.py`. |
 | **cpudev vs cpu queue** | cpudev (120 GB, shared) starts fast. cpu queue (200 GB) needs exclusive node — long queue (~1200 jobs). Use cpudev for prep. |
 | **Google FutureWarning** | Python 3.10 EOL notice from gcsfs on import. Harmless until Oct 2026. |
-| **Ensemble size** | Default 24 members. Must be multiple of GPU count (4). Override: `XRES_N_MEMBERS_0P25=16`. |
+| **Ensemble size** | Default 24 members. pmap path (1.0°) needs a multiple of the GPU count (4); the serial 0.25° path has no such constraint. Override: `XRES_N_MEMBERS_0P25=16`. Changing it invalidates existing cubes (member-count mismatch → re-roll). |
 
 ---
 
@@ -296,6 +442,8 @@ runs/
 ├── observations/           # ERA5 truth per (event, metric)
 └── xres/
     ├── 0p25/week2/{inputs,cache,verif,figures}
+    │     └── cache/ also holds transient <event>_memberNN.nc files + claims/
+    │         while the 0.25° chain is running (deleted once a cube is assembled)
     ├── 1p0/week2/{inputs,cache,verif,figures}
     └── figures/            # cross-resolution comparison maps
 
@@ -326,17 +474,27 @@ xres_combined_extreme.png
 
 When user says "a job left qstat, read HANDOFF.md":
 
-1. `qstat -u exu` — note which jobs remain
-2. Identify which job finished (prep / 0p25 / 1p0 / compare)
-3. `qstat -fx JOBID.desched1 | grep Exit_status` — 0 = success
-4. `tail -80 logs/<job>.log` — look for Traceback, Killed, "End:"
-5. Check expected output files for that stage (see sections above)
-6. **Success →** wait for next dependent job or verify final figures
-7. **Failure →** diagnose log, fix, resubmit failed stage only (infer is resumable)
-8. **Update this file** with new job IDs if you resubmit
+1. `qstat -t "6665322[]"` / `qstat -t "6665323[]"` — per-subjob states of the two
+   member arrays (subjob N = ensemble member N; `X` = finished).
+2. `ls runs/xres/<res>/week2/cache/*_cube.nc | wc -l` (12 = done per res) and
+   `... *_member*.nc | wc -l` — members of not-yet-assembled events.
+3. Subjob failures: `qstat -fx "6665322[<m>]" | grep Exit_status` (0 = ok);
+   tracebacks in `logs/xres_0p25_m.o<arrayid>.<m>` / `logs/xres_1p0_m.o<arrayid>.<m>`.
+4. **All subjobs ok →** compare `6665324` auto-releases; afterwards verify
+   `xres_combined_{mean,best,extreme,pooled}.png` + `runs/xres/figures/maps/`
+   include the 0.25° curves/panels.
+5. **Some subjobs failed →** resubmit that array (`qsub pbs/xres_member_0p25.pbs`
+   and/or `_1p0.pbs`; cached members skip in ~2 min), then submit compare manually
+   (`qsub pbs/xres_compare_dev.pbs` — the Held one dies with its failed dependency).
+6. **All members exist but a cube is missing →** the assembler died; resubmit the
+   array (member-0's subjob assembles) or assemble on CPU:
+   `XRES_SERIAL_INFER=1 XRES_MEMBER_SEL=0 python run_xres.py --stage infer --res <res>`.
+7. **Update this file** (STATUS + job table) whenever the picture changes.
 
 ---
 
-*Last updated: Mon Jul 6 2026 ~20:08 MDT. Prep `6652566` running on cpudev (subprocess
-isolation, ARCO fix). Disk: ERA5 12/18, inputs 1/12 per res. GPU jobs 6652567–6652569
-Held. Prior jobs 6651105–6652312 OOM'd before ARCO fix; Idalia smoke-tested OK post-fix.*
+*Last updated: Tue Jul 7 2026 ~19:10 MDT. Infer restructured per user request into
+24-member single-GPU PBS arrays: `6665322[]` (0.25°), `6665323[]` (1.0° — re-rolls
+only Idalia+Vermont after the ARCO_EPOCH rebuild), compare `6665324` Held on both.
+Old full-node jobs 6664794/6665042/6665043 qdel'd. Disk: ERA5 18/18 (post-fix),
+inputs 12/12 per res, 1p0 cubes 10/12, 0p25 cubes 0/12.*

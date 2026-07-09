@@ -1,0 +1,901 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>From Climate to Code — A Primer for Weather &amp; Climate Machine Learning</title>
+<style>
+  /* ---------- Theme tokens ---------- */
+  :root {
+    --bg: #0d1117;
+    --bg-2: #131a24;
+    --bg-3: #1a2432;
+    --panel: #161f2b;
+    --border: #26313f;
+    --text: #e6edf3;
+    --text-dim: #9fb0c3;
+    --text-faint: #6b7c91;
+    --accent: #4fd1c5;
+    --accent-2: #63b3ed;
+    --accent-3: #f6ad55;
+    --warm: #fc8181;
+    --cold: #63b3ed;
+    --shadow: rgba(0,0,0,0.4);
+    --code-bg: #0b1119;
+    --tooltip-bg: #0b1119;
+    --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    --serif: Georgia, "Times New Roman", serif;
+    --mono: "SF Mono", "Fira Code", Menlo, Consolas, monospace;
+  }
+  html[data-theme="light"] {
+    --bg: #f7f9fc;
+    --bg-2: #eef2f7;
+    --bg-3: #e3e9f1;
+    --panel: #ffffff;
+    --border: #d6dde7;
+    --text: #1a2432;
+    --text-dim: #4a5a6d;
+    --text-faint: #8494a6;
+    --accent: #0d9488;
+    --accent-2: #2563eb;
+    --accent-3: #c2610c;
+    --warm: #dc2626;
+    --cold: #2563eb;
+    --shadow: rgba(20,40,80,0.10);
+    --code-bg: #f0f3f8;
+    --tooltip-bg: #1a2432;
+  }
+
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; scroll-padding-top: 80px; }
+  body {
+    margin: 0;
+    font-family: var(--sans);
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.65;
+    -webkit-font-smoothing: antialiased;
+    transition: background .3s, color .3s;
+  }
+
+  /* ---------- Reading progress bar ---------- */
+  #progress {
+    position: fixed; top: 0; left: 0; height: 3px; width: 0%;
+    background: linear-gradient(90deg, var(--accent), var(--accent-2));
+    z-index: 200; transition: width .1s linear;
+  }
+
+  /* ---------- Top bar ---------- */
+  header.topbar {
+    position: sticky; top: 0; z-index: 100;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 12px 22px;
+    background: color-mix(in srgb, var(--bg) 85%, transparent);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid var(--border);
+  }
+  .topbar .brand { display: flex; align-items: center; gap: 10px; font-weight: 700; letter-spacing: .3px; }
+  .topbar .brand .dot {
+    width: 26px; height: 26px; border-radius: 50%;
+    background: radial-gradient(circle at 30% 30%, var(--accent), var(--accent-2) 70%, transparent);
+    box-shadow: 0 0 18px color-mix(in srgb, var(--accent) 60%, transparent);
+  }
+  .topbar .actions { display: flex; gap: 8px; align-items: center; }
+  .btn {
+    background: var(--bg-3); color: var(--text); border: 1px solid var(--border);
+    border-radius: 8px; padding: 6px 12px; font-size: 13px; cursor: pointer;
+    font-family: var(--sans); transition: all .15s;
+  }
+  .btn:hover { border-color: var(--accent); color: var(--accent); }
+
+  /* ---------- Layout ---------- */
+  .layout { display: grid; grid-template-columns: 280px minmax(0,1fr); gap: 0; }
+  nav.toc {
+    position: sticky; top: 57px; align-self: start;
+    height: calc(100vh - 57px); overflow-y: auto;
+    padding: 24px 14px 60px 22px;
+    border-right: 1px solid var(--border);
+    font-size: 13.5px;
+  }
+  nav.toc h4 { color: var(--text-faint); text-transform: uppercase; font-size: 11px; letter-spacing: 1px; margin: 20px 0 8px; }
+  nav.toc a {
+    display: block; color: var(--text-dim); text-decoration: none;
+    padding: 5px 10px; border-radius: 6px; border-left: 2px solid transparent;
+    transition: all .12s;
+  }
+  nav.toc a:hover { color: var(--text); background: var(--bg-2); }
+  nav.toc a.active { color: var(--accent); border-left-color: var(--accent); background: var(--bg-2); font-weight: 600; }
+  nav.toc a.sub { padding-left: 22px; font-size: 12.5px; }
+
+  main { padding: 0 clamp(20px, 5vw, 72px) 120px; max-width: 900px; }
+
+  /* ---------- Hero ---------- */
+  .hero { padding: 60px 0 40px; border-bottom: 1px solid var(--border); margin-bottom: 10px; }
+  .hero .eyebrow { color: var(--accent); font-weight: 600; letter-spacing: 2px; text-transform: uppercase; font-size: 12px; }
+  .hero h1 { font-size: clamp(30px, 5vw, 46px); line-height: 1.1; margin: 14px 0 18px; letter-spacing: -.5px; }
+  .hero h1 .grad { background: linear-gradient(90deg, var(--accent), var(--accent-2)); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
+  .hero p.lede { font-size: 18px; color: var(--text-dim); max-width: 680px; }
+  .hero .chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 22px; }
+  .chip { background: var(--bg-3); border: 1px solid var(--border); border-radius: 20px; padding: 5px 14px; font-size: 12.5px; color: var(--text-dim); }
+
+  /* ---------- Sections ---------- */
+  section { padding: 46px 0 10px; border-bottom: 1px solid var(--border); }
+  section:last-of-type { border-bottom: none; }
+  .sec-num { color: var(--accent); font-family: var(--mono); font-size: 14px; font-weight: 600; }
+  h2 { font-size: clamp(24px, 3.5vw, 32px); margin: 6px 0 8px; letter-spacing: -.3px; }
+  h3 { font-size: 20px; margin: 34px 0 10px; color: var(--text); }
+  h4.mini { font-size: 15px; margin: 22px 0 6px; color: var(--accent-2); }
+  p { color: var(--text); }
+  .prose p, .prose li { font-size: 16px; }
+  a.link { color: var(--accent-2); text-decoration: none; border-bottom: 1px dotted var(--accent-2); }
+  a.link:hover { border-bottom-style: solid; }
+  ul, ol { padding-left: 22px; }
+  li { margin: 6px 0; }
+  strong { color: var(--text); font-weight: 700; }
+  em.term { font-style: normal; font-weight: 600; color: var(--accent); }
+
+  /* ---------- Tooltip ---------- */
+  .tip { border-bottom: 1px dashed var(--accent-3); cursor: help; position: relative; color: var(--text); }
+  .tip .tiptext {
+    visibility: hidden; opacity: 0; position: absolute; bottom: 140%; left: 50%; transform: translateX(-50%);
+    background: var(--tooltip-bg); color: #e6edf3; border: 1px solid var(--border);
+    padding: 10px 12px; border-radius: 8px; width: 260px; font-size: 13px; line-height: 1.5;
+    z-index: 50; box-shadow: 0 8px 24px var(--shadow); transition: opacity .15s, transform .15s;
+    font-weight: 400; pointer-events: none;
+  }
+  html[data-theme="light"] .tip .tiptext { color: #f0f3f8; }
+  .tip:hover .tiptext { visibility: visible; opacity: 1; bottom: 150%; }
+
+  /* ---------- Callouts ---------- */
+  .callout { border-radius: 10px; padding: 16px 18px; margin: 22px 0; border: 1px solid var(--border); background: var(--panel); }
+  .callout .ct { font-weight: 700; display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
+  .callout.info { border-left: 4px solid var(--accent-2); }
+  .callout.info .ct { color: var(--accent-2); }
+  .callout.warn { border-left: 4px solid var(--accent-3); }
+  .callout.warn .ct { color: var(--accent-3); }
+  .callout.key { border-left: 4px solid var(--accent); background: color-mix(in srgb, var(--accent) 8%, var(--panel)); }
+  .callout.key .ct { color: var(--accent); }
+  .callout p:last-child { margin-bottom: 0; }
+  .callout p:first-of-type { margin-top: 0; }
+
+  /* ---------- Collapsible detail ---------- */
+  details.deep {
+    margin: 18px 0; border: 1px solid var(--border); border-radius: 10px;
+    background: var(--bg-2); overflow: hidden;
+  }
+  details.deep > summary {
+    cursor: pointer; padding: 13px 18px; font-weight: 600; color: var(--accent-2);
+    list-style: none; display: flex; align-items: center; gap: 10px; user-select: none;
+  }
+  details.deep > summary::-webkit-details-marker { display: none; }
+  details.deep > summary::before {
+    content: "▶"; font-size: 10px; color: var(--accent-2); transition: transform .2s;
+  }
+  details.deep[open] > summary::before { transform: rotate(90deg); }
+  details.deep > summary .lvl { margin-left: auto; font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: var(--text-faint); font-weight: 600; }
+  details.deep .body { padding: 4px 18px 18px; border-top: 1px solid var(--border); }
+  details.deep .body p:first-child { margin-top: 14px; }
+
+  /* ---------- Tables ---------- */
+  .tablewrap { overflow-x: auto; margin: 22px 0; border: 1px solid var(--border); border-radius: 10px; }
+  table { border-collapse: collapse; width: 100%; font-size: 14px; min-width: 560px; }
+  th, td { text-align: left; padding: 11px 14px; border-bottom: 1px solid var(--border); }
+  th { background: var(--bg-3); color: var(--text); font-weight: 700; position: sticky; top: 0; }
+  tr:last-child td { border-bottom: none; }
+  tbody tr:hover { background: var(--bg-2); }
+  td code, td .var { font-family: var(--mono); color: var(--accent); font-size: 13px; }
+
+  /* ---------- Variable cards grid ---------- */
+  .cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px,1fr)); gap: 14px; margin: 24px 0; }
+  .card { background: var(--panel); border: 1px solid var(--border); border-radius: 12px; padding: 16px; transition: transform .15s, border-color .15s; }
+  .card:hover { transform: translateY(-3px); border-color: var(--accent); }
+  .card .ico { font-size: 24px; }
+  .card h4 { margin: 8px 0 4px; font-size: 16px; }
+  .card .sym { font-family: var(--mono); color: var(--accent); font-size: 13px; }
+  .card p { font-size: 13.5px; color: var(--text-dim); margin: 8px 0 0; }
+
+  /* ---------- Equation blocks ---------- */
+  .eq { background: var(--code-bg); border: 1px solid var(--border); border-radius: 8px; padding: 14px 18px; margin: 16px 0; font-family: var(--serif); font-size: 17px; text-align: center; overflow-x: auto; }
+  .eq .note { display: block; font-family: var(--sans); font-size: 12px; color: var(--text-faint); margin-top: 8px; }
+  code.inline { font-family: var(--mono); background: var(--code-bg); padding: 2px 6px; border-radius: 4px; font-size: 13.5px; color: var(--accent); border: 1px solid var(--border); }
+
+  /* ---------- Code block ---------- */
+  pre { background: var(--code-bg); border: 1px solid var(--border); border-radius: 10px; padding: 16px 18px; overflow-x: auto; font-family: var(--mono); font-size: 13px; line-height: 1.6; }
+  pre .c { color: var(--text-faint); }
+  pre .k { color: var(--accent-2); }
+  pre .s { color: var(--accent); }
+
+  /* ---------- Atmosphere SVG diagram ---------- */
+  .diagram { background: var(--panel); border: 1px solid var(--border); border-radius: 14px; padding: 20px; margin: 26px 0; }
+  .diagram .cap { font-size: 13px; color: var(--text-faint); margin-top: 12px; text-align: center; }
+  .atmo-layer { cursor: pointer; transition: opacity .15s; }
+  .atmo-layer:hover { opacity: .85; }
+  .atmo-info { font-size: 13px; color: var(--text-dim); min-height: 40px; margin-top: 14px; padding: 12px 14px; background: var(--bg-2); border-radius: 8px; border: 1px solid var(--border); }
+
+  /* ---------- Pipeline / flow ---------- */
+  .flow { display: flex; flex-wrap: wrap; align-items: stretch; gap: 0; margin: 26px 0; }
+  .flow .step { flex: 1; min-width: 150px; background: var(--panel); border: 1px solid var(--border); padding: 14px; position: relative; }
+  .flow .step:first-child { border-radius: 10px 0 0 10px; }
+  .flow .step:last-child { border-radius: 0 10px 10px 0; }
+  .flow .step .n { font-family: var(--mono); color: var(--accent); font-size: 12px; }
+  .flow .step h5 { margin: 6px 0 4px; font-size: 14px; }
+  .flow .step p { font-size: 12.5px; color: var(--text-dim); margin: 0; }
+  .flow .step:not(:last-child)::after {
+    content: "→"; position: absolute; right: -11px; top: 50%; transform: translateY(-50%);
+    color: var(--accent); z-index: 2; background: var(--bg); border-radius: 50%; font-size: 14px;
+  }
+
+  /* ---------- Comparison two-col ---------- */
+  .compare { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin: 22px 0; }
+  .compare .col { border: 1px solid var(--border); border-radius: 12px; padding: 16px 18px; background: var(--panel); }
+  .compare .col h4 { margin-top: 0; }
+  .compare .col.det { border-top: 3px solid var(--accent-2); }
+  .compare .col.ens { border-top: 3px solid var(--accent-3); }
+
+  /* ---------- Glossary ---------- */
+  .gloss dt { font-weight: 700; color: var(--accent); margin-top: 14px; font-family: var(--mono); font-size: 14px; }
+  .gloss dd { margin: 3px 0 0; color: var(--text-dim); font-size: 14.5px; }
+
+  /* ---------- Footer ---------- */
+  footer { padding: 40px 0 0; color: var(--text-faint); font-size: 13px; }
+
+  /* ---------- Mobile ---------- */
+  .toc-toggle { display: none; }
+  @media (max-width: 900px) {
+    .layout { grid-template-columns: 1fr; }
+    nav.toc {
+      position: fixed; top: 57px; left: 0; width: 280px; background: var(--bg);
+      transform: translateX(-105%); transition: transform .25s; z-index: 90;
+      box-shadow: 4px 0 24px var(--shadow); height: calc(100vh - 57px);
+    }
+    nav.toc.open { transform: translateX(0); }
+    .toc-toggle { display: inline-flex; }
+    .compare { grid-template-columns: 1fr; }
+    main { padding: 0 20px 80px; }
+  }
+  @media (max-width: 520px) {
+    .flow .step { border-radius: 10px !important; }
+    .flow .step::after { display: none; }
+  }
+</style>
+</head>
+<body>
+<div id="progress"></div>
+
+<header class="topbar">
+  <div class="brand"><span class="dot"></span><span>Climate&nbsp;→&nbsp;Code</span></div>
+  <div class="actions">
+    <button class="btn toc-toggle" id="tocToggle">☰ Contents</button>
+    <button class="btn" id="themeToggle">🌙 Dark</button>
+  </div>
+</header>
+
+<div class="layout">
+  <!-- ===================== TOC ===================== -->
+  <nav class="toc" id="toc">
+    <h4>Foundations</h4>
+    <a href="#intro">How to read this</a>
+    <a href="#what-is-climate">1 · Weather vs. climate</a>
+    <a href="#atmosphere">2 · The atmosphere</a>
+    <a href="#variables">3 · The core variables</a>
+    <a href="#levels" class="sub">↳ Vertical levels</a>
+    <a href="#derived" class="sub">↳ Derived quantities</a>
+    <h4>The data</h4>
+    <a href="#grids">4 · Grids &amp; resolution</a>
+    <a href="#time">5 · Time &amp; scales (S2S)</a>
+    <a href="#anomalies">6 · Anomalies &amp; climatology</a>
+    <a href="#datasets">7 · Where data comes from</a>
+    <a href="#extremes">8 · Extreme events</a>
+    <h4>The machine learning</h4>
+    <a href="#nwp">9 · Physics-based forecasting</a>
+    <a href="#emulators">10 · What is an emulator?</a>
+    <a href="#mlmodels">11 · The ML weather models</a>
+    <a href="#ensembles" class="sub">↳ Deterministic vs. ensemble</a>
+    <a href="#evaluation">12 · How we score forecasts</a>
+    <a href="#thisproject">13 · Tying it together</a>
+    <h4>Reference</h4>
+    <a href="#glossary">Glossary</a>
+  </nav>
+
+  <!-- ===================== MAIN ===================== -->
+  <main class="prose">
+
+    <div class="hero">
+      <div class="eyebrow">A layered primer</div>
+      <h1>From <span class="grad">climate</span> to <span class="grad">code</span></h1>
+      <p class="lede">Everything you need to understand about the atmosphere and its variables <em>before</em> machine-learning weather forecasting and climate emulators make sense — built as a bridge from physics to tensors.</p>
+      <div class="chips">
+        <span class="chip">🌍 Atmosphere &amp; variables</span>
+        <span class="chip">📊 Reanalysis &amp; ERA5</span>
+        <span class="chip">🧠 GraphCast · GenCast · Pangu</span>
+        <span class="chip">🎯 Ensembles &amp; CRPS</span>
+      </div>
+    </div>
+
+    <!-- ============ INTRO ============ -->
+    <section id="intro">
+      <span class="sec-num">00</span>
+      <h2>How to read this</h2>
+      <p>This guide is <strong>layered</strong>. The main text is written to be readable by anyone comfortable with high-school science. Wherever there's a deeper, more technical layer — the actual equations, the numerical details, the ML plumbing — it's tucked into an expandable box like the one below. Open them if you want the full story; skip them and the narrative still holds together.</p>
+
+      <details class="deep">
+        <summary>Try me — this is a "go deeper" box <span class="lvl">Technical</span></summary>
+        <div class="body">
+          <p>Boxes like this contain the equations, units, and numerical-methods detail that practitioners need but newcomers can safely skip. When you see one, it means "the paragraph above told you <em>what</em>; here's <em>why</em> and <em>how precisely</em>."</p>
+        </div>
+      </details>
+
+      <p>Terms with a <span class="tip">dashed underline<span class="tiptext">Hover (or tap) these to get a one-line definition without leaving the page.</span></span> have hover definitions. There's a full <a href="#glossary" class="link">glossary</a> at the end. Use the contents panel to jump around; it tracks where you are as you scroll.</p>
+
+      <div class="callout key">
+        <div class="ct">🎯 The destination</div>
+        <p>By the end you should be able to read a sentence like <em>"GenCast rolls a 24-member ensemble of the 0.25° atmospheric state autoregressively at 12-hour steps, and we score the week-2 T2m anomaly against ERA5 with CRPS"</em> — and understand every word. We'll build up to exactly that.</p>
+      </div>
+    </section>
+
+    <!-- ============ WEATHER VS CLIMATE ============ -->
+    <section id="what-is-climate">
+      <span class="sec-num">01</span>
+      <h2>Weather vs. climate</h2>
+      <p>The single most useful distinction to get straight first:</p>
+      <ul>
+        <li><strong>Weather</strong> is the <em>state of the atmosphere at a moment</em> — is it raining in Denver right now, how hard is the wind blowing, what's the temperature this afternoon. It's chaotic and only predictable a week or two ahead.</li>
+        <li><strong>Climate</strong> is the <em>statistics of weather over long periods</em> — the average July temperature in Denver, how often it floods, the distribution of outcomes. Climate is what you expect; weather is what you get.</li>
+      </ul>
+      <p>A common one-liner: <em>"Climate is what you plan for, weather is what you dress for."</em> The reason the distinction matters for machine learning is that different models target different points on this spectrum, and the one in between — <em>weeks to a season ahead</em> — is exactly where this project lives.</p>
+
+      <div class="callout info">
+        <div class="ct">🔑 Why the middle ground is hard</div>
+        <p>Day-ahead weather is driven by the current atmospheric state (an <em>initial-value</em> problem). Decade-ahead climate is driven by slow boundary conditions like CO₂ and ocean heat (a <em>boundary-value</em> problem). The <em class="term">subseasonal-to-seasonal (S2S)</em> range — 2 to 6 weeks — sits in the awkward gap where the initial weather has mostly become unpredictable but the slow climate signals are still weak. That's the frontier this work targets.</p>
+      </div>
+    </section>
+
+    <!-- ============ ATMOSPHERE ============ -->
+    <section id="atmosphere">
+      <span class="sec-num">02</span>
+      <h2>The atmosphere: a fluid in a thin shell</h2>
+      <p>The atmosphere is a shallow envelope of gas — 99% of its mass is within about 30&nbsp;km of the surface, on a planet 6,371&nbsp;km in radius. Proportionally, it's thinner than the skin on an apple. Weather is what happens when the Sun heats this fluid unevenly (equator more than poles, land differently than ocean), and the fluid moves to redistribute that heat while spinning on a rotating planet.</p>
+
+      <p>To describe "the state of the atmosphere" at any instant, you need to know a handful of physical quantities <em>everywhere</em> — at every horizontal location and at many heights. Those quantities are the <strong>variables</strong> of the next section. First, the vertical structure:</p>
+
+      <div class="diagram">
+        <svg viewBox="0 0 640 360" width="100%" role="img" aria-label="Vertical layers of the atmosphere">
+          <defs>
+            <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#0b1e3a"/>
+              <stop offset="45%" stop-color="#1e4d7b"/>
+              <stop offset="80%" stop-color="#5a9bd4"/>
+              <stop offset="100%" stop-color="#a9d0f0"/>
+            </linearGradient>
+          </defs>
+          <rect x="0" y="0" width="640" height="360" fill="url(#sky)" rx="10"/>
+          <!-- ground -->
+          <rect x="0" y="340" width="640" height="20" fill="#2d5016"/>
+          <!-- layers (clickable) -->
+          <g class="atmo-layer" data-info="Thermosphere (85–600 km): where auroras and the ISS live. Air is almost a vacuum. Not relevant to weather forecasting.">
+            <rect x="0" y="0" width="640" height="55" fill="rgba(255,255,255,0.04)"/>
+            <text x="20" y="32" fill="#cfe0f5" font-size="14" font-family="sans-serif">Thermosphere · auroras, ISS</text>
+          </g>
+          <g class="atmo-layer" data-info="Mesosphere (50–85 km): meteors burn up here. Coldest part of the atmosphere. Above weather.">
+            <rect x="0" y="55" width="640" height="55" fill="rgba(255,255,255,0.02)"/>
+            <text x="20" y="87" fill="#cfe0f5" font-size="14" font-family="sans-serif">Mesosphere · meteors burn up</text>
+          </g>
+          <g class="atmo-layer" data-info="Stratosphere (12–50 km): holds the ozone layer, very stable, where jets cruise. The stratospheric polar vortex influences winter cold-air outbreaks — relevant to S2S prediction.">
+            <rect x="0" y="110" width="640" height="80" fill="rgba(255,255,255,0.06)"/>
+            <text x="20" y="140" fill="#eaf3fc" font-size="15" font-family="sans-serif">Stratosphere · ozone, jet cruise altitude</text>
+            <text x="20" y="162" fill="#bcd6ef" font-size="12" font-family="sans-serif">~12–50 km</text>
+          </g>
+          <g class="atmo-layer" data-info="Troposphere (0–12 km): where essentially ALL weather happens — clouds, storms, rain, wind. Temperature falls with height. This is the layer ML weather models spend most of their variables describing.">
+            <rect x="0" y="190" width="640" height="150" fill="rgba(255,255,255,0.10)"/>
+            <text x="20" y="222" fill="#ffffff" font-size="17" font-family="sans-serif" font-weight="bold">Troposphere · ALL weather lives here</text>
+            <text x="20" y="246" fill="#eaf3fc" font-size="12" font-family="sans-serif">surface → ~12 km · clouds, storms, jet stream</text>
+            <!-- little cloud + sun -->
+            <circle cx="540" cy="230" r="18" fill="#ffe08a" opacity="0.9"/>
+            <ellipse cx="180" cy="285" rx="34" ry="16" fill="#ffffff" opacity="0.85"/>
+            <ellipse cx="210" cy="278" rx="24" ry="14" fill="#ffffff" opacity="0.85"/>
+          </g>
+          <text x="320" y="356" fill="#cde3b0" font-size="12" font-family="sans-serif" text-anchor="middle">Earth's surface</text>
+        </svg>
+        <div class="atmo-info" id="atmoInfo">👆 Click a layer to learn what happens there. Weather — and most of what ML models predict — lives in the lowest layer, the troposphere.</div>
+        <div class="cap">The vertical structure of the atmosphere (not to scale). Forecasting models resolve the troposphere and lower stratosphere in detail.</div>
+      </div>
+
+      <details class="deep">
+        <summary>Why temperature falls with height, then rises again <span class="lvl">Physics</span></summary>
+        <div class="body">
+          <p>In the troposphere, the air is mostly heated <em>from below</em> — sunlight warms the surface, which warms the air in contact with it. Rising air expands into lower pressure and cools (adiabatic cooling), giving the characteristic <em>lapse rate</em> of roughly 6.5&nbsp;°C per kilometer. In the stratosphere the trend reverses because ozone directly absorbs ultraviolet sunlight, heating that layer from within. This temperature inversion is what makes the stratosphere so <em>stable</em> (little vertical mixing) — which is why airliners cruise there.</p>
+        </div>
+      </details>
+    </section>
+
+    <!-- ============ VARIABLES ============ -->
+    <section id="variables">
+      <span class="sec-num">03</span>
+      <h2>The core variables</h2>
+      <p>Here is the heart of it. The "state" that every forecast model — physical or ML — reads in and predicts is a small set of physical fields. If you internalize these, most of weather ML notation becomes readable. Each is a number defined at every grid point (and, for the 3-D ones, at every height).</p>
+
+      <div class="cards">
+        <div class="card">
+          <div class="ico" style="color:var(--warm)">🌡️</div>
+          <h4>Temperature</h4>
+          <div class="sym">T · t2m (2 m)</div>
+          <p>How hot the air is. Reported in kelvin (K) internally. The 2-metre temperature <code class="inline">t2m</code> is the "what it feels like outside" number weather apps show.</p>
+        </div>
+        <div class="card">
+          <div class="ico" style="color:var(--accent-2)">🎈</div>
+          <h4>Pressure</h4>
+          <div class="sym">sp · msl</div>
+          <p>The weight of air above a point. Lows bring storms, highs bring calm. Mean-sea-level pressure <code class="inline">msl</code> is what makes the H's and L's on a weather map.</p>
+        </div>
+        <div class="card">
+          <div class="ico" style="color:var(--accent)">💨</div>
+          <h4>Wind</h4>
+          <div class="sym">u · v · (w)</div>
+          <p>Air motion, split into eastward (<code class="inline">u</code>) and northward (<code class="inline">v</code>) components. Combine them for speed &amp; direction. Vertical wind <code class="inline">w</code> is small but drives storms.</p>
+        </div>
+        <div class="card">
+          <div class="ico" style="color:var(--accent-3)">💧</div>
+          <h4>Humidity</h4>
+          <div class="sym">q · r · d2m</div>
+          <p>Water vapour in the air. Specific humidity <code class="inline">q</code> (kg water / kg air) is the model's currency; relative humidity <code class="inline">r</code> (%) is what people quote.</p>
+        </div>
+        <div class="card">
+          <div class="ico" style="color:var(--accent-2)">🗺️</div>
+          <h4>Geopotential</h4>
+          <div class="sym">z</div>
+          <p>The height of a given pressure level — e.g. how high up you find the 500&nbsp;hPa surface. The workhorse variable for spotting troughs, ridges &amp; storm tracks aloft.</p>
+        </div>
+        <div class="card">
+          <div class="ico">🌧️</div>
+          <h4>Precipitation</h4>
+          <div class="sym">tp</div>
+          <p>Rain + snow reaching the ground, accumulated over a period (mm). A <em>diagnostic</em> output, not part of the core state — and famously the hardest to get right.</p>
+        </div>
+      </div>
+
+      <p>Let's put them in one table with the units and typical values you'll actually see in datasets and model channels:</p>
+
+      <div class="tablewrap">
+        <table>
+          <thead>
+            <tr><th>Variable</th><th>Symbol</th><th>Unit</th><th>Typical range</th><th>What it tells you</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Air temperature</td><td><span class="var">T</span></td><td>K (kelvin)</td><td>200–320 K</td><td>Heat content; 273.15 K = 0 °C</td></tr>
+            <tr><td>2 m temperature</td><td><span class="var">t2m</span></td><td>K</td><td>230–320 K</td><td>Near-surface "feels-like" temp</td></tr>
+            <tr><td>Eastward wind</td><td><span class="var">u</span></td><td>m/s</td><td>−60 to 60</td><td>Wind blowing toward the east</td></tr>
+            <tr><td>Northward wind</td><td><span class="var">v</span></td><td>m/s</td><td>−60 to 60</td><td>Wind blowing toward the north</td></tr>
+            <tr><td>Vertical velocity</td><td><span class="var">w</span></td><td>Pa/s</td><td>small</td><td>Rising/sinking air (storms, subsidence)</td></tr>
+            <tr><td>Geopotential</td><td><span class="var">z</span></td><td>m²/s²</td><td>—</td><td>Height of a pressure surface (÷9.81 → metres)</td></tr>
+            <tr><td>Specific humidity</td><td><span class="var">q</span></td><td>kg/kg</td><td>0–0.02</td><td>Absolute water-vapour content</td></tr>
+            <tr><td>Surface pressure</td><td><span class="var">sp</span></td><td>Pa</td><td>~101,325</td><td>Total air weight above a point</td></tr>
+            <tr><td>Mean-sea-level pressure</td><td><span class="var">msl</span></td><td>Pa</td><td>95,000–105,000</td><td>Pressure normalized to sea level (the H/L map)</td></tr>
+            <tr><td>Total precipitation</td><td><span class="var">tp</span></td><td>m or mm</td><td>0–hundreds mm</td><td>Accumulated rain + snow</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="callout warn">
+        <div class="ct">⚠️ Kelvin, Pascals, and "why the numbers look weird"</div>
+        <p>Scientific datasets store temperature in <strong>kelvin</strong> (0 K = absolute zero, so water freezes at 273.15 K) and pressure in <strong>pascals</strong> (so standard sea-level pressure is 101,325 Pa, usually quoted as 1013.25 <em>hectopascals</em>, hPa). When a plot looks like it says the temperature is "295," that's 21.85 °C — a pleasant day, not the surface of the Sun.</p>
+      </div>
+
+      <h3 id="levels">Vertical levels: the third dimension</h3>
+      <p>Temperature, wind, humidity and geopotential aren't single numbers — they vary with height. So the atmosphere is sliced into <em class="term">vertical levels</em>, and each variable is stored once <em>per level</em>. There are two common ways to define "height":</p>
+
+      <div class="compare">
+        <div class="col det">
+          <h4>Pressure levels</h4>
+          <p>Defined by pressure, not altitude — e.g. the <strong>500 hPa</strong> level is wherever pressure equals 500 hPa (~5.5 km up). Convenient because atmospheric dynamics are naturally expressed in pressure coordinates, and it's what most datasets ship. A typical set: 1000, 925, 850, 700, 500, 300, 250, 100, 50 hPa … (13 or 37 levels).</p>
+        </div>
+        <div class="col ens">
+          <h4>Model levels</h4>
+          <p>The native terrain-following layers a physics model actually computes on (137 levels in ECMWF's model). They hug the ground and stretch out with height. More faithful to the physics, but awkward to compare across models, so results are usually <em>interpolated</em> to pressure levels for sharing.</p>
+        </div>
+      </div>
+
+      <p>You'll constantly see variable names with a level attached: <code class="inline">t850</code> = temperature at 850 hPa, <code class="inline">z500</code> = geopotential at 500 hPa, <code class="inline">u850</code> = eastward wind at 850 hPa. A few levels carry outsized meaning:</p>
+      <ul>
+        <li><strong>850 hPa (~1.5 km):</strong> just above surface friction — the go-to level for "real" temperature and wind, and for tracking warm/cold air masses. This project scores <code class="inline">u850</code> wind speed.</li>
+        <li><strong>500 hPa (~5.5 km):</strong> the mid-troposphere steering level. <code class="inline">z500</code> troughs and ridges tell you where storms will go — the single most-watched field in meteorology.</li>
+        <li><strong>250–300 hPa (~10 km):</strong> the jet-stream level; fast ribbons of wind that organize weather systems.</li>
+      </ul>
+
+      <details class="deep">
+        <summary>How many variables is "the state," really? <span class="lvl">Numbers</span></summary>
+        <div class="body">
+          <p>A typical ML weather model's input/output state is roughly: a handful of <strong>surface (2-D) variables</strong> — say t2m, 10 m u &amp; v wind, mean-sea-level pressure — plus a few <strong>upper-air (3-D) variables</strong> — geopotential, temperature, u, v, w, specific humidity — each replicated across ~13 pressure levels.</p>
+          <p>That works out to roughly <strong>6 × 13 + 5 ≈ 83 fields</strong>. At 0.25° resolution each field is a 721 × 1440 grid (~1 million numbers). So one snapshot of "the atmosphere" is on the order of <strong>80–90 million numbers</strong> — and the model maps one such snapshot to the next. That tensor shape, <code class="inline">[variables × levels × lat × lon]</code>, <em>is</em> the state vector.</p>
+        </div>
+      </details>
+
+      <h3 id="derived">Derived quantities you'll hear about</h3>
+      <p>Some familiar weather words aren't stored directly — they're computed from the core variables:</p>
+      <div class="tablewrap">
+        <table>
+          <thead><tr><th>Quantity</th><th>Built from</th><th>Meaning</th></tr></thead>
+          <tbody>
+            <tr><td>Wind speed</td><td>√(u² + v²)</td><td>How fast the wind blows, ignoring direction</td></tr>
+            <tr><td>Relative humidity</td><td>q, T, pressure</td><td>How close the air is to saturation (%)</td></tr>
+            <tr><td>Dew point (d2m)</td><td>q, pressure</td><td>Temperature at which air would saturate — muggy vs. dry</td></tr>
+            <tr><td>Geopotential height</td><td>z ÷ 9.81</td><td>Height of a pressure surface in metres</td></tr>
+            <tr><td>Vorticity</td><td>gradients of u, v</td><td>Local spin — marks storm centres &amp; troughs</td></tr>
+            <tr><td>CAPE</td><td>T, q profile</td><td>Fuel available for thunderstorms</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ============ GRIDS ============ -->
+    <section id="grids">
+      <span class="sec-num">04</span>
+      <h2>Grids &amp; resolution: turning the sky into an array</h2>
+      <p>Computers can't store a continuous field, so the atmosphere is sampled on a <em class="term">grid</em> of points spaced evenly in latitude and longitude. The spacing is the <strong>resolution</strong>, quoted in degrees. Smaller degrees = finer detail = more grid points = more compute.</p>
+
+      <div class="tablewrap">
+        <table>
+          <thead><tr><th>Resolution</th><th>≈ spacing</th><th>Grid size (global)</th><th>What it resolves</th></tr></thead>
+          <tbody>
+            <tr><td><strong>1.0°</strong></td><td>~111 km</td><td>181 × 360</td><td>Large systems; mountains &amp; coasts blurry. Cheap.</td></tr>
+            <tr><td><strong>0.25°</strong></td><td>~28 km</td><td>721 × 1440</td><td>The standard for modern ML models (ERA5, GraphCast). Sees fronts, hurricanes' structure.</td></tr>
+            <tr><td><strong>≤ 3 km</strong></td><td>convection-permitting</td><td>regional only</td><td>Individual thunderstorms (e.g. HRRR over the US).</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="callout info">
+        <div class="ct">🧮 Why 0.25° matters — and costs</div>
+        <p>Going from 1.0° to 0.25° is 4× finer in each horizontal direction = <strong>16× more grid points</strong>, and the memory/compute balloons accordingly. That's exactly the tension in this project: the 0.25° checkpoint needs ~50&nbsp;GiB of GPU memory per ensemble member and must run one member at a time, whereas the 1.0° model is small enough to parallelize. Finer resolution buys sharper extremes but is dramatically more expensive.</p>
+      </div>
+
+      <details class="deep">
+        <summary>Latitude, longitude, and the pole problem <span class="lvl">Detail</span></summary>
+        <div class="body">
+          <p>A regular lat–lon grid has a nasty property: grid cells shrink toward the poles (all meridians converge). A 0.25° cell is ~28 km wide at the equator but only a few km near the poles, which wastes resolution and can destabilize physics models. Physical models often use clever grids (reduced Gaussian, cubed-sphere, icosahedral) to fix this; many ML models sidestep it with graph or spherical-harmonic representations. GraphCast, for instance, learns on a multi-resolution <em>icosahedral mesh</em> rather than the raw lat–lon grid.</p>
+        </div>
+      </details>
+    </section>
+
+    <!-- ============ TIME ============ -->
+    <section id="time">
+      <span class="sec-num">05</span>
+      <h2>Time &amp; the scales of prediction</h2>
+      <p>Just as space is discretized into a grid, time is discretized into <em class="term">time steps</em>. A model reads the state at time <em>t</em> and produces the state at <em>t + Δt</em>. For most ML weather models Δt is <strong>6 or 12 hours</strong>. To forecast further out, you feed the output back in as the next input and repeat — this is <em class="term">autoregressive rollout</em> (more in §11).</p>
+
+      <div class="flow">
+        <div class="step"><div class="n">nowcast</div><h5>0–6 h</h5><p>Radar extrapolation; "will it rain in the next hour"</p></div>
+        <div class="step"><div class="n">short</div><h5>1–3 days</h5><p>Highly skillful; your daily forecast</p></div>
+        <div class="step"><div class="n">medium</div><h5>4–10 days</h5><p>Where GraphCast/GenCast shine; skill fades</p></div>
+        <div class="step"><div class="n">S2S</div><h5>2–6 weeks</h5><p>This project. Individual weather lost; statistics remain</p></div>
+        <div class="step"><div class="n">seasonal</div><h5>months+</h5><p>"Warmer-than-average winter"; driven by oceans</p></div>
+      </div>
+
+      <div class="callout key">
+        <div class="ct">🔑 The predictability wall</div>
+        <p>The atmosphere is <em>chaotic</em>: tiny errors in the initial state grow exponentially. Beyond ~2 weeks, you fundamentally <strong>cannot</strong> predict whether a specific Tuesday will be rainy — this is the "butterfly effect," and no amount of ML repeals it. What you <em>can</em> still predict at S2S range are shifts in the <em>odds</em>: "the week ending on the event peak is likely to run hot." That's why S2S forecasting is inherently <strong>probabilistic</strong>, and why ensembles (§11) matter so much here.</p>
+      </div>
+    </section>
+
+    <!-- ============ ANOMALIES ============ -->
+    <section id="anomalies">
+      <span class="sec-num">06</span>
+      <h2>Anomalies &amp; climatology: the language of "unusual"</h2>
+      <p>Saying "it was 30 °C" is meaningless without context — 30 °C is freakish in Alaska in winter and mild in Phoenix in summer. So climate science works in <em class="term">anomalies</em>: the departure from what's <em>normal</em> for that place and time of year.</p>
+
+      <div class="eq">
+        anomaly = actual value − climatology
+        <span class="note">e.g. a +6 K T2m anomaly = six degrees hotter than the typical value for that location and calendar week</span>
+      </div>
+
+      <p>The "normal" baseline is the <em class="term">climatology</em>: a long-term average (often 1991–2020) computed separately for each location and each day/week of the year. Subtracting it removes the boring, predictable seasonal cycle and the fixed geography, leaving just the <em>signal</em> — how unusual today is. This is why extreme-event work is framed in anomalies: a heatwave <em>is</em> a large positive temperature anomaly, by definition.</p>
+
+      <details class="deep">
+        <summary>Anomalies, standardization, and why models like them <span class="lvl">Method</span></summary>
+        <div class="body">
+          <p>Beyond subtracting the mean, values are often <strong>standardized</strong> — divided by the local standard deviation — giving a z-score (units of "sigmas"). A +2σ event is roughly a 1-in-40 occurrence; +3σ is genuinely rare. This makes different variables and locations comparable on one scale.</p>
+          <p>ML models care because raw fields have wildly different magnitudes (geopotential ~50,000 m²/s², humidity ~0.01 kg/kg). Networks train far better when every input channel is <strong>normalized to roughly zero mean and unit variance</strong> — which is exactly what per-variable, per-level statistics (the "stats" files this project downloads) are for. Anomaly framing and ML normalization are the same idea wearing different hats.</p>
+        </div>
+      </details>
+    </section>
+
+    <!-- ============ DATASETS ============ -->
+    <section id="datasets">
+      <span class="sec-num">07</span>
+      <h2>Where the data comes from</h2>
+      <p>To train and evaluate a weather model you need a complete, gap-free record of the atmosphere's state through history. But raw observations (stations, balloons, satellites, buoys) are scattered, irregular, and full of holes. The solution is <em class="term">reanalysis</em>.</p>
+
+      <h4 class="mini">Reanalysis: the best guess of history</h4>
+      <p>A reanalysis runs a physics weather model over decades of the past, continually nudging it toward every available observation (a process called <em>data assimilation</em>). The result is a physically consistent, complete grid of every variable, everywhere, every few hours, going back decades. It's the closest thing to "ground truth" for the global atmosphere — even though it's itself a model-observation blend.</p>
+
+      <div class="callout key">
+        <div class="ct">⭐ ERA5 — the dataset behind almost everything</div>
+        <p><strong>ERA5</strong> is ECMWF's flagship reanalysis: hourly, 0.25°, ~137 levels, 1940–present. It is the <em>de facto</em> training data and truth standard for nearly every ML weather model — GraphCast, GenCast, Pangu, FourCastNet all learn from ERA5 and are scored against it. When this project "scores against ERA5 truth," ERA5 is playing the role of reality.</p>
+      </div>
+
+      <div class="tablewrap">
+        <table>
+          <thead><tr><th>Source</th><th>Type</th><th>Role here</th></tr></thead>
+          <tbody>
+            <tr><td><strong>ERA5</strong></td><td>Global reanalysis (0.25°, hourly)</td><td>Training data + verification truth + initial conditions</td></tr>
+            <tr><td><strong>HRRR</strong></td><td>US regional model (3 km)</td><td>Optional high-res truth overlay (skipped on Derecho — no archive)</td></tr>
+            <tr><td><strong>ARCO-ERA5</strong></td><td>Cloud-optimized ERA5 (Zarr on GCS)</td><td>How recent events are pulled without downloading terabytes</td></tr>
+            <tr><td>Station / satellite obs</td><td>Raw measurements</td><td>What reanalyses assimilate; rarely used directly by ML models</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="callout warn">
+        <div class="ct">⚠️ "Truth" is a model too</div>
+        <p>Reanalysis is the best estimate we have, but it's not perfect — it can smooth out the most extreme peaks (a real 3-km thunderstorm downpour gets averaged over a 28-km cell). This is a live issue for extreme-event work: sometimes the ML forecast, the reanalysis "truth," <em>and</em> the true event all disagree, and part of the science is knowing which to trust. It's why higher-resolution truth like HRRR is valuable when available.</p>
+      </div>
+    </section>
+
+    <!-- ============ EXTREMES ============ -->
+    <section id="extremes">
+      <span class="sec-num">08</span>
+      <h2>Extreme events</h2>
+      <p>Averages are easy; extremes are what hurt people and what forecasts most need to get right. An <em class="term">extreme event</em> is a large excursion into the tail of the distribution — a heatwave, cold snap, hurricane, or extreme-rain episode. In anomaly language, they're the biggest-magnitude anomalies.</p>
+
+      <div class="cards">
+        <div class="card"><div class="ico" style="color:var(--warm)">🔥</div><h4>Heat waves</h4><p>Large sustained positive <code class="inline">t2m</code> anomalies over days. Often tied to stalled high-pressure "blocking" ridges.</p></div>
+        <div class="card"><div class="ico" style="color:var(--cold)">❄️</div><h4>Cold-air outbreaks</h4><p>Arctic air plunging south; large negative <code class="inline">t2m</code> anomalies. Linked to a disrupted polar vortex.</p></div>
+        <div class="card"><div class="ico">🌀</div><h4>Hurricanes</h4><p>Intense low-pressure cores with extreme <code class="inline">u/v</code> winds. Track &amp; intensity are the forecast targets.</p></div>
+        <div class="card"><div class="ico">🌊</div><h4>Extreme rain</h4><p>Huge <code class="inline">tp</code> totals in short windows → flooding. The hardest variable to predict well.</p></div>
+      </div>
+
+      <p>The reason extremes are hard for <em>any</em> model, ML included: by definition there are few examples of them in the training record, they live where the model has seen the least data, and they're often small and short-lived so coarse grids blur them. Evaluating whether an ML forecast captures extremes — not just the calm average — is precisely the question this project is built to answer.</p>
+    </section>
+
+    <!-- ============ NWP ============ -->
+    <section id="nwp">
+      <span class="sec-num">09</span>
+      <h2>The classical way: physics-based forecasting (NWP)</h2>
+      <p>For 70 years, weather has been predicted by <em class="term">Numerical Weather Prediction (NWP)</em>: write down the equations of fluid motion and thermodynamics that govern the atmosphere, chop the globe into a grid, and step those equations forward in time on a supercomputer. This is what ECMWF's IFS, the US GFS, and every operational center runs.</p>
+
+      <details class="deep">
+        <summary>The equations being solved <span class="lvl">Physics</span></summary>
+        <div class="body">
+          <p>NWP integrates the <strong>primitive equations</strong> — a form of the Navier–Stokes equations for a rotating, stratified fluid — coupled with thermodynamics and moisture:</p>
+          <ul>
+            <li><strong>Momentum</strong> (Newton's 2nd law): how winds accelerate under pressure gradients, gravity, and the Coriolis force from Earth's rotation.</li>
+            <li><strong>Continuity</strong>: mass is conserved — air doesn't appear or vanish.</li>
+            <li><strong>Thermodynamic energy</strong>: how temperature changes with heating, compression, and mixing.</li>
+            <li><strong>Moisture &amp; state</strong>: water tracking and the ideal-gas law relating p, ρ, T.</li>
+          </ul>
+          <p>Processes too small to resolve on the grid — cloud microphysics, turbulence, convection — are approximated by <em>parameterizations</em>. These are the largest source of NWP error and the hardest part to tune.</p>
+        </div>
+      </details>
+
+      <div class="callout info">
+        <div class="ct">✅ NWP's strengths and ❌ its cost</div>
+        <p>NWP is physically grounded, generalizes to unseen conditions, and is genuinely trustworthy. But a single high-resolution global forecast can take <strong>hours on thousands of supercomputer cores</strong>. Running the dozens of parallel forecasts needed for an ensemble is enormously expensive — which is the door ML walked through.</p>
+      </div>
+    </section>
+
+    <!-- ============ EMULATORS ============ -->
+    <section id="emulators">
+      <span class="sec-num">10</span>
+      <h2>What is an emulator?</h2>
+      <p>An <em class="term">emulator</em> is a machine-learning model trained to <strong>reproduce the input→output behavior of an expensive physical model</strong>, but orders of magnitude faster. Instead of solving the physics equations, it learns the mapping directly from data — "given this atmospheric state, what does the next state look like?" — by training on decades of reanalysis.</p>
+
+      <div class="compare">
+        <div class="col det">
+          <h4>🧮 Physics model (NWP)</h4>
+          <p>Solves fundamental equations from first principles every run. Slow, expensive, but grounded in physical law and extrapolates to novel situations.</p>
+        </div>
+        <div class="col ens">
+          <h4>🧠 ML emulator</h4>
+          <p>Learns the input→output pattern from historical data. Once trained, produces a forecast in <strong>seconds on a single GPU</strong> — but only as good as the data it learned from.</p>
+        </div>
+      </div>
+
+      <p>The headline result of the last few years is that these emulators are not just faster — for many variables at medium range they now <strong>match or beat</strong> the physics model they learned from, at a tiny fraction of the cost. That's what makes them revolutionary, and what makes it feasible to run large ensembles for S2S extremes on modest hardware.</p>
+
+      <div class="callout warn">
+        <div class="ct">⚠️ "Emulator" vs. "climate emulator" — a naming caution</div>
+        <p>The word <em>emulator</em> shows up in two nearby contexts. A <strong>weather emulator</strong> (GraphCast, GenCast) mimics a short-range forecast model step. A <strong>climate emulator</strong> usually means a cheap surrogate for a full climate model's long-term response to forcings like CO₂. Same core idea — learn the expensive model's behavior cheaply — different target timescale. This project is squarely in the weather-emulator-pushed-to-S2S camp.</p>
+      </div>
+    </section>
+
+    <!-- ============ ML MODELS ============ -->
+    <section id="mlmodels">
+      <span class="sec-num">11</span>
+      <h2>The ML weather models</h2>
+      <p>A quick field guide to the models you'll hear named. All learn from ERA5, all take the gridded state as input, all step it forward — they differ in architecture and, crucially, in whether they're deterministic or probabilistic.</p>
+
+      <div class="tablewrap">
+        <table>
+          <thead><tr><th>Model</th><th>By</th><th>Architecture</th><th>Kind</th><th>Note</th></tr></thead>
+          <tbody>
+            <tr><td><strong>GraphCast</strong></td><td>Google DeepMind</td><td>Graph neural net on icosahedral mesh</td><td>Deterministic</td><td>Beat ECMWF's IFS on most vars at 10 days</td></tr>
+            <tr><td><strong>GenCast</strong></td><td>Google DeepMind</td><td>Diffusion model</td><td>Ensemble / probabilistic</td><td>The model at the center of this project</td></tr>
+            <tr><td><strong>Pangu-Weather</strong></td><td>Huawei</td><td>3-D Earth-specific transformer</td><td>Deterministic</td><td>Early landmark; strong on cyclone tracks</td></tr>
+            <tr><td><strong>FourCastNet</strong></td><td>NVIDIA</td><td>Fourier neural operator</td><td>Deterministic</td><td>Very fast; pioneered spherical-harmonic variant</td></tr>
+            <tr><td><strong>AIFS</strong></td><td>ECMWF</td><td>Graph transformer</td><td>Both variants</td><td>An operational center's own ML system</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h4 class="mini">The forecasting loop, step by step</h4>
+      <div class="flow">
+        <div class="step"><div class="n">01</div><h5>Encode</h5><p>Gridded state → the model's internal representation (e.g. mesh nodes)</p></div>
+        <div class="step"><div class="n">02</div><h5>Process</h5><p>Neural network updates it — the learned "physics"</p></div>
+        <div class="step"><div class="n">03</div><h5>Decode</h5><p>Back to a gridded state at t + Δt</p></div>
+        <div class="step"><div class="n">04</div><h5>Roll</h5><p>Feed output back in; repeat to reach days/weeks ahead</p></div>
+      </div>
+
+      <details class="deep">
+        <summary>Autoregressive rollout &amp; error growth <span class="lvl">ML detail</span></summary>
+        <div class="body">
+          <p>Because the model only learned a single Δt step, long forecasts are made by <strong>chaining</strong> — the output of step <em>n</em> becomes the input of step <em>n+1</em>. This is powerful but dangerous: small per-step errors compound, and the state can drift into unphysical regions the model never saw in training. Models are trained with multi-step rollouts and careful normalization to stay stable. For a 6-week S2S forecast at a 12-hour step, that's ~84 chained calls — a demanding stability test, and a key reason S2S is hard even for ML.</p>
+        </div>
+      </details>
+
+      <h3 id="ensembles">Deterministic vs. ensemble (and diffusion)</h3>
+      <p>This is the most important conceptual split, and it's why GenCast is special.</p>
+
+      <div class="compare">
+        <div class="col det">
+          <h4>🎯 Deterministic</h4>
+          <p>Produces <strong>one</strong> forecast — a single best guess of the future state. Great for short range. But it can't tell you how <em>confident</em> to be, and it tends to blur out extremes (predicting a safe average is the way to minimize error).</p>
+        </div>
+        <div class="col ens">
+          <h4>🎲 Ensemble / probabilistic</h4>
+          <p>Produces <strong>many</strong> forecasts (an <em>ensemble</em>), each a plausible future, together forming a <em>probability distribution</em>. The spread <em>is</em> the uncertainty. Essential at S2S range, where the honest answer is "here are the odds," not "here's the number."</p>
+        </div>
+      </div>
+
+      <div class="callout key">
+        <div class="ct">🔑 Why GenCast uses diffusion</div>
+        <p>GenCast is a <em>diffusion model</em> — the same family of generative AI behind image generators. Instead of predicting one deterministic next state, it starts from random noise and iteratively denoises it into a <em>sample</em> of a plausible next atmospheric state. Run it many times with different noise and you get a physically sharp <strong>ensemble</strong> — each member realistic (not blurred), and the collection spanning the true range of possibilities. That combination — sharp <em>and</em> well-calibrated — is why it's the tool of choice for probabilistic extreme-event forecasting.</p>
+      </div>
+
+      <details class="deep">
+        <summary>What "24 members" means &amp; the multiple-of-GPU rule <span class="lvl">This project</span></summary>
+        <div class="body">
+          <p>An <strong>ensemble member</strong> is one complete run of the model from the same starting point but with different random noise, giving one possible future. This project rolls <strong>24 members</strong> per event; together they estimate the forecast distribution over the verification week.</p>
+          <p>In the parallelized (1.0°) path, members are spread across visible GPUs with <code class="inline">pmap</code>, so the member count must be a multiple of the GPU count. The memory-heavy 0.25° path can't parallelize (one member alone needs ~50 GiB), so it runs members serially — which is why this project's newer method assigns one member per PBS array subjob and caches each to disk.</p>
+        </div>
+      </details>
+    </section>
+
+    <!-- ============ EVALUATION ============ -->
+    <section id="evaluation">
+      <span class="sec-num">12</span>
+      <h2>How we score a forecast</h2>
+      <p>A forecast is only meaningful if you can measure how good it is against what actually happened (the ERA5 truth). Different metrics answer different questions.</p>
+
+      <div class="tablewrap">
+        <table>
+          <thead><tr><th>Metric</th><th>For</th><th>What it measures</th></tr></thead>
+          <tbody>
+            <tr><td><strong>RMSE</strong></td><td>Deterministic</td><td>Root-mean-square error — average size of the miss, in the variable's units. Lower is better.</td></tr>
+            <tr><td><strong>ACC</strong></td><td>Deterministic</td><td>Anomaly correlation — does the forecast get the <em>pattern</em> of anomalies right (0–1)?</td></tr>
+            <tr><td><strong>CRPS</strong></td><td>Ensemble</td><td>Continuous Ranked Probability Score — the go-to score for a probabilistic forecast. Rewards a distribution that is both accurate <em>and</em> appropriately confident. Lower is better.</td></tr>
+            <tr><td><strong>Rank histogram</strong></td><td>Ensemble</td><td>A calibration check: is the truth equally likely to fall anywhere within the ensemble spread? A flat histogram = well-calibrated.</td></tr>
+            <tr><td><strong>Brier / ROC</strong></td><td>Probabilistic events</td><td>Skill at yes/no event forecasts ("will it exceed the heatwave threshold?").</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <details class="deep">
+        <summary>CRPS &amp; the sharpness–calibration trade-off <span class="lvl">Stats</span></summary>
+        <div class="body">
+          <p><strong>CRPS</strong> generalizes mean-absolute-error to probability distributions. For a forecast CDF <em>F</em> and observed value <em>y</em>, it integrates the squared difference between <em>F</em> and the step function at <em>y</em>. If the forecast collapses to a single value, CRPS reduces exactly to absolute error — so it fairly compares deterministic and ensemble forecasts on one scale.</p>
+          <p>A good probabilistic forecast balances two virtues: <strong>sharpness</strong> (confident, narrow distributions) and <strong>calibration</strong> (the stated probabilities are honest). You can be sharp and wrong (overconfident) or calibrated but useless (always predicting climatology). CRPS penalizes both failure modes at once — which is why it, plus a rank histogram for calibration, is the standard reporting pair for ensemble work like this.</p>
+        </div>
+      </details>
+
+      <div class="callout info">
+        <div class="ct">📐 Verification window</div>
+        <p>This project doesn't score a single instant — it scores the <strong>week-mean anomaly over the 7 days ending at the event peak</strong>, weeks ahead of that peak. That's the honest S2S question: not "will it be hot next Tuesday" but "does the forecast, issued weeks early, put the odds on an unusually hot verification week?"</p>
+      </div>
+    </section>
+
+    <!-- ============ THIS PROJECT ============ -->
+    <section id="thisproject">
+      <span class="sec-num">13</span>
+      <h2>Tying it all together</h2>
+      <p>Now the sentence from the very top should read cleanly. Here it is again, annotated:</p>
+
+      <div class="callout key">
+        <div class="ct">🧩 Decoding the project in one sentence</div>
+        <p style="font-size:17px;line-height:1.8">
+          "<span class="tip">GenCast<span class="tiptext">A diffusion-based ML weather emulator that produces probabilistic ensemble forecasts.</span></span> rolls a <span class="tip">24-member ensemble<span class="tiptext">24 separate runs from the same start with different noise, forming a probability distribution over outcomes.</span></span> of the <span class="tip">0.25°<span class="tiptext">~28 km grid spacing — fine resolution, ~16× costlier than 1.0°.</span></span> <span class="tip">atmospheric state<span class="tiptext">The stack of temperature, wind, humidity, geopotential, pressure fields across all levels and grid points.</span></span> <span class="tip">autoregressively<span class="tiptext">Feeding each output back in as the next input to reach further into the future.</span></span> at 12-hour steps, and we score the <span class="tip">week-2 T2m anomaly<span class="tiptext">The near-surface temperature departure from climatology, averaged over the verification week, two weeks after initialization.</span></span> against <span class="tip">ERA5<span class="tiptext">ECMWF's reanalysis — the gap-free best estimate of the real atmosphere, used as truth.</span></span> with <span class="tip">CRPS<span class="tiptext">A probabilistic score rewarding forecasts that are both sharp and well-calibrated.</span></span>."
+        </p>
+      </div>
+
+      <p>In plain English: <em>take a fast AI stand-in for a physics weather model, run it 24 times to get a spread of possible futures at high resolution, push it two weeks out to a known extreme event, and measure — with the right probabilistic yardstick — whether it correctly flagged that the week would be unusually hot, compared to our best record of what really happened.</em></p>
+
+      <p>That is the whole game: using cheap, probabilistic ML emulators to push skillful, honest <em>extreme-event</em> forecasting into the subseasonal range where it matters most and has traditionally been weakest.</p>
+    </section>
+
+    <!-- ============ GLOSSARY ============ -->
+    <section id="glossary">
+      <span class="sec-num">★</span>
+      <h2>Glossary</h2>
+      <dl class="gloss">
+        <dt>Anomaly</dt><dd>Departure of a value from its long-term climatological average for that place and time of year.</dd>
+        <dt>Autoregressive rollout</dt><dd>Generating a long forecast by repeatedly feeding a model's output back in as its next input.</dd>
+        <dt>Climatology</dt><dd>The long-term average state (often 1991–2020) used as the "normal" baseline for anomalies.</dd>
+        <dt>CRPS</dt><dd>Continuous Ranked Probability Score — the standard accuracy+calibration metric for ensemble forecasts.</dd>
+        <dt>Data assimilation</dt><dd>The process of blending observations into a model to produce the best estimate of the current state.</dd>
+        <dt>Diffusion model</dt><dd>A generative ML method that turns random noise into realistic samples; GenCast uses it to draw ensemble members.</dd>
+        <dt>Emulator</dt><dd>An ML model trained to reproduce an expensive physical model's behavior far more cheaply.</dd>
+        <dt>Ensemble</dt><dd>A set of forecasts from the same start, together representing a probability distribution of outcomes.</dd>
+        <dt>ERA5</dt><dd>ECMWF's flagship global reanalysis; the dominant training data and truth standard for ML weather models.</dd>
+        <dt>Geopotential (z)</dt><dd>The height of a pressure surface; z500 troughs/ridges steer mid-latitude weather.</dd>
+        <dt>hPa (hectopascal)</dt><dd>Pressure unit; also names vertical levels (e.g. the 500 hPa level). 1013.25 hPa = sea-level standard.</dd>
+        <dt>HRRR</dt><dd>The US High-Resolution Rapid Refresh — a 3 km regional model, used as high-res truth when available.</dd>
+        <dt>Kelvin (K)</dt><dd>Absolute temperature unit used in datasets; 273.15 K = 0 °C.</dd>
+        <dt>NWP</dt><dd>Numerical Weather Prediction — classical physics-equation-solving forecasting on supercomputers.</dd>
+        <dt>Pressure level</dt><dd>A vertical coordinate defined by pressure (e.g. 850 hPa) rather than altitude.</dd>
+        <dt>Reanalysis</dt><dd>A complete, gap-free reconstruction of past atmospheric states by blending a model with observations.</dd>
+        <dt>Resolution</dt><dd>Grid spacing (e.g. 0.25° ≈ 28 km); finer resolution captures more detail at higher cost.</dd>
+        <dt>S2S</dt><dd>Subseasonal-to-seasonal — the 2–6 week forecast range this project targets.</dd>
+        <dt>Specific humidity (q)</dt><dd>Mass of water vapour per mass of air (kg/kg); the model's native moisture variable.</dd>
+        <dt>t2m</dt><dd>2-metre air temperature — the near-surface "feels-like" temperature.</dd>
+        <dt>u / v wind</dt><dd>Eastward (u) and northward (v) components of horizontal wind; combine for speed and direction.</dd>
+      </dl>
+    </section>
+
+    <footer>
+      <p>Built as an onboarding primer for the GenCast S2S extreme-weather project · a bridge from atmospheric science to the ML pipeline. Every term here reappears in the codebase — <code class="inline">config.py</code> events, <code class="inline">xmetrics.py</code> scores, the ERA5 truth, the 0.25° vs 1.0° checkpoints.</p>
+    </footer>
+
+  </main>
+</div>
+
+<script>
+  /* ---------- Theme toggle ---------- */
+  const root = document.documentElement;
+  const tBtn = document.getElementById('themeToggle');
+  function setTheme(t) {
+    root.setAttribute('data-theme', t);
+    tBtn.textContent = t === 'dark' ? '🌙 Dark' : '☀️ Light';
+    try { localStorage.setItem('cprimer-theme', t); } catch(e){}
+  }
+  try {
+    const saved = localStorage.getItem('cprimer-theme');
+    if (saved) setTheme(saved);
+  } catch(e){}
+  tBtn.addEventListener('click', () =>
+    setTheme(root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark'));
+
+  /* ---------- Reading progress ---------- */
+  const prog = document.getElementById('progress');
+  window.addEventListener('scroll', () => {
+    const h = document.documentElement;
+    const scrolled = h.scrollTop / (h.scrollHeight - h.clientHeight);
+    prog.style.width = (scrolled * 100) + '%';
+  }, { passive: true });
+
+  /* ---------- TOC scroll-spy ---------- */
+  const links = Array.from(document.querySelectorAll('nav.toc a'));
+  const map = {};
+  links.forEach(a => { const id = a.getAttribute('href').slice(1); map[id] = a; });
+  const spy = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        links.forEach(l => l.classList.remove('active'));
+        const a = map[e.target.id];
+        if (a) a.classList.add('active');
+      }
+    });
+  }, { rootMargin: '-45% 0px -50% 0px' });
+  document.querySelectorAll('section[id]').forEach(s => spy.observe(s));
+
+  /* ---------- Mobile TOC ---------- */
+  const toc = document.getElementById('toc');
+  document.getElementById('tocToggle').addEventListener('click', () => toc.classList.toggle('open'));
+  toc.querySelectorAll('a').forEach(a => a.addEventListener('click', () => toc.classList.remove('open')));
+
+  /* ---------- Interactive atmosphere diagram ---------- */
+  const info = document.getElementById('atmoInfo');
+  document.querySelectorAll('.atmo-layer').forEach(g => {
+    g.addEventListener('click', () => { info.textContent = g.getAttribute('data-info'); });
+    g.addEventListener('mouseenter', () => { info.textContent = g.getAttribute('data-info'); });
+  });
+</script>
+</body>
+</html>

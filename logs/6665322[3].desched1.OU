@@ -1,0 +1,778 @@
+Host: deg0026
+Start: Wed Jul  8 12:56:31 AM MDT 2026
+Job: 6665322[3].desched1  member: 3
+GPU 0: NVIDIA A100-SXM4-40GB (UUID: GPU-61398543-e250-b577-8a69-7b9a9f678480)
+/glade/work/exu/conda-envs/my-env/lib/python3.10/site-packages/google/api_core/_python_version_support.py:255: FutureWarning: You are using a Python version (3.10.20) which Google will stop supporting in new releases of google.api_core once it reaches its end of life (2026-10-04). Please upgrade to the latest Python version, or at least Python 3.11, to continue receiving updates for google.api_core past that date.
+  warnings.warn(message, FutureWarning)
+/glade/work/exu/conda-envs/my-env/lib/python3.10/site-packages/google/api_core/_python_version_support.py:255: FutureWarning: You are using a Python version (3.10.20) which Google will stop supporting in new releases of google.cloud._storage_v2 once it reaches its end of life (2026-10-04). Please upgrade to the latest Python version, or at least Python 3.11, to continue receiving updates for google.cloud._storage_v2 past that date.
+  warnings.warn(message, FutureWarning)
+/glade/work/exu/conda-envs/my-env/lib/python3.10/site-packages/google/api_core/_python_version_support.py:255: FutureWarning: You are using a Python version (3.10.20) which Google will stop supporting in new releases of google.cloud.storage_control_v2 once it reaches its end of life (2026-10-04). Please upgrade to the latest Python version, or at least Python 3.11, to continue receiving updates for google.cloud.storage_control_v2 past that date.
+  warnings.warn(message, FutureWarning)
+=== xres 0p25 (GenCast 0.25deg): week2, lead 14d, 28 steps, 24 members, serial member 3 only ===
+PNW_HeatDome_2021 [m3 0p25 week2] (event 1/12)
+INFO:2026-07-08 00:57:07,437:jax._src.xla_bridge:752: Unable to initialize backend 'tpu': INTERNAL: Failed to open libtpu.so: libtpu.so: cannot open shared object file: No such file or directory
+WARNING: Logging before flag parsing goes to stderr.
+I0708 00:57:07.437249 22398140462912 xla_bridge.py:752] Unable to initialize backend 'tpu': INTERNAL: Failed to open libtpu.so: libtpu.so: cannot open shared object file: No such file or directory
+[model] serial infer on 1 device(s); ensemble=24 (24 sample(s), one at a time). task pressure levels: 13
+I0708 00:57:17.711022 22398140462912 rollout.py:206] Sample 0/1
+/glade/derecho/scratch/exu/S2S_ExtremeWeather/third_party/graphcast/graphcast/rollout.py:328: FutureWarning: The return type of `Dataset.dims` will be changed to return a set of dimension names in future, in order to be more consistent with `DataArray.dims`. To access a mapping from dimension names to lengths, please use `Dataset.sizes`.
+  num_target_steps = targets_template.dims["time"]
+I0708 00:57:17.730064 22398140462912 rollout.py:361] Chunk 0/28
+/glade/work/exu/conda-envs/my-env/lib/python3.10/site-packages/scipy/sparse/_index.py:210: SparseEfficiencyWarning: Changing the sparsity structure of a csr_matrix is expensive. lil and dok are more efficient.
+  self._set_arrayXarray(i, j, x)
+/glade/work/exu/conda-envs/my-env/lib/python3.10/site-packages/scipy/sparse/_index.py:210: SparseEfficiencyWarning: Changing the sparsity structure of a csr_matrix is expensive. lil and dok are more efficient.
+  self._set_arrayXarray(i, j, x)
+I0708 01:02:42.578527 22398140462912 sparse_transformer.py:507] mask_block_size: 10273.
+/glade/derecho/scratch/exu/S2S_ExtremeWeather/third_party/graphcast/graphcast/rollout.py:435: FutureWarning: The return type of `Dataset.dims` will be changed to return a set of dimension names in future, in order to be more consistent with `DataArray.dims`. To access a mapping from dimension names to lengths, please use `Dataset.sizes`.
+  num_inputs = prev_inputs.dims["time"]
+  [w3 0p25] PNW_HeatDome_2021: member 4/24  step 1/28
+I0708 01:09:23.378133 22398140462912 rollout.py:361] Chunk 1/28
+  [w3 0p25] PNW_HeatDome_2021: member 4/24  step 2/28
+I0708 01:10:42.937101 22398140462912 rollout.py:361] Chunk 2/28
+  [w3 0p25] PNW_HeatDome_2021: member 4/24  step 3/28
+I0708 01:12:02.896960 22398140462912 rollout.py:361] Chunk 3/28
+  [w3 0p25] PNW_HeatDome_2021: member 4/24  step 4/28
+I0708 01:13:22.856896 22398140462912 rollout.py:361] Chunk 4/28
+  [w3 0p25] PNW_HeatDome_2021: member 4/24  step 5/28
+I0708 01:14:42.800151 22398140462912 rollout.py:361] Chunk 5/28
+  [w3 0p25] PNW_HeatDome_2021: member 4/24  step 6/28
+I0708 01:16:02.757636 22398140462912 rollout.py:361] Chunk 6/28
+  [w3 0p25] PNW_HeatDome_2021: member 4/24  step 7/28
+I0708 01:17:22.714780 22398140462912 rollout.py:361] Chunk 7/28
+  [w3 0p25] PNW_HeatDome_2021: member 4/24  step 8/28
+I0708 01:18:42.671384 22398140462912 rollout.py:361] Chunk 8/28
+  [w3 0p25] PNW_HeatDome_2021: member 4/24  step 9/28
+I0708 01:20:02.625747 22398140462912 rollout.py:361] Chunk 9/28
+  [w3 0p25] PNW_HeatDome_2021: member 4/24  step 10/28
+I0708 01:21:22.582973 22398140462912 rollout.py:361] Chunk 10/28
+  [w3 0p25] PNW_HeatDome_2021: member 4/24  step 11/28
+I0708 01:22:42.538510 22398140462912 rollout.py:361] Chunk 11/28
+  [w3 0p25] PNW_HeatDome_2021: member 4/24  step 12/28
+I0708 01:24:02.491416 22398140462912 rollout.py:361] Chunk 12/28
+  [w3 0p25] PNW_HeatDome_2021: member 4/24  step 13/28
+I0708 01:25:22.441669 22398140462912 rollout.py:361] Chunk 13/28
+  [w3 0p25] PNW_HeatDome_2021: member 4/24  step 14/28
+I0708 01:26:42.389439 22398140462912 rollout.py:361] Chunk 14/28
+  [w3 0p25] PNW_HeatDome_2021: member 4/24  step 15/28
+I0708 01:28:02.343053 22398140462912 rollout.py:361] Chunk 15/28
+  [w3 0p25] PNW_HeatDome_2021: member 4/24  step 16/28
+I0708 01:29:22.299181 22398140462912 rollout.py:361] Chunk 16/28
+  [w3 0p25] PNW_HeatDome_2021: member 4/24  step 17/28
+I0708 01:30:42.255500 22398140462912 rollout.py:361] Chunk 17/28
+  [w3 0p25] PNW_HeatDome_2021: member 4/24  step 18/28
+I0708 01:32:02.202138 22398140462912 rollout.py:361] Chunk 18/28
+  [w3 0p25] PNW_HeatDome_2021: member 4/24  step 19/28
+I0708 01:33:22.153938 22398140462912 rollout.py:361] Chunk 19/28
+  [w3 0p25] PNW_HeatDome_2021: member 4/24  step 20/28
+I0708 01:34:42.107244 22398140462912 rollout.py:361] Chunk 20/28
+  [w3 0p25] PNW_HeatDome_2021: member 4/24  step 21/28
+I0708 01:36:02.052986 22398140462912 rollout.py:361] Chunk 21/28
+  [w3 0p25] PNW_HeatDome_2021: member 4/24  step 22/28
+I0708 01:37:22.010135 22398140462912 rollout.py:361] Chunk 22/28
+  [w3 0p25] PNW_HeatDome_2021: member 4/24  step 23/28
+I0708 01:38:41.972732 22398140462912 rollout.py:361] Chunk 23/28
+  [w3 0p25] PNW_HeatDome_2021: member 4/24  step 24/28
+I0708 01:40:01.931707 22398140462912 rollout.py:361] Chunk 24/28
+  [w3 0p25] PNW_HeatDome_2021: member 4/24  step 25/28
+I0708 01:41:21.884531 22398140462912 rollout.py:361] Chunk 25/28
+  [w3 0p25] PNW_HeatDome_2021: member 4/24  step 26/28
+I0708 01:42:41.841260 22398140462912 rollout.py:361] Chunk 26/28
+  [w3 0p25] PNW_HeatDome_2021: member 4/24  step 27/28
+I0708 01:44:01.799179 22398140462912 rollout.py:361] Chunk 27/28
+  [w3 0p25] PNW_HeatDome_2021: member 4/24  step 28/28
+  [w3 0p25] PNW_HeatDome_2021: member 4/24 saved
+Southwest_HeatWave_2020 [m3 0p25 week2] (event 2/12)
+I0708 01:45:43.706082 22398140462912 rollout.py:206] Sample 0/1
+/glade/derecho/scratch/exu/S2S_ExtremeWeather/third_party/graphcast/graphcast/rollout.py:328: FutureWarning: The return type of `Dataset.dims` will be changed to return a set of dimension names in future, in order to be more consistent with `DataArray.dims`. To access a mapping from dimension names to lengths, please use `Dataset.sizes`.
+  num_target_steps = targets_template.dims["time"]
+I0708 01:45:43.707512 22398140462912 rollout.py:361] Chunk 0/28
+/glade/derecho/scratch/exu/S2S_ExtremeWeather/third_party/graphcast/graphcast/rollout.py:435: FutureWarning: The return type of `Dataset.dims` will be changed to return a set of dimension names in future, in order to be more consistent with `DataArray.dims`. To access a mapping from dimension names to lengths, please use `Dataset.sizes`.
+  num_inputs = prev_inputs.dims["time"]
+  [w3 0p25] Southwest_HeatWave_2020: member 4/24  step 1/28
+I0708 01:47:03.279708 22398140462912 rollout.py:361] Chunk 1/28
+  [w3 0p25] Southwest_HeatWave_2020: member 4/24  step 2/28
+I0708 01:48:23.154994 22398140462912 rollout.py:361] Chunk 2/28
+  [w3 0p25] Southwest_HeatWave_2020: member 4/24  step 3/28
+I0708 01:49:43.111485 22398140462912 rollout.py:361] Chunk 3/28
+  [w3 0p25] Southwest_HeatWave_2020: member 4/24  step 4/28
+I0708 01:51:03.069301 22398140462912 rollout.py:361] Chunk 4/28
+  [w3 0p25] Southwest_HeatWave_2020: member 4/24  step 5/28
+I0708 01:52:23.025524 22398140462912 rollout.py:361] Chunk 5/28
+  [w3 0p25] Southwest_HeatWave_2020: member 4/24  step 6/28
+I0708 01:53:42.985997 22398140462912 rollout.py:361] Chunk 6/28
+  [w3 0p25] Southwest_HeatWave_2020: member 4/24  step 7/28
+I0708 01:55:02.940037 22398140462912 rollout.py:361] Chunk 7/28
+  [w3 0p25] Southwest_HeatWave_2020: member 4/24  step 8/28
+I0708 01:56:22.898648 22398140462912 rollout.py:361] Chunk 8/28
+  [w3 0p25] Southwest_HeatWave_2020: member 4/24  step 9/28
+I0708 01:57:42.853255 22398140462912 rollout.py:361] Chunk 9/28
+  [w3 0p25] Southwest_HeatWave_2020: member 4/24  step 10/28
+I0708 01:59:02.820977 22398140462912 rollout.py:361] Chunk 10/28
+  [w3 0p25] Southwest_HeatWave_2020: member 4/24  step 11/28
+I0708 02:00:22.768351 22398140462912 rollout.py:361] Chunk 11/28
+  [w3 0p25] Southwest_HeatWave_2020: member 4/24  step 12/28
+I0708 02:01:42.712105 22398140462912 rollout.py:361] Chunk 12/28
+  [w3 0p25] Southwest_HeatWave_2020: member 4/24  step 13/28
+I0708 02:03:02.673745 22398140462912 rollout.py:361] Chunk 13/28
+  [w3 0p25] Southwest_HeatWave_2020: member 4/24  step 14/28
+I0708 02:04:22.624319 22398140462912 rollout.py:361] Chunk 14/28
+  [w3 0p25] Southwest_HeatWave_2020: member 4/24  step 15/28
+I0708 02:05:42.578531 22398140462912 rollout.py:361] Chunk 15/28
+  [w3 0p25] Southwest_HeatWave_2020: member 4/24  step 16/28
+I0708 02:07:02.534329 22398140462912 rollout.py:361] Chunk 16/28
+  [w3 0p25] Southwest_HeatWave_2020: member 4/24  step 17/28
+I0708 02:08:22.488898 22398140462912 rollout.py:361] Chunk 17/28
+  [w3 0p25] Southwest_HeatWave_2020: member 4/24  step 18/28
+I0708 02:09:42.432948 22398140462912 rollout.py:361] Chunk 18/28
+  [w3 0p25] Southwest_HeatWave_2020: member 4/24  step 19/28
+I0708 02:11:02.388874 22398140462912 rollout.py:361] Chunk 19/28
+  [w3 0p25] Southwest_HeatWave_2020: member 4/24  step 20/28
+I0708 02:12:22.336291 22398140462912 rollout.py:361] Chunk 20/28
+  [w3 0p25] Southwest_HeatWave_2020: member 4/24  step 21/28
+I0708 02:13:42.274992 22398140462912 rollout.py:361] Chunk 21/28
+  [w3 0p25] Southwest_HeatWave_2020: member 4/24  step 22/28
+I0708 02:15:02.221646 22398140462912 rollout.py:361] Chunk 22/28
+  [w3 0p25] Southwest_HeatWave_2020: member 4/24  step 23/28
+I0708 02:16:22.169501 22398140462912 rollout.py:361] Chunk 23/28
+  [w3 0p25] Southwest_HeatWave_2020: member 4/24  step 24/28
+I0708 02:17:42.116239 22398140462912 rollout.py:361] Chunk 24/28
+  [w3 0p25] Southwest_HeatWave_2020: member 4/24  step 25/28
+I0708 02:19:02.064574 22398140462912 rollout.py:361] Chunk 25/28
+  [w3 0p25] Southwest_HeatWave_2020: member 4/24  step 26/28
+I0708 02:20:22.009466 22398140462912 rollout.py:361] Chunk 26/28
+  [w3 0p25] Southwest_HeatWave_2020: member 4/24  step 27/28
+I0708 02:21:41.957791 22398140462912 rollout.py:361] Chunk 27/28
+  [w3 0p25] Southwest_HeatWave_2020: member 4/24  step 28/28
+  [w3 0p25] Southwest_HeatWave_2020: member 4/24 saved
+California_HeatWave_2022 [m3 0p25 week2] (event 3/12)
+I0708 02:23:23.352474 22398140462912 rollout.py:206] Sample 0/1
+/glade/derecho/scratch/exu/S2S_ExtremeWeather/third_party/graphcast/graphcast/rollout.py:328: FutureWarning: The return type of `Dataset.dims` will be changed to return a set of dimension names in future, in order to be more consistent with `DataArray.dims`. To access a mapping from dimension names to lengths, please use `Dataset.sizes`.
+  num_target_steps = targets_template.dims["time"]
+I0708 02:23:23.353871 22398140462912 rollout.py:361] Chunk 0/28
+/glade/derecho/scratch/exu/S2S_ExtremeWeather/third_party/graphcast/graphcast/rollout.py:435: FutureWarning: The return type of `Dataset.dims` will be changed to return a set of dimension names in future, in order to be more consistent with `DataArray.dims`. To access a mapping from dimension names to lengths, please use `Dataset.sizes`.
+  num_inputs = prev_inputs.dims["time"]
+  [w3 0p25] California_HeatWave_2022: member 4/24  step 1/28
+I0708 02:24:42.926992 22398140462912 rollout.py:361] Chunk 1/28
+  [w3 0p25] California_HeatWave_2022: member 4/24  step 2/28
+I0708 02:26:02.797882 22398140462912 rollout.py:361] Chunk 2/28
+  [w3 0p25] California_HeatWave_2022: member 4/24  step 3/28
+I0708 02:27:22.744890 22398140462912 rollout.py:361] Chunk 3/28
+  [w3 0p25] California_HeatWave_2022: member 4/24  step 4/28
+I0708 02:28:42.697893 22398140462912 rollout.py:361] Chunk 4/28
+  [w3 0p25] California_HeatWave_2022: member 4/24  step 5/28
+I0708 02:30:02.645431 22398140462912 rollout.py:361] Chunk 5/28
+  [w3 0p25] California_HeatWave_2022: member 4/24  step 6/28
+I0708 02:31:22.592264 22398140462912 rollout.py:361] Chunk 6/28
+  [w3 0p25] California_HeatWave_2022: member 4/24  step 7/28
+I0708 02:32:42.550993 22398140462912 rollout.py:361] Chunk 7/28
+  [w3 0p25] California_HeatWave_2022: member 4/24  step 8/28
+I0708 02:34:02.494174 22398140462912 rollout.py:361] Chunk 8/28
+  [w3 0p25] California_HeatWave_2022: member 4/24  step 9/28
+I0708 02:35:22.449320 22398140462912 rollout.py:361] Chunk 9/28
+  [w3 0p25] California_HeatWave_2022: member 4/24  step 10/28
+I0708 02:36:42.398672 22398140462912 rollout.py:361] Chunk 10/28
+  [w3 0p25] California_HeatWave_2022: member 4/24  step 11/28
+I0708 02:38:02.346862 22398140462912 rollout.py:361] Chunk 11/28
+  [w3 0p25] California_HeatWave_2022: member 4/24  step 12/28
+I0708 02:39:22.294155 22398140462912 rollout.py:361] Chunk 12/28
+  [w3 0p25] California_HeatWave_2022: member 4/24  step 13/28
+I0708 02:40:42.301693 22398140462912 rollout.py:361] Chunk 13/28
+  [w3 0p25] California_HeatWave_2022: member 4/24  step 14/28
+I0708 02:42:02.196841 22398140462912 rollout.py:361] Chunk 14/28
+  [w3 0p25] California_HeatWave_2022: member 4/24  step 15/28
+I0708 02:43:22.144629 22398140462912 rollout.py:361] Chunk 15/28
+  [w3 0p25] California_HeatWave_2022: member 4/24  step 16/28
+I0708 02:44:42.087952 22398140462912 rollout.py:361] Chunk 16/28
+  [w3 0p25] California_HeatWave_2022: member 4/24  step 17/28
+I0708 02:46:02.037132 22398140462912 rollout.py:361] Chunk 17/28
+  [w3 0p25] California_HeatWave_2022: member 4/24  step 18/28
+I0708 02:47:21.993978 22398140462912 rollout.py:361] Chunk 18/28
+  [w3 0p25] California_HeatWave_2022: member 4/24  step 19/28
+I0708 02:48:41.948395 22398140462912 rollout.py:361] Chunk 19/28
+  [w3 0p25] California_HeatWave_2022: member 4/24  step 20/28
+I0708 02:50:01.898886 22398140462912 rollout.py:361] Chunk 20/28
+  [w3 0p25] California_HeatWave_2022: member 4/24  step 21/28
+I0708 02:51:21.850194 22398140462912 rollout.py:361] Chunk 21/28
+  [w3 0p25] California_HeatWave_2022: member 4/24  step 22/28
+I0708 02:52:41.796191 22398140462912 rollout.py:361] Chunk 22/28
+  [w3 0p25] California_HeatWave_2022: member 4/24  step 23/28
+I0708 02:54:01.749293 22398140462912 rollout.py:361] Chunk 23/28
+  [w3 0p25] California_HeatWave_2022: member 4/24  step 24/28
+I0708 02:55:21.703040 22398140462912 rollout.py:361] Chunk 24/28
+  [w3 0p25] California_HeatWave_2022: member 4/24  step 25/28
+I0708 02:56:41.655394 22398140462912 rollout.py:361] Chunk 25/28
+  [w3 0p25] California_HeatWave_2022: member 4/24  step 26/28
+I0708 02:58:01.603807 22398140462912 rollout.py:361] Chunk 26/28
+  [w3 0p25] California_HeatWave_2022: member 4/24  step 27/28
+I0708 02:59:21.561281 22398140462912 rollout.py:361] Chunk 27/28
+  [w3 0p25] California_HeatWave_2022: member 4/24  step 28/28
+  [w3 0p25] California_HeatWave_2022: member 4/24 saved
+WinterStorm_Uri_2021 [m3 0p25 week2] (event 4/12)
+I0708 03:01:03.083210 22398140462912 rollout.py:206] Sample 0/1
+/glade/derecho/scratch/exu/S2S_ExtremeWeather/third_party/graphcast/graphcast/rollout.py:328: FutureWarning: The return type of `Dataset.dims` will be changed to return a set of dimension names in future, in order to be more consistent with `DataArray.dims`. To access a mapping from dimension names to lengths, please use `Dataset.sizes`.
+  num_target_steps = targets_template.dims["time"]
+I0708 03:01:03.084612 22398140462912 rollout.py:361] Chunk 0/28
+/glade/derecho/scratch/exu/S2S_ExtremeWeather/third_party/graphcast/graphcast/rollout.py:435: FutureWarning: The return type of `Dataset.dims` will be changed to return a set of dimension names in future, in order to be more consistent with `DataArray.dims`. To access a mapping from dimension names to lengths, please use `Dataset.sizes`.
+  num_inputs = prev_inputs.dims["time"]
+  [w3 0p25] WinterStorm_Uri_2021: member 4/24  step 1/28
+I0708 03:02:22.658540 22398140462912 rollout.py:361] Chunk 1/28
+  [w3 0p25] WinterStorm_Uri_2021: member 4/24  step 2/28
+I0708 03:03:42.533576 22398140462912 rollout.py:361] Chunk 2/28
+  [w3 0p25] WinterStorm_Uri_2021: member 4/24  step 3/28
+I0708 03:05:02.489028 22398140462912 rollout.py:361] Chunk 3/28
+  [w3 0p25] WinterStorm_Uri_2021: member 4/24  step 4/28
+I0708 03:06:22.438499 22398140462912 rollout.py:361] Chunk 4/28
+  [w3 0p25] WinterStorm_Uri_2021: member 4/24  step 5/28
+I0708 03:07:42.379403 22398140462912 rollout.py:361] Chunk 5/28
+  [w3 0p25] WinterStorm_Uri_2021: member 4/24  step 6/28
+I0708 03:09:02.324752 22398140462912 rollout.py:361] Chunk 6/28
+  [w3 0p25] WinterStorm_Uri_2021: member 4/24  step 7/28
+I0708 03:10:22.270146 22398140462912 rollout.py:361] Chunk 7/28
+  [w3 0p25] WinterStorm_Uri_2021: member 4/24  step 8/28
+I0708 03:11:42.218666 22398140462912 rollout.py:361] Chunk 8/28
+  [w3 0p25] WinterStorm_Uri_2021: member 4/24  step 9/28
+I0708 03:13:02.170293 22398140462912 rollout.py:361] Chunk 9/28
+  [w3 0p25] WinterStorm_Uri_2021: member 4/24  step 10/28
+I0708 03:14:22.110891 22398140462912 rollout.py:361] Chunk 10/28
+  [w3 0p25] WinterStorm_Uri_2021: member 4/24  step 11/28
+I0708 03:15:42.057652 22398140462912 rollout.py:361] Chunk 11/28
+  [w3 0p25] WinterStorm_Uri_2021: member 4/24  step 12/28
+I0708 03:17:01.996249 22398140462912 rollout.py:361] Chunk 12/28
+  [w3 0p25] WinterStorm_Uri_2021: member 4/24  step 13/28
+I0708 03:18:21.947273 22398140462912 rollout.py:361] Chunk 13/28
+  [w3 0p25] WinterStorm_Uri_2021: member 4/24  step 14/28
+I0708 03:19:41.889330 22398140462912 rollout.py:361] Chunk 14/28
+  [w3 0p25] WinterStorm_Uri_2021: member 4/24  step 15/28
+I0708 03:21:01.838592 22398140462912 rollout.py:361] Chunk 15/28
+  [w3 0p25] WinterStorm_Uri_2021: member 4/24  step 16/28
+I0708 03:22:21.788312 22398140462912 rollout.py:361] Chunk 16/28
+  [w3 0p25] WinterStorm_Uri_2021: member 4/24  step 17/28
+I0708 03:23:41.734412 22398140462912 rollout.py:361] Chunk 17/28
+  [w3 0p25] WinterStorm_Uri_2021: member 4/24  step 18/28
+I0708 03:25:01.674473 22398140462912 rollout.py:361] Chunk 18/28
+  [w3 0p25] WinterStorm_Uri_2021: member 4/24  step 19/28
+I0708 03:26:21.619004 22398140462912 rollout.py:361] Chunk 19/28
+  [w3 0p25] WinterStorm_Uri_2021: member 4/24  step 20/28
+I0708 03:27:41.572877 22398140462912 rollout.py:361] Chunk 20/28
+  [w3 0p25] WinterStorm_Uri_2021: member 4/24  step 21/28
+I0708 03:29:01.522396 22398140462912 rollout.py:361] Chunk 21/28
+  [w3 0p25] WinterStorm_Uri_2021: member 4/24  step 22/28
+I0708 03:30:21.474130 22398140462912 rollout.py:361] Chunk 22/28
+  [w3 0p25] WinterStorm_Uri_2021: member 4/24  step 23/28
+I0708 03:31:41.420490 22398140462912 rollout.py:361] Chunk 23/28
+  [w3 0p25] WinterStorm_Uri_2021: member 4/24  step 24/28
+I0708 03:33:01.376603 22398140462912 rollout.py:361] Chunk 24/28
+  [w3 0p25] WinterStorm_Uri_2021: member 4/24  step 25/28
+I0708 03:34:21.324955 22398140462912 rollout.py:361] Chunk 25/28
+  [w3 0p25] WinterStorm_Uri_2021: member 4/24  step 26/28
+I0708 03:35:41.274921 22398140462912 rollout.py:361] Chunk 26/28
+  [w3 0p25] WinterStorm_Uri_2021: member 4/24  step 27/28
+I0708 03:37:01.226520 22398140462912 rollout.py:361] Chunk 27/28
+  [w3 0p25] WinterStorm_Uri_2021: member 4/24  step 28/28
+  [w3 0p25] WinterStorm_Uri_2021: member 4/24 saved
+PolarVortex_2019 [m3 0p25 week2] (event 5/12)
+I0708 03:38:42.550121 22398140462912 rollout.py:206] Sample 0/1
+/glade/derecho/scratch/exu/S2S_ExtremeWeather/third_party/graphcast/graphcast/rollout.py:328: FutureWarning: The return type of `Dataset.dims` will be changed to return a set of dimension names in future, in order to be more consistent with `DataArray.dims`. To access a mapping from dimension names to lengths, please use `Dataset.sizes`.
+  num_target_steps = targets_template.dims["time"]
+I0708 03:38:42.551559 22398140462912 rollout.py:361] Chunk 0/28
+/glade/derecho/scratch/exu/S2S_ExtremeWeather/third_party/graphcast/graphcast/rollout.py:435: FutureWarning: The return type of `Dataset.dims` will be changed to return a set of dimension names in future, in order to be more consistent with `DataArray.dims`. To access a mapping from dimension names to lengths, please use `Dataset.sizes`.
+  num_inputs = prev_inputs.dims["time"]
+  [w3 0p25] PolarVortex_2019: member 4/24  step 1/28
+I0708 03:40:02.101834 22398140462912 rollout.py:361] Chunk 1/28
+  [w3 0p25] PolarVortex_2019: member 4/24  step 2/28
+I0708 03:41:21.977232 22398140462912 rollout.py:361] Chunk 2/28
+  [w3 0p25] PolarVortex_2019: member 4/24  step 3/28
+I0708 03:42:41.921247 22398140462912 rollout.py:361] Chunk 3/28
+  [w3 0p25] PolarVortex_2019: member 4/24  step 4/28
+I0708 03:44:01.875920 22398140462912 rollout.py:361] Chunk 4/28
+  [w3 0p25] PolarVortex_2019: member 4/24  step 5/28
+I0708 03:45:21.824572 22398140462912 rollout.py:361] Chunk 5/28
+  [w3 0p25] PolarVortex_2019: member 4/24  step 6/28
+I0708 03:46:41.771859 22398140462912 rollout.py:361] Chunk 6/28
+  [w3 0p25] PolarVortex_2019: member 4/24  step 7/28
+I0708 03:48:01.721998 22398140462912 rollout.py:361] Chunk 7/28
+  [w3 0p25] PolarVortex_2019: member 4/24  step 8/28
+I0708 03:49:21.671563 22398140462912 rollout.py:361] Chunk 8/28
+  [w3 0p25] PolarVortex_2019: member 4/24  step 9/28
+I0708 03:50:41.622332 22398140462912 rollout.py:361] Chunk 9/28
+  [w3 0p25] PolarVortex_2019: member 4/24  step 10/28
+I0708 03:52:01.573433 22398140462912 rollout.py:361] Chunk 10/28
+  [w3 0p25] PolarVortex_2019: member 4/24  step 11/28
+I0708 03:53:21.522960 22398140462912 rollout.py:361] Chunk 11/28
+  [w3 0p25] PolarVortex_2019: member 4/24  step 12/28
+I0708 03:54:41.469071 22398140462912 rollout.py:361] Chunk 12/28
+  [w3 0p25] PolarVortex_2019: member 4/24  step 13/28
+I0708 03:56:01.416753 22398140462912 rollout.py:361] Chunk 13/28
+  [w3 0p25] PolarVortex_2019: member 4/24  step 14/28
+I0708 03:57:21.370431 22398140462912 rollout.py:361] Chunk 14/28
+  [w3 0p25] PolarVortex_2019: member 4/24  step 15/28
+I0708 03:58:41.320119 22398140462912 rollout.py:361] Chunk 15/28
+  [w3 0p25] PolarVortex_2019: member 4/24  step 16/28
+I0708 04:00:01.267614 22398140462912 rollout.py:361] Chunk 16/28
+  [w3 0p25] PolarVortex_2019: member 4/24  step 17/28
+I0708 04:01:21.208840 22398140462912 rollout.py:361] Chunk 17/28
+  [w3 0p25] PolarVortex_2019: member 4/24  step 18/28
+I0708 04:02:41.152127 22398140462912 rollout.py:361] Chunk 18/28
+  [w3 0p25] PolarVortex_2019: member 4/24  step 19/28
+I0708 04:04:01.110332 22398140462912 rollout.py:361] Chunk 19/28
+  [w3 0p25] PolarVortex_2019: member 4/24  step 20/28
+I0708 04:05:21.061544 22398140462912 rollout.py:361] Chunk 20/28
+  [w3 0p25] PolarVortex_2019: member 4/24  step 21/28
+I0708 04:06:41.015497 22398140462912 rollout.py:361] Chunk 21/28
+  [w3 0p25] PolarVortex_2019: member 4/24  step 22/28
+I0708 04:08:00.967597 22398140462912 rollout.py:361] Chunk 22/28
+  [w3 0p25] PolarVortex_2019: member 4/24  step 23/28
+I0708 04:09:20.920379 22398140462912 rollout.py:361] Chunk 23/28
+  [w3 0p25] PolarVortex_2019: member 4/24  step 24/28
+I0708 04:10:40.869928 22398140462912 rollout.py:361] Chunk 24/28
+  [w3 0p25] PolarVortex_2019: member 4/24  step 25/28
+I0708 04:12:00.813160 22398140462912 rollout.py:361] Chunk 25/28
+  [w3 0p25] PolarVortex_2019: member 4/24  step 26/28
+I0708 04:13:20.760999 22398140462912 rollout.py:361] Chunk 26/28
+  [w3 0p25] PolarVortex_2019: member 4/24  step 27/28
+I0708 04:14:40.703680 22398140462912 rollout.py:361] Chunk 27/28
+  [w3 0p25] PolarVortex_2019: member 4/24  step 28/28
+  [w3 0p25] PolarVortex_2019: member 4/24 saved
+WinterStorm_Elliott_2022 [m3 0p25 week2] (event 6/12)
+I0708 04:16:21.952787 22398140462912 rollout.py:206] Sample 0/1
+/glade/derecho/scratch/exu/S2S_ExtremeWeather/third_party/graphcast/graphcast/rollout.py:328: FutureWarning: The return type of `Dataset.dims` will be changed to return a set of dimension names in future, in order to be more consistent with `DataArray.dims`. To access a mapping from dimension names to lengths, please use `Dataset.sizes`.
+  num_target_steps = targets_template.dims["time"]
+I0708 04:16:21.954237 22398140462912 rollout.py:361] Chunk 0/28
+/glade/derecho/scratch/exu/S2S_ExtremeWeather/third_party/graphcast/graphcast/rollout.py:435: FutureWarning: The return type of `Dataset.dims` will be changed to return a set of dimension names in future, in order to be more consistent with `DataArray.dims`. To access a mapping from dimension names to lengths, please use `Dataset.sizes`.
+  num_inputs = prev_inputs.dims["time"]
+  [w3 0p25] WinterStorm_Elliott_2022: member 4/24  step 1/28
+I0708 04:17:41.506757 22398140462912 rollout.py:361] Chunk 1/28
+  [w3 0p25] WinterStorm_Elliott_2022: member 4/24  step 2/28
+I0708 04:19:01.387429 22398140462912 rollout.py:361] Chunk 2/28
+  [w3 0p25] WinterStorm_Elliott_2022: member 4/24  step 3/28
+I0708 04:20:21.340408 22398140462912 rollout.py:361] Chunk 3/28
+  [w3 0p25] WinterStorm_Elliott_2022: member 4/24  step 4/28
+I0708 04:21:41.292553 22398140462912 rollout.py:361] Chunk 4/28
+  [w3 0p25] WinterStorm_Elliott_2022: member 4/24  step 5/28
+I0708 04:23:01.245282 22398140462912 rollout.py:361] Chunk 5/28
+  [w3 0p25] WinterStorm_Elliott_2022: member 4/24  step 6/28
+I0708 04:24:21.194563 22398140462912 rollout.py:361] Chunk 6/28
+  [w3 0p25] WinterStorm_Elliott_2022: member 4/24  step 7/28
+I0708 04:25:41.146111 22398140462912 rollout.py:361] Chunk 7/28
+  [w3 0p25] WinterStorm_Elliott_2022: member 4/24  step 8/28
+I0708 04:27:01.093228 22398140462912 rollout.py:361] Chunk 8/28
+  [w3 0p25] WinterStorm_Elliott_2022: member 4/24  step 9/28
+I0708 04:28:21.047924 22398140462912 rollout.py:361] Chunk 9/28
+  [w3 0p25] WinterStorm_Elliott_2022: member 4/24  step 10/28
+I0708 04:29:40.994853 22398140462912 rollout.py:361] Chunk 10/28
+  [w3 0p25] WinterStorm_Elliott_2022: member 4/24  step 11/28
+I0708 04:31:00.950547 22398140462912 rollout.py:361] Chunk 11/28
+  [w3 0p25] WinterStorm_Elliott_2022: member 4/24  step 12/28
+I0708 04:32:20.899488 22398140462912 rollout.py:361] Chunk 12/28
+  [w3 0p25] WinterStorm_Elliott_2022: member 4/24  step 13/28
+I0708 04:33:40.850169 22398140462912 rollout.py:361] Chunk 13/28
+  [w3 0p25] WinterStorm_Elliott_2022: member 4/24  step 14/28
+I0708 04:35:00.803524 22398140462912 rollout.py:361] Chunk 14/28
+  [w3 0p25] WinterStorm_Elliott_2022: member 4/24  step 15/28
+I0708 04:36:20.744482 22398140462912 rollout.py:361] Chunk 15/28
+  [w3 0p25] WinterStorm_Elliott_2022: member 4/24  step 16/28
+I0708 04:37:40.698278 22398140462912 rollout.py:361] Chunk 16/28
+  [w3 0p25] WinterStorm_Elliott_2022: member 4/24  step 17/28
+I0708 04:39:00.646692 22398140462912 rollout.py:361] Chunk 17/28
+  [w3 0p25] WinterStorm_Elliott_2022: member 4/24  step 18/28
+I0708 04:40:20.595838 22398140462912 rollout.py:361] Chunk 18/28
+  [w3 0p25] WinterStorm_Elliott_2022: member 4/24  step 19/28
+I0708 04:41:40.539714 22398140462912 rollout.py:361] Chunk 19/28
+  [w3 0p25] WinterStorm_Elliott_2022: member 4/24  step 20/28
+I0708 04:43:00.495721 22398140462912 rollout.py:361] Chunk 20/28
+  [w3 0p25] WinterStorm_Elliott_2022: member 4/24  step 21/28
+I0708 04:44:20.448749 22398140462912 rollout.py:361] Chunk 21/28
+  [w3 0p25] WinterStorm_Elliott_2022: member 4/24  step 22/28
+I0708 04:45:40.404519 22398140462912 rollout.py:361] Chunk 22/28
+  [w3 0p25] WinterStorm_Elliott_2022: member 4/24  step 23/28
+I0708 04:47:00.336754 22398140462912 rollout.py:361] Chunk 23/28
+  [w3 0p25] WinterStorm_Elliott_2022: member 4/24  step 24/28
+I0708 04:48:20.282801 22398140462912 rollout.py:361] Chunk 24/28
+  [w3 0p25] WinterStorm_Elliott_2022: member 4/24  step 25/28
+I0708 04:49:40.230014 22398140462912 rollout.py:361] Chunk 25/28
+  [w3 0p25] WinterStorm_Elliott_2022: member 4/24  step 26/28
+I0708 04:51:00.180226 22398140462912 rollout.py:361] Chunk 26/28
+  [w3 0p25] WinterStorm_Elliott_2022: member 4/24  step 27/28
+I0708 04:52:20.126133 22398140462912 rollout.py:361] Chunk 27/28
+  [w3 0p25] WinterStorm_Elliott_2022: member 4/24  step 28/28
+  [w3 0p25] WinterStorm_Elliott_2022: member 4/24 saved
+HurricaneIda_2021 [m3 0p25 week2] (event 7/12)
+I0708 04:54:05.741847 22398140462912 rollout.py:206] Sample 0/1
+/glade/derecho/scratch/exu/S2S_ExtremeWeather/third_party/graphcast/graphcast/rollout.py:328: FutureWarning: The return type of `Dataset.dims` will be changed to return a set of dimension names in future, in order to be more consistent with `DataArray.dims`. To access a mapping from dimension names to lengths, please use `Dataset.sizes`.
+  num_target_steps = targets_template.dims["time"]
+I0708 04:54:05.765921 22398140462912 rollout.py:361] Chunk 0/28
+/glade/derecho/scratch/exu/S2S_ExtremeWeather/third_party/graphcast/graphcast/rollout.py:435: FutureWarning: The return type of `Dataset.dims` will be changed to return a set of dimension names in future, in order to be more consistent with `DataArray.dims`. To access a mapping from dimension names to lengths, please use `Dataset.sizes`.
+  num_inputs = prev_inputs.dims["time"]
+  [w3 0p25] HurricaneIda_2021: member 4/24  step 1/28
+I0708 04:55:25.315667 22398140462912 rollout.py:361] Chunk 1/28
+  [w3 0p25] HurricaneIda_2021: member 4/24  step 2/28
+I0708 04:56:45.186379 22398140462912 rollout.py:361] Chunk 2/28
+  [w3 0p25] HurricaneIda_2021: member 4/24  step 3/28
+I0708 04:58:05.138257 22398140462912 rollout.py:361] Chunk 3/28
+  [w3 0p25] HurricaneIda_2021: member 4/24  step 4/28
+I0708 04:59:25.093249 22398140462912 rollout.py:361] Chunk 4/28
+  [w3 0p25] HurricaneIda_2021: member 4/24  step 5/28
+I0708 05:00:45.050690 22398140462912 rollout.py:361] Chunk 5/28
+  [w3 0p25] HurricaneIda_2021: member 4/24  step 6/28
+I0708 05:02:05.003497 22398140462912 rollout.py:361] Chunk 6/28
+  [w3 0p25] HurricaneIda_2021: member 4/24  step 7/28
+I0708 05:03:24.956975 22398140462912 rollout.py:361] Chunk 7/28
+  [w3 0p25] HurricaneIda_2021: member 4/24  step 8/28
+I0708 05:04:44.911157 22398140462912 rollout.py:361] Chunk 8/28
+  [w3 0p25] HurricaneIda_2021: member 4/24  step 9/28
+I0708 05:06:04.867151 22398140462912 rollout.py:361] Chunk 9/28
+  [w3 0p25] HurricaneIda_2021: member 4/24  step 10/28
+I0708 05:07:24.817808 22398140462912 rollout.py:361] Chunk 10/28
+  [w3 0p25] HurricaneIda_2021: member 4/24  step 11/28
+I0708 05:08:44.759929 22398140462912 rollout.py:361] Chunk 11/28
+  [w3 0p25] HurricaneIda_2021: member 4/24  step 12/28
+I0708 05:10:04.714205 22398140462912 rollout.py:361] Chunk 12/28
+  [w3 0p25] HurricaneIda_2021: member 4/24  step 13/28
+I0708 05:11:24.658453 22398140462912 rollout.py:361] Chunk 13/28
+  [w3 0p25] HurricaneIda_2021: member 4/24  step 14/28
+I0708 05:12:44.612663 22398140462912 rollout.py:361] Chunk 14/28
+  [w3 0p25] HurricaneIda_2021: member 4/24  step 15/28
+I0708 05:14:04.561959 22398140462912 rollout.py:361] Chunk 15/28
+  [w3 0p25] HurricaneIda_2021: member 4/24  step 16/28
+I0708 05:15:24.518540 22398140462912 rollout.py:361] Chunk 16/28
+  [w3 0p25] HurricaneIda_2021: member 4/24  step 17/28
+I0708 05:16:44.473081 22398140462912 rollout.py:361] Chunk 17/28
+  [w3 0p25] HurricaneIda_2021: member 4/24  step 18/28
+I0708 05:18:04.424120 22398140462912 rollout.py:361] Chunk 18/28
+  [w3 0p25] HurricaneIda_2021: member 4/24  step 19/28
+I0708 05:19:24.376737 22398140462912 rollout.py:361] Chunk 19/28
+  [w3 0p25] HurricaneIda_2021: member 4/24  step 20/28
+I0708 05:20:44.330505 22398140462912 rollout.py:361] Chunk 20/28
+  [w3 0p25] HurricaneIda_2021: member 4/24  step 21/28
+I0708 05:22:04.286165 22398140462912 rollout.py:361] Chunk 21/28
+  [w3 0p25] HurricaneIda_2021: member 4/24  step 22/28
+I0708 05:23:24.239361 22398140462912 rollout.py:361] Chunk 22/28
+  [w3 0p25] HurricaneIda_2021: member 4/24  step 23/28
+I0708 05:24:44.192381 22398140462912 rollout.py:361] Chunk 23/28
+  [w3 0p25] HurricaneIda_2021: member 4/24  step 24/28
+I0708 05:26:04.151814 22398140462912 rollout.py:361] Chunk 24/28
+  [w3 0p25] HurricaneIda_2021: member 4/24  step 25/28
+I0708 05:27:24.107299 22398140462912 rollout.py:361] Chunk 25/28
+  [w3 0p25] HurricaneIda_2021: member 4/24  step 26/28
+I0708 05:28:44.058255 22398140462912 rollout.py:361] Chunk 26/28
+  [w3 0p25] HurricaneIda_2021: member 4/24  step 27/28
+I0708 05:30:04.010161 22398140462912 rollout.py:361] Chunk 27/28
+  [w3 0p25] HurricaneIda_2021: member 4/24  step 28/28
+  [w3 0p25] HurricaneIda_2021: member 4/24 saved
+HurricaneIan_2022 [m3 0p25 week2] (event 8/12)
+I0708 05:31:49.641424 22398140462912 rollout.py:206] Sample 0/1
+/glade/derecho/scratch/exu/S2S_ExtremeWeather/third_party/graphcast/graphcast/rollout.py:328: FutureWarning: The return type of `Dataset.dims` will be changed to return a set of dimension names in future, in order to be more consistent with `DataArray.dims`. To access a mapping from dimension names to lengths, please use `Dataset.sizes`.
+  num_target_steps = targets_template.dims["time"]
+I0708 05:31:49.642780 22398140462912 rollout.py:361] Chunk 0/28
+/glade/derecho/scratch/exu/S2S_ExtremeWeather/third_party/graphcast/graphcast/rollout.py:435: FutureWarning: The return type of `Dataset.dims` will be changed to return a set of dimension names in future, in order to be more consistent with `DataArray.dims`. To access a mapping from dimension names to lengths, please use `Dataset.sizes`.
+  num_inputs = prev_inputs.dims["time"]
+  [w3 0p25] HurricaneIan_2022: member 4/24  step 1/28
+I0708 05:33:09.215303 22398140462912 rollout.py:361] Chunk 1/28
+  [w3 0p25] HurricaneIan_2022: member 4/24  step 2/28
+I0708 05:34:29.085817 22398140462912 rollout.py:361] Chunk 2/28
+  [w3 0p25] HurricaneIan_2022: member 4/24  step 3/28
+I0708 05:35:49.039271 22398140462912 rollout.py:361] Chunk 3/28
+  [w3 0p25] HurricaneIan_2022: member 4/24  step 4/28
+I0708 05:37:08.989114 22398140462912 rollout.py:361] Chunk 4/28
+  [w3 0p25] HurricaneIan_2022: member 4/24  step 5/28
+I0708 05:38:28.941306 22398140462912 rollout.py:361] Chunk 5/28
+  [w3 0p25] HurricaneIan_2022: member 4/24  step 6/28
+I0708 05:39:48.895473 22398140462912 rollout.py:361] Chunk 6/28
+  [w3 0p25] HurricaneIan_2022: member 4/24  step 7/28
+I0708 05:41:08.850095 22398140462912 rollout.py:361] Chunk 7/28
+  [w3 0p25] HurricaneIan_2022: member 4/24  step 8/28
+I0708 05:42:28.800721 22398140462912 rollout.py:361] Chunk 8/28
+  [w3 0p25] HurricaneIan_2022: member 4/24  step 9/28
+I0708 05:43:48.761182 22398140462912 rollout.py:361] Chunk 9/28
+  [w3 0p25] HurricaneIan_2022: member 4/24  step 10/28
+I0708 05:45:08.717334 22398140462912 rollout.py:361] Chunk 10/28
+  [w3 0p25] HurricaneIan_2022: member 4/24  step 11/28
+I0708 05:46:28.670738 22398140462912 rollout.py:361] Chunk 11/28
+  [w3 0p25] HurricaneIan_2022: member 4/24  step 12/28
+I0708 05:47:48.624858 22398140462912 rollout.py:361] Chunk 12/28
+  [w3 0p25] HurricaneIan_2022: member 4/24  step 13/28
+I0708 05:49:08.578736 22398140462912 rollout.py:361] Chunk 13/28
+  [w3 0p25] HurricaneIan_2022: member 4/24  step 14/28
+I0708 05:50:28.526613 22398140462912 rollout.py:361] Chunk 14/28
+  [w3 0p25] HurricaneIan_2022: member 4/24  step 15/28
+I0708 05:51:48.478119 22398140462912 rollout.py:361] Chunk 15/28
+  [w3 0p25] HurricaneIan_2022: member 4/24  step 16/28
+I0708 05:53:08.421266 22398140462912 rollout.py:361] Chunk 16/28
+  [w3 0p25] HurricaneIan_2022: member 4/24  step 17/28
+I0708 05:54:28.383424 22398140462912 rollout.py:361] Chunk 17/28
+  [w3 0p25] HurricaneIan_2022: member 4/24  step 18/28
+I0708 05:55:48.341580 22398140462912 rollout.py:361] Chunk 18/28
+  [w3 0p25] HurricaneIan_2022: member 4/24  step 19/28
+I0708 05:57:08.293840 22398140462912 rollout.py:361] Chunk 19/28
+  [w3 0p25] HurricaneIan_2022: member 4/24  step 20/28
+I0708 05:58:28.251846 22398140462912 rollout.py:361] Chunk 20/28
+  [w3 0p25] HurricaneIan_2022: member 4/24  step 21/28
+I0708 05:59:48.199892 22398140462912 rollout.py:361] Chunk 21/28
+  [w3 0p25] HurricaneIan_2022: member 4/24  step 22/28
+I0708 06:01:08.155134 22398140462912 rollout.py:361] Chunk 22/28
+  [w3 0p25] HurricaneIan_2022: member 4/24  step 23/28
+I0708 06:02:28.109486 22398140462912 rollout.py:361] Chunk 23/28
+  [w3 0p25] HurricaneIan_2022: member 4/24  step 24/28
+I0708 06:03:48.065412 22398140462912 rollout.py:361] Chunk 24/28
+  [w3 0p25] HurricaneIan_2022: member 4/24  step 25/28
+I0708 06:05:08.018091 22398140462912 rollout.py:361] Chunk 25/28
+  [w3 0p25] HurricaneIan_2022: member 4/24  step 26/28
+I0708 06:06:27.970141 22398140462912 rollout.py:361] Chunk 26/28
+  [w3 0p25] HurricaneIan_2022: member 4/24  step 27/28
+I0708 06:07:47.921611 22398140462912 rollout.py:361] Chunk 27/28
+  [w3 0p25] HurricaneIan_2022: member 4/24  step 28/28
+  [w3 0p25] HurricaneIan_2022: member 4/24 saved
+HurricaneIdalia_2023 [m3 0p25 week2] (event 9/12)
+I0708 06:09:33.116364 22398140462912 rollout.py:206] Sample 0/1
+/glade/derecho/scratch/exu/S2S_ExtremeWeather/third_party/graphcast/graphcast/rollout.py:328: FutureWarning: The return type of `Dataset.dims` will be changed to return a set of dimension names in future, in order to be more consistent with `DataArray.dims`. To access a mapping from dimension names to lengths, please use `Dataset.sizes`.
+  num_target_steps = targets_template.dims["time"]
+I0708 06:09:33.117770 22398140462912 rollout.py:361] Chunk 0/28
+/glade/derecho/scratch/exu/S2S_ExtremeWeather/third_party/graphcast/graphcast/rollout.py:435: FutureWarning: The return type of `Dataset.dims` will be changed to return a set of dimension names in future, in order to be more consistent with `DataArray.dims`. To access a mapping from dimension names to lengths, please use `Dataset.sizes`.
+  num_inputs = prev_inputs.dims["time"]
+  [w3 0p25] HurricaneIdalia_2023: member 4/24  step 1/28
+I0708 06:10:52.682217 22398140462912 rollout.py:361] Chunk 1/28
+  [w3 0p25] HurricaneIdalia_2023: member 4/24  step 2/28
+I0708 06:12:12.559329 22398140462912 rollout.py:361] Chunk 2/28
+  [w3 0p25] HurricaneIdalia_2023: member 4/24  step 3/28
+I0708 06:13:32.507586 22398140462912 rollout.py:361] Chunk 3/28
+  [w3 0p25] HurricaneIdalia_2023: member 4/24  step 4/28
+I0708 06:14:52.461369 22398140462912 rollout.py:361] Chunk 4/28
+  [w3 0p25] HurricaneIdalia_2023: member 4/24  step 5/28
+I0708 06:16:12.409443 22398140462912 rollout.py:361] Chunk 5/28
+  [w3 0p25] HurricaneIdalia_2023: member 4/24  step 6/28
+I0708 06:17:32.365344 22398140462912 rollout.py:361] Chunk 6/28
+  [w3 0p25] HurricaneIdalia_2023: member 4/24  step 7/28
+I0708 06:18:52.322261 22398140462912 rollout.py:361] Chunk 7/28
+  [w3 0p25] HurricaneIdalia_2023: member 4/24  step 8/28
+I0708 06:20:12.277997 22398140462912 rollout.py:361] Chunk 8/28
+  [w3 0p25] HurricaneIdalia_2023: member 4/24  step 9/28
+I0708 06:21:32.233386 22398140462912 rollout.py:361] Chunk 9/28
+  [w3 0p25] HurricaneIdalia_2023: member 4/24  step 10/28
+I0708 06:22:52.187062 22398140462912 rollout.py:361] Chunk 10/28
+  [w3 0p25] HurricaneIdalia_2023: member 4/24  step 11/28
+I0708 06:24:12.137713 22398140462912 rollout.py:361] Chunk 11/28
+  [w3 0p25] HurricaneIdalia_2023: member 4/24  step 12/28
+I0708 06:25:32.089796 22398140462912 rollout.py:361] Chunk 12/28
+  [w3 0p25] HurricaneIdalia_2023: member 4/24  step 13/28
+I0708 06:26:52.034883 22398140462912 rollout.py:361] Chunk 13/28
+  [w3 0p25] HurricaneIdalia_2023: member 4/24  step 14/28
+I0708 06:28:11.988892 22398140462912 rollout.py:361] Chunk 14/28
+  [w3 0p25] HurricaneIdalia_2023: member 4/24  step 15/28
+I0708 06:29:31.942071 22398140462912 rollout.py:361] Chunk 15/28
+  [w3 0p25] HurricaneIdalia_2023: member 4/24  step 16/28
+I0708 06:30:51.891418 22398140462912 rollout.py:361] Chunk 16/28
+  [w3 0p25] HurricaneIdalia_2023: member 4/24  step 17/28
+I0708 06:32:11.846300 22398140462912 rollout.py:361] Chunk 17/28
+  [w3 0p25] HurricaneIdalia_2023: member 4/24  step 18/28
+I0708 06:33:31.790713 22398140462912 rollout.py:361] Chunk 18/28
+  [w3 0p25] HurricaneIdalia_2023: member 4/24  step 19/28
+I0708 06:34:51.738641 22398140462912 rollout.py:361] Chunk 19/28
+  [w3 0p25] HurricaneIdalia_2023: member 4/24  step 20/28
+I0708 06:36:11.694971 22398140462912 rollout.py:361] Chunk 20/28
+  [w3 0p25] HurricaneIdalia_2023: member 4/24  step 21/28
+I0708 06:37:31.645079 22398140462912 rollout.py:361] Chunk 21/28
+  [w3 0p25] HurricaneIdalia_2023: member 4/24  step 22/28
+I0708 06:38:51.601474 22398140462912 rollout.py:361] Chunk 22/28
+  [w3 0p25] HurricaneIdalia_2023: member 4/24  step 23/28
+I0708 06:40:11.556983 22398140462912 rollout.py:361] Chunk 23/28
+  [w3 0p25] HurricaneIdalia_2023: member 4/24  step 24/28
+I0708 06:41:31.515160 22398140462912 rollout.py:361] Chunk 24/28
+  [w3 0p25] HurricaneIdalia_2023: member 4/24  step 25/28
+I0708 06:42:51.466936 22398140462912 rollout.py:361] Chunk 25/28
+  [w3 0p25] HurricaneIdalia_2023: member 4/24  step 26/28
+I0708 06:44:11.412769 22398140462912 rollout.py:361] Chunk 26/28
+  [w3 0p25] HurricaneIdalia_2023: member 4/24  step 27/28
+I0708 06:45:31.367944 22398140462912 rollout.py:361] Chunk 27/28
+  [w3 0p25] HurricaneIdalia_2023: member 4/24  step 28/28
+  [w3 0p25] HurricaneIdalia_2023: member 4/24 saved
+California_AR_Floods_2023 [m3 0p25 week2] (event 10/12)
+I0708 06:47:16.369243 22398140462912 rollout.py:206] Sample 0/1
+/glade/derecho/scratch/exu/S2S_ExtremeWeather/third_party/graphcast/graphcast/rollout.py:328: FutureWarning: The return type of `Dataset.dims` will be changed to return a set of dimension names in future, in order to be more consistent with `DataArray.dims`. To access a mapping from dimension names to lengths, please use `Dataset.sizes`.
+  num_target_steps = targets_template.dims["time"]
+I0708 06:47:16.370612 22398140462912 rollout.py:361] Chunk 0/28
+/glade/derecho/scratch/exu/S2S_ExtremeWeather/third_party/graphcast/graphcast/rollout.py:435: FutureWarning: The return type of `Dataset.dims` will be changed to return a set of dimension names in future, in order to be more consistent with `DataArray.dims`. To access a mapping from dimension names to lengths, please use `Dataset.sizes`.
+  num_inputs = prev_inputs.dims["time"]
+  [w3 0p25] California_AR_Floods_2023: member 4/24  step 1/28
+I0708 06:48:35.935741 22398140462912 rollout.py:361] Chunk 1/28
+  [w3 0p25] California_AR_Floods_2023: member 4/24  step 2/28
+I0708 06:49:55.804396 22398140462912 rollout.py:361] Chunk 2/28
+  [w3 0p25] California_AR_Floods_2023: member 4/24  step 3/28
+I0708 06:51:15.756285 22398140462912 rollout.py:361] Chunk 3/28
+  [w3 0p25] California_AR_Floods_2023: member 4/24  step 4/28
+I0708 06:52:35.705894 22398140462912 rollout.py:361] Chunk 4/28
+  [w3 0p25] California_AR_Floods_2023: member 4/24  step 5/28
+I0708 06:53:55.654795 22398140462912 rollout.py:361] Chunk 5/28
+  [w3 0p25] California_AR_Floods_2023: member 4/24  step 6/28
+I0708 06:55:15.612219 22398140462912 rollout.py:361] Chunk 6/28
+  [w3 0p25] California_AR_Floods_2023: member 4/24  step 7/28
+I0708 06:56:35.568010 22398140462912 rollout.py:361] Chunk 7/28
+  [w3 0p25] California_AR_Floods_2023: member 4/24  step 8/28
+I0708 06:57:55.520552 22398140462912 rollout.py:361] Chunk 8/28
+  [w3 0p25] California_AR_Floods_2023: member 4/24  step 9/28
+I0708 06:59:15.463159 22398140462912 rollout.py:361] Chunk 9/28
+  [w3 0p25] California_AR_Floods_2023: member 4/24  step 10/28
+I0708 07:00:35.413474 22398140462912 rollout.py:361] Chunk 10/28
+  [w3 0p25] California_AR_Floods_2023: member 4/24  step 11/28
+I0708 07:01:55.361835 22398140462912 rollout.py:361] Chunk 11/28
+  [w3 0p25] California_AR_Floods_2023: member 4/24  step 12/28
+I0708 07:03:15.318215 22398140462912 rollout.py:361] Chunk 12/28
+  [w3 0p25] California_AR_Floods_2023: member 4/24  step 13/28
+I0708 07:04:35.261947 22398140462912 rollout.py:361] Chunk 13/28
+  [w3 0p25] California_AR_Floods_2023: member 4/24  step 14/28
+I0708 07:05:55.213731 22398140462912 rollout.py:361] Chunk 14/28
+  [w3 0p25] California_AR_Floods_2023: member 4/24  step 15/28
+I0708 07:07:15.169307 22398140462912 rollout.py:361] Chunk 15/28
+  [w3 0p25] California_AR_Floods_2023: member 4/24  step 16/28
+I0708 07:08:35.121365 22398140462912 rollout.py:361] Chunk 16/28
+  [w3 0p25] California_AR_Floods_2023: member 4/24  step 17/28
+I0708 07:09:55.067011 22398140462912 rollout.py:361] Chunk 17/28
+  [w3 0p25] California_AR_Floods_2023: member 4/24  step 18/28
+I0708 07:11:15.017586 22398140462912 rollout.py:361] Chunk 18/28
+  [w3 0p25] California_AR_Floods_2023: member 4/24  step 19/28
+I0708 07:12:34.972391 22398140462912 rollout.py:361] Chunk 19/28
+  [w3 0p25] California_AR_Floods_2023: member 4/24  step 20/28
+I0708 07:13:54.930890 22398140462912 rollout.py:361] Chunk 20/28
+  [w3 0p25] California_AR_Floods_2023: member 4/24  step 21/28
+I0708 07:15:14.878784 22398140462912 rollout.py:361] Chunk 21/28
+  [w3 0p25] California_AR_Floods_2023: member 4/24  step 22/28
+I0708 07:16:34.826470 22398140462912 rollout.py:361] Chunk 22/28
+  [w3 0p25] California_AR_Floods_2023: member 4/24  step 23/28
+I0708 07:17:54.778071 22398140462912 rollout.py:361] Chunk 23/28
+  [w3 0p25] California_AR_Floods_2023: member 4/24  step 24/28
+I0708 07:19:14.730417 22398140462912 rollout.py:361] Chunk 24/28
+  [w3 0p25] California_AR_Floods_2023: member 4/24  step 25/28
+I0708 07:20:34.679377 22398140462912 rollout.py:361] Chunk 25/28
+  [w3 0p25] California_AR_Floods_2023: member 4/24  step 26/28
+I0708 07:21:54.626519 22398140462912 rollout.py:361] Chunk 26/28
+  [w3 0p25] California_AR_Floods_2023: member 4/24  step 27/28
+I0708 07:23:14.565798 22398140462912 rollout.py:361] Chunk 27/28
+  [w3 0p25] California_AR_Floods_2023: member 4/24  step 28/28
+  [w3 0p25] California_AR_Floods_2023: member 4/24 saved
+Kentucky_Floods_2022 [m3 0p25 week2] (event 11/12)
+I0708 07:24:59.251851 22398140462912 rollout.py:206] Sample 0/1
+/glade/derecho/scratch/exu/S2S_ExtremeWeather/third_party/graphcast/graphcast/rollout.py:328: FutureWarning: The return type of `Dataset.dims` will be changed to return a set of dimension names in future, in order to be more consistent with `DataArray.dims`. To access a mapping from dimension names to lengths, please use `Dataset.sizes`.
+  num_target_steps = targets_template.dims["time"]
+I0708 07:24:59.253222 22398140462912 rollout.py:361] Chunk 0/28
+/glade/derecho/scratch/exu/S2S_ExtremeWeather/third_party/graphcast/graphcast/rollout.py:435: FutureWarning: The return type of `Dataset.dims` will be changed to return a set of dimension names in future, in order to be more consistent with `DataArray.dims`. To access a mapping from dimension names to lengths, please use `Dataset.sizes`.
+  num_inputs = prev_inputs.dims["time"]
+  [w3 0p25] Kentucky_Floods_2022: member 4/24  step 1/28
+I0708 07:26:18.808480 22398140462912 rollout.py:361] Chunk 1/28
+  [w3 0p25] Kentucky_Floods_2022: member 4/24  step 2/28
+I0708 07:27:38.682573 22398140462912 rollout.py:361] Chunk 2/28
+  [w3 0p25] Kentucky_Floods_2022: member 4/24  step 3/28
+I0708 07:28:58.640928 22398140462912 rollout.py:361] Chunk 3/28
+  [w3 0p25] Kentucky_Floods_2022: member 4/24  step 4/28
+I0708 07:30:18.589731 22398140462912 rollout.py:361] Chunk 4/28
+  [w3 0p25] Kentucky_Floods_2022: member 4/24  step 5/28
+I0708 07:31:38.536073 22398140462912 rollout.py:361] Chunk 5/28
+  [w3 0p25] Kentucky_Floods_2022: member 4/24  step 6/28
+I0708 07:32:58.485817 22398140462912 rollout.py:361] Chunk 6/28
+  [w3 0p25] Kentucky_Floods_2022: member 4/24  step 7/28
+I0708 07:34:18.436185 22398140462912 rollout.py:361] Chunk 7/28
+  [w3 0p25] Kentucky_Floods_2022: member 4/24  step 8/28
+I0708 07:35:38.394671 22398140462912 rollout.py:361] Chunk 8/28
+  [w3 0p25] Kentucky_Floods_2022: member 4/24  step 9/28
+I0708 07:36:58.345432 22398140462912 rollout.py:361] Chunk 9/28
+  [w3 0p25] Kentucky_Floods_2022: member 4/24  step 10/28
+I0708 07:38:18.295689 22398140462912 rollout.py:361] Chunk 10/28
+  [w3 0p25] Kentucky_Floods_2022: member 4/24  step 11/28
+I0708 07:39:38.245382 22398140462912 rollout.py:361] Chunk 11/28
+  [w3 0p25] Kentucky_Floods_2022: member 4/24  step 12/28
+I0708 07:40:58.195511 22398140462912 rollout.py:361] Chunk 12/28
+  [w3 0p25] Kentucky_Floods_2022: member 4/24  step 13/28
+I0708 07:42:18.150003 22398140462912 rollout.py:361] Chunk 13/28
+  [w3 0p25] Kentucky_Floods_2022: member 4/24  step 14/28
+I0708 07:43:38.102986 22398140462912 rollout.py:361] Chunk 14/28
+  [w3 0p25] Kentucky_Floods_2022: member 4/24  step 15/28
+I0708 07:44:58.056137 22398140462912 rollout.py:361] Chunk 15/28
+  [w3 0p25] Kentucky_Floods_2022: member 4/24  step 16/28
+I0708 07:46:17.998684 22398140462912 rollout.py:361] Chunk 16/28
+  [w3 0p25] Kentucky_Floods_2022: member 4/24  step 17/28
+I0708 07:47:37.955245 22398140462912 rollout.py:361] Chunk 17/28
+  [w3 0p25] Kentucky_Floods_2022: member 4/24  step 18/28
+I0708 07:48:57.908965 22398140462912 rollout.py:361] Chunk 18/28
+  [w3 0p25] Kentucky_Floods_2022: member 4/24  step 19/28
+I0708 07:50:17.860345 22398140462912 rollout.py:361] Chunk 19/28
+  [w3 0p25] Kentucky_Floods_2022: member 4/24  step 20/28
+I0708 07:51:37.814815 22398140462912 rollout.py:361] Chunk 20/28
+  [w3 0p25] Kentucky_Floods_2022: member 4/24  step 21/28
+I0708 07:52:57.765815 22398140462912 rollout.py:361] Chunk 21/28
+  [w3 0p25] Kentucky_Floods_2022: member 4/24  step 22/28
+I0708 07:54:17.717529 22398140462912 rollout.py:361] Chunk 22/28
+  [w3 0p25] Kentucky_Floods_2022: member 4/24  step 23/28
+I0708 07:55:37.668941 22398140462912 rollout.py:361] Chunk 23/28
+  [w3 0p25] Kentucky_Floods_2022: member 4/24  step 24/28
+I0708 07:56:57.628945 22398140462912 rollout.py:361] Chunk 24/28
+  [w3 0p25] Kentucky_Floods_2022: member 4/24  step 25/28
+I0708 07:58:17.587219 22398140462912 rollout.py:361] Chunk 25/28
+  [w3 0p25] Kentucky_Floods_2022: member 4/24  step 26/28
+I0708 07:59:37.534380 22398140462912 rollout.py:361] Chunk 26/28
+  [w3 0p25] Kentucky_Floods_2022: member 4/24  step 27/28
+I0708 08:00:57.486114 22398140462912 rollout.py:361] Chunk 27/28
+  [w3 0p25] Kentucky_Floods_2022: member 4/24  step 28/28
+  [w3 0p25] Kentucky_Floods_2022: member 4/24 saved
+Vermont_Floods_2023 [m3 0p25 week2] (event 12/12)
+I0708 08:02:42.119236 22398140462912 rollout.py:206] Sample 0/1
+/glade/derecho/scratch/exu/S2S_ExtremeWeather/third_party/graphcast/graphcast/rollout.py:328: FutureWarning: The return type of `Dataset.dims` will be changed to return a set of dimension names in future, in order to be more consistent with `DataArray.dims`. To access a mapping from dimension names to lengths, please use `Dataset.sizes`.
+  num_target_steps = targets_template.dims["time"]
+I0708 08:02:42.120615 22398140462912 rollout.py:361] Chunk 0/28
+/glade/derecho/scratch/exu/S2S_ExtremeWeather/third_party/graphcast/graphcast/rollout.py:435: FutureWarning: The return type of `Dataset.dims` will be changed to return a set of dimension names in future, in order to be more consistent with `DataArray.dims`. To access a mapping from dimension names to lengths, please use `Dataset.sizes`.
+  num_inputs = prev_inputs.dims["time"]
+  [w3 0p25] Vermont_Floods_2023: member 4/24  step 1/28
+I0708 08:04:01.693466 22398140462912 rollout.py:361] Chunk 1/28
+  [w3 0p25] Vermont_Floods_2023: member 4/24  step 2/28
+I0708 08:05:21.573305 22398140462912 rollout.py:361] Chunk 2/28
+  [w3 0p25] Vermont_Floods_2023: member 4/24  step 3/28
+I0708 08:06:41.529854 22398140462912 rollout.py:361] Chunk 3/28
+  [w3 0p25] Vermont_Floods_2023: member 4/24  step 4/28
+I0708 08:08:01.475748 22398140462912 rollout.py:361] Chunk 4/28
+  [w3 0p25] Vermont_Floods_2023: member 4/24  step 5/28
+I0708 08:09:21.421560 22398140462912 rollout.py:361] Chunk 5/28
+  [w3 0p25] Vermont_Floods_2023: member 4/24  step 6/28
+I0708 08:10:41.375998 22398140462912 rollout.py:361] Chunk 6/28
+  [w3 0p25] Vermont_Floods_2023: member 4/24  step 7/28
+I0708 08:12:01.326492 22398140462912 rollout.py:361] Chunk 7/28
+  [w3 0p25] Vermont_Floods_2023: member 4/24  step 8/28
+I0708 08:13:21.276120 22398140462912 rollout.py:361] Chunk 8/28
+  [w3 0p25] Vermont_Floods_2023: member 4/24  step 9/28
+I0708 08:14:41.223527 22398140462912 rollout.py:361] Chunk 9/28
+  [w3 0p25] Vermont_Floods_2023: member 4/24  step 10/28
+I0708 08:16:01.177310 22398140462912 rollout.py:361] Chunk 10/28
+  [w3 0p25] Vermont_Floods_2023: member 4/24  step 11/28
+I0708 08:17:21.129389 22398140462912 rollout.py:361] Chunk 11/28
+  [w3 0p25] Vermont_Floods_2023: member 4/24  step 12/28
+I0708 08:18:41.084570 22398140462912 rollout.py:361] Chunk 12/28
+  [w3 0p25] Vermont_Floods_2023: member 4/24  step 13/28
+I0708 08:20:01.036513 22398140462912 rollout.py:361] Chunk 13/28
+  [w3 0p25] Vermont_Floods_2023: member 4/24  step 14/28
+I0708 08:21:20.987881 22398140462912 rollout.py:361] Chunk 14/28
+  [w3 0p25] Vermont_Floods_2023: member 4/24  step 15/28
+I0708 08:22:40.935238 22398140462912 rollout.py:361] Chunk 15/28
+  [w3 0p25] Vermont_Floods_2023: member 4/24  step 16/28
+I0708 08:24:00.882363 22398140462912 rollout.py:361] Chunk 16/28
+  [w3 0p25] Vermont_Floods_2023: member 4/24  step 17/28
+I0708 08:25:20.824275 22398140462912 rollout.py:361] Chunk 17/28
+  [w3 0p25] Vermont_Floods_2023: member 4/24  step 18/28
+I0708 08:26:40.775559 22398140462912 rollout.py:361] Chunk 18/28
+  [w3 0p25] Vermont_Floods_2023: member 4/24  step 19/28
+I0708 08:28:00.733631 22398140462912 rollout.py:361] Chunk 19/28
+  [w3 0p25] Vermont_Floods_2023: member 4/24  step 20/28
+I0708 08:29:20.683086 22398140462912 rollout.py:361] Chunk 20/28
+  [w3 0p25] Vermont_Floods_2023: member 4/24  step 21/28
+I0708 08:30:40.646101 22398140462912 rollout.py:361] Chunk 21/28
+  [w3 0p25] Vermont_Floods_2023: member 4/24  step 22/28
+I0708 08:32:00.597052 22398140462912 rollout.py:361] Chunk 22/28
+  [w3 0p25] Vermont_Floods_2023: member 4/24  step 23/28
+I0708 08:33:20.551243 22398140462912 rollout.py:361] Chunk 23/28
+  [w3 0p25] Vermont_Floods_2023: member 4/24  step 24/28
+I0708 08:34:40.507559 22398140462912 rollout.py:361] Chunk 24/28
+  [w3 0p25] Vermont_Floods_2023: member 4/24  step 25/28
+I0708 08:36:00.461883 22398140462912 rollout.py:361] Chunk 25/28
+  [w3 0p25] Vermont_Floods_2023: member 4/24  step 26/28
+I0708 08:37:20.418571 22398140462912 rollout.py:361] Chunk 26/28
+  [w3 0p25] Vermont_Floods_2023: member 4/24  step 27/28
+I0708 08:38:40.372158 22398140462912 rollout.py:361] Chunk 27/28
+  [w3 0p25] Vermont_Floods_2023: member 4/24  step 28/28
+  [w3 0p25] Vermont_Floods_2023: member 4/24 saved
+[m3] member 3 done for all events; 228 unit(s) still owned by other member jobs
+End: Wed Jul  8 08:40:07 AM MDT 2026

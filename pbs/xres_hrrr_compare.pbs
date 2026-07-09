@@ -1,0 +1,25 @@
+#!/bin/bash
+#PBS -N xres_hrrr_compare
+#PBS -A UCSC0009
+#PBS -q develop
+#PBS -l select=1:ncpus=8:mem=60GB
+#PBS -l walltime=02:00:00
+#PBS -j oe
+#PBS -o /glade/derecho/scratch/exu/S2S_ExtremeWeather/logs/xres_hrrr_compare.log
+
+export PYTHONUNBUFFERED=1
+
+set -eo pipefail
+
+module load conda
+conda activate my-env
+
+cd /glade/derecho/scratch/exu/S2S_ExtremeWeather
+
+echo "Host: $(hostname)"; echo "Start: $(date)"
+
+python -c "from xres import xhrrr; xhrrr.build_hrrr_truth()"
+python run_xres.py --stage compare
+
+echo "End: $(date)"
+ls -la runs/observations/*hrrr* xres_combined_*.png 2>/dev/null || true

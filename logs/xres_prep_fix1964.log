@@ -1,0 +1,35 @@
+Host: dec2439
+Start: Tue Jul  7 06:13:35 PM MDT 2026
+/glade/work/exu/conda-envs/my-env/lib/python3.10/site-packages/google/api_core/_python_version_support.py:255: FutureWarning: You are using a Python version (3.10.20) which Google will stop supporting in new releases of google.api_core once it reaches its end of life (2026-10-04). Please upgrade to the latest Python version, or at least Python 3.11, to continue receiving updates for google.api_core past that date.
+  warnings.warn(message, FutureWarning)
+/glade/work/exu/conda-envs/my-env/lib/python3.10/site-packages/google/api_core/_python_version_support.py:255: FutureWarning: You are using a Python version (3.10.20) which Google will stop supporting in new releases of google.cloud._storage_v2 once it reaches its end of life (2026-10-04). Please upgrade to the latest Python version, or at least Python 3.11, to continue receiving updates for google.cloud._storage_v2 past that date.
+  warnings.warn(message, FutureWarning)
+/glade/work/exu/conda-envs/my-env/lib/python3.10/site-packages/google/api_core/_python_version_support.py:255: FutureWarning: You are using a Python version (3.10.20) which Google will stop supporting in new releases of google.cloud.storage_control_v2 once it reaches its end of life (2026-10-04). Please upgrade to the latest Python version, or at least Python 3.11, to continue receiving updates for google.cloud.storage_control_v2 past that date.
+  warnings.warn(message, FutureWarning)
+[era5-truth] HurricaneIdalia_2023 [u850_speed]: mean=+5.18 max=+13 -> HurricaneIdalia_2023_verif_u850_speed.nc
+[era5-truth] HurricaneIdalia_2023 [u850_speed_max]: mean=+11.2 max=+45.9 -> HurricaneIdalia_2023_verif_u850_speed_max.nc
+[era5-truth] Vermont_Floods_2023 [tp_total]: mean=+16.6 max=+134 -> Vermont_Floods_2023_verif_tp_total.nc
+[era5-truth] Vermont_Floods_2023 [tp_max12h]: mean=+7.91 max=+106 -> Vermont_Floods_2023_verif_tp_max12h.nc
+[hrrr-truth] cached: HurricaneIdalia_2023_hrrr_verif_u850_speed.nc
+[hrrr-truth] cached: HurricaneIdalia_2023_hrrr_verif_u850_speed_max.nc
+[hrrr-truth] cached: Vermont_Floods_2023_hrrr_verif_tp_total.nc
+[hrrr-truth] cached: Vermont_Floods_2023_hrrr_verif_tp_max12h.nc
+   (using ARCO-ERA5: past WB2 coverage)
+[inputs 0p25 week2] HurricaneIdalia_2023: init=peak-14d -> HurricaneIdalia_2023_inputs.nc
+   (using ARCO-ERA5: past WB2 coverage)
+[inputs 0p25 week2] Vermont_Floods_2023: init=peak-14d -> Vermont_Floods_2023_inputs.nc
+   (using ARCO-ERA5: past WB2 coverage)
+[inputs 1p0 week2] HurricaneIdalia_2023: init=peak-14d -> HurricaneIdalia_2023_inputs.nc
+   (using ARCO-ERA5: past WB2 coverage)
+[inputs 1p0 week2] Vermont_Floods_2023: init=peak-14d -> Vermont_Floods_2023_inputs.nc
+End: Tue Jul  7 06:28:41 PM MDT 2026
+-rw-r--r-- 1 exu ncar 108942 Jul  7 18:16 runs/observations/HurricaneIdalia_2023_verif_u850_speed_max.nc
+-rw-r--r-- 1 exu ncar 108942 Jul  7 18:15 runs/observations/HurricaneIdalia_2023_verif_u850_speed.nc
+-rw-r--r-- 1 exu ncar 208482 Jul  7 18:18 runs/observations/Vermont_Floods_2023_verif_tp_max12h.nc
+-rw-r--r-- 1 exu ncar 108942 Jul  7 18:17 runs/observations/Vermont_Floods_2023_verif_tp_total.nc
+total 8274076
+-rw-r--r-- 1 exu ncar 706033766 Jul  7 18:20 HurricaneIdalia_2023_inputs.nc
+-rw-r--r-- 1 exu ncar 706033766 Jul  7 18:23 Vermont_Floods_2023_inputs.nc
+total 514092
+-rw-r--r-- 1 exu ncar 44332770 Jul  7 18:26 HurricaneIdalia_2023_inputs.nc
+-rw-r--r-- 1 exu ncar 44332770 Jul  7 18:28 Vermont_Floods_2023_inputs.nc

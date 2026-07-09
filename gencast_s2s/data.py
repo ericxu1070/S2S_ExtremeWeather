@@ -43,7 +43,9 @@ _clim = None
 # ARCO is a flat 277-variable zarr tree; xr.open_zarr(root) OOMs.  Read arrays directly.
 _arco_root = None
 _arco_lat = _arco_lon = _arco_lev = None
-ARCO_EPOCH = pd.Timestamp("1959-01-01T00:00:00")
+# The v3 ARCO store's time axis is "hours since 1900-01-01" (the 1959 epoch belonged
+# to the retired ar/1959-2022 store; using it here shifted every read back 59 years).
+ARCO_EPOCH = pd.Timestamp("1900-01-01T00:00:00")
 _ARCO_LEVELED = frozenset(C.ATM)
 
 

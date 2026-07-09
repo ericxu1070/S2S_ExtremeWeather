@@ -1,0 +1,30 @@
+#!/bin/bash
+#PBS -N xres_prep_fix1964
+#PBS -A UCSC0009
+#PBS -q develop
+#PBS -l select=1:ncpus=8:mem=120GB
+#PBS -l walltime=02:00:00
+#PBS -j oe
+#PBS -o /glade/derecho/scratch/exu/S2S_ExtremeWeather/logs/xres_prep_fix1964.log
+
+# Rebuild ERA5 truth + model inputs for the two events whose ARCO reads were
+# shifted -59 years by the ARCO_EPOCH bug (1959 epoch vs the v3 store's 1900).
+# The contaminated originals are in runs/xres/quarantine_1964_epoch_bug/.
+
+set -eo pipefail
+export PYTHONUNBUFFERED=1
+
+module load conda
+conda activate my-env
+
+cd /glade/derecho/scratch/exu/S2S_ExtremeWeather
+
+echo "Host: $(hostname)"; echo "Start: $(date)"
+
+export XRES_EVENTS_SEL="HurricaneIdalia_2023,Vermont_Floods_2023"
+export XRES_PREP_SKIP_MODELS=1
+python run_xres.py --stage prep
+
+echo "End: $(date)"
+ls -la runs/observations/HurricaneIdalia_2023_verif_* runs/observations/Vermont_Floods_2023_verif_* \
+      runs/xres/0p25/week2/inputs/ runs/xres/1p0/week2/inputs/ | grep -iE "idalia|vermont|total" || true

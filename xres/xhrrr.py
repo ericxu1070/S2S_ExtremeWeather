@@ -1,12 +1,11 @@
 """HRRR observed truth for the cross-resolution metrics, on the ERA5 0.25deg CONUS grid.
 
 Extends ``gencast_s2s.hrrr`` (T2m anomaly) to the two new metrics, sourced from the same
-local HRRR v3 shard archive and the verified channel layout of the ``prog_t`` / ``diag_t``
-stacks:
+local HRRR v3 netCDF archive (``C.HRRR_NC``):
 
-    t2m       prog_t[37]                 -> t2m_anom    (reuses gencast_s2s.hrrr)
-    u850      prog_t[18]   v850 prog_t[26]  -> u850_speed = mean/max sqrt(u^2+v^2)   (m/s)
-    log_tp    diag_t[0] = ln(6h mm + 1e-5) -> tp_total = sum(exp(log_tp)-1e-5)       (mm)
+    t2m                              -> t2m_anom    (reuses gencast_s2s.hrrr)
+    u/v at 850 hPa                   -> u850_speed = mean/max sqrt(u^2+v^2)   (m/s)
+    log_tp = ln(6h mm + 1e-5)        -> tp_total = sum(exp(log_tp)-1e-5)     (mm)
 
 Same 7-day window as ERA5. Wind speed (rotation-invariant) sidesteps HRRR's grid-relative
 winds; u850/tp are absolute so they carry no HRRR-vs-ERA5 climatology bias (unlike the
@@ -26,20 +25,19 @@ from . import xconfig as X
 from . import xmetrics as XM
 from . import xdata as XD
 
-U850_CH, V850_CH, T2M_CH = 18, 26, 37     # verified prog_t channel indices
-
 
 def _load_remapped(t: pd.Timestamp, idx, shape, kind):
     """Remap a derived native-HRRR field at time ``t`` onto the ERA5 CONUS grid, or None."""
     f = H._shard_path(t)
     if not f.exists():
         return None
-    with np.load(f) as z:
+    with xr.open_dataset(f) as ds:
         if kind == "speed850":
-            u = z["prog_t"][U850_CH]; v = z["prog_t"][V850_CH]
+            u = ds["u"].sel(isobaricInhPa8=850).values
+            v = ds["v"].sel(isobaricInhPa8=850).values
             flat = np.sqrt(u * u + v * v).ravel()
         elif kind == "precip_mm":
-            flat = (np.exp(z["diag_t"][0]) - 1e-5).ravel()             # ln(mm+1e-5) -> mm
+            flat = (np.exp(ds["log_tp"].values) - 1e-5).ravel()        # ln(mm+1e-5) -> mm
         else:
             raise ValueError(kind)
     return flat[idx].reshape(shape)
@@ -87,8 +85,8 @@ def hrrr_truth_path(name: str, metric: str):
 
 def build_hrrr_truth(overwrite: bool = False) -> None:
     """Precompute + cache HRRR truth per (event, metric) -> runs/observations/ (offline)."""
-    if not C.HRRR_SHARDS.exists():
-        print(f"[hrrr-truth] shard archive not found at {C.HRRR_SHARDS}; skipping HRRR")
+    if not C.HRRR_NC.exists():
+        print(f"[hrrr-truth] HRRR archive not found at {C.HRRR_NC}; skipping HRRR")
         return
     C.ensure_dirs()
     for name, (peak, _m) in X.events().items():
