@@ -61,10 +61,10 @@ def ensure_dirs(res: str | None = None, weeks: int | None = None) -> None:
 # line style and marker all encode the same distinction redundantly).
 RES_SPECS = {
     "0p25": dict(params="GenCast 0p25deg <2019.npz", res=0.25, stride=1,
-                 color="#fb6a4a", truth_color="#99000d", marker="o",
+                 color="#f4562b", truth_color="#99000d", marker="o",
                  label="GenCast 0.25deg"),
     "1p0":  dict(params="GenCast 1p0deg <2019.npz",  res=1.0,  stride=4,
-                 color="#6baed6", truth_color="#08306b", marker="^",
+                 color="#4f9ad1", truth_color="#08306b", marker="^",
                  label="GenCast 1.0deg"),
 }
 RES_ORDER = ("0p25", "1p0")                            # left-to-right in figures

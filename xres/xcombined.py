@@ -36,6 +36,7 @@ from pathlib import Path
 
 import matplotlib
 matplotlib.use("Agg")
+import matplotlib.patheffects as pe    # noqa: E402
 import matplotlib.pyplot as plt        # noqa: E402
 import numpy as np                     # noqa: E402
 
@@ -140,9 +141,15 @@ def _panel(ax, name, weeks, mode):
             continue
         vals, label = res_c
         rs = X.res_spec(res)
-        entries.append((vals, dict(color=rs["color"], ls=":", lw=2.2,
-                                   marker=rs["marker"], markevery=(off, 9),
-                                   ms=4, label=label)))
+        # Dense dot pattern + a white under-stroke so the light forecast curves stay
+        # visible where they cross the dark truth curves and the gridlines.
+        entries.append((vals, dict(
+            color=rs["color"], ls=(0, (1, 1)), lw=2.8,
+            marker=rs["marker"], markevery=(off, 9), ms=5.5,
+            markeredgecolor=rs["truth_color"], markeredgewidth=0.7,
+            path_effects=[pe.Stroke(linewidth=4.4, foreground="white"),
+                          pe.Normal()],
+            label=label)))
 
     # One shared bin range per panel (mean +/- 4 sigma of everything drawn, clipped to
     # the data range) so every curve's per-bin probabilities are directly comparable.

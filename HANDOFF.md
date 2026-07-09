@@ -6,7 +6,28 @@
 
 ---
 
-## STATUS (Jul 8 2026 morning) — ✅ EXPERIMENT COMPLETE (both resolutions + figures)
+## STATUS (Jul 9 2026) — FIGURE OVERHAUL (compare job `6677479`)
+
+Per user request the compare-stage figures were reworked (all code in
+`xres/xcombined.py`, new `xres/xscores.py`, colors in `xres/xconfig.py`):
+
+- **Combined PDFs** (`xres_combined_*.png`): HRRR curve REMOVED; ERA5 now drawn at
+  BOTH grids (0.25deg native + sampled onto the 1.0deg forecast grid); y floor
+  lowered to 1e-6; PDFs switched from gaussian_kde to the binned-histogram
+  `PDF_histogram` method of github.com/moeindarman77/TransferLearning-QG
+  (100 bins over mean±4sigma, hist/N, shared bin range per panel, physical x-axis).
+  Style: truth = dark + solid, forecast = light + dotted; reds = 0.25deg,
+  blues = 1.0deg; distinct markers per curve (colorblind-redundant).
+- **New skill figures** (`xres/xscores.py`, same 4x3 grids, each res scored vs ERA5
+  on ITS OWN grid): `xres_brier.png` (tail-exceedance BS at 75/90/95/99th truth
+  percentiles, extreme-direction aware, f(1-f) reference), `xres_crps.png`
+  (lat-weighted CRPS bars per event, paneled by metric family, % = 0.25 vs 1.0),
+  `xres_rank_hist.png` + `xres_rank_hist_pooled.png`. Numbers also in
+  `runs/xres/figures/xres_scores.csv`. Reader's guide with the math:
+  `docs/xres_score_figures.html`.
+- HRRR truth files and map panels are untouched (only the PDF curves dropped HRRR).
+
+## PREVIOUS STATUS (Jul 8 2026 morning) — ✅ EXPERIMENT COMPLETE (both resolutions + figures)
 
 The member arrays finished overnight, **all 48 subjobs exit 0**:
 
