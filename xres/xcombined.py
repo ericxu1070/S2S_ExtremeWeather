@@ -9,8 +9,8 @@ PDFs over CONUS:
     GenCast 1.0deg forecast     light blue, DOTTED
 
 Color families pair each forecast with the truth at its own resolution (reds = 0.25deg,
-blues = 1.0deg); light-vs-dark, solid-vs-dotted and per-curve markers encode the truth /
-forecast distinction redundantly for color-vision-deficient readers.
+blues = 1.0deg); light-vs-dark and solid-vs-dotted encode the truth / forecast
+distinction redundantly for color-vision-deficient readers.
 
 PDFs are binned-histogram estimates via ``PDF_histogram`` — ported from
 ``FiguresProduction.ipynb`` of https://github.com/moeindarman77/TransferLearning-QG so both
@@ -138,9 +138,9 @@ def _panel(ax, name, weeks, mode, baseline="both"):
     if baseline == "both":
         entries.append(
             (_era5_1p0(era5, weeks, name, metric).values.ravel(),
-             dict(color=r10["truth_color"], ls="-", lw=2.0, marker="s",
-                  markevery=(3, 9), ms=4, label="ERA5 1.0deg (truth)")))
-    for res, off in (("0p25", 0), ("1p0", 6)):
+             dict(color=r10["truth_color"], ls="-", lw=2.0,
+                  label="ERA5 1.0deg (truth)")))
+    for res in X.RES_ORDER:
         res_c = _res_curve(res, weeks, name, metric, mode, era5)
         if res_c is None:
             continue
@@ -150,8 +150,6 @@ def _panel(ax, name, weeks, mode, baseline="both"):
         # visible where they cross the dark truth curves and the gridlines.
         entries.append((vals, dict(
             color=rs["color"], ls=(0, (1, 1)), lw=2.8,
-            marker=rs["marker"], markevery=(off, 9), ms=5.5,
-            markeredgecolor=rs["truth_color"], markeredgewidth=0.7,
             path_effects=[pe.Stroke(linewidth=4.4, foreground="white"),
                           pe.Normal()],
             label=label)))
