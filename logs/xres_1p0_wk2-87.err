@@ -1,0 +1,2 @@
+/var/spool/slurmd/job00087/slurm_script: line 34: 1319410 Killed                  python run_xres.py --stage prep --res 1p0
+[2026-07-03T23:49:46.377] error: Detected 1 oom_kill event in StepId=87.batch. Some of the step tasks have been OOM Killed.
