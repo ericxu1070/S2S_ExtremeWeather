@@ -1,0 +1,11 @@
+# Local, account-free metrics logging (the default): newline-delimited JSON
+# written inside the repo — no W&B account, no network, nothing external.
+# Same content the W&B path would log: train/val losses, grad norm, lr,
+# sigma stats, peak VRAM, one line per log event, append-only across resumes.
+#
+#   plot it:            python scripts/plot_metrics.py
+#   switch back to W&B: python train.py logging=wandb    (needs `wandb login` first)
+backend: local
+enabled: true
+metrics_path: /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/downscaler/metrics/train_metrics.jsonl
+log_every_n_steps: 10

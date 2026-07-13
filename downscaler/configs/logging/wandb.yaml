@@ -1,6 +1,9 @@
+# W&B backend — OPT-IN (the default is logging=local, which needs no account).
+# Requires `wandb login` as whoever should own the run. Failure to reach W&B
+# never kills training; it degrades to no metrics with a warning.
+backend: wandb
 project: era5-hrrr-downscaler
 entity: null  # set via command line or env var
 tags: ["era5", "hrrr", "downscaling", "edm"]
 log_every_n_steps: 10
-log_images_every_n_epochs: 20
 enabled: true

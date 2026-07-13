@@ -85,8 +85,9 @@ class Trainer:
             eta_min=cfg.training.lr_min,
         )
 
-        # Logging
-        self.wandb_run = None
+        # Metrics sink: a wandb.Run or a JsonlMetricsLogger — same .log()/.finish()
+        # interface either way, chosen by cfg.logging.backend in train().
+        self.metrics_run = None
         self.global_step = 0
         self.start_epoch = 0
 
@@ -195,26 +196,43 @@ class Trainer:
                 log.info(f"[lr-rebase] cosine rebuilt: {cur_lr:.3e} -> {self.cfg.training.lr_min:.0e} "
                          f"over {remaining} steps (epochs {self.start_epoch}..{self.cfg.training.n_epochs})")
 
-        try:
-            import wandb
+        # Metrics sink. Logging must NEVER kill an expensive distributed training
+        # run (bad API key, network blip, full disk) — every failure path below
+        # degrades to "no metrics" with a warning and training continues.
+        backend = str(self.cfg.logging.get("backend", "wandb"))
+        if self.is_main and self.cfg.logging.enabled:
+            if backend == "local":
+                from training.metrics_logger import JsonlMetricsLogger
 
-            if self.is_main and self.cfg.logging.enabled:
-                self.wandb_run = wandb.init(
-                    project=self.cfg.logging.project,
-                    entity=self.cfg.logging.get("entity", None),
-                    tags=list(self.cfg.logging.tags),
-                    config=dict(self.cfg),
-                    resume="allow",
+                self.metrics_run = JsonlMetricsLogger(
+                    self.cfg.logging.metrics_path,
+                    meta={
+                        "resumed_at_step": self.global_step,
+                        "start_epoch": self.start_epoch,
+                        "world_size": self.world_size,
+                    },
                 )
-        except ImportError:
-            if self.is_main:
-                log.info("wandb not installed, skipping logging")
-        except Exception as e:
-            # Logging must NEVER kill an expensive distributed training run (e.g. bad API key,
-            # network blip). Disable W&B for this run and continue training.
-            if self.is_main:
-                log.warning(f"wandb.init failed ({type(e).__name__}: {e}); continuing without W&B")
-            self.wandb_run = None
+                log.info(f"Logging metrics to {self.cfg.logging.metrics_path}")
+            elif backend == "wandb":
+                try:
+                    import wandb
+
+                    self.metrics_run = wandb.init(
+                        project=self.cfg.logging.project,
+                        entity=self.cfg.logging.get("entity", None),
+                        tags=list(self.cfg.logging.tags),
+                        config=dict(self.cfg),
+                        resume="allow",
+                    )
+                except ImportError:
+                    log.info("wandb not installed, skipping logging")
+                except Exception as e:
+                    log.warning(
+                        f"wandb.init failed ({type(e).__name__}: {e}); continuing without W&B"
+                    )
+                    self.metrics_run = None
+            else:
+                log.warning(f"unknown logging.backend={backend!r}; metrics logging disabled")
 
         for epoch in range(self.start_epoch, self.cfg.training.n_epochs):
             if hasattr(self.train_loader.sampler, "set_epoch"):
@@ -263,8 +281,8 @@ class Trainer:
             # Save checkpoint every epoch (critical for walltime-limited jobs)
             self._save_checkpoint(epoch, epoch_completed=True)
 
-        if self.wandb_run is not None:
-            self.wandb_run.finish()
+        if self.metrics_run is not None:
+            self.metrics_run.finish()
 
     def _iter_batches(self):
         """Yield training batches, tolerating a DataLoader that dies during shutdown.
@@ -357,12 +375,12 @@ class Trainer:
                              f"loss={loss_dict['loss'].item():.4f} "
                              f"peak_gb={torch.cuda.max_memory_allocated(self.device)/1e9:.1f}")
 
-                # W&B step logging
+                # Per-step metrics (wandb or local JSONL, per cfg.logging.backend)
                 if (
-                    self.wandb_run is not None
+                    self.metrics_run is not None
                     and self.global_step % self.cfg.logging.log_every_n_steps == 0
                 ):
-                    self.wandb_run.log(
+                    self.metrics_run.log(
                         {
                             "train/loss": loss_dict["loss"].item(),
                             "train/loss_prog": loss_dict["loss_prog"].item(),
@@ -450,10 +468,10 @@ class Trainer:
             loss_str += f" throughput={metrics['throughput']:.1f} samp/s"
         log.info(f"[Epoch {epoch}] {loss_str}")
 
-        if self.wandb_run is not None:
+        if self.metrics_run is not None:
             log_dict = {f"{prefix}/{k}": v for k, v in metrics.items()
                         if isinstance(v, (int, float))}
-            self.wandb_run.log(log_dict, step=self.global_step)
+            self.metrics_run.log(log_dict, step=self.global_step)
 
     def _save_checkpoint(self, epoch: int, epoch_completed: bool) -> None:
         """Write a checkpoint (rank 0) and hold the other ranks until it lands.

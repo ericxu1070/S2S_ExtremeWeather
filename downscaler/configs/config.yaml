@@ -3,7 +3,7 @@ defaults:
   - training: default
   - data: era5_hrrr
   - normalization: default
-  - logging: wandb
+  - logging: local
   - _self_
 
 seed: 42
