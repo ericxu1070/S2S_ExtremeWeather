@@ -180,8 +180,8 @@ model.n_output_ch == n_prognostic + n_diagnostic
 model.n_input_ch  == n_output_ch + n_era5_cond + n_static
 ```
 
-Defaults ship a coherent **core-4 + precip** starter set (`n_input_ch=11`,
-`n_output_ch=5`); grow the variable lists and these counts together.
+Defaults ship the **core-4 + precip** target set driven by 9 ERA5 channels
+(`n_input_ch=16`, `n_output_ch=5`); grow the variable lists and these counts together.
 
 ### Performance note
 

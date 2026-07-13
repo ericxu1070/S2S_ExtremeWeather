@@ -250,13 +250,15 @@
     <h1>Inventing 3-kilometer weather from 100-kilometer weather</h1>
     <p class="lede">A conditional diffusion model learns to add fine-scale detail a coarse
       forecast can't resolve. Here is every moving part — the U-Net, the noise mathematics,
-      the data plumbing — and <em class="term" title="the design rationale">why each piece is shaped the way it is</em>.</p>
+      the data plumbing — and <em class="term" title="the design rationale">why each piece is shaped the way it is</em>.
+      For the compact spec — exact channels, every hyperparameter —
+      see <a href="model_reference.html">the model reference card</a>.</p>
     <div class="metarow">
       <span class="chip"><span class="dot" style="background:var(--coarse)"></span>ERA5 · 1° in</span>
       <span class="chip"><span class="dot" style="background:var(--fine)"></span>HRRR · 3 km out</span>
       <span class="chip"><span class="dot" style="background:var(--diff)"></span>EDM diffusion</span>
-      <span class="chip">conv U-Net</span>
-      <span class="chip">~38M params</span>
+      <span class="chip">U-Net + transformer bottleneck</span>
+      <span class="chip">54M params</span>
     </div>
   </header>
 

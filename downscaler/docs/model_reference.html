@@ -1,0 +1,459 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ERA5 → HRRR Downscaler — Model Reference</title>
+<style>
+  :root{
+    --bg:#f5f6f2; --surface:#ffffff; --surface-2:#eef0ea; --panel:#f9faf7;
+    --ink:#16202a; --ink-soft:#42525f; --muted:#77838f; --line:#dde1db;
+    --coarse:#b3661f;     /* ERA5 · coarse input  */
+    --coarse-soft:#f0e0cd;
+    --fine:#0d817e;       /* HRRR · fine output   */
+    --fine-soft:#d3e9e7;
+    --diff:#5a49e6;       /* diffusion · UI accent*/
+    --diff-soft:#e2def9;
+    --shadow:0 1px 2px rgba(20,30,40,.05),0 8px 30px rgba(20,30,40,.06);
+    --radius:14px;
+    --sans:"Helvetica Neue",Helvetica,"Segoe UI",Roboto,system-ui,-apple-system,sans-serif;
+    --mono:ui-monospace,"SF Mono","JetBrains Mono",Menlo,Consolas,monospace;
+    --maxcol:78ch;
+  }
+  @media (prefers-color-scheme:dark){
+    :root{
+      --bg:#0d141b; --surface:#131c25; --surface-2:#182430; --panel:#111a22;
+      --ink:#e7edf2; --ink-soft:#aebac5; --muted:#71818e; --line:#243240;
+      --coarse:#e5a05a; --coarse-soft:#3a2c1c;
+      --fine:#2cb8b2; --fine-soft:#13322f;
+      --diff:#8f81ff; --diff-soft:#221d44;
+      --shadow:0 1px 2px rgba(0,0,0,.3),0 10px 34px rgba(0,0,0,.35);
+    }
+  }
+  :root[data-theme="light"]{
+    --bg:#f5f6f2; --surface:#ffffff; --surface-2:#eef0ea; --panel:#f9faf7;
+    --ink:#16202a; --ink-soft:#42525f; --muted:#77838f; --line:#dde1db;
+    --coarse:#b3661f; --coarse-soft:#f0e0cd; --fine:#0d817e; --fine-soft:#d3e9e7;
+    --diff:#5a49e6; --diff-soft:#e2def9;
+    --shadow:0 1px 2px rgba(20,30,40,.05),0 8px 30px rgba(20,30,40,.06);
+  }
+  :root[data-theme="dark"]{
+    --bg:#0d141b; --surface:#131c25; --surface-2:#182430; --panel:#111a22;
+    --ink:#e7edf2; --ink-soft:#aebac5; --muted:#71818e; --line:#243240;
+    --coarse:#e5a05a; --coarse-soft:#3a2c1c; --fine:#2cb8b2; --fine-soft:#13322f;
+    --diff:#8f81ff; --diff-soft:#221d44;
+    --shadow:0 1px 2px rgba(0,0,0,.3),0 10px 34px rgba(0,0,0,.35);
+  }
+
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);
+    font-size:17px;line-height:1.65;-webkit-font-smoothing:antialiased;
+    text-rendering:optimizeLegibility;overflow-x:hidden}
+  ::selection{background:var(--diff);color:#fff}
+  a{color:var(--diff);text-decoration:none}
+  a:hover{text-decoration:underline}
+  h1,h2,h3{text-wrap:balance;line-height:1.12;letter-spacing:-.02em;margin:0}
+  code,.mono{font-family:var(--mono);font-size:.92em}
+
+  .eyebrow{font-family:var(--mono);font-size:.72rem;letter-spacing:.22em;
+    text-transform:uppercase;color:var(--muted);font-weight:600}
+
+  .shell{max-width:980px;margin:0 auto;padding:0 clamp(18px,4vw,40px)}
+  .col{min-width:0;max-width:var(--maxcol);margin:0 auto;width:100%}
+
+  .hero{padding:clamp(44px,7vw,84px) 0 34px;border-bottom:1px solid var(--line)}
+  .hero .eyebrow{display:block;margin-bottom:20px}
+  .hero h1{font-size:clamp(2rem,5.4vw,3.4rem);font-weight:800;
+    background:linear-gradient(100deg,var(--coarse),var(--ink) 42%,var(--fine));
+    -webkit-background-clip:text;background-clip:text;color:transparent}
+  .lede{font-size:clamp(1.05rem,2.2vw,1.25rem);color:var(--ink-soft);
+    max-width:64ch;margin:22px 0 0;line-height:1.5}
+  .metarow{display:flex;flex-wrap:wrap;gap:8px;margin-top:26px}
+  .chip{font-family:var(--mono);font-size:.74rem;padding:5px 11px;border-radius:999px;
+    border:1px solid var(--line);background:var(--surface);color:var(--ink-soft);
+    display:inline-flex;align-items:center;gap:7px;white-space:nowrap}
+  .dot{width:7px;height:7px;border-radius:50%}
+
+  section{padding:52px 0;border-bottom:1px solid var(--line)}
+  section:last-of-type{border-bottom:0}
+  .snum{font-family:var(--mono);font-size:.8rem;color:var(--diff);font-weight:600;letter-spacing:.05em}
+  h2{font-size:clamp(1.5rem,3.4vw,2.05rem);font-weight:750;margin:8px 0 0}
+  h3{font-size:1.16rem;font-weight:700;margin:34px 0 0}
+  p{margin:16px 0}
+  .col p,.col li{color:var(--ink-soft)}
+  .col strong{color:var(--ink);font-weight:650}
+  ul,ol{padding-left:1.2em;margin:16px 0}
+  li{margin:7px 0}
+  .lead-in{font-size:1.12rem;color:var(--ink)!important}
+
+  figure{margin:30px 0;padding:0}
+  .fig{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);
+    box-shadow:var(--shadow);overflow:hidden}
+  .fig-body{padding:20px}
+  .svg-wrap{overflow-x:auto}
+  figcaption{font-size:.86rem;color:var(--muted);margin-top:12px;line-height:1.5;padding:0 4px}
+  figcaption b{color:var(--ink-soft);font-weight:650}
+
+  .tbl-wrap{overflow-x:auto;margin:22px 0;border:1px solid var(--line);
+    border-radius:var(--radius);background:var(--surface);box-shadow:var(--shadow)}
+  table{border-collapse:collapse;width:100%;font-size:.88rem}
+  th{font-family:var(--mono);font-size:.7rem;letter-spacing:.14em;text-transform:uppercase;
+    color:var(--muted);text-align:left;font-weight:600;padding:12px 14px;
+    border-bottom:1px solid var(--line);background:var(--panel);white-space:nowrap}
+  td{padding:10px 14px;border-bottom:1px solid var(--line);color:var(--ink-soft);
+    vertical-align:top}
+  tr:last-child td{border-bottom:0}
+  td.mono, .val{font-family:var(--mono);font-size:.82rem;white-space:nowrap;color:var(--ink)}
+  .tag{display:inline-block;font-family:var(--mono);font-size:.68rem;padding:2px 8px;
+    border-radius:999px;border:1px solid var(--line);white-space:nowrap}
+  .tag.cond{background:var(--coarse-soft);color:var(--coarse);border-color:transparent}
+  .tag.target{background:var(--fine-soft);color:var(--fine);border-color:transparent}
+  .tag.static{background:var(--surface-2);color:var(--ink-soft)}
+  .tag.noise{background:var(--diff-soft);color:var(--diff);border-color:transparent}
+
+  .callout{background:var(--panel);border:1px solid var(--line);border-left:3px solid var(--diff);
+    border-radius:10px;padding:16px 20px;margin:24px 0;font-size:.95rem}
+  .callout .k{font-family:var(--mono);font-size:.7rem;letter-spacing:.16em;
+    text-transform:uppercase;color:var(--diff);font-weight:700;display:block;margin-bottom:6px}
+  .callout p{margin:6px 0}
+
+  pre{background:var(--panel);border:1px solid var(--line);border-radius:10px;
+    padding:16px 18px;overflow-x:auto;font-family:var(--mono);font-size:.8rem;
+    line-height:1.6;color:var(--ink-soft);margin:20px 0}
+
+  .lbl{font-family:var(--mono);font-size:11px;fill:var(--muted);letter-spacing:.12em}
+  .lbl-w{font-family:var(--mono);font-size:11px;fill:var(--ink);font-weight:600}
+  .lbl-s{font-family:var(--mono);font-size:10px;fill:var(--muted)}
+  .enc{fill:var(--coarse-soft);stroke:var(--coarse);stroke-width:1.2}
+  .dec{fill:var(--fine-soft);stroke:var(--fine);stroke-width:1.2}
+  .bot{fill:var(--diff-soft);stroke:var(--diff);stroke-width:1.2}
+  .fine{fill:var(--fine-soft);stroke:var(--fine);stroke-width:1.2}
+  .flow{stroke:var(--ink-soft);stroke-width:1.4;fill:none;marker-end:url(#ah2)}
+  .skip{stroke:var(--muted);stroke-width:1.2;fill:none;stroke-dasharray:4 4}
+
+  .foot{padding:40px 0 60px;color:var(--muted);font-size:.85rem}
+</style>
+</head><body>
+
+<div class="shell">
+
+  <header class="hero">
+    <div class="col">
+      <span class="eyebrow">ERA5 → HRRR downscaler · reference card</span>
+      <h1>Architecture, I/O &amp; hyperparameters</h1>
+      <p class="lede">The one-page spec of the conditional-diffusion downscaler: what the network
+        is, exactly which channels go in and come out, and every knob with its default.
+        For the narrative walkthrough of <em>why</em> it is built this way, read
+        <a href="architecture.html">the architecture explainer</a>; for the variables' physical
+        meaning, <a href="era5_variables.html">the ERA5 variable notes</a>.</p>
+      <div class="metarow">
+        <span class="chip"><span class="dot" style="background:var(--diff)"></span>EDM diffusion (Karras 2022)</span>
+        <span class="chip"><span class="dot" style="background:var(--coarse)"></span>in: 16 ch · 1° ERA5 + statics</span>
+        <span class="chip"><span class="dot" style="background:var(--fine)"></span>out: 5 ch · 3 km HRRR (1059×1799)</span>
+        <span class="chip">54.0 M params</span>
+        <span class="chip">bf16 · DDP · activation ckpt</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- 01 ------------------------------------------------------------------ -->
+  <section id="architecture">
+    <div class="col">
+      <span class="snum">01</span>
+      <h2>Architecture: conv U-Net, transformer bottleneck, EDM wrapper</h2>
+      <p class="lead-in">Three nested pieces: a convolutional encoder/decoder, a stack of
+        windowed-attention transformer blocks where the grid is smallest, and the EDM
+        preconditioning wrapper that turns the network into a denoiser <span class="mono">D<sub>θ</sub></span>.</p>
+
+      <figure>
+        <div class="fig"><div class="fig-body svg-wrap">
+          <svg viewBox="0 0 860 300" width="860" height="300" role="img" aria-label="U-Net: conv encoder down 3 levels, transformer bottleneck, conv decoder up with skips">
+            <defs>
+              <marker id="ah2" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+                <path d="M0,0 L6,3 L0,6 Z" fill="var(--ink-soft)"/>
+              </marker>
+            </defs>
+            <rect x="10" y="120" width="26" height="60" rx="4" class="bot" opacity=".25"/>
+            <text x="23" y="200" text-anchor="middle" class="lbl-s">in·16</text>
+            <text x="23" y="212" text-anchor="middle" class="lbl-s">1059×1799</text>
+            <g>
+              <rect x="70"  y="108" width="70" height="84" rx="6" class="enc"/>
+              <text x="105" y="152" text-anchor="middle" class="lbl-w">L0 · 64</text>
+              <text x="105" y="205" text-anchor="middle" class="lbl-s">full res</text>
+              <rect x="170" y="124" width="60" height="52" rx="6" class="enc" opacity=".85"/>
+              <text x="200" y="153" text-anchor="middle" class="lbl-w">L1·128</text>
+              <text x="200" y="192" text-anchor="middle" class="lbl-s">÷2</text>
+              <rect x="258" y="132" width="50" height="36" rx="6" class="enc" opacity=".7"/>
+              <text x="283" y="153" text-anchor="middle" class="lbl-w">L2·256</text>
+              <text x="283" y="184" text-anchor="middle" class="lbl-s">÷4</text>
+            </g>
+            <rect x="360" y="126" width="140" height="48" rx="6" class="bot"/>
+            <text x="430" y="144" text-anchor="middle" class="lbl-w">bottleneck · 512</text>
+            <text x="430" y="157" text-anchor="middle" class="lbl-w">Res · 4×Transformer · Res</text>
+            <text x="430" y="169" text-anchor="middle" class="lbl-s">W-MSA 16×16 · adaLN-Zero</text>
+            <text x="430" y="192" text-anchor="middle" class="lbl-s">÷8 (~133×225)</text>
+            <g>
+              <rect x="552" y="132" width="50" height="36" rx="6" class="dec" opacity=".7"/>
+              <text x="577" y="153" text-anchor="middle" class="lbl-w">L2·256</text>
+              <rect x="630" y="124" width="60" height="52" rx="6" class="dec" opacity=".85"/>
+              <text x="660" y="153" text-anchor="middle" class="lbl-w">L1·128</text>
+              <rect x="720" y="108" width="70" height="84" rx="6" class="dec"/>
+              <text x="755" y="152" text-anchor="middle" class="lbl-w">L0 · 64</text>
+            </g>
+            <rect x="824" y="120" width="26" height="60" rx="4" class="fine" opacity=".9"/>
+            <text x="837" y="200" text-anchor="middle" class="lbl-s">out·5</text>
+            <path class="flow" d="M37,150 L68,150"/>
+            <path class="flow" d="M308,150 L358,150"/>
+            <path class="flow" d="M500,150 L550,150"/>
+            <path class="flow" d="M792,150 L822,150"/>
+            <path class="skip" d="M105,108 C105,60 755,60 755,108"/>
+            <path class="skip" d="M200,124 C200,84 660,84 660,124"/>
+            <path class="skip" d="M283,132 C283,104 577,104 577,132"/>
+            <text x="430" y="52" text-anchor="middle" class="lbl-s">skip connections carry fine detail across</text>
+            <text x="200" y="250" text-anchor="middle" class="lbl">ENCODER ↓ (conv)</text>
+            <text x="430" y="250" text-anchor="middle" class="lbl">REASON (attention)</text>
+            <text x="660" y="250" text-anchor="middle" class="lbl">DECODER ↑ (conv)</text>
+            <line x1="70" y1="262" x2="308" y2="262" stroke="var(--coarse)" stroke-width="2"/>
+            <line x1="360" y1="262" x2="500" y2="262" stroke="var(--diff)" stroke-width="2"/>
+            <line x1="552" y1="262" x2="790" y2="262" stroke="var(--fine)" stroke-width="2"/>
+          </svg>
+        </div></div>
+        <figcaption><b>Only cheap Conv2d layers touch the full 1059×1799 grid.</b> Channels double
+          as resolution halves; the transformer runs where the grid is 64× smaller. The odd grid is
+          reflect-padded up to a multiple of 8 and cropped back at the end.</figcaption>
+      </figure>
+
+      <div class="tbl-wrap"><table>
+        <thead><tr><th>stage</th><th>resolution</th><th>channels</th><th>blocks</th><th>module</th></tr></thead>
+        <tbody>
+          <tr><td>stem</td><td class="mono">1059×1799</td><td class="mono">16 → 64</td><td class="mono">Conv2d 3×3</td><td class="mono">unet.conv_in</td></tr>
+          <tr><td>encoder L0</td><td class="mono">full → ÷2</td><td class="mono">64 → 128</td><td class="mono">1× ResBlock + down</td><td class="mono">DownBlock</td></tr>
+          <tr><td>encoder L1</td><td class="mono">÷2 → ÷4</td><td class="mono">128 → 256</td><td class="mono">2× ResBlock + down</td><td class="mono">DownBlock</td></tr>
+          <tr><td>encoder L2</td><td class="mono">÷4 → ÷8</td><td class="mono">256 → 512</td><td class="mono">2× ResBlock + down</td><td class="mono">DownBlock</td></tr>
+          <tr><td>bottleneck</td><td class="mono">÷8 (~133×225)</td><td class="mono">512</td><td class="mono">ResBlock · 4× Transformer · ResBlock</td><td class="mono">mid_block1/mid_attn/mid_block2</td></tr>
+          <tr><td>decoder L2…L0</td><td class="mono">÷8 → full</td><td class="mono">512 → 64</td><td class="mono">up + skip-concat + ResBlocks (2,2,1)</td><td class="mono">UpBlock</td></tr>
+          <tr><td>head</td><td class="mono">1059×1799</td><td class="mono">64 → 5</td><td class="mono">GroupNorm · SiLU · Conv2d 3×3</td><td class="mono">unet.conv_out</td></tr>
+        </tbody>
+      </table></div>
+
+      <h3>The transformer blocks (<span class="mono">model/attention.py</span>)</h3>
+      <p>Each of the <span class="mono">attn_depth = 4</span> blocks is a pre-norm transformer:
+        windowed multi-head self-attention, then an MLP, each with a residual connection.
+        Specifics:</p>
+      <ul>
+        <li><strong>Windowed attention (Swin-style).</strong> Tokens attend within 16×16 windows;
+          blocks alternate unshifted / cyclically-shifted windows so information crosses window
+          boundaries every second block. A learned <strong>relative position bias</strong>
+          per head gives the attention directional (north–south vs east–west) structure.
+          Non-divisible grids are padded and the padded tokens are masked out of attention.</li>
+        <li><strong>adaLN-Zero noise conditioning.</strong> The EDM noise embedding modulates the
+          block's two LayerNorms (scale, shift) and gates both residual branches. Gates are
+          zero-initialized, so a fresh block is an <em>exact identity</em> — turning attention on
+          does not perturb early training; the network opens the gates as it learns to use them.</li>
+        <li><strong>Memory.</strong> Blocks are activation-checkpointed like the ResBlocks, and the
+          attention runs only at ÷8 resolution, so the full-resolution single-GPU memory budget
+          is preserved.</li>
+      </ul>
+
+      <h3>ResBlocks and noise conditioning</h3>
+      <p>Every ResBlock is Conv → <strong>AdaGN</strong> → SiLU, twice, plus a residual. AdaGN is
+        GroupNorm whose scale/shift come from the noise embedding — a sinusoidal embedding of
+        <span class="mono">c_noise = ln(σ)/4</span> passed through a 2-layer MLP
+        (<span class="mono">emb_dim = 256</span>). Downsampling is a stride-2 conv; upsampling is
+        bilinear + conv.</p>
+
+      <div class="callout">
+        <span class="k">EDM preconditioning (the wrapper)</span>
+        <p>The U-Net's raw output <span class="mono">F<sub>θ</sub></span> is blended with the noisy
+          input using σ-dependent coefficients
+          (<span class="mono">c_skip, c_out, c_in</span> — Karras et al. 2022, σ<sub>data</sub>=1):
+          <span class="mono">D<sub>θ</sub>(x, σ) = c_skip·x + c_out·F<sub>θ</sub>(c_in·x, c_noise)</span>.
+          Conditioning channels are concatenated un-scaled. Inference is a <strong>single-shot</strong>
+          conditional sample via the Heun ODE sampler — 18 steps, 35 network evaluations — not an
+          autoregressive rollout.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 02 ------------------------------------------------------------------ -->
+  <section id="io">
+    <div class="col">
+      <span class="snum">02</span>
+      <h2>Inputs &amp; outputs</h2>
+      <p class="lead-in">The network sees 16 input channels on the HRRR grid — the 5 noisy target
+        channels plus 11 conditioning channels — and predicts the 5 denoised HRRR channels.</p>
+
+      <h3>Input stack (<span class="mono">n_input_ch = 16</span>)</h3>
+      <div class="tbl-wrap"><table>
+        <thead><tr><th>#</th><th>channel</th><th>role</th><th>source / prep</th></tr></thead>
+        <tbody>
+          <tr><td class="mono">1–5</td><td class="mono">noisy t2m, u10, v10, log_sp, log_tp</td>
+            <td><span class="tag noise">noisy target</span></td>
+            <td>z-scored HRRR target + σ·ε, scaled by <span class="mono">c_in(σ)</span></td></tr>
+          <tr><td class="mono">6</td><td class="mono">2m_temperature</td>
+            <td><span class="tag cond">ERA5 driver</span></td>
+            <td rowspan="7">1° ERA5, bilinearly regridded onto the 3 km HRRR grid, per-channel
+              z-score (stats from <span class="mono">stats.npz</span>)</td></tr>
+          <tr><td class="mono">7–8</td><td class="mono">10m_u/v_component_of_wind</td>
+            <td><span class="tag cond">ERA5 driver</span></td></tr>
+          <tr><td class="mono">9–10</td><td class="mono">u/v_component_of_wind @ 850 hPa</td>
+            <td><span class="tag cond">ERA5 driver</span></td></tr>
+          <tr><td class="mono">11</td><td class="mono">mean_sea_level_pressure</td>
+            <td><span class="tag cond">ERA5 driver</span></td></tr>
+          <tr><td class="mono">12</td><td class="mono">specific_humidity @ 850 hPa</td>
+            <td><span class="tag cond">ERA5 driver</span></td></tr>
+          <tr><td class="mono">13</td><td class="mono">specific_humidity @ 700 hPa</td>
+            <td><span class="tag cond">ERA5 driver</span></td></tr>
+          <tr><td class="mono">14</td><td class="mono">total_precipitation_12hr</td>
+            <td><span class="tag cond">ERA5 driver</span></td></tr>
+          <tr><td class="mono">15</td><td class="mono">orog</td>
+            <td><span class="tag static">static</span></td>
+            <td>HRRR orography, min-max scaled to [0, 1]</td></tr>
+          <tr><td class="mono">16</td><td class="mono">lsm</td>
+            <td><span class="tag static">static</span></td>
+            <td>HRRR land–sea mask, binary, unnormalized</td></tr>
+        </tbody>
+      </table></div>
+
+      <div class="callout">
+        <span class="k">Two preprocessing rules that are load-bearing</span>
+        <p><strong>Precip transform.</strong> ERA5 tp is a 12 h accumulation in metres; the HRRR
+          target is a 6 h accumulation of <span class="mono">ln(mm + 1e-5)</span>. Channel 14 goes
+          through <span class="mono">log_precip_m_to_mm</span> (m→mm, same log, same dry-pixel floor
+          of −11.51) <em>before</em> regridding. Without it the channel is 1000× off scale and 77%
+          zeros. The 12 h→6 h window mismatch remains — the model learns the disaggregation, with
+          specific humidity as the clean (window-free) moisture predictor.</p>
+        <p><strong>Wind rotation.</strong> HRRR u10/v10 are grid-relative; ERA5's are
+          Earth-relative (up to ±22.8° apart at the CONUS edges). The dataset rotates the HRRR wind
+          <em>targets</em> to Earth-relative before normalizing, so model outputs are directly
+          comparable to ERA5/GenCast. New wind channels must be declared in
+          <span class="mono">data.hrrr_wind_pairs</span> or they are silently left unrotated.</p>
+      </div>
+
+      <h3>Output stack (<span class="mono">n_output_ch = 5</span>)</h3>
+      <div class="tbl-wrap"><table>
+        <thead><tr><th>#</th><th>channel</th><th>kind</th><th>meaning (physical, after de-normalizing)</th></tr></thead>
+        <tbody>
+          <tr><td class="mono">1</td><td class="mono">t2m</td><td><span class="tag target">prognostic</span></td><td>2 m temperature [K]</td></tr>
+          <tr><td class="mono">2</td><td class="mono">u10</td><td><span class="tag target">prognostic</span></td><td>10 m u-wind [m/s], <strong>Earth-relative</strong></td></tr>
+          <tr><td class="mono">3</td><td class="mono">v10</td><td><span class="tag target">prognostic</span></td><td>10 m v-wind [m/s], <strong>Earth-relative</strong></td></tr>
+          <tr><td class="mono">4</td><td class="mono">log_sp</td><td><span class="tag target">prognostic</span></td><td>log surface pressure</td></tr>
+          <tr><td class="mono">5</td><td class="mono">log_tp</td><td><span class="tag target">diagnostic</span></td><td>6 h precip, <span class="mono">ln(mm + 1e-5)</span></td></tr>
+        </tbody>
+      </table></div>
+
+      <p>All outputs are the HRRR <strong>full-field state</strong> at the conditioning time (not a
+        tendency), in per-channel z-score space; σ<sub>data</sub>=1 is valid because the stats make
+        targets ≈ unit variance. One sample = one timestamp; ensemble members come from re-sampling
+        the initial noise.</p>
+
+      <h3>The channel-count contract</h3>
+      <p><span class="mono">train.py</span> asserts this at startup and refuses to run on mismatch —
+        growing the variable lists is a <em>config</em> edit, made in
+        <span class="mono">configs/data/era5_hrrr.yaml</span> and
+        <span class="mono">configs/model/unet.yaml</span> together:</p>
+      <pre>n_era5_cond  == len(era5_variables)                        # 9
+n_prognostic == len(hrrr_prognostic_variables)             # 4
+n_diagnostic == len(hrrr_diagnostic_variables)             # 1
+model.n_output_ch == n_prognostic + n_diagnostic           # 5
+model.n_input_ch  == n_output_ch + n_era5_cond + n_static  # 5 + 9 + 2 = 16</pre>
+    </div>
+  </section>
+
+  <!-- 03 ------------------------------------------------------------------ -->
+  <section id="hparams">
+    <div class="col">
+      <span class="snum">03</span>
+      <h2>Hyperparameters</h2>
+      <p class="lead-in">Every knob, its default, and what it does. Config lives in the Hydra tree
+        under <span class="mono">configs/</span>; any value can be overridden on the command line
+        (<span class="mono">python train.py model.C_base=128</span>).</p>
+
+      <h3>Model — <span class="mono">configs/model/unet.yaml</span></h3>
+      <div class="tbl-wrap"><table>
+        <thead><tr><th>knob</th><th>default</th><th>what it does</th></tr></thead>
+        <tbody>
+          <tr><td class="mono">C_base</td><td class="mono">64</td><td>base channel width; levels get 64/128/256/512</td></tr>
+          <tr><td class="mono">n_res_blocks</td><td class="mono">[1, 2, 2]</td><td>ResBlocks per encoder level (mirrored in the decoder); length sets the number of levels (3 ⇒ ÷8 bottleneck)</td></tr>
+          <tr><td class="mono">num_groups</td><td class="mono">32</td><td>GroupNorm groups (must divide every channel width)</td></tr>
+          <tr><td class="mono">emb_dim</td><td class="mono">256</td><td>noise-embedding width feeding AdaGN and adaLN-Zero</td></tr>
+          <tr><td class="mono">dropout</td><td class="mono">0.0</td><td>dropout inside ResBlocks</td></tr>
+          <tr><td class="mono">use_strided_conv</td><td class="mono">true</td><td>stride-2 conv downsampling (false = AvgPool + conv)</td></tr>
+          <tr><td class="mono">use_attention</td><td class="mono">true</td><td>enable the transformer bottleneck (false ⇒ pure-conv U-Net, the source emulator's architecture)</td></tr>
+          <tr><td class="mono">attn_depth</td><td class="mono">4</td><td>transformer blocks at the bottleneck, alternating unshifted/shifted windows</td></tr>
+          <tr><td class="mono">attn_window_size</td><td class="mono">16</td><td>attention window, in bottleneck pixels (16×16 = 256 tokens/window)</td></tr>
+          <tr><td class="mono">attn_num_heads</td><td class="mono">8</td><td>attention heads; <strong>must divide</strong> bottleneck channels <span class="mono">C_base·2^n_levels</span> (512)</td></tr>
+          <tr><td class="mono">attn_mlp_ratio</td><td class="mono">4.0</td><td>hidden/dim ratio of each transformer block's MLP</td></tr>
+          <tr><td class="mono">n_input_ch / n_output_ch</td><td class="mono">16 / 5</td><td>network I/O widths — bound to the data config by the contract above</td></tr>
+        </tbody>
+      </table></div>
+
+      <h3>Diffusion (EDM) — <span class="mono">configs/training/default.yaml</span></h3>
+      <div class="tbl-wrap"><table>
+        <thead><tr><th>knob</th><th>default</th><th>what it does</th></tr></thead>
+        <tbody>
+          <tr><td class="mono">sigma_data</td><td class="mono">1.0</td><td>assumed target std (valid because targets are z-scored)</td></tr>
+          <tr><td class="mono">P_mean / P_std</td><td class="mono">−1.2 / 1.2</td><td>log-normal training σ distribution: σ = exp(P_mean + P_std·N(0,1))</td></tr>
+          <tr><td class="mono">sigma_min / sigma_max</td><td class="mono">0.002 / 80</td><td>σ range for the inference noise schedule</td></tr>
+          <tr><td class="mono">(sampler) n_steps</td><td class="mono">18</td><td>Heun ODE steps at inference (NFE = 2·18−1 = 35); ρ=7 schedule, s_churn=0 (deterministic given the seed)</td></tr>
+        </tbody>
+      </table></div>
+
+      <h3>Optimization &amp; schedule</h3>
+      <div class="tbl-wrap"><table>
+        <thead><tr><th>knob</th><th>default</th><th>what it does</th></tr></thead>
+        <tbody>
+          <tr><td class="mono">lr_max → lr_min</td><td class="mono">1e-4 → 1e-8</td><td>AdamW with cosine annealing over all epochs (rebased over remaining epochs on resume)</td></tr>
+          <tr><td class="mono">weight_decay</td><td class="mono">1e-5</td><td>AdamW weight decay (fused optimizer)</td></tr>
+          <tr><td class="mono">grad_clip</td><td class="mono">1.0</td><td>global grad-norm clip</td></tr>
+          <tr><td class="mono">per_gpu_batch</td><td class="mono">1</td><td>micro-batch per GPU (full-res fields are big)</td></tr>
+          <tr><td class="mono">accumulation_steps</td><td class="mono">16</td><td>gradient accumulation ⇒ effective batch = 1 × 16 × n_GPUs (128 on an 8-GPU node)</td></tr>
+          <tr><td class="mono">ema_decay</td><td class="mono">0.9999</td><td>EMA of weights; <strong>validation and inference use the EMA</strong>, not the raw weights</td></tr>
+          <tr><td class="mono">n_epochs</td><td class="mono">200</td><td>total schedule; val every <span class="mono">val_every_n_epochs = 5</span></td></tr>
+          <tr><td class="mono">precision</td><td class="mono">bf16</td><td>autocast for forward/backward; master weights fp32</td></tr>
+          <tr><td class="mono">diagnostic_loss_weight</td><td class="mono">1.0</td><td>relative weight of the diagnostic channel (log_tp) in the per-channel-mean loss; 4.0 reproduces the old "50% to precip" split</td></tr>
+          <tr><td class="mono">weight_update_start_epoch / …_every_n_epochs</td><td class="mono">20 / 10</td><td>adaptive per-variable (Ocampo) loss weights, updated from val losses; log_sp/log_tp capped at 0.5</td></tr>
+          <tr><td class="mono">phase2_start_epoch</td><td class="mono">160</td><td>phase-2 training start; spectral regularizer (weight 0.05) joins at epoch 161</td></tr>
+        </tbody>
+      </table></div>
+
+      <h3>Data &amp; splits — <span class="mono">configs/data/era5_hrrr.yaml</span></h3>
+      <div class="tbl-wrap"><table>
+        <thead><tr><th>knob</th><th>default</th><th>what it does</th></tr></thead>
+        <tbody>
+          <tr><td class="mono">grid_height × grid_width</td><td class="mono">1059 × 1799</td><td>the HRRR CONUS grid (3 km Lambert conformal)</td></tr>
+          <tr><td class="mono">train / val / test</td><td class="mono">2015–2022 / 2023 / 2024–2025</td><td>temporal split of the 6-hourly index; ~11.7 k train timestamps</td></tr>
+          <tr><td class="mono">index_path</td><td class="mono">valid_timestamps.txt</td><td>timestamps where <em>both</em> an ERA5 and an HRRR file exist (built by <span class="mono">bash/02_build_index_and_stats.sh</span>)</td></tr>
+          <tr><td class="mono">stats_path</td><td class="mono">norm_stats/stats.npz</td><td>per-channel z-score stats (built by <span class="mono">scripts/precompute_stats.py</span>)</td></tr>
+          <tr><td class="mono">rotate_hrrr_winds</td><td class="mono">true</td><td>rotate HRRR wind targets to Earth-relative (see §02)</td></tr>
+          <tr><td class="mono">num_workers / prefetch_factor</td><td class="mono">2 / 2</td><td>DataLoader workers per rank (each regrids ERA5 on the fly)</td></tr>
+          <tr><td class="mono">use_dummy</td><td class="mono">false</td><td>true swaps in random tensors — plumbing/smoke runs only, losses are meaningless</td></tr>
+        </tbody>
+      </table></div>
+
+      <h3>Checkpointing / interruptible training</h3>
+      <div class="tbl-wrap"><table>
+        <thead><tr><th>knob</th><th>default</th><th>what it does</th></tr></thead>
+        <tbody>
+          <tr><td class="mono">ckpt_dir</td><td class="mono">downscaler/checkpoints</td><td>runs <strong>auto-resume</strong> from <span class="mono">&lt;ckpt_dir&gt;/latest.pt</span>; point elsewhere for an independent run</td></tr>
+          <tr><td class="mono">save_every_n_steps</td><td class="mono">100</td><td>mid-epoch checkpoint cadence — the most a stop can throw away</td></tr>
+          <tr><td class="mono">keep_last_n_checkpoints</td><td class="mono">3</td><td>archival snapshots retained (latest.pt is a hardlink, always valid)</td></tr>
+          <tr><td class="mono">stop_file_poll_every_n_micro_steps</td><td class="mono">10</td><td>how often rank 0 checks for the <span class="mono">STOP</span> sentinel</td></tr>
+          <tr><td class="mono">rebase_lr_on_resume</td><td class="mono">true</td><td>rebuild the cosine over the actual remaining steps after a resume/scale change</td></tr>
+        </tbody>
+      </table></div>
+
+      <p>Operational entry points for all of this — preflight, smoke test, index/stats build,
+        start/stop/status — live in <span class="mono">bash/</span> (plain shell, works with or
+        without Slurm); the Slurm-specific runbook is <span class="mono">slurm/README.md</span>.</p>
+    </div>
+  </section>
+
+  <footer class="foot">
+    <div class="col">
+      ERA5 → HRRR downscaler · reference card · generated from the configs at
+      <span class="mono">configs/model/unet.yaml</span>, <span class="mono">configs/training/default.yaml</span>,
+      <span class="mono">configs/data/era5_hrrr.yaml</span> — if this page and the configs disagree,
+      the configs win.
+    </div>
+  </footer>
+
+</div>
+</body></html>

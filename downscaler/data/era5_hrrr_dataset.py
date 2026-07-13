@@ -26,6 +26,7 @@ learns to add ~fine-scale (3 km) structure the coarse driver cannot resolve.
 
 import logging
 import os
+from collections.abc import Mapping
 from datetime import datetime
 
 import numpy as np
@@ -58,7 +59,10 @@ def _parse_var_spec(spec):
         {'name': 'u', 'level': 850}                  -> ('u', 850.0, None)
         {'name': 'tp', 'transform': 'log_precip_m_to_mm'}
     """
-    if isinstance(spec, dict):
+    # Mapping, not dict: specs loaded from the Hydra config arrive as OmegaConf
+    # DictConfig, which is a Mapping but NOT a dict — isinstance(spec, dict) would
+    # silently stringify it into a bogus variable name.
+    if isinstance(spec, Mapping):
         name = spec["name"]
         level = spec.get("level", None)
         transform = spec.get("transform", None)

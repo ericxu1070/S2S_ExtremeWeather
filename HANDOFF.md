@@ -16,6 +16,26 @@
 
 ---
 
+## STATUS (Jul 13 2026) — DOWNSCALER: TRANSFORMER BOTTLENECK + READY TO TRAIN (no GenCast changes)
+
+Downscaler-only update; GenCast untouched. Three things landed:
+
+1. **The U-Net is now a transformer U-Net.** The `WindowedSelfAttention` stub is a real
+   Swin-style windowed-attention bottleneck (4 blocks, 16×16 windows, adaLN-Zero — identity
+   at init), on by default. 38.2M → 54.0M params. Spec: `downscaler/docs/model_reference.html`.
+2. **The two real-data blockers are built**: the timestamp index (16,019 timestamps where
+   both an ERA5 and an HRRR file exist, 2015–2025) and `norm_stats/stats.npz`. Building the
+   stats surfaced and fixed a real bug: dict-form variable specs from the Hydra config
+   (OmegaConf `DictConfig`) failed `isinstance(spec, dict)` and were silently stringified —
+   the precip channel would have crashed every real-data run (`data/era5_hrrr_dataset.py`,
+   regression test in `tests/test_var_spec.py`).
+3. **Operator runbook for cluster owners**: `downscaler/bash/` — numbered scripts
+   (preflight → smoke → data prep → train/stop/status) so the a3mega owners can run
+   training in their idle gaps without knowing the project. `downscaler/bash/README.md`
+   is the handoff doc. Training itself is the interruptible harness from `slurm/`.
+
+Next actual step: `bash downscaler/bash/03_train.sh` on the cluster.
+
 ## STATUS (Jul 11 2026) — DOWNSCALER MOVED INTO THIS REPO (no jobs; GenCast unaffected)
 
 The ERA5→HRRR diffusion downscaler was moved from `eric/downscaler` to **`downscaler/`**

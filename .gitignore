@@ -25,6 +25,8 @@ downscaler/checkpoints/
 downscaler/outputs/
 downscaler/norm_stats/
 downscaler/wandb/
+# derived: bash/02_build_index_and_stats.sh rebuilds it from what's on disk
+downscaler/valid_timestamps.txt
 # Slurm writes job logs here. The DIRECTORY must exist at submit time (sbatch resolves
 # --output before the job script runs), hence the tracked .gitkeep — ignore only its
 # contents.

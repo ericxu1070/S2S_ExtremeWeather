@@ -109,10 +109,12 @@ keeps the data alive.
 Knobs live in `configs/training/default.yaml` under *Checkpointing / interruptible
 training*.
 
-## Note: this still runs on dummy data
+## Note: this trains on real data now
 
-`configs/data/era5_hrrr.yaml` defaults to `use_dummy: true`, so the job as shipped trains
-on random tensors — it exercises the full pipeline but means nothing scientifically. The
-real-data prerequisites (rebuild the HRRR netCDF archive from `shards_v1`, fix the ERA5
-variable/coord names and path template, build the timestamp index, precompute norm stats)
-are listed in `../README.md`. Once those are done, add `data.use_dummy=false`.
+`configs/data/era5_hrrr.yaml` defaults to `use_dummy: false` and the real-data
+prerequisites (timestamp index, norm stats) exist — build or rebuild them with
+`bash ../bash/02_build_index_and_stats.sh`. `sbatch slurm/train.sbatch` as shipped is a
+real training run. For dummy-data plumbing tests, add `data.use_dummy=true`.
+
+For an operator-facing wrapper around all of this (preflight checks, smoke, start/stop/
+status, with a no-Slurm fallback), see **`../bash/README.md`**.

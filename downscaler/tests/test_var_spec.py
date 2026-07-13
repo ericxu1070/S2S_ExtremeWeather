@@ -74,3 +74,19 @@ def test_mm_variant_agrees_with_the_metre_variant():
     f_m = ERA5_TRANSFORMS["log_precip_m_to_mm"]
     f_mm = ERA5_TRANSFORMS["log_precip_mm"]
     assert f_m(np.array([0.025]))[0] == pytest.approx(f_mm(np.array([25.0]))[0])
+
+
+def test_omegaconf_dictconfig_spec():
+    """Specs loaded from the Hydra config are DictConfig, not dict. This exact case
+    silently stringified the spec into a bogus variable name and broke the first
+    real-data stats run -- keep it covered."""
+    from omegaconf import OmegaConf
+
+    cfg = OmegaConf.create(
+        {"v": [{"name": "total_precipitation_12hr", "transform": "log_precip_m_to_mm"}]}
+    )
+    spec = list(cfg.v)[0]  # how train.py / precompute_stats.py pass it
+    assert not isinstance(spec, dict)  # the trap: DictConfig is a Mapping, not a dict
+    assert _parse_var_spec(spec) == (
+        "total_precipitation_12hr", None, "log_precip_m_to_mm"
+    )
