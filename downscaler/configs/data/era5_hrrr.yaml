@@ -1,0 +1,108 @@
+# ============================================================================
+# ERA5 (1 deg) -> HRRR (3 km CONUS) downscaling data config
+# ============================================================================
+# Real data is on disk and these paths/names are verified against it:
+#   ERA5  16,072 files, 2015-2025, 6-hourly  (eric/era5_1deg)
+#   HRRR  16,019 files, 2015-2025, 6-hourly  (moein/hrrr_work/hrrr_nc_v3_rebuilt)
+# Sanity-check a single pair end to end with:
+#     python scripts/compare_timestep.py --timestamp 2023-07-15T18
+# use_dummy=true still swaps in random tensors for plumbing/smoke runs.
+
+use_dummy: false
+
+# --- Paths ---
+era5_dir:       /home/ubuntu/Vayuh/data/eric/era5_1deg/
+hrrr_dir:       /home/ubuntu/Vayuh/data/moein/hrrr_work/hrrr_nc_v3_rebuilt/
+grid_meta_path: /home/ubuntu/Vayuh/data/moein/hrrr_work/hrrr_grid_reference.nc
+stats_path:     /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/downscaler/norm_stats/stats.npz   # scripts/precompute_stats.py
+index_path:     /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/downscaler/valid_timestamps.txt   # ISO timestamps, one per line
+
+# --- File path templates (strftime), relative to era5_dir / hrrr_dir ---
+era5_path_template: "%Y/era5_1deg.%Y%m%d.t%Hz.nc"
+hrrr_path_template: "%Y/hrrr.%Y%m%d.t%Hz.v3.nc"
+
+# --- ERA5 coordinate names (verified: the files use short lat/lon, not latitude/longitude) ---
+era5_lat_name: lat
+era5_lon_name: lon
+era5_level_name: level
+match_era5_lon_to_360: true      # HRRR reference lon is -180..180; ERA5 here is 0..359
+
+# --- Static conditioning variables (read from the HRRR files) ---
+orog_var: orog
+lsm_var: lsm
+
+# --- Wind rotation (see data/wind_rotation.py) --------------------------------
+# HRRR u/v are GRID-relative (hrrr_grid_reference.nc: uv_relative_to_grid=1); ERA5's are
+# EARTH-relative. They differ by the Lambert convergence angle: 0 on the 262.5degE central
+# meridian, +-22.8deg at the edges of CONUS. We rotate the HRRR targets into Earth-relative
+# so the model's OUTPUTS are Earth-relative and directly comparable to ERA5/GenCast.
+# Turning this off reproduces the old (incorrect) behaviour.
+rotate_hrrr_winds: true
+hrrr_wind_pairs:                 # (u, v) channel pairs within hrrr_prognostic_variables
+  - [u10, v10]
+
+# --- Variable registry -------------------------------------------------------
+# ERA5 driver channels (input conditioning). Specs may be "name", "name:level",
+# or {name: ..., level: ...}. Start small (core-4) and extend — this is a config
+# edit, not code. n_era5_cond MUST equal len(era5_variables).
+# NOTE: the ERA5 files use CF long names, not the short ECMWF codes.
+# Every target channel needs a driver here, or the model is guessing:
+#   t2m      <- 2m_temperature
+#   u10/v10  <- 10m winds (surface) + 850 hPa winds (the flow steering them)
+#   log_sp   <- mean_sea_level_pressure
+#   log_tp   <- total_precipitation_12hr + specific_humidity
+era5_variables:
+  - 2m_temperature                 # -> HRRR t2m
+  - 10m_u_component_of_wind        # -> HRRR u10 (same height; the natural driver)
+  - 10m_v_component_of_wind        # -> HRRR v10
+  - u_component_of_wind:850        # above the boundary layer: the steering flow
+  - v_component_of_wind:850
+  - mean_sea_level_pressure
+  - specific_humidity:850          # moisture: the clean precip predictor (no window mismatch)
+  - specific_humidity:700
+  # Precip driver. ERA5 tp is a 12 h accumulation in METRES; the HRRR log_tp target is a 6 h
+  # accumulation of ln(mm + 1e-5). The transform puts this channel on the target's units and
+  # scale. The 6 h target window is contained in the 12 h input window, so the model still has
+  # to learn the 12h->6h disaggregation — but "where and roughly how much" beats no signal.
+  - name: total_precipitation_12hr
+    transform: log_precip_m_to_mm
+# HRRR prognostic target channels (full-field state). n_prognostic MUST match.
+hrrr_prognostic_variables:
+  - t2m
+  - u10
+  - v10
+  - log_sp
+# HRRR diagnostic target channels. n_diagnostic MUST match.
+hrrr_diagnostic_variables:
+  - log_tp
+
+# --- Channel counts ----------------------------------------------------------
+# MUST stay consistent with the variable lists above AND configs/model/unet.yaml.
+# train.py asserts all of this at startup:
+#   n_era5_cond  == len(era5_variables)
+#   n_prognostic == len(hrrr_prognostic_variables)
+#   n_diagnostic == len(hrrr_diagnostic_variables)
+#   model.n_output_ch == n_prognostic + n_diagnostic
+#   model.n_input_ch  == n_output_ch + n_era5_cond + n_static
+# Grow the lists + these counts together as a config edit.
+n_era5_cond: 9      # ERA5 driver channels (regridded onto HRRR grid)
+n_prognostic: 4     # HRRR full-field target channels
+n_diagnostic: 1     # HRRR diagnostic target channels
+n_static: 2         # orog, lsm
+
+# --- HRRR target grid ---
+grid_height: 1059
+grid_width: 1799
+
+# --- Temporal splits ---
+train_start: "2015-01-01"
+train_end: "2022-12-31"
+val_start: "2023-01-01"
+val_end: "2023-12-31"
+test_start: "2024-01-01"
+test_end: "2025-12-31"
+
+# --- DataLoader ---
+num_workers: 2
+prefetch_factor: 2
+pin_memory: true

@@ -1,0 +1,20 @@
+# Normalization for the ERA5 -> HRRR downscaler (see data/normalization.py).
+# All three systems are per-channel z-score (mean-subtracted), so normalized
+# targets have ~unit variance and EDM sigma_data=1.0 is valid.
+
+# System E: ERA5 conditioning input (coarse drivers, regridded to HRRR grid)
+era5_normalizer:
+  kind: zscore          # x_norm = (x - era5_mu) / era5_sigma
+
+# System H: HRRR prognostic full-field STATE target
+#   (differs from the HRRR emulator, which normalized a zero-mean tendency)
+hrrr_normalizer:
+  kind: zscore          # y_norm = (y - hrrr_mu) / hrrr_sigma
+
+# System D: HRRR diagnostic target (e.g. log_tp)
+diag_normalizer:
+  kind: zscore          # d_norm = (d - diag_mu) / diag_sigma
+
+# Static channels (built on the HRRR grid in the dataset)
+#   orog: min-max to [0, 1]
+#   lsm:  binary, no normalization

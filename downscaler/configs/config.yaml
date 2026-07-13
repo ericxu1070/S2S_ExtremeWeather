@@ -1,0 +1,14 @@
+defaults:
+  - model: unet
+  - training: default
+  - data: era5_hrrr
+  - normalization: default
+  - logging: wandb
+  - _self_
+
+seed: 42
+
+# Stable, project-local checkpoint dir (fresh runs auto-resume from here).
+# Point elsewhere for a scaled/independent run so it gets its own dir.
+ckpt_dir: /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/downscaler/checkpoints
+resume_from: null

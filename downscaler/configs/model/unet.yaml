@@ -1,0 +1,21 @@
+C_base: 64
+n_res_blocks: [1, 2, 2]
+num_groups: 32
+emb_dim: 256
+dropout: 0.0
+use_strided_conv: true
+# Transformer bottleneck (model/attention.py): Swin-style windowed attention blocks
+# between the two mid ResBlocks, at the 8x-downsampled resolution (~133x225 at full
+# HRRR res). Blocks alternate unshifted/shifted windows; adaLN-Zero gates make each
+# block an exact identity at init, so enabling this does not perturb early training.
+use_attention: true
+attn_depth: 4          # number of transformer blocks
+attn_window_size: 16   # window size in bottleneck pixels
+attn_num_heads: 8      # must divide bottleneck channels (C_base * 2^n_levels = 512)
+attn_mlp_ratio: 4.0
+
+# Channel counts — must satisfy (asserted in train.py):
+#   n_output_ch = n_prognostic + n_diagnostic                     (= 4 + 1)
+#   n_input_ch  = n_output_ch + n_era5_cond + n_static            (= 5 + 9 + 2)
+n_input_ch: 16    # 5 noisy target + 11 conditioning (9 ERA5 + 2 static)
+n_output_ch: 5    # 4 HRRR prognostic + 1 diagnostic

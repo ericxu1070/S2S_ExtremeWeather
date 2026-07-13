@@ -1,0 +1,394 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<title>ERA5 1° Variable Inventory</title>
+<style>
+  :root {
+    /* neutrals — blue-biased, chosen not defaulted */
+    --paper:    #eef2f5;
+    --panel:    #f8fafb;
+    --panel-2:  #e6ecf0;
+    --ink:      #16202a;
+    --ink-soft: #46586a;
+    --ink-faint:#748898;
+    --line:     #d3dce2;
+    --line-2:   #c2ccd4;
+    /* primary accent — barometric teal */
+    --accent:   #0d7d8c;
+    --accent-ink:#0a5d69;
+    /* category hues — encode the three variable families */
+    --air:      #2f6f9f;   /* upper-air pressure levels */
+    --surface:  #b06a1f;   /* surface / single-level */
+    --static:   #5c7c68;   /* time-invariant fields */
+    --air-bg:   rgba(47,111,159,0.09);
+    --surface-bg:rgba(176,106,31,0.10);
+    --static-bg:rgba(92,124,104,0.10);
+
+    --mono: ui-monospace, "SF Mono", "JetBrains Mono", "Cascadia Code", Menlo, Consolas, monospace;
+    --sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --paper:    #0b1015;
+      --panel:    #121a22;
+      --panel-2:  #0e161d;
+      --ink:      #e6edf2;
+      --ink-soft: #a3b2c0;
+      --ink-faint:#6f8194;
+      --line:     #223039;
+      --line-2:   #2c3d48;
+      --accent:   #34b8c9;
+      --accent-ink:#5fcdda;
+      --air:      #5aa0d4;
+      --surface:  #d69a4e;
+      --static:   #86ad92;
+      --air-bg:   rgba(90,160,212,0.12);
+      --surface-bg:rgba(214,154,78,0.12);
+      --static-bg:rgba(134,173,146,0.12);
+    }
+  }
+  :root[data-theme="dark"] {
+    --paper:#0b1015; --panel:#121a22; --panel-2:#0e161d;
+    --ink:#e6edf2; --ink-soft:#a3b2c0; --ink-faint:#6f8194;
+    --line:#223039; --line-2:#2c3d48;
+    --accent:#34b8c9; --accent-ink:#5fcdda;
+    --air:#5aa0d4; --surface:#d69a4e; --static:#86ad92;
+    --air-bg:rgba(90,160,212,0.12); --surface-bg:rgba(214,154,78,0.12); --static-bg:rgba(134,173,146,0.12);
+  }
+  :root[data-theme="light"] {
+    --paper:#eef2f5; --panel:#f8fafb; --panel-2:#e6ecf0;
+    --ink:#16202a; --ink-soft:#46586a; --ink-faint:#748898;
+    --line:#d3dce2; --line-2:#c2ccd4;
+    --accent:#0d7d8c; --accent-ink:#0a5d69;
+    --air:#2f6f9f; --surface:#b06a1f; --static:#5c7c68;
+    --air-bg:rgba(47,111,159,0.09); --surface-bg:rgba(176,106,31,0.10); --static-bg:rgba(92,124,104,0.10);
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    background: var(--paper);
+    color: var(--ink);
+    font-family: var(--sans);
+    line-height: 1.55;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .wrap {
+    max-width: 940px;
+    margin: 0 auto;
+    padding: clamp(1.5rem, 4vw, 3.5rem) clamp(1.1rem, 4vw, 2.5rem) 4rem;
+  }
+
+  /* ---- header ---- */
+  header { margin-bottom: 2.2rem; }
+  .eyebrow {
+    font-family: var(--mono);
+    font-size: 0.72rem;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--accent-ink);
+    margin-bottom: 0.85rem;
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+  }
+  .eyebrow::before {
+    content: "";
+    width: 26px; height: 2px;
+    background: var(--accent);
+    display: inline-block;
+  }
+  h1 {
+    font-size: clamp(1.9rem, 5vw, 2.9rem);
+    line-height: 1.05;
+    letter-spacing: -0.02em;
+    font-weight: 640;
+    text-wrap: balance;
+    margin-bottom: 0.7rem;
+  }
+  .lede {
+    color: var(--ink-soft);
+    font-size: 1.02rem;
+    max-width: 62ch;
+  }
+  .filename {
+    font-family: var(--mono);
+    font-size: 0.82rem;
+    color: var(--ink-faint);
+    margin-top: 1rem;
+    padding: 0.5rem 0.75rem;
+    background: var(--panel-2);
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    display: inline-block;
+  }
+  .filename b { color: var(--accent-ink); font-weight: 600; }
+
+  /* ---- readout strip ---- */
+  .readout {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 1px;
+    background: var(--line);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    overflow: hidden;
+    margin-bottom: 1.4rem;
+  }
+  .cell {
+    background: var(--panel);
+    padding: 0.9rem 1rem;
+  }
+  .cell .k {
+    font-family: var(--mono);
+    font-size: 0.66rem;
+    letter-spacing: 0.11em;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+    margin-bottom: 0.35rem;
+  }
+  .cell .v {
+    font-size: 1.02rem;
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+  }
+  .cell .v small { font-weight: 500; color: var(--ink-soft); font-size: 0.8rem; }
+
+  /* ---- pressure levels ---- */
+  .levels {
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 1rem 1.15rem 1.15rem;
+    margin-bottom: 2.6rem;
+  }
+  .levels .k {
+    font-family: var(--mono);
+    font-size: 0.66rem;
+    letter-spacing: 0.11em;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+    margin-bottom: 0.7rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+  }
+  .levels .k span { color: var(--air); }
+  .chips { display: flex; flex-wrap: wrap; gap: 0.4rem; }
+  .chip {
+    font-family: var(--mono);
+    font-size: 0.82rem;
+    font-variant-numeric: tabular-nums;
+    padding: 0.28rem 0.55rem;
+    border-radius: 5px;
+    background: var(--air-bg);
+    color: var(--ink);
+    border: 1px solid transparent;
+  }
+  .chip:last-child { border-color: var(--air); font-weight: 600; }
+
+  /* ---- variable families ---- */
+  .family { margin-bottom: 2.4rem; }
+  .family-head {
+    display: flex;
+    align-items: baseline;
+    gap: 0.7rem;
+    margin-bottom: 0.9rem;
+    flex-wrap: wrap;
+  }
+  .dot { width: 10px; height: 10px; border-radius: 50%; align-self: center; flex: none; }
+  .family-head h2 {
+    font-size: 1.15rem;
+    letter-spacing: -0.01em;
+    font-weight: 640;
+  }
+  .sig {
+    font-family: var(--mono);
+    font-size: 0.76rem;
+    color: var(--ink-faint);
+    background: var(--panel-2);
+    padding: 0.15rem 0.5rem;
+    border-radius: 5px;
+  }
+  .count {
+    margin-left: auto;
+    font-family: var(--mono);
+    font-size: 0.72rem;
+    color: var(--ink-faint);
+    letter-spacing: 0.06em;
+  }
+
+  .table-scroll { overflow-x: auto; }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.9rem;
+    min-width: 520px;
+  }
+  thead th {
+    font-family: var(--mono);
+    font-size: 0.64rem;
+    letter-spacing: 0.11em;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+    text-align: left;
+    font-weight: 500;
+    padding: 0 0.9rem 0.5rem;
+    border-bottom: 1px solid var(--line-2);
+  }
+  tbody td {
+    padding: 0.62rem 0.9rem;
+    border-bottom: 1px solid var(--line);
+    vertical-align: baseline;
+  }
+  tbody tr:last-child td { border-bottom: none; }
+  .var-name {
+    font-family: var(--mono);
+    font-size: 0.84rem;
+    font-weight: 600;
+    color: var(--ink);
+    white-space: nowrap;
+  }
+  .desc { color: var(--ink-soft); }
+  .units {
+    font-family: var(--mono);
+    font-size: 0.82rem;
+    color: var(--cat, var(--ink-soft));
+    white-space: nowrap;
+    font-variant-numeric: tabular-nums;
+  }
+  .units.none { color: var(--ink-faint); font-style: italic; }
+
+  .family[data-cat="air"]     { --cat: var(--air); }
+  .family[data-cat="surface"] { --cat: var(--surface); }
+  .family[data-cat="static"]  { --cat: var(--static); }
+  .family[data-cat="air"]     .dot { background: var(--air); }
+  .family[data-cat="surface"] .dot { background: var(--surface); }
+  .family[data-cat="static"]  .dot { background: var(--static); }
+  .family[data-cat="air"]     tbody tr:hover td { background: var(--air-bg); }
+  .family[data-cat="surface"] tbody tr:hover td { background: var(--surface-bg); }
+  .family[data-cat="static"]  tbody tr:hover td { background: var(--static-bg); }
+
+  /* ---- footnote ---- */
+  footer {
+    margin-top: 2.4rem;
+    padding-top: 1.4rem;
+    border-top: 1px solid var(--line);
+    color: var(--ink-faint);
+    font-size: 0.82rem;
+    display: grid;
+    gap: 0.4rem;
+  }
+  footer b { color: var(--ink-soft); font-weight: 600; }
+  footer code {
+    font-family: var(--mono);
+    font-size: 0.78rem;
+    color: var(--accent-ink);
+  }
+</style>
+
+<div class="wrap">
+  <header>
+    <div class="eyebrow">ERA5 &middot; 1.0&deg; reanalysis &middot; GenCast input format</div>
+    <h1>NetCDF Variable Inventory</h1>
+    <p class="lede">Every field carried in a single 1&deg; ERA5 timestep file &mdash; six atmospheric variables across 13 pressure levels, six surface fields, and two time-invariant masks.</p>
+    <div class="filename">era5_1deg.<b>YYYYMMDD</b>.t<b>{00,06,12,18}</b>z.nc</div>
+  </header>
+
+  <div class="readout">
+    <div class="cell"><div class="k">Dimensions</div><div class="v">time&middot;level&middot;lat&middot;lon</div></div>
+    <div class="cell"><div class="k">Shape</div><div class="v">1 &times; 13 &times; 181 &times; 360</div></div>
+    <div class="cell"><div class="k">Grid</div><div class="v">1.0&deg; <small>global</small></div></div>
+    <div class="cell"><div class="k">Latitude</div><div class="v">&minus;90 &rarr; 90</div></div>
+    <div class="cell"><div class="k">Longitude</div><div class="v">0 &rarr; 359</div></div>
+    <div class="cell"><div class="k">Timesteps / day</div><div class="v">4 <small>6-hourly</small></div></div>
+  </div>
+
+  <div class="levels">
+    <div class="k"><span>Pressure levels — hPa</span><span>13 levels</span></div>
+    <div class="chips">
+      <span class="chip">50</span><span class="chip">100</span><span class="chip">150</span>
+      <span class="chip">200</span><span class="chip">250</span><span class="chip">300</span>
+      <span class="chip">400</span><span class="chip">500</span><span class="chip">600</span>
+      <span class="chip">700</span><span class="chip">850</span><span class="chip">925</span>
+      <span class="chip">1000</span>
+    </div>
+  </div>
+
+  <section class="family" data-cat="air">
+    <div class="family-head">
+      <span class="dot"></span>
+      <h2>Upper-air fields</h2>
+      <span class="sig">(time, level, lat, lon)</span>
+      <span class="count">6 vars &times; 13 levels</span>
+    </div>
+    <div class="table-scroll">
+      <table>
+        <thead><tr><th>Variable</th><th>Description</th><th>Units</th></tr></thead>
+        <tbody>
+          <tr><td class="var-name">geopotential</td><td class="desc">Height of each pressure surface (g&middot;z)</td><td class="units">m&sup2; s&#8315;&sup2;</td></tr>
+          <tr><td class="var-name">temperature</td><td class="desc">Air temperature on pressure levels</td><td class="units">K</td></tr>
+          <tr><td class="var-name">u_component_of_wind</td><td class="desc">Eastward wind component</td><td class="units">m s&#8315;&sup1;</td></tr>
+          <tr><td class="var-name">v_component_of_wind</td><td class="desc">Northward wind component</td><td class="units">m s&#8315;&sup1;</td></tr>
+          <tr><td class="var-name">vertical_velocity</td><td class="desc">Pressure-vertical velocity (omega)</td><td class="units">Pa s&#8315;&sup1;</td></tr>
+          <tr><td class="var-name">specific_humidity</td><td class="desc">Water-vapor mass fraction</td><td class="units">kg kg&#8315;&sup1;</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="family" data-cat="surface">
+    <div class="family-head">
+      <span class="dot"></span>
+      <h2>Surface &amp; single-level fields</h2>
+      <span class="sig">(time, lat, lon)</span>
+      <span class="count">6 vars</span>
+    </div>
+    <div class="table-scroll">
+      <table>
+        <thead><tr><th>Variable</th><th>Description</th><th>Units</th></tr></thead>
+        <tbody>
+          <tr><td class="var-name">2m_temperature</td><td class="desc">Air temperature at 2 m</td><td class="units">K</td></tr>
+          <tr><td class="var-name">mean_sea_level_pressure</td><td class="desc">Pressure reduced to mean sea level</td><td class="units">Pa</td></tr>
+          <tr><td class="var-name">10m_u_component_of_wind</td><td class="desc">Eastward wind at 10 m</td><td class="units">m s&#8315;&sup1;</td></tr>
+          <tr><td class="var-name">10m_v_component_of_wind</td><td class="desc">Northward wind at 10 m</td><td class="units">m s&#8315;&sup1;</td></tr>
+          <tr><td class="var-name">sea_surface_temperature</td><td class="desc">Ocean surface skin temperature</td><td class="units">K</td></tr>
+          <tr><td class="var-name">total_precipitation_12hr</td><td class="desc">Precipitation accumulated over 12 h</td><td class="units none">m — unlabeled</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="family" data-cat="static">
+    <div class="family-head">
+      <span class="dot"></span>
+      <h2>Static fields</h2>
+      <span class="sig">(lat, lon)</span>
+      <span class="count">2 vars &middot; time-invariant</span>
+    </div>
+    <div class="table-scroll">
+      <table>
+        <thead><tr><th>Variable</th><th>Description</th><th>Units</th></tr></thead>
+        <tbody>
+          <tr><td class="var-name">geopotential_at_surface</td><td class="desc">Surface elevation as geopotential (orography)</td><td class="units">m&sup2; s&#8315;&sup2;</td></tr>
+          <tr><td class="var-name">land_sea_mask</td><td class="desc">Land fraction of each cell (0 sea &rarr; 1 land)</td><td class="units">0–1</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <footer>
+    <div><b>Source</b> — ERA5 via NCAR RDA ds633.0, native 0.25&deg;.</div>
+    <div><b>Coarsening</b> — 0.25&deg; &rarr; 1.0&deg; by 1-in-4 grid-point subsampling (GenCast convention).</div>
+    <div><b>Total</b> — 14 data variables · <code>6&times;13 + 6 + 2</code> = 86 2-D fields per file.</div>
+  </footer>
+</div>
+
+</body>
+</html>

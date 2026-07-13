@@ -1,0 +1,34 @@
+[project]
+name = "era5-hrrr-downscaler"
+version = "0.1.0"
+description = "Conditional-diffusion (EDM) downscaler: coarse ERA5 (1 deg) -> HRRR (3 km CONUS). Architecture ported from moein/regional/hrrr_edm."
+requires-python = "==3.11.*"
+dependencies = [
+    "torch==2.5.1",
+    "numpy==1.26.4",
+    "hydra-core==1.3.2",
+    "omegaconf==2.3.0",
+    "wandb==0.25.0",
+    "netCDF4==1.7.1",
+    # Real ERA5->HRRR path: reading ERA5 (nc/zarr) + bilinear regrid to HRRR grid.
+    "xarray==2025.6.1",
+    "scipy==1.14.1",
+]
+
+[project.optional-dependencies]
+# ERA5 from ARCO zarr / cloud stores.
+zarr = ["zarr==2.18.3"]
+viz = ["matplotlib==3.9.2", "cartopy==0.24.0"]
+dev = ["pytest==9.0.3"]
+
+[tool.uv]
+package = false
+
+# Pull torch from the CUDA 12.4 wheel index (node driver 570.x / CUDA 12.8 supports it).
+[tool.uv.sources]
+torch = { index = "pytorch-cu124" }
+
+[[tool.uv.index]]
+name = "pytorch-cu124"
+url = "https://download.pytorch.org/whl/cu124"
+explicit = true

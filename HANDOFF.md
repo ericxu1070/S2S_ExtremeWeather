@@ -4,9 +4,56 @@
 **1.0°** full checkpoints on **12 out-of-sample extreme events** at **week-2**
 (14-day lead), then produce cross-resolution comparison figures.
 
+> **Scope of this file.** This handoff tracks the **GenCast experiments only** (`gencast_s2s/`,
+> `xres/`) — live PBS job IDs, what data is built, failure modes, triage. Everything below
+> the next section assumes Derecho/PBS/JAX.
+>
+> The repo also contains **`downscaler/`** (ERA5 1° → HRRR 3 km diffusion model, PyTorch, runs
+> off-Derecho). It has **no cluster jobs, no queue state, and nothing to triage**, so it is
+> deliberately not tracked in the STATUS stack below — see the Jul 11 entry for where it came
+> from, `CLAUDE.md` for how the two stacks relate, and `downscaler/README.md` for the project
+> itself. If you were sent here to work on the downscaler, this file has almost nothing for you.
+
 ---
 
-## STATUS (Jul 9 2026, later) — SECOND VERIFICATION BATCH + ROOT DIR SORTED (job `6684088`)
+## STATUS (Jul 11 2026) — DOWNSCALER MOVED INTO THIS REPO (no jobs; GenCast unaffected)
+
+The ERA5→HRRR diffusion downscaler was moved from `eric/downscaler` to **`downscaler/`**
+inside this repo, because it is an **extension of this project** rather than a separate one:
+`xres` measured what 0.25° buys at week-2 and how brutally it costs (~50 GiB VRAM/member,
+~15 h/event, ~185 GPU-h for one 12-event pass) — the downscaler is the cheap alternative
+path to fine scale. Keep the ensemble coarse at 1.0°, and learn 1° → 3 km as a separate
+generative model. Because it trains on ERA5/HRRR *analysis* pairs it is forecast-agnostic,
+so it can eventually be applied to a coarse GenCast member to produce a **3 km downscaled S2S
+ensemble** with no 0.25° GenCast run at all.
+
+**Nothing about the GenCast experiments changed** — no code, config, path, `runs/` output, or
+figure was touched, and the completed xres results below still stand.
+
+What the move involved:
+
+- `mv` into `downscaler/` (it had no git history of its own; it is now untracked content in
+  this repo — `git add downscaler/` when you want it versioned).
+- Rewrote the 3 absolute paths that pointed at the old location (`ckpt_dir` in
+  `downscaler/configs/config.yaml`; `stats_path` + `index_path` in
+  `downscaler/configs/data/era5_hrrr.yaml`). The other absolute paths in that config
+  (`era5_dir`, `hrrr_dir`, `grid_meta_path`) point outside the project and were left alone.
+- Re-ran the CPU smoke test from the new location — passes end-to-end, and the checkpoint
+  writes to the new `ckpt_dir`, confirming the rewrite. Its artifacts (`checkpoints/`,
+  hydra `outputs/`) were deleted afterwards and are now gitignored.
+
+**The two stacks are decoupled and must stay that way** — `downscaler/` does not import from
+`gencast_s2s/` or `xres/`, uses PyTorch (not JAX), and runs in the `moe` env on a GPU box (not
+`my-env` on Derecho). Do not submit it to PBS. The GenCast↔downscaler coupling described
+above is **not built yet**; when it is, it belongs in a thin adapter that writes GenCast
+members into the format `Era5HrrrDataset` expects, not in a cross-import.
+
+**Status of the downscaler itself: plumbing works, no science yet.** The 1° ERA5 is still on
+Derecho (scratch was down), so `data.use_dummy: true` is the default and the model has only
+ever been run on *random tensors*. `downscaler/README.md` lists the 6 steps to switch to real
+data — the first is transferring the 1° ERA5 off Derecho, which is the actual blocker.
+
+## PREVIOUS STATUS (Jul 9 2026, later) — SECOND VERIFICATION BATCH + ROOT DIR SORTED (job `6684088`)
 
 - Every PDF/Brier/CRPS/rank figure now comes in TWO batches: own-grid truth (no
   suffix, as before) and a **common-baseline batch** (`*_vs_era5_0p25.png`) where
@@ -502,6 +549,7 @@ xres_combined_extreme.png
 | `gencast_s2s/` | Core package (config, data, model, inference) |
 | `xres/` | Cross-resolution extensions |
 | `third_party/graphcast/` | GraphCast source (editable install) |
+| `downscaler/` | **Separate stack:** ERA5 1° → HRRR 3 km diffusion model (PyTorch, no PBS). See `downscaler/README.md` |
 
 ---
 
@@ -528,8 +576,12 @@ When user says "a job left qstat, read HANDOFF.md":
 
 ---
 
-*Last updated: Tue Jul 7 2026 ~19:10 MDT. Infer restructured per user request into
-24-member single-GPU PBS arrays: `6665322[]` (0.25°), `6665323[]` (1.0° — re-rolls
-only Idalia+Vermont after the ARCO_EPOCH rebuild), compare `6665324` Held on both.
-Old full-node jobs 6664794/6665042/6665043 qdel'd. Disk: ERA5 18/18 (post-fix),
-inputs 12/12 per res, 1p0 cubes 10/12, 0p25 cubes 0/12.*
+*Last updated: Sat Jul 11 2026. The `downscaler/` project (ERA5 1° → HRRR 3 km diffusion)
+was moved into this repo as an extension — no GenCast code, config, or output was touched,
+and it has no cluster jobs; see the Jul 11 STATUS entry at the top. The GenCast xres
+experiment itself remains **complete** (both resolutions, 12/12 cubes each, figures built) as
+of the Jul 8–9 entries — no jobs are expected in `qstat`.*
+
+*(Historical note: the previous footer, dated Jul 7 ~19:10 MDT, described the then-live member
+arrays `6665322[]` / `6665323[]` / compare `6665324` and disk state "0p25 cubes 0/12". That
+footer was already stale — those arrays finished Jul 8 with all 48 subjobs exit 0.)*

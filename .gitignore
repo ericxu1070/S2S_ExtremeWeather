@@ -19,7 +19,19 @@ env/
 third_party/
 runs/
 
+# Downscaler (PyTorch stack) — runtime artifacts only.
+# NB: downscaler/data/ and downscaler/model/ are CODE (python packages), not data.
+downscaler/checkpoints/
+downscaler/outputs/
+downscaler/norm_stats/
+downscaler/wandb/
+# Slurm writes job logs here. The DIRECTORY must exist at submit time (sbatch resolves
+# --output before the job script runs), hence the tracked .gitkeep — ignore only its
+# contents.
+downscaler/logs/*
+!downscaler/logs/.gitkeep
+
 # Data & large outputs (uncomment if you don't want to track these)
 # *.nc
 # *.zarr/
-# data/
+# data/    <-- do NOT uncomment: it would also ignore downscaler/data/, which is source code

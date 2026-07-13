@@ -1,0 +1,60 @@
+# EDM noise schedule
+sigma_data: 1.0
+P_mean: -1.2
+P_std: 1.2
+sigma_min: 0.002
+sigma_max: 80.0
+
+# Optimizer
+lr_max: 1.0e-4
+lr_min: 1.0e-8
+weight_decay: 1.0e-5
+grad_clip: 1.0
+fused_optimizer: true
+
+# Batch
+per_gpu_batch: 1
+accumulation_steps: 16
+
+# EMA
+ema_decay: 0.9999
+
+# Schedule
+n_epochs: 200
+phase2_start_epoch: 160
+val_every_n_epochs: 5
+rollout_every_n_epochs: 20
+rollout_start_epoch: 150
+
+# Variable weighting (Ocampo et al.)
+weight_update_start_epoch: 20
+weight_update_every_n_epochs: 10
+logsp_weight_cap: 0.5
+logtp_weight_cap: 0.5
+
+# Spectral regularizer (Phase 2 training)
+spectral_reg_weight: 0.05
+spectral_reg_start_epoch: 161
+
+# Precision
+precision: bf16
+
+# Max steps override (null = run full epochs, set integer for debugging)
+max_steps: null
+
+# --- Loss ---
+# Relative weight of each DIAGNOSTIC channel (log_tp) against each prognostic channel.
+# 1.0 = every channel counts the same. The loss is a per-channel mean, so with 4 prognostic
+# + 1 diagnostic, precip gets 1/5 of the gradient at weight 1.0. Raise this only if you
+# deliberately want to prioritize precipitation.
+diagnostic_loss_weight: 1.0
+
+# --- Checkpointing / interruptible training -------------------------------------------
+# This job is expected to be started and stopped by hand between other cluster jobs
+# (see slurm/README.md). It always saves at the end of an epoch; save_every_n_steps adds
+# periodic saves inside the epoch, which bounds how much work a stop can throw away.
+# Resume is automatic from <ckpt_dir>/latest.pt — just resubmit.
+save_every_n_steps: 100          # optimizer steps between checkpoints (0 = epoch-end only)
+keep_last_n_checkpoints: 3       # archival snapshots to retain (latest.pt is always kept)
+stop_file_poll_every_n_micro_steps: 10   # how often rank 0 stats <ckpt_dir>/STOP
+rebase_lr_on_resume: true        # rebuild the cosine over the remaining epochs on resume
