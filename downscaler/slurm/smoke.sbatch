@@ -150,7 +150,7 @@ hdr "summary"
 if [ "$FAILS" = 0 ]; then
     rm -rf "$CKPT"
     echo "  ALL CHECKS PASSED — the checkpoint/stop/resume harness works on this cluster."
-    echo "  Next: sbatch slurm/train.sbatch   (a3mega, 8 GPUs, still dummy data)"
+    echo "  Next: sbatch slurm/train.sbatch   (a3mega, 8 GPUs, REAL data by default)"
     exit 0
 fi
 # Keep the scratch checkpoints on failure — they are the evidence. /tmp is node-local and

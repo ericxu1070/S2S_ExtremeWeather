@@ -1,7 +1,7 @@
 # Running the downscaler training (handoff runbook)
 
 This folder is for whoever operates the GPUs. You do **not** need to know the science or
-the codebase — five numbered scripts, run in order, and the job is explicitly designed to
+the codebase — six numbered scripts, run in order, and the job is explicitly designed to
 be **stopped at any moment and resumed later**, so it can soak up idle time between your
 own jobs without ever holding a node hostage.
 
@@ -16,7 +16,7 @@ cd /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/downscaler
 
 bash bash/00_preflight.sh              # read-only checks           (~1 min)
 bash bash/01_smoke.sh                  # harness self-test, no GPU  (~3 min)
-bash bash/02_build_index_and_stats.sh  # one-time data prep, CPU    (~5 min)
+bash bash/02_build_index_and_stats.sh  # one-time data prep, CPU    (~35 min — see below)
 bash bash/03_train.sh                  # start / resume training
 
 bash bash/05_status.sh                 # is it running? what step? healthy?
@@ -58,14 +58,20 @@ No heartbeat for >10 min = look at the tail of the log. On a fresh resume you sh
 | | |
 |---|---|
 | GPU | 1 node × 8 GPUs (H100-class); per-GPU batch 1, bf16, ~60–70 GB VRAM/GPU |
-| Disk | ~5 GB of checkpoints (3 rolling snapshots + `latest.pt`), under `checkpoints/` |
+| Disk | ~3 GB of checkpoints (3 rolling snapshots; `latest.pt` is a hardlink), under `checkpoints/` |
 | Data (read-only) | ERA5 + HRRR netCDF trees on NFS — the scripts never write into them |
 | Wall time | multi-day for the full 200 epochs — that's *why* it's interruptible; run it in whatever gaps you have |
 | Env | conda env `moe` (PyTorch). Nothing to install; preflight verifies it |
-| Network | none needed. W&B logging is optional and a failure to reach it never kills the run |
+| Network | none needed. Metrics log to a JSONL file in the repo (`metrics/train_metrics.jsonl`; plot with `python scripts/plot_metrics.py`). W&B is opt-in (`logging=wandb`, needs a login) and a failure to reach it never kills the run |
 
 ## Troubleshooting
 
+- **`02` looks hung** — it isn't: the stats pass streams 500 samples through the real
+  read+regrid path at ~4 s each (~35 min total; progress lines count samples). Do NOT
+  start a second instance to "help" — the final stats write is not atomic and two writers
+  can corrupt it.
+- **Stopping a run that used a non-default checkpoint dir** — tell the stop script where:
+  `CKPT_DIR=/path/to/dir bash bash/04_stop.sh`.
 - **`03_train.sh` refuses to start** — it either found a run already active (stop it or
   let it be) or the one-time prerequisites are missing (`bash bash/02_build_index_and_stats.sh`).
 - **A run dies instantly at startup** — read the first 30 lines of its log. A stale `STOP`

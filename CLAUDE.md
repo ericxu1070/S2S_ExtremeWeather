@@ -2,19 +2,47 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+## Which machine you are on (read this first)
+
+This checkout lives on the **a3mega Slurm GPU cluster** (GCP; hostnames start with
+`nucla3m`). You are on its **login node, which has no usable GPU** (`nvidia-smi` fails);
+GPUs live on 8 whole-node `a3mega` nodes (H100s) plus small CPU `debug` nodes, reachable
+**only via `sbatch`**. The conda env here is **`moe`**. Derecho — where the GenCast
+experiments ran — is a **different machine** (NCAR, PBS Pro,
+`/glade/derecho/scratch/exu/S2S_ExtremeWeather`, env `my-env`) and is **not reachable from
+this box**.
+
+Traps this split sets:
+
+- This box has `qstat`/`qsub` binaries, but they are **Slurm's PBS-compat wrappers for the
+  local cluster**. `qstat -u exu` exits 0 with EMPTY output — that means "wrong machine",
+  not "no jobs". Every PBS/qstat command in this file and in `HANDOFF.md` is Derecho-only.
+- **Never run GenCast stages on this box** (`python run_xres.py ...`,
+  `python run_experiment.py ...`, `qsub pbs/*`). The imports succeed in `moe` and there is
+  **no machine guard**: the code will start writing into the local `runs/` tree, then fail
+  on the hardcoded `/glade` HRRR path or the missing GPU.
+- What this box holds of GenCast: full source, model checkpoints (`runs/models/`), the
+  original horizon-experiment outputs (`runs/week{2,3,4}/`), the final xres figures
+  (`figures/xres/`, `figures/original/`) and synced Derecho logs (`logs/`). The xres data
+  cubes/verif (`runs/xres/`) were **never synced** — they exist only on Derecho.
+- The **downscaler is the live project on this machine**. GenCast work here is read-only
+  analysis of the synced figures/logs unless you are actually in a Derecho session.
+
 ## What this is
 
 **Two independent stacks live in this repo.** They share a scientific goal (skillful,
-high-resolution forecasts of CONUS extreme events) but share *no code, no environment, and
-no cluster*. Figure out which one you are working on before touching anything:
+high-resolution forecasts of CONUS extreme events) but share **no code**, and their live
+homes are different clusters. (They are not fully separate *environments*: the `moe` env
+here imports both stacks, which is exactly why the machine check above matters.) Figure out
+which one you are working on before touching anything:
 
 | | **GenCast S2S** (original) | **Downscaler** (extension) |
 |---|---|---|
 | Dirs | `gencast_s2s/`, `xres/`, `pbs/`, `runs/` | `downscaler/` (self-contained) |
 | Framework | JAX / GraphCast | PyTorch (DDP) |
-| Runs on | Derecho, via PBS (`my-env`) | this box / GPU cluster (`moe` env) |
+| Runs on | **Derecho** (PBS, `my-env`) — not reachable from here | **this cluster** (a3mega Slurm, `moe` env) |
 | Does | ensemble forecasts at 1.0° & 0.25°, weeks 2–4 lead | super-resolves 1° → 3 km |
-| Docs | this file + `HANDOFF.md` | `downscaler/README.md` |
+| Docs | this file + `HANDOFF.md` | `downscaler/README.md` + `downscaler/bash/README.md` |
 
 ### 1. GenCast S2S ensemble forecasting (`gencast_s2s/`, `xres/`)
 
@@ -60,14 +88,16 @@ belongs in a thin adapter that writes GenCast members into the dataset's expecte
 **Read `downscaler/README.md`** before working on it — it documents the model, the data
 contract, and the channel-count invariants. See "Downscaler" section below for how to run it.
 
-## Running GenCast (Derecho / PBS)
+## Running GenCast (Derecho sessions ONLY)
 
-Applies to `gencast_s2s/` + `xres/` only — the downscaler runs on a GPU box, not Derecho.
+Applies to `gencast_s2s/` + `xres/` only, **and only in a session on Derecho**
+(`/glade/derecho/scratch/exu/S2S_ExtremeWeather`). None of the commands in this section
+work from the a3mega box — see "Which machine you are on" above.
 
-This is a login node: `prep` gets OOM-killed (exit 137) if run here — submit everything via
-PBS. Project code for `#PBS -A` is in the `pbs/*.pbs` scripts. Env: `module load conda &&
-conda activate my-env` (the README's `moe` env refers to the original 8×H100 Slurm cluster;
-on Derecho it is always `my-env`). `slurm/` scripts are for that original cluster — on
+Derecho's login node OOM-kills `prep` (exit 137) — submit everything via PBS. Project code
+for `#PBS -A` is in the `pbs/*.pbs` scripts. Env: `module load conda && conda activate
+my-env` (the root README's `moe` env refers to this repo's original a3mega home; on Derecho
+it is always `my-env`). The root `slurm/` scripts are for the original a3mega runs — on
 Derecho use `pbs/` only.
 
 ```bash
@@ -102,7 +132,8 @@ qstat -fx JOBID.desched1 | grep -E "job_state|Exit_status"
 tail -80 logs/<jobname>.log
 ```
 
-There is no test suite or linter; validation is smoke runs (one event via
+The GenCast stack has no test suite or linter (the downscaler has one — `pytest
+downscaler/tests/`); validation is smoke runs (one event via
 `XRES_EVENTS_SEL=...` / `GENCAST_EVENTS=...` / `*_MAX_EVENTS=1`) plus checking expected
 output files (counts listed in HANDOFF.md).
 
@@ -124,7 +155,9 @@ are resubmitted, not restarted):
 Key modules: `config.py`/`xconfig.py` define events, checkpoints, the CONUS box, and the
 entire `runs/` folder layout (all paths flow from here); `data.py`/`xdata.py` handle ERA5
 access; `xmetrics.py` derives per-member metrics from cubes; `hrrr.py`/`xhrrr.py` build the
-HRRR overlay truth (skipped on Derecho — no shard archive, figures are ERA5-only).
+HRRR overlay truth from the netCDF archive at `C.HRRR_NC` (a `/glade` path, Derecho-only;
+the old npz-shard vars `HRRR_SHARDS`/`HRRR_GRID_REF`/`HRRR_T2M_CHANNEL` in the root README
+are gone, and the xres figures DO include the red HRRR curve/panel since Jul 7).
 
 `third_party/graphcast/` is a gitignored editable install created by `setup_env.sh`, which
 also patches `rollout.py` for modern xarray/jax — never reclone without re-applying the
@@ -151,10 +184,11 @@ patch (i.e., rerun `setup_env.sh`). `runs/` (all data/outputs) is also gitignore
 - Only post-2019 events are valid (the `<2019` checkpoints would otherwise be scored on
   their training period).
 
-## Downscaler (`downscaler/`)
+## Downscaler (`downscaler/`) — the live project on this machine
 
-Self-contained PyTorch project — **do not** load the GenCast env or submit it to PBS. It was
-moved in from `eric/downscaler` as an extension of this work (see "What this is" above).
+Self-contained PyTorch project; runs on THIS cluster (env `moe`, GPUs via `sbatch` — never
+PBS). It was moved in from `eric/downscaler` as an extension of this work (see "What this
+is" above).
 
 The model is a convolutional **U-Net** (`model/unet.py`) wrapped in **EDM preconditioning**
 (`model/preconditioning.py`, Karras et al. 2022), i.e. the diffusion denoiser `D_θ`.
@@ -172,22 +206,49 @@ HRRR state at T), the target is the HRRR **full field** (not the T→T+6h tenden
 normalization is a full z-score (not zero-mean tendency).
 
 ```bash
-# env is `moe` (PyTorch), NOT the GenCast `my-env`
+# env is `moe`. ALL downscaler commands assume cwd = downscaler/ (relative config paths
+# break from the repo root).
 cd downscaler
 
-# CPU-safe smoke run — verified working from this location
+# Preferred path: the operator runbook in bash/ (six idempotent scripts; bash/README.md):
+bash bash/00_preflight.sh              # read-only env/data/config checks (~1 min)
+bash bash/01_smoke.sh                  # harness self-test incl. stop/resume, no GPU (~3 min)
+bash bash/02_build_index_and_stats.sh  # timestamp index + norm stats. ~35 min (stats stream
+                                       #   500 samples at ~4 s each) — it is NOT hung. Never
+                                       #   run two at once (the stats write is not atomic).
+bash bash/03_train.sh                  # start OR resume (submits slurm/train.sbatch here;
+                                       #   falls back to torchrun only where GPUs are visible)
+bash bash/05_status.sh                 # running? which step? healthy?
+bash bash/04_stop.sh                   # graceful stop — checkpoints, then exits
+                                       #   (CKPT_DIR=... if the run used a non-default ckpt_dir)
+
+# State checks — trust these, not status claims in docs (doc claims rot):
+wc -l valid_timestamps.txt             # 16019 => timestamp index built
+ls norm_stats/stats.npz                # norm stats built? (FORCE_REBUILD=1 bash/02 to redo)
+ls checkpoints/                        # trained checkpoints, if any
+squeue -u $USER -n downscaler          # training job live?
+
+# Manual CPU-safe smoke run. The ckpt_dir override is MANDATORY: without it the tiny smoke
+# checkpoint lands in the real checkpoints/, and the next real run auto-resumes from a toy
+# model and crashes on a state-dict mismatch.
 python train.py data.use_dummy=true training.max_steps=3 training.n_epochs=1 \
   data.grid_height=24 data.grid_width=32 data.num_workers=0 \
-  model.C_base=16 'model.n_res_blocks=[1,1]' model.num_groups=8 logging.enabled=false
+  model.C_base=16 'model.n_res_blocks=[1,1]' model.num_groups=8 logging.enabled=false \
+  ckpt_dir=checkpoints/_smoke
 
-# full-res dummy (needs GPU) / real training
-torchrun --nproc_per_node=<N> train.py data.use_dummy=true training.max_steps=10
+# torchrun works ONLY where GPUs are visible (inside an sbatch job or a real GPU box —
+# NOT on this login node, where nvidia-smi itself fails):
 torchrun --nproc_per_node=<N> train.py data.use_dummy=false
 
-pytest tests/     # test_smoke.py (dummy dataset + one denoise step), test_model.py (shapes/formulas)
+pytest tests/   # 5 files: test_smoke (dummy data + one denoise step), test_model
+                # (UNet/EDM/EMA shapes & formulas), test_attention (Swin invariants,
+                # identity-at-init), test_var_spec (spec parsing + precip transform,
+                # DictConfig regression), test_wind_rotation (Lambert angle vs analytic)
 ```
 
-Config is a Hydra tree; `configs/data/era5_hrrr.yaml` is the main knob.
+Config is a Hydra tree; `configs/data/era5_hrrr.yaml` is the main knob. Hydra gotcha: keys
+not already in the config need a `+` prefix — e.g. `+stats.n_samples=500` for
+`scripts/precompute_stats.py` (without the `+`, Hydra rejects the override).
 
 ### Downscaler constraints that bite
 
@@ -195,8 +256,14 @@ Config is a Hydra tree; `configs/data/era5_hrrr.yaml` is the main knob.
   and HRRR (16,019 files, `hrrr_nc_v3_rebuilt/`) both cover 2015–2025 6-hourly, and the
   config's paths/coord names/variable names are verified against them. `use_dummy=true`
   still swaps in random tensors for smoke runs — do not report loss curves from that path
-  as if they mean anything. **No trained checkpoint exists yet**; still missing are the
-  timestamp index and `stats.npz` (see `downscaler/README.md`).
+  as if they mean anything. Check training prerequisites (index / stats / checkpoints) with
+  the state commands above, never with a doc's status line.
+- **A train/val/test split exists and matters**: 2015–2022 / 2023 / 2024–25 by year
+  (`configs/data/era5_hrrr.yaml`; `train.py` filters the index; stats use train years only).
+  **Warning:** 9 of the 12 xres extreme events fall inside 2015–2022, so scoring downscaled
+  GenCast members on pre-2023 events with this split evaluates on training data. Before the
+  definitive training run either set `train_end: 2018-12-31` (mirrors GenCast's `<2019`
+  checkpoints — all 12 events become out-of-sample) or plan to score 2023+ events only.
 - **HRRR winds are grid-relative; ERA5's are Earth-relative.** `Era5HrrrDataset` rotates the
   HRRR wind targets to Earth-relative (`data/wind_rotation.py`) so model outputs are
   Earth-relative. The Lambert convergence angle reaches ±22.8° at the edges of CONUS —
@@ -204,14 +271,22 @@ Config is a Hydra tree; `configs/data/era5_hrrr.yaml` is the main knob.
   Any new wind channel must be declared in `data.hrrr_wind_pairs` or it will NOT be rotated.
 - **Sanity-check the data contract on one timestep** before a long run:
   `python scripts/compare_timestep.py --timestamp 2023-07-15T18` — prints the
-  bilinear-interpolation baseline (the number the model must beat) and writes a figure.
+  bilinear-interpolation baseline and writes a figure. Beating that baseline on
+  single-sample RMSE is NOT the success criterion — see "Evaluation caveats" in
+  `downscaler/README.md`.
 - **Channel counts are asserted at startup** by `train.py` and will hard-fail on mismatch:
   `n_era5_cond == len(era5_variables)`, `n_prognostic`/`n_diagnostic` likewise,
   `model.n_output_ch == n_prognostic + n_diagnostic`, and
   `model.n_input_ch == n_output_ch + n_era5_cond + n_static`. Variable lists live in
   `configs/data/era5_hrrr.yaml` and the counts in `configs/model/unet.yaml` — **grow them
   together**, it is a config edit, not a code change. Currently 9 ERA5 drivers
-  (`n_input_ch=16`, `n_output_ch=5`).
+  (`n_input_ch=16`, `n_output_ch=5`). Three things those asserts do NOT catch: (1) a stale
+  `stats.npz` — any variable-list change requires
+  `FORCE_REBUILD=1 bash bash/02_build_index_and_stats.sh`, else training crashes on a shape
+  mismatch at the FIRST BATCH, after the Slurm allocation; (2) a variable name that isn't in
+  the ERA5 files — only 14 variables exist, inventory in `downscaler/docs/variables.md`;
+  (3) nothing about attention — `attn_num_heads` is NOT affected by input-channel growth
+  (the stem conv absorbs the input count before the bottleneck).
 - **ERA5 precip needs its transform.** ERA5 `total_precipitation_12hr` is a 12 h accumulation
   in **metres**; the HRRR `log_tp` target is a 6 h accumulation of `ln(mm + 1e-5)`. The
   `log_precip_m_to_mm` transform (`ERA5_TRANSFORMS` in `data/era5_hrrr_dataset.py`) puts the

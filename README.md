@@ -1,5 +1,14 @@
 # GenCast S2S extreme-weather ensemble — batch pipeline (8×H100 / Slurm, Derecho PBS)
 
+> **Partially historical (Jul 2026) — start at `CLAUDE.md` for current instructions.**
+> This README describes the original 8×H100/Slurm (a3mega) pipeline. Since then: the
+> GenCast runs (including `xres/`) moved to NCAR Derecho (see `CLAUDE.md` + `HANDOFF.md`;
+> `setup_env.sh` now targets Derecho's `my-env`), the HRRR shard config vars
+> (`HRRR_SHARDS`/`HRRR_GRID_REF`/`HRRR_T2M_CHANNEL`) were replaced by `HRRR_NC`, and the
+> combined PDFs now live under `figures/original/`, not the project root. The repo also
+> gained `downscaler/` (ERA5 1° → HRRR 3 km diffusion downscaler — `downscaler/README.md`),
+> which is the live project on the a3mega cluster.
+
 Batch port of `gencast_extreme_events_ensemble.ipynb`. For each out-of-sample extreme
 event we initialize GenCast (1.0° "Mini" diffusion checkpoint, `<2019`) some weeks before
 the event's peak and ask whether the forecast **distribution** over the verification week

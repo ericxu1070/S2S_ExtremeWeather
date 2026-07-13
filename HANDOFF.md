@@ -8,6 +8,13 @@
 > `xres/`) — live PBS job IDs, what data is built, failure modes, triage. Everything below
 > the next section assumes Derecho/PBS/JAX.
 >
+> **Machine check before running any triage step:** if `hostname` starts with `nucla3m` you
+> are on the a3mega Slurm box, NOT Derecho. That box's `qstat`/`qsub` are Slurm
+> compat-wrappers for the LOCAL cluster — `qstat -u exu` there exits 0 with EMPTY output,
+> which means "wrong machine", not "no jobs". The xres `runs/` data (cubes, verif) exists
+> only on Derecho; the a3mega box holds only the synced figures (`figures/xres/`) and logs
+> (named `logs/<id>.desched1.OU` there, not `logs/xres_*_m.o<id>.<m>`).
+>
 > The repo also contains **`downscaler/`** (ERA5 1° → HRRR 3 km diffusion model, PyTorch, runs
 > off-Derecho). It has **no cluster jobs, no queue state, and nothing to triage**, so it is
 > deliberately not tracked in the STATUS stack below — see the Jul 11 entry for where it came
@@ -23,8 +30,13 @@ Downscaler-only update; GenCast untouched. Three things landed:
 1. **The U-Net is now a transformer U-Net.** The `WindowedSelfAttention` stub is a real
    Swin-style windowed-attention bottleneck (4 blocks, 16×16 windows, adaLN-Zero — identity
    at init), on by default. 38.2M → 54.0M params. Spec: `downscaler/docs/model_reference.html`.
-2. **The two real-data blockers are built**: the timestamp index (16,019 timestamps where
-   both an ERA5 and an HRRR file exist, 2015–2025) and `norm_stats/stats.npz`. Building the
+2. **Real-data blockers**: the timestamp index is built (16,019 timestamps where both an
+   ERA5 and an HRRR file exist, 2015–2025 — independently re-verified as a correct
+   two-sided intersection). `norm_stats/stats.npz` was still **mid-build** when this entry
+   was first written (launched 00:46 Jul 13, takes ~35 min, not the documented ~5; log:
+   `downscaler/logs/build_stats.log`) — verify with `ls downscaler/norm_stats/stats.npz`
+   rather than trusting this sentence, and never run two `02_build_index_and_stats.sh`
+   instances at once (the stats write is not atomic). Building the
    stats surfaced and fixed a real bug: dict-form variable specs from the Hydra config
    (OmegaConf `DictConfig`) failed `isinstance(spec, dict)` and were silently stringified —
    the precip channel would have crashed every real-data run (`data/era5_hrrr_dataset.py`,
@@ -34,7 +46,43 @@ Downscaler-only update; GenCast untouched. Three things landed:
    training in their idle gaps without knowing the project. `downscaler/bash/README.md`
    is the handoff doc. Training itself is the interruptible harness from `slurm/`.
 
-Next actual step: `bash downscaler/bash/03_train.sh` on the cluster.
+Next actual step: `bash downscaler/bash/03_train.sh` on the cluster (it exits 1 with
+"missing norm stats" until `stats.npz` exists — that is the guard working, not a bug).
+
+### Open issues from the Jul 13 code/methodology review (unfixed as of writing)
+
+Found by a four-way review (docs-vs-code audit, environment audit, fresh-agent usability
+test, methodology review). Fix before/alongside the first real training run:
+
+- **Eval-contaminating split (blocker for the S2S endpoint):** train years 2015–2022
+  contain 9 of the 12 xres events. Set `train_end: 2018-12-31` in
+  `downscaler/configs/data/era5_hrrr.yaml` (mirrors GenCast `<2019`) before the definitive
+  run, or only score 2023+ events downstream. (The 2024–25 test years are currently
+  referenced by no code.)
+- **`scripts/compare_timestep.py --ckpt` loads NO weights:** `ckpt["ema_state_dict"]` is
+  `{"shadow": ..., "decay": ...}`, and `load_state_dict(..., strict=False)` silently loads
+  zero params → it scores a random-weight model while printing "loaded". Fix: load
+  `["ema_state_dict"]["shadow"]` and fail on missing keys.
+- Same script scores model winds against UN-rotated HRRR truth while the baseline rows use
+  rotated truth — the model's u10/v10 RMSE would absorb the ±22.8° projection artifact the
+  script exists to warn about.
+- **cos(lat) loss weights are wrong on the Lambert grid** (HRRR cells are near-equal-area;
+  cos(lat) down-weights the northern US ~33%, Seattle ≈ 2/3 of Miami). One-line fix in
+  `scripts/precompute_stats.py` (write uniform weights) — do it BEFORE the long run; the
+  weights bake into the loss via `stats.npz`.
+- **Ocampo adaptive variable weighting is dead code:** its update epochs (≥20, every 10)
+  never intersect the val epochs (every 5 → epoch ≡ 4 mod 5), so weights stay 1.0 forever;
+  its "cap" also halves rather than caps. Fix the schedule + cap and normalize to mean 1,
+  or delete the feature and report uniform weights.
+- **Stats pipeline is not crash-safe:** `precompute_stats.py` writes with a bare
+  `np.savez` (truncated file if killed mid-write), and `bash/02` skips rebuild on mere
+  file existence and exits 0 even when its own sanity check fails.
+- `model/unet.py` pad/crop crashes (`int - None`) when exactly ONE of H/W is
+  window-divisible — latent (full-res 1059×1799 pads both dims), bites custom grid sizes.
+- **Single-sample RMSE vs the bilinear baseline is a biased yardstick:** a calibrated
+  generative model pays ~√2 vs the conditional mean. Evaluate ensemble-mean RMSE + CRPS +
+  power spectra (`Downscaler.ensemble()` exists in `evaluation/downscale.py`; nothing
+  calls it yet).
 
 ## STATUS (Jul 11 2026) — DOWNSCALER MOVED INTO THIS REPO (no jobs; GenCast unaffected)
 
@@ -596,7 +644,8 @@ When user says "a job left qstat, read HANDOFF.md":
 
 ---
 
-*Last updated: Sat Jul 11 2026. The `downscaler/` project (ERA5 1° → HRRR 3 km diffusion)
+*Last updated: Sun Jul 13 2026 (downscaler status corrected, machine-check note and Jul 13
+review findings added; GenCast state unchanged). The `downscaler/` project (ERA5 1° → HRRR 3 km diffusion)
 was moved into this repo as an extension — no GenCast code, config, or output was touched,
 and it has no cluster jobs; see the Jul 11 STATUS entry at the top. The GenCast xres
 experiment itself remains **complete** (both resolutions, 12/12 cubes each, figures built) as

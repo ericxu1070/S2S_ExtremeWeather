@@ -24,7 +24,7 @@ tail -f logs/slurm-downscaler-smoke-<jobid>.out
 
 Runs the whole start/stop/resume cycle on a 1-vCPU `debug` node against a tiny dummy model,
 so it costs no GPU time and cannot disturb a real run (it checkpoints to
-`checkpoints/_smoke/`, never the real `latest.pt`). It asserts 13 things, the load-bearing
+`checkpoints/_smoke/`, never the real `latest.pt`). It runs 16 assertions, the load-bearing
 ones being: a fresh run checkpoints mid-epoch; `latest.pt` is a hardlink rather than a copy;
 a second run resumes at the exact step the first stopped at; and the `STOP` sentinel makes
 the trainer save, consume the sentinel and **exit 0** — a clean Slurm completion, not a

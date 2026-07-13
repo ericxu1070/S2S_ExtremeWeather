@@ -8,9 +8,9 @@ Trick: it builds an Era5HrrrDataset with IDENTITY normalization, so __getitem__
 returns physical (un-normalized) fields through the exact same read+regrid path
 training will use — no separate reader to drift out of sync.
 
-Run once the 1-degree ERA5 has landed and configs/data/era5_hrrr.yaml is filled:
-    python scripts/precompute_stats.py data.use_dummy=false stats.n_samples=500
-Writes to cfg.data.stats_path.
+Run (note the `+` — `stats` is not a config group, Hydra rejects it without one):
+    python scripts/precompute_stats.py data.use_dummy=false +stats.n_samples=500
+Writes to cfg.data.stats_path. In-code default is 200 samples; bash/02 passes 500.
 """
 
 import logging

@@ -72,30 +72,45 @@ HRRR analysis @3 km (state) ── z-score ──────────▶  ta
 ## Running a training job
 
 Training is submitted to Slurm and is **safe to stop and restart at any time** — it
-checkpoints inside the epoch and auto-resumes. See **[`slurm/README.md`](slurm/README.md)**
-for the runbook; the whole of it is:
+checkpoints inside the epoch and auto-resumes. **[`bash/README.md`](bash/README.md)** is the
+operator runbook (six numbered scripts: preflight → smoke → data prep → train/stop/status);
+**[`slurm/README.md`](slurm/README.md)** documents the underlying Slurm harness. The short
+version:
 
 ```bash
+bash bash/00_preflight.sh     # read-only checks: env, data trees, index, stats, configs
 sbatch slurm/smoke.sbatch     # verify the harness first — CPU `debug` node, ~3 min, no GPU
-sbatch slurm/train.sbatch     # start (queues until a node frees)
-bash   slurm/stop.sh          # stop  (checkpoints, then exits; no deadline)
-sbatch slurm/train.sbatch     # resume from where it left off
+bash bash/03_train.sh         # start (or resume) — wraps sbatch slurm/train.sbatch
+bash bash/04_stop.sh          # stop  (checkpoints, then exits; no deadline)
+bash bash/03_train.sh         # resume from where it left off
 ```
+
+Metrics go to **`metrics/train_metrics.jsonl`** — in-repo JSONL, no external service and
+no W&B account (`logging=local` is the default backend). Plot curves with
+`python scripts/plot_metrics.py`; opt back into W&B with `logging=wandb` (needs
+`wandb login`). The file appends across stop/resume cycles; consumers keep the last
+occurrence of a step.
 
 Local smoke runs, no cluster needed:
 
 ```bash
-# tiny CPU run (autocast('cuda') no-ops without a GPU)
+# tiny CPU run (autocast('cuda') no-ops without a GPU). Keep the ckpt_dir override —
+# without it the toy smoke checkpoint lands in the real checkpoints/ and the next real
+# run auto-resumes from it and crashes on a state-dict mismatch.
 python train.py data.use_dummy=true training.max_steps=3 training.n_epochs=1 \
   data.grid_height=24 data.grid_width=32 data.num_workers=0 \
-  model.C_base=16 'model.n_res_blocks=[1,1]' model.num_groups=8 logging.enabled=false
+  model.C_base=16 'model.n_res_blocks=[1,1]' model.num_groups=8 logging.enabled=false \
+  ckpt_dir=checkpoints/_smoke
 
 # full-resolution dummy (needs a GPU): drop the grid/model overrides
 torchrun --nproc_per_node=<N> train.py data.use_dummy=true training.max_steps=10
 ```
 
-Unit/smoke tests: `pytest tests/` (`test_smoke.py` = dummy dataset + one denoise
-step; `test_model.py` = UNet/EDM/EMA shapes & formulas).
+Unit/smoke tests: `pytest tests/` — five files: `test_smoke.py` (dummy dataset + one
+denoise/backward step), `test_model.py` (UNet/EDM/EMA shapes & formulas),
+`test_attention.py` (window locality, shift, masking, identity-at-init),
+`test_var_spec.py` (variable-spec parsing, precip transform, DictConfig regression),
+`test_wind_rotation.py` (round-trip, Lambert angle numeric-vs-analytic).
 
 ## Status: real data is on disk; the model is not trained yet
 
@@ -117,17 +132,53 @@ has to beat. For 2023-07-15T18: t2m RMSE 1.98 K, 10 m wind 1.41/1.43 m/s, and
 `std(interp) < std(HRRR)` in every field, i.e. interpolation is too smooth. Closing that
 fine-scale variance gap is the model's entire job.
 
-**No trained checkpoint exists yet.** `scripts/compare_timestep.py --ckpt <path>` will add a
-model column, but an untrained checkpoint scores far *worse* than the baseline — a
-random-weight EDM sample is noise.
+**No trained checkpoint exists yet** (`ls checkpoints/` to verify). `scripts/compare_timestep.py
+--ckpt <path>` will add a model column, but an untrained checkpoint scores far *worse* than
+the baseline — a random-weight EDM sample is noise. (Known open bugs in that `--ckpt` path —
+EMA weights silently not loaded, model winds scored against un-rotated truth — are listed in
+`../HANDOFF.md` under "Open issues from the Jul 13 review"; fix them before trusting model rows.)
 
-### Remaining steps to train
+### Steps to train (verify state with commands, not prose)
 
-1. **Build the timestamp index** (`data.index_path`): ISO timestamps, one per line, for
-   which *both* an ERA5 file and an HRRR file exist. Intersect the two trees on disk.
-2. **Compute normalization stats**: `python scripts/precompute_stats.py`
-   → writes `data.stats_path` (nothing is there yet). ~1 min for 200 samples.
-3. `sbatch slurm/train.sbatch`
+`bash bash/02_build_index_and_stats.sh` builds both prerequisites idempotently. Any
+"already built" sentence in a doc can rot — check disk:
+
+1. **Timestamp index** (`data.index_path`): `wc -l valid_timestamps.txt` → 16,019 = built
+   (ISO timestamps, one per line, where *both* an ERA5 and an HRRR file exist — a verified
+   two-sided intersection of the trees; gitignored as derived).
+2. **Normalization stats** (`data.stats_path`): `ls norm_stats/stats.npz`. The build
+   streams 500 train-year samples through the real read+regrid path at ~4 s each —
+   **~35 min total; it is not hung**. Rebuild with `FORCE_REBUILD=1` — mandatory after ANY
+   change to the variable lists, since `train.py`'s startup asserts don't check the stats
+   file and a stale one crashes at the first batch (after the Slurm allocation). Direct
+   call needs Hydra's `+` prefix: `python scripts/precompute_stats.py +stats.n_samples=500`.
+   Never run two builds concurrently (the final write is not atomic).
+3. `bash bash/03_train.sh` (wraps `sbatch slurm/train.sbatch`).
+
+### Train/val/test split & evaluation caveats
+
+The split is **by year**: train 2015–2022, val 2023, test 2024–2025
+(`configs/data/era5_hrrr.yaml`; `train.py` filters the index; stats use train years only).
+Neighbouring 6-h samples are strongly autocorrelated, so a year-block split is the right
+shape — but the effective sample count is far below the raw 11.6k train stamps.
+
+- **Contamination warning:** 9 of the 12 xres extreme events (2019–2022) fall inside the
+  train years. Scoring downscaled GenCast members on those events with this split means
+  evaluating on HRRR fields the model trained on. Either move `train_end` to `2018-12-31`
+  (mirrors the GenCast `<2019` checkpoints — all 12 events become out-of-sample) before
+  the definitive run, or restrict downstream scoring to 2023+ events.
+- **The bilinear baseline is not the bar for a single sample.** A calibrated generative
+  model pays ~√2 in RMSE versus the conditional mean, so one sharp sample can legitimately
+  lose to smooth interpolation on RMSE while being a far better realization. Judge with
+  **ensemble-mean RMSE, CRPS, and power spectra** (`Downscaler.ensemble()` exists in
+  `evaluation/downscale.py`; nothing calls it yet).
+- **Perfect-prognosis caveat:** trained on ERA5 *analysis* conditioning, but the intended
+  deployment conditions on week-2+ GenCast *forecast* members — smoother, biased, and
+  12-hourly vs the 6-hourly training distribution. Standard practice, but say so next to
+  any downstream skill number.
+- **log_tp is bimodal:** 77% of HRRR precip pixels sit exactly at the log floor
+  (ln(1e-5) ≈ −11.51; the 1e-5 is baked into the HRRR files at build time). Precip MSE is
+  dominated by the wet/dry boundary, not by amounts — read precip skill accordingly.
 
 ### Conditioning: every target has a driver
 
@@ -192,13 +243,17 @@ dataset at the cached fields — the coarse→fine interpolation is the same eit
 ## Layout
 
 ```
-model/         UNet + EDM preconditioning + EMA        (verbatim port)
-training/      trainer (DDP), EDM loss, sigma sampler, variable weighting
-data/          era5_hrrr_dataset (regrid+pair), normalization, dummy, dataloader
-evaluation/    sampler (EDM Heun ODE), downscale (single-shot inference)
+model/         UNet (+ Swin attention bottleneck) + EDM preconditioning + EMA
+training/      trainer (DDP, interruptible), EDM loss, sigma sampler, variable weighting
+data/          era5_hrrr_dataset (regrid+pair), normalization, wind_rotation, dummy, dataloader
+evaluation/    sampler (EDM Heun ODE), downscale (single-shot inference + ensemble())
 configs/       Hydra config tree (data/era5_hrrr.yaml is the main knob)
-scripts/       precompute_stats.py
-tests/         test_smoke.py, test_model.py
+scripts/       precompute_stats.py, compare_timestep.py
+bash/          operator runbook — six numbered scripts (bash/README.md)
+slurm/         sbatch harness: train/smoke/stop (slurm/README.md)
+docs/          variables.md + era5_variables.html (the 14 ERA5 vars actually in the files),
+               model_reference.html + architecture.html (model spec / explainer)
+tests/         test_smoke, test_model, test_attention, test_var_spec, test_wind_rotation
 ```
 
 Cluster-ops scripts from the source (a3mega launchers, shard builders, rollout
