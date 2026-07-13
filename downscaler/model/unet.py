@@ -191,14 +191,12 @@ class HRRRUNet(nn.Module):
         h = self.act_out(h)
         h = self.conv_out(h)
 
-        # Crop back to original size
+        # Crop back to original size. Slice by start + original extent — the previous
+        # end-index form computed `int - None` whenever exactly one of the two dims
+        # needed no padding, and crashed.
         if any(p > 0 for p in pad):
-            pad_left, pad_right, pad_top, pad_bottom = pad
-            h = h[
-                ...,
-                pad_top: h.shape[-2] - (pad_bottom if pad_bottom > 0 else None),
-                pad_left: h.shape[-1] - (pad_right if pad_right > 0 else None),
-            ]
+            pad_left, _, pad_top, _ = pad
+            h = h[..., pad_top: pad_top + orig_h, pad_left: pad_left + orig_w]
 
         assert h.shape[-2:] == (orig_h, orig_w), (
             f"Output shape {h.shape[-2:]} != input shape ({orig_h}, {orig_w})"

@@ -119,22 +119,37 @@ def main(cfg):
     hrrr_mu, hrrr_sigma = w_hrrr.finalize()
     diag_mu, diag_sigma = w_diag.finalize()
 
-    # Statics + area weights from the raw first-file statics / grid reference.
+    # Statics from the raw first-file statics / grid reference.
     orog = ds.statics[0].numpy()  # identity-normalized == physical orog
-    cos_lat = np.cos(np.deg2rad(ds.hrrr_lat)).astype(np.float32)
+
+    # Spatial loss weights (kept under the historical key "cos_lat_weights"): UNIFORM.
+    # The HRRR grid is Lambert Conformal with ~constant 3 km spacing, so true cell areas
+    # vary only ~±5% across CONUS — whereas cos(lat) varies ~±20% and would down-weight
+    # the northern US by ~a third (Seattle ≈ 2/3 of Miami), a pure projection artifact.
+    # cos(lat) is the right area weight on a lat/lon grid, which this is not.
+    spatial_w = np.ones(np.shape(ds.hrrr_lat), dtype=np.float32)
 
     out_path = cfg.data.stats_path
     os.makedirs(os.path.dirname(out_path), exist_ok=True)
-    np.savez(
-        out_path,
-        era5_mu=era5_mu, era5_sigma=era5_sigma,
-        hrrr_mu=hrrr_mu, hrrr_sigma=hrrr_sigma,
-        diag_mu=diag_mu, diag_sigma=diag_sigma,
-        orog_min=np.float64(orog.min()), orog_max=np.float64(orog.max()),
-        cos_lat_weights=cos_lat,
-        era5_channel_names=np.array([str(v) for v in cfg.data.era5_variables]),
-        hrrr_channel_names=np.array([str(v) for v in cfg.data.hrrr_prognostic_variables]),
-    )
+    # Atomic write: np.savez straight to the destination leaves a truncated npz if the
+    # process dies mid-write, and bash/02 skips rebuilds while the file merely exists.
+    tmp = f"{out_path}.tmp{os.getpid()}.npz"
+    try:
+        np.savez(
+            tmp,
+            era5_mu=era5_mu, era5_sigma=era5_sigma,
+            hrrr_mu=hrrr_mu, hrrr_sigma=hrrr_sigma,
+            diag_mu=diag_mu, diag_sigma=diag_sigma,
+            orog_min=np.float64(orog.min()), orog_max=np.float64(orog.max()),
+            cos_lat_weights=spatial_w,
+            era5_channel_names=np.array([str(v) for v in cfg.data.era5_variables]),
+            hrrr_channel_names=np.array([str(v) for v in cfg.data.hrrr_prognostic_variables]),
+        )
+        os.replace(tmp, out_path)
+    except BaseException:
+        if os.path.exists(tmp):
+            os.remove(tmp)
+        raise
     log.info(f"Wrote {out_path}")
 
 

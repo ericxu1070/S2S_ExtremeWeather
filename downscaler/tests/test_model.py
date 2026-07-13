@@ -183,6 +183,22 @@ class TestHRRRUNet:
         out = net(x, c_noise)
         assert out.shape == (1, 4, 33, 47)
 
+    def test_one_sided_padding(self):
+        """Exactly ONE dim divisible by 2^n_levels — the crop used to compute `int - None`
+        and crash (full HRRR res pads both dims, so this only bit custom grid sizes)."""
+        net = HRRRUNet(
+            n_input_ch=4,
+            n_output_ch=2,
+            C_base=8,
+            n_res_blocks=[1, 1, 1],   # divisor 8
+            emb_dim=32,
+            num_groups=4,
+        )
+        c_noise = torch.randn(1)
+        for h, w in ((24, 30), (30, 24), (30, 30), (24, 32)):
+            out = net(torch.randn(1, 4, h, w), c_noise)
+            assert out.shape == (1, 2, h, w), (h, w)
+
     def test_gradient_flow_through_unet(self):
         net = HRRRUNet(
             n_input_ch=10,
@@ -317,6 +333,46 @@ class TestEMAModel:
         ema2 = EMAModel(model, decay=0.5)
         ema2.load_state_dict(sd)
         assert ema2.decay == 0.999
+
+
+# ---------------------------------------------------------------------------
+# Evaluation weight loading (scripts/compare_timestep.py)
+# ---------------------------------------------------------------------------
+
+class TestLoadEvalState:
+    """The trainer saves ema_state_dict as {"shadow": {...}, "decay": ...} — NOT a module
+    state_dict. Loading that directly with strict=False matches zero keys and silently
+    evaluates random weights; load_eval_state exists to prevent exactly that."""
+
+    def _tiny_model(self):
+        unet = HRRRUNet(n_input_ch=6, n_output_ch=2, C_base=8, n_res_blocks=[1, 1],
+                        emb_dim=32, num_groups=4)
+        return EDMPreconditioning(unet, sigma_data=1.0)
+
+    def test_ema_shadow_is_loaded(self):
+        from scripts.compare_timestep import load_eval_state
+
+        model = self._tiny_model()
+        ema = EMAModel(model, decay=0.5)
+        with torch.no_grad():
+            for p in model.parameters():
+                p.add_(torch.randn_like(p))   # drift raw weights away from the EMA shadow
+        ckpt = {"model_state_dict": model.state_dict(), "ema_state_dict": ema.state_dict()}
+
+        fresh = self._tiny_model()
+        state, used_ema = load_eval_state(ckpt)
+        fresh.load_state_dict(state)   # strict — raises if any key failed to resolve
+        assert used_ema
+        for name, param in fresh.named_parameters():
+            assert torch.equal(param.data, ema.shadow[name])
+
+    def test_falls_back_to_raw_without_ema(self):
+        from scripts.compare_timestep import load_eval_state
+
+        model = self._tiny_model()
+        state, used_ema = load_eval_state({"model_state_dict": model.state_dict()})
+        assert not used_ema
+        self._tiny_model().load_state_dict(state)
 
 
 # ---------------------------------------------------------------------------

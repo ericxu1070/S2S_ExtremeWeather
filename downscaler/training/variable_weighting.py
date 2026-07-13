@@ -1,9 +1,20 @@
 """Ocampo et al. (2024) validation-loss-scaled variable weighting.
 
-After a warmup period (epoch >= start_epoch), variable weights are
-computed as w_i = base_weight / val_loss_i, updated every N epochs.
-log_sp and log_tp weights are capped to prevent instability from
-extreme-variance channels (following LUCIE-3D).
+After a warmup period (epoch >= start_epoch), variable weights are computed as
+w_i ∝ base_weight / val_loss_i and then normalized to mean 1, so switching the
+weighting on never rescales the TOTAL loss (an absolute rescale — 1/val_loss can
+be 10-100x — would silently shift the effective LR and the meaning of grad_clip
+mid-run). log_sp and log_tp raw weights are capped (following LUCIE-3D) before
+the normalization: those channels have tiny validation losses, so uncapped
+1/val_loss would hand them most of the gradient.
+
+update() is driven by the trainer's validation cadence (val_every_n_epochs): it
+fires on the first validation epoch >= start_epoch and then on the first
+validation epoch at least update_every epochs after the previous update. The two
+schedules do NOT need to be phase-aligned — the previous modular-arithmetic
+schedule ((epoch - start) % update_every == 0) never intersected the trainer's
+val epochs (epoch ≡ 4 mod 5) for the default start=20/every=10, so the feature
+was silently dead.
 """
 
 import torch
@@ -15,12 +26,12 @@ class OcampoWeighting:
     Args:
         n_vars: Total number of variables (prognostic + diagnostic).
         start_epoch: Epoch at which weighting activates (uniform before).
-        update_every: Epochs between weight updates.
-        base_weight: Numerator in w_i = base_weight / val_loss_i.
+        update_every: Minimum number of epochs between weight updates.
+        base_weight: Numerator in the raw weight base_weight / val_loss_i.
         logsp_idx: Index of log_sp channel (for weight capping).
         logtp_idx: Index of log_tp channel (for weight capping).
-        logsp_cap: Cap multiplier for log_sp weight.
-        logtp_cap: Cap multiplier for log_tp weight.
+        logsp_cap: Absolute ceiling on the raw log_sp weight (pre-normalization).
+        logtp_cap: Absolute ceiling on the raw log_tp weight (pre-normalization).
     """
 
     def __init__(
@@ -45,9 +56,13 @@ class OcampoWeighting:
 
         # Current weights — uniform until activated
         self.weights = torch.ones(n_vars)
+        self.last_update_epoch: int | None = None
 
     def update(self, epoch: int, val_per_var_loss: torch.Tensor) -> None:
-        """Update weights based on validation per-variable loss.
+        """Recompute weights from the per-variable validation loss.
+
+        Called by the trainer on every validation epoch; rate-limits itself to one
+        update per `update_every` epochs.
 
         Args:
             epoch: Current epoch number.
@@ -55,22 +70,25 @@ class OcampoWeighting:
         """
         if epoch < self.start_epoch:
             return
-        if (epoch - self.start_epoch) % self.update_every != 0:
+        if (
+            self.last_update_epoch is not None
+            and epoch - self.last_update_epoch < self.update_every
+        ):
             return
 
-        # w_i = base_weight / val_loss_i
-        # Clamp val_loss to avoid division by zero
-        safe_loss = val_per_var_loss.clamp(min=1e-8)
-        self.weights = self.base_weight / safe_loss
+        # Raw weights: w_i = base_weight / val_loss_i (clamped away from zero).
+        raw = self.base_weight / val_per_var_loss.clamp(min=1e-8)
 
-        # Cap log_sp and log_tp weights
-        if self.logsp_idx < self.n_vars:
-            uncapped = self.weights[self.logsp_idx].item()
-            self.weights[self.logsp_idx] = min(uncapped, uncapped * self.logsp_cap)
+        # Cap the extreme-variance channels IN RAW UNITS, before normalization.
+        # min(w, cap) — an actual ceiling; the previous min(w, w*cap) was just an
+        # unconditional halving, not a cap.
+        for idx, cap in ((self.logsp_idx, self.logsp_cap), (self.logtp_idx, self.logtp_cap)):
+            if 0 <= idx < self.n_vars:
+                raw[idx] = raw[idx].clamp(max=cap)
 
-        if self.logtp_idx < self.n_vars:
-            uncapped = self.weights[self.logtp_idx].item()
-            self.weights[self.logtp_idx] = min(uncapped, uncapped * self.logtp_cap)
+        # Normalize to mean 1: only the RELATIVE weights carry information.
+        self.weights = raw * (self.n_vars / raw.sum())
+        self.last_update_epoch = epoch
 
     def get_weights(self, epoch: int, device: torch.device) -> torch.Tensor | None:
         """Get current variable weights.
@@ -81,3 +99,12 @@ class OcampoWeighting:
         if epoch < self.start_epoch:
             return None
         return self.weights.to(device)
+
+    # --- checkpoint plumbing: weights are training state and must survive resume ---
+
+    def state_dict(self) -> dict:
+        return {"weights": self.weights, "last_update_epoch": self.last_update_epoch}
+
+    def load_state_dict(self, state: dict) -> None:
+        self.weights = state["weights"]
+        self.last_update_epoch = state.get("last_update_epoch")

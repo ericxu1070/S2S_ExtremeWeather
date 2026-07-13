@@ -106,11 +106,12 @@ python train.py data.use_dummy=true training.max_steps=3 training.n_epochs=1 \
 torchrun --nproc_per_node=<N> train.py data.use_dummy=true training.max_steps=10
 ```
 
-Unit/smoke tests: `pytest tests/` — five files: `test_smoke.py` (dummy dataset + one
-denoise/backward step), `test_model.py` (UNet/EDM/EMA shapes & formulas),
-`test_attention.py` (window locality, shift, masking, identity-at-init),
+Unit/smoke tests: `pytest tests/` — six files: `test_smoke.py` (dummy dataset + one
+denoise/backward step), `test_model.py` (UNet/EDM/EMA shapes & formulas, checkpoint
+weight loading), `test_attention.py` (window locality, shift, masking, identity-at-init),
 `test_var_spec.py` (variable-spec parsing, precip transform, DictConfig regression),
-`test_wind_rotation.py` (round-trip, Lambert angle numeric-vs-analytic).
+`test_wind_rotation.py` (round-trip, Lambert angle numeric-vs-analytic),
+`test_variable_weighting.py` (Ocampo schedule/cap/normalization).
 
 ## Status: real data is on disk; the model is not trained yet
 
@@ -132,11 +133,12 @@ has to beat. For 2023-07-15T18: t2m RMSE 1.98 K, 10 m wind 1.41/1.43 m/s, and
 `std(interp) < std(HRRR)` in every field, i.e. interpolation is too smooth. Closing that
 fine-scale variance gap is the model's entire job.
 
-**No trained checkpoint exists yet** (`ls checkpoints/` to verify). `scripts/compare_timestep.py
---ckpt <path>` will add a model column, but an untrained checkpoint scores far *worse* than
-the baseline — a random-weight EDM sample is noise. (Known open bugs in that `--ckpt` path —
-EMA weights silently not loaded, model winds scored against un-rotated truth — are listed in
-`../HANDOFF.md` under "Open issues from the Jul 13 review"; fix them before trusting model rows.)
+**No usefully-trained checkpoint exists yet** (`ls checkpoints/` to verify — as of Jul 13 it
+holds only step 90/98 from the input-pipeline verification run, ~1 epoch, and `bash/03_train.sh`
+will RESUME from it; clear the directory to start the definitive run fresh).
+`scripts/compare_timestep.py --ckpt <path>` adds a model column (it loads the EMA weights and
+scores winds against rotated truth, same as the baseline rows), but a barely-trained checkpoint
+scores far *worse* than the baseline — a near-random EDM sample is noise.
 
 ### Steps to train (verify state with commands, not prose)
 
@@ -212,8 +214,12 @@ channel-count contract below); `train.py` asserts it at startup.
 ### Loss
 
 MSE at heart — `(D_out - target)²` on the **denoised prediction** in normalized z-score space
-— with λ(σ) noise weighting (Karras et al. 2022), cos(lat) area weighting on the prognostic
-channels, and adaptive per-variable (Ocampo) weights.
+— with λ(σ) noise weighting (Karras et al. 2022), spatial area weighting on the prognostic
+channels, and adaptive per-variable (Ocampo) weights, normalized to mean 1 and updated on
+validation epochs after a warmup. The spatial weights are **uniform**: the HRRR Lambert grid
+is near-equal-area (true cell areas vary ~±5%), so the emulator's cos(lat) weighting — right
+on a lat/lon grid — would have down-weighted the northern US by ~a third here. The stats key
+is still named `cos_lat_weights` for compatibility.
 
 The final reduction is a **per-channel mean**. It used to be `loss_prog.mean() +
 loss_diag.mean()`, which handed each *group* half the gradient regardless of size — so the
@@ -236,9 +242,13 @@ Defaults ship the **core-4 + precip** target set driven by 9 ERA5 channels
 
 ### Performance note
 
-`Era5HrrrDataset` regrids ERA5 **per `__getitem__`**. For production, regrid once
-**offline** (mirrors how the source project precomputes HRRR shards) and point the
-dataset at the cached fields — the coarse→fine interpolation is the same either way.
+`Era5HrrrDataset` regrids ERA5 per `__getitem__` through **cached bilinear weights**
+(`CachedBilinearRegridder`: corner indices/weights are computed once — neither grid ever
+changes — with equivalence to the old scipy path pinned by `tests/test_regrid.py`).
+A warm sample costs ~0.9 s, dominated by the netCDF reads, so `data.num_workers` (12)
+is what hides the input pipeline: 2 workers starved the GPUs to ~21 s/optimizer step
+(measured Jul 13). If loading is ever the bottleneck again, the next lever is regridding
+once **offline** and pointing the dataset at the cached fields.
 
 ## Layout
 

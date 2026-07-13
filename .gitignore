@@ -32,6 +32,10 @@ downscaler/valid_timestamps.txt
 # contents.
 downscaler/logs/*
 !downscaler/logs/.gitkeep
+# Per-run metrics JSONL (configs/logging/local.yaml). Same deal as logs/: the directory is
+# tracked via .gitkeep, the run output is not.
+downscaler/metrics/*
+!downscaler/metrics/.gitkeep
 
 # Data & large outputs (uncomment if you don't want to track these)
 # *.nc

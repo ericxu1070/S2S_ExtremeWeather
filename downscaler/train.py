@@ -201,7 +201,9 @@ def main(cfg: DictConfig):
 
     train_loader, val_loader = build_dataloaders(cfg, world_size, local_rank)
 
-    # Loss — HRRR-grid cos(lat) spatial weights for prognostic channels (real data only).
+    # Loss — HRRR-grid spatial weights for prognostic channels (real data only). The stats
+    # key is historically named cos_lat_weights but holds UNIFORM weights: the Lambert grid
+    # is near-equal-area, and actual cos(lat) would down-weight the northern US by ~1/3.
     if not cfg.data.use_dummy:
         from data.normalization import Era5HrrrNorm
         _stats = Era5HrrrNorm(cfg.data.stats_path)
@@ -233,6 +235,8 @@ def main(cfg: DictConfig):
         update_every=cfg.training.weight_update_every_n_epochs,
         logsp_idx=cfg.data.n_prognostic - 1,
         logtp_idx=cfg.data.n_prognostic,
+        logsp_cap=cfg.training.logsp_weight_cap,
+        logtp_cap=cfg.training.logtp_weight_cap,
     )
 
     trainer = Trainer(

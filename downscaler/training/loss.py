@@ -2,7 +2,8 @@
 
 Implements Karras et al. 2022 denoising score matching loss with:
 - Lambda weighting by noise level
-- cos(latitude) spatial weighting for prognostic channels
+- Spatial area weighting for prognostic channels (uniform for HRRR — the Lambert
+  grid is near-equal-area, see scripts/precompute_stats.py)
 - Per-variable Ocampo weighting
 - Unweighted L2 for diagnostic channel (no spatial weighting)
 """
@@ -17,7 +18,7 @@ class EDMLoss(nn.Module):
     It is an MSE at heart -- (D_out - target)^2 on the DENOISED prediction (not on the noise)
     in normalized z-score space -- with three weightings layered on:
       1. lambda(sigma), the Karras et al. 2022 noise-level weight;
-      2. cos(latitude) area weighting, prognostic channels only;
+      2. spatial area weighting, prognostic channels only (uniform for the HRRR grid);
       3. per-variable (Ocampo) weights, supplied by the caller.
 
     Prognostic channels (0:n_prog): lambda-weighted, area-weighted, per-variable-weighted
@@ -29,7 +30,7 @@ class EDMLoss(nn.Module):
         sigma_data: Data std for lambda weighting (1.0 for normalized targets).
         n_prog: Number of prognostic channels.
         n_diag: Number of diagnostic channels.
-        spatial_weights: (H, W) cos(lat) weights, ALREADY normalized to sum=1 -- the
+        spatial_weights: (H, W) area weights, ALREADY normalized to sum=1 -- the
             prognostic reduction is a weighted sum, so unnormalized weights would silently
             scale the prognostic loss by ~H*W relative to the diagnostic one.
         diagnostic_loss_weight: weight of each diagnostic channel relative to each

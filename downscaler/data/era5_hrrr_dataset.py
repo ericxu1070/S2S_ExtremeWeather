@@ -18,9 +18,9 @@ learns to add ~fine-scale (3 km) structure the coarse driver cannot resolve.
       * era5_lat_name / era5_lon_name             (coordinate names)
       * era5_level_name                           (vertical coord, if used)
       * match_era5_lon_to_360                     (HRRR lon convention)
-    The 1-degree ERA5 is not downloaded yet (Derecho scratch down); until then
-    use `data.use_dummy=true`. For production, prefer regridding ERA5 offline
-    once (see scripts/precompute_stats.py notes) instead of per-__getitem__.
+    Regridding happens per __getitem__ through cached bilinear weights
+    (CachedBilinearRegridder below); a warm sample costs ~0.9 s, dominated by
+    the netCDF reads, so data.num_workers must be sized to hide that.
 ------------------------------------------------------------------------------
 """
 
@@ -78,6 +78,72 @@ def _parse_var_spec(spec):
             f"known: {sorted(ERA5_TRANSFORMS)}"
         )
     return str(name), (float(level) if level is not None else None), transform
+
+
+class CachedBilinearRegridder:
+    """Bilinear interpolation from a fixed rectilinear (lat, lon) grid onto a fixed set
+    of destination points, with the corner indices and weights computed ONCE.
+
+    Numerically equivalent to RegularGridInterpolator(..., method="linear",
+    bounds_error=False, fill_value=None) — including linear extrapolation outside the
+    source grid (pinned by tests/test_regrid.py). The point of caching: both grids never
+    change across samples, yet the scipy path re-ran the ~2M-destination-point index
+    search for every channel of every sample — ~75% of a __getitem__ (~1.9 s of ~2.5 s).
+    The cached gather does the same channel in ~40 ms.
+
+    Weights are float64 (~90 MB for the HRRR grid) so results match the scipy reference
+    to float32 round-off; each persistent DataLoader worker holds one copy.
+    """
+
+    def __init__(self, lat: np.ndarray, lon: np.ndarray, dst_pts: np.ndarray):
+        if lat.size > 1 and lat[0] > lat[-1]:
+            raise ValueError("lat must be ascending — flip the field before regridding")
+        self.lat = np.ascontiguousarray(lat, np.float64)
+        self.lon = np.ascontiguousarray(lon, np.float64)
+        nx = self.lon.size
+        iy, fy = self._axis(self.lat, dst_pts[:, 0])
+        ix, fx = self._axis(self.lon, dst_pts[:, 1])
+        base = iy * nx + ix  # flat index into the (Hc, Wc) source field; fits int32
+        self._i00 = base
+        self._i01 = base + 1
+        self._i10 = base + nx
+        self._i11 = base + nx + 1
+        self._w00 = (1.0 - fy) * (1.0 - fx)
+        self._w01 = (1.0 - fy) * fx
+        self._w10 = fy * (1.0 - fx)
+        self._w11 = fy * fx
+
+    @staticmethod
+    def _axis(coords: np.ndarray, x: np.ndarray):
+        """Interval index and fractional position of each x along one axis.
+
+        The index is clamped to the last interval but the fraction is NOT clipped to
+        [0, 1]: destination points outside the grid extrapolate linearly from the edge
+        cell, which is exactly RegularGridInterpolator's fill_value=None behaviour.
+        """
+        i = np.clip(np.searchsorted(coords, x, side="right") - 1, 0, coords.size - 2)
+        i = i.astype(np.int32)
+        f = (x - coords[i]) / (coords[i + 1] - coords[i])
+        return i, f
+
+    def matches(self, lat: np.ndarray, lon: np.ndarray) -> bool:
+        """True if (lat, lon) is the grid these weights were built for."""
+        return (
+            self.lat.shape == lat.shape
+            and self.lon.shape == lon.shape
+            and np.array_equal(self.lat, lat)
+            and np.array_equal(self.lon, lon)
+        )
+
+    def __call__(self, field: np.ndarray) -> np.ndarray:
+        """(Hc, Wc) source field -> (N,) float64 values at the destination points."""
+        f = np.asarray(field, np.float64).ravel()
+        return (
+            self._w00 * f[self._i00]
+            + self._w01 * f[self._i01]
+            + self._w10 * f[self._i10]
+            + self._w11 * f[self._i11]
+        )
 
 
 class Era5HrrrDataset(Dataset):
@@ -145,8 +211,11 @@ class Era5HrrrDataset(Dataset):
             hrrr_lon = np.mod(hrrr_lon, 360.0)
         self.hrrr_lon = hrrr_lon
         self.H, self.W = self.hrrr_lat.shape
-        # Flattened destination points (lat, lon) for RegularGridInterpolator.
+        # Flattened destination points (lat, lon) the ERA5 fields are regridded onto.
         self._dst_pts = np.stack([self.hrrr_lat.ravel(), self.hrrr_lon.ravel()], axis=-1)
+        # Bilinear weights, built on the first regrid_era5() call (the ERA5 grid comes
+        # from the data files, not from grid_meta) and reused for every channel/sample.
+        self._regridder: CachedBilinearRegridder | None = None
 
         # --- Wind rotation: HRRR u/v are GRID-relative, ERA5's are EARTH-relative ---
         # (hrrr_grid_reference.nc: uv_relative_to_grid=1). Without this the model would be
@@ -224,19 +293,18 @@ class Era5HrrrDataset(Dataset):
     def regrid_era5(self, field: np.ndarray, src_lat: np.ndarray, src_lon: np.ndarray) -> np.ndarray:
         """Bilinearly regrid a coarse (Hc, Wc) field onto the HRRR grid -> (H, W).
 
-        src_lat/src_lon are the ERA5 1-D coordinate vectors. RegularGridInterpolator
-        needs strictly-ascending axes, so descending latitude is flipped.
+        src_lat/src_lon are the ERA5 1-D coordinate vectors; descending latitude is
+        flipped (the interpolation needs ascending axes). The corner indices/weights are
+        cached across calls — every channel of every sample shares the same pair of
+        grids — and rebuilt only if a file ever shows up on a different grid.
         """
-        from scipy.interpolate import RegularGridInterpolator
-
         lat, lon = np.asarray(src_lat, np.float64), np.asarray(src_lon, np.float64)
-        if lat[0] > lat[-1]:
+        if lat.size > 1 and lat[0] > lat[-1]:
             lat = lat[::-1]
             field = field[::-1, :]
-        interp = RegularGridInterpolator(
-            (lat, lon), field, method="linear", bounds_error=False, fill_value=None
-        )
-        out = interp(self._dst_pts).reshape(self.H, self.W)
+        if self._regridder is None or not self._regridder.matches(lat, lon):
+            self._regridder = CachedBilinearRegridder(lat, lon, self._dst_pts)
+        out = self._regridder(field).reshape(self.H, self.W)
         return out.astype(np.float32)
 
     def rotate_prognostic_winds(self, prog: np.ndarray) -> np.ndarray:

@@ -490,6 +490,7 @@ class Trainer:
                 "optimizer_state_dict": self.optimizer.state_dict(),
                 "scheduler_state_dict": self.scheduler.state_dict(),
                 "ema_state_dict": self.ema.state_dict(),
+                "variable_weighting": self.variable_weighting.state_dict(),
             }
             snapshot = self.ckpt_dir / f"checkpoint_step{self.global_step:08d}.pt"
             self._atomic_save(ckpt, snapshot)
@@ -546,6 +547,9 @@ class Trainer:
         self.optimizer.load_state_dict(ckpt["optimizer_state_dict"])
         self.scheduler.load_state_dict(ckpt["scheduler_state_dict"])
         self.ema.load_state_dict(ckpt["ema_state_dict"])
+        # Older checkpoints predate persisted variable weights; they resume uniform.
+        if "variable_weighting" in ckpt:
+            self.variable_weighting.load_state_dict(ckpt["variable_weighting"])
         self.global_step = ckpt["global_step"]
 
         # An interrupted epoch is re-run from the top with a fresh shuffle. No training

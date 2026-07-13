@@ -36,12 +36,14 @@ c = OmegaConf.load("configs/data/era5_hrrr.yaml")
 print(c.index_path); print(c.stats_path)
 PY
 )
-INDEX="${CFG[0]}"; STATS="${CFG[1]}"
+INDEX="${CFG[0]:-}"; STATS="${CFG[1]:-}"
+[ -n "$INDEX" ] && [ -n "$STATS" ] || {
+    echo "FAIL: could not read index_path/stats_path from configs/data/era5_hrrr.yaml"; exit 1; }
 MISSING=0
 [ -s "$INDEX" ] || { echo "missing timestamp index: $INDEX"; MISSING=1; }
 [ -f "$STATS" ] || { echo "missing norm stats: $STATS"; MISSING=1; }
 if [ "$MISSING" = 1 ]; then
-    echo "run: bash bash/02_build_index_and_stats.sh   (one-time, ~5 min)"
+    echo "run: bash bash/02_build_index_and_stats.sh   (one-time, ~35 min)"
     exit 1
 fi
 

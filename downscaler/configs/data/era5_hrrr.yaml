@@ -103,6 +103,9 @@ test_start: "2024-01-01"
 test_end: "2025-12-31"
 
 # --- DataLoader ---
-num_workers: 2
+# A warm __getitem__ costs ~0.9 s (mostly netCDF reads; regrid weights are cached), so workers
+# must overlap enough loads to keep the GPU fed. train.sbatch allocates 24 CPUs per rank;
+# 2 workers starved the GPUs to ~21 s/optimizer-step (Jul 13, job 172).
+num_workers: 12
 prefetch_factor: 2
 pin_memory: true

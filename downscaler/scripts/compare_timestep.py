@@ -226,6 +226,28 @@ def main() -> int:
     return 0
 
 
+def load_eval_state(ckpt: dict) -> tuple[dict, bool]:
+    """Weights to evaluate from a trainer checkpoint: EMA if present, else raw.
+
+    The trainer saves `ema_state_dict` as EMAModel.state_dict(), i.e.
+    {"shadow": {param_name: tensor}, "decay": float} — NOT a module state_dict. Passing
+    that dict to load_state_dict (especially with strict=False) matches zero keys and
+    silently leaves the model at random init. Overlay the shadow parameters onto the full
+    model_state_dict instead, so buffers stay intact and the load can stay strict.
+
+    Returns (state_dict, used_ema).
+    """
+    state = dict(ckpt["model_state_dict"])
+    shadow = (ckpt.get("ema_state_dict") or {}).get("shadow")
+    if not shadow:
+        return state, False
+    unknown = [k for k in shadow if k not in state]
+    if unknown:
+        raise SystemExit(f"EMA shadow keys not in model_state_dict: {unknown[:3]} ...")
+    state.update(shadow)
+    return state, True
+
+
 def run_model(cfg, probe, ts, args):
     """Draw one conditional sample from a checkpoint and score it against HRRR."""
     import netCDF4
@@ -256,10 +278,10 @@ def run_model(cfg, probe, ts, args):
 
     ckpt = torch.load(args.ckpt, map_location=device, weights_only=False)
     # Prefer the EMA weights — that is what you evaluate a diffusion model with.
-    state = ckpt.get("ema_state_dict") or ckpt["model_state_dict"]
-    missing, unexpected = model.load_state_dict(state, strict=False)
-    print(f"\n  loaded {args.ckpt} (step {ckpt.get('global_step', '?')}), "
-          f"missing={len(missing)} unexpected={len(unexpected)}")
+    state, used_ema = load_eval_state(ckpt)
+    model.load_state_dict(state)   # strict: a key mismatch must abort, not silently skip
+    print(f"\n  loaded {args.ckpt} (step {ckpt.get('global_step', '?')}, "
+          f"{'EMA' if used_ema else 'raw'} weights)")
 
     # Conditioning must be the model's OWN channel list, not the comparison list.
     cond_ds = Era5HrrrDataset(
@@ -272,6 +294,8 @@ def run_model(cfg, probe, ts, args):
         era5_lat_name=cfg.era5_lat_name, era5_lon_name=cfg.era5_lon_name,
         era5_level_name=cfg.era5_level_name, orog_var=cfg.orog_var, lsm_var=cfg.lsm_var,
         match_era5_lon_to_360=cfg.match_era5_lon_to_360,
+        rotate_hrrr_winds=cfg.rotate_hrrr_winds,
+        hrrr_wind_pairs=[list(p) for p in cfg.hrrr_wind_pairs],
     )
     sample = cond_ds[0]
     x_cond = sample["x_cond"].unsqueeze(0).to(device)
@@ -282,17 +306,27 @@ def run_model(cfg, probe, ts, args):
     prog, _ = dsc.sample(x_cond, n_steps=args.n_steps)   # x_cond already built by the dataset
     prog = prog[0].cpu().numpy()
 
+    # Truth must be rotated to Earth-relative exactly like the baseline rows in main():
+    # the model was trained on rotated wind targets, so scoring it against raw
+    # (grid-relative) HRRR would charge the ±22.8° convergence-angle artifact to the
+    # model's u10/v10 RMSE — the very artifact this script exists to warn about.
     prog_names = [str(v) for v in cfg.hrrr_prognostic_variables]
     hds = netCDF4.Dataset(probe._hrrr_path(ts), "r")
+    truth_raw = np.stack(
+        [np.asarray(hds.variables[h][:], np.float32).reshape(probe.H, probe.W)
+         for _, _, h, _, _ in COMPARE_PAIRS],
+        axis=0,
+    )
+    hds.close()
+    truth_rot = probe.rotate_prognostic_winds(truth_raw)
+
     out = []
-    for _, _, hrrr_name, units, label in COMPARE_PAIRS:
+    for k, (_, _, hrrr_name, units, label) in enumerate(COMPARE_PAIRS):
         if hrrr_name not in prog_names:
             continue   # model does not predict this channel
         pred = prog[prog_names.index(hrrr_name)]
-        truth = np.asarray(hds.variables[hrrr_name][:], np.float32).reshape(probe.H, probe.W)
-        out.append(dict(label=label, units=units, pred=pred, truth=truth,
-                        m=metrics(pred, truth)))
-    hds.close()
+        out.append(dict(label=label, units=units, pred=pred, truth=truth_rot[k],
+                        m=metrics(pred, truth_rot[k])))
     return out
 
 

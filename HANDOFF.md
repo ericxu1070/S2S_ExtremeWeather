@@ -49,40 +49,72 @@ Downscaler-only update; GenCast untouched. Three things landed:
 Next actual step: `bash downscaler/bash/03_train.sh` on the cluster (it exits 1 with
 "missing norm stats" until `stats.npz` exists — that is the guard working, not a bug).
 
-### Open issues from the Jul 13 code/methodology review (unfixed as of writing)
+### Jul 13 (later) — input pipeline fixed (2.9x), first real training verified (jobs 172, 175)
+
+- The first real 8-GPU run (job 172) trained correctly but was **input-bound**: 21.4 s per
+  optimizer step, with starved ranks idling their GPU while the other 7 spin-waited at the
+  gradient allreduce. Cause: `data.num_workers: 2` (vs 24 CPUs/rank allocated) on top of a
+  scipy `RegularGridInterpolator` rebuilt per channel per sample — the regrid was ~1.9 s of
+  a ~2.5 s `__getitem__`.
+- Fix: `CachedBilinearRegridder` in `data/era5_hrrr_dataset.py` — bilinear corner
+  indices/weights computed once and reused for every channel/sample; equivalence with the
+  old scipy path (including edge extrapolation) is pinned by `tests/test_regrid.py`. Warm
+  sample: 2.5 s → 0.9 s (now netCDF-read-bound). `data.num_workers` 2 → 12. Suite after
+  the change: 74 passed, 1 skipped.
+- Verification run (job 175, ~15 min wall): **7.37 s/optimizer step** steady (2.9x), all
+  8 GPUs at 99–100% over a 30 s sample, peak VRAM 16.5 GB, host RAM 116/1842 GB. Epoch 0
+  (exactly 90 optimizer steps, ~11.7 min) completed with mean train/loss 0.748; the
+  end-of-epoch checkpoint (step 90) landed, and `bash/04_stop.sh` (STOP-file path)
+  checkpointed at step 98 and exited `COMPLETED 0:0` — the full save/stop/resume machinery
+  the long run depends on is exercised on real data.
+- Projection at the measured rate: 90 steps/epoch x 200 epochs ~ 37 h of training — two
+  24 h walltime windows (one resubmit), vs ~4.5 days before the fix.
+- **Note for the definitive run:** `checkpoints/` holds this verification run's step-98
+  checkpoint, so `bash/03_train.sh` will RESUME from it — fine if the config is unchanged.
+  If the split decision above (train_end 2018) or any variable list changes, clear
+  `checkpoints/` (and rebuild stats for variable changes) so the run starts fresh.
+
+### Jul 13 code/methodology review — findings & status
 
 Found by a four-way review (docs-vs-code audit, environment audit, fresh-agent usability
-test, methodology review). Fix before/alongside the first real training run:
+test, methodology review). All code fixes below were applied later on Jul 13 and are
+covered by `pytest tests/` (74 passed, 1 skipped); two items remain open by choice:
 
-- **Eval-contaminating split (blocker for the S2S endpoint):** train years 2015–2022
-  contain 9 of the 12 xres events. Set `train_end: 2018-12-31` in
-  `downscaler/configs/data/era5_hrrr.yaml` (mirrors GenCast `<2019`) before the definitive
-  run, or only score 2023+ events downstream. (The 2024–25 test years are currently
+- **OPEN (deliberate) — eval-contaminating split:** train years 2015–2022 contain 9 of the
+  12 xres events, so scoring downscaled GenCast members on pre-2023 events evaluates on
+  training data. Deferred per user decision; before the definitive run either set
+  `train_end: 2018-12-31` in `downscaler/configs/data/era5_hrrr.yaml` (mirrors GenCast
+  `<2019`) or score only 2023+ events downstream. (The 2024–25 test years are still
   referenced by no code.)
-- **`scripts/compare_timestep.py --ckpt` loads NO weights:** `ckpt["ema_state_dict"]` is
-  `{"shadow": ..., "decay": ...}`, and `load_state_dict(..., strict=False)` silently loads
-  zero params → it scores a random-weight model while printing "loaded". Fix: load
-  `["ema_state_dict"]["shadow"]` and fail on missing keys.
-- Same script scores model winds against UN-rotated HRRR truth while the baseline rows use
-  rotated truth — the model's u10/v10 RMSE would absorb the ±22.8° projection artifact the
-  script exists to warn about.
-- **cos(lat) loss weights are wrong on the Lambert grid** (HRRR cells are near-equal-area;
-  cos(lat) down-weights the northern US ~33%, Seattle ≈ 2/3 of Miami). One-line fix in
-  `scripts/precompute_stats.py` (write uniform weights) — do it BEFORE the long run; the
-  weights bake into the loss via `stats.npz`.
-- **Ocampo adaptive variable weighting is dead code:** its update epochs (≥20, every 10)
-  never intersect the val epochs (every 5 → epoch ≡ 4 mod 5), so weights stay 1.0 forever;
-  its "cap" also halves rather than caps. Fix the schedule + cap and normalize to mean 1,
-  or delete the feature and report uniform weights.
-- **Stats pipeline is not crash-safe:** `precompute_stats.py` writes with a bare
-  `np.savez` (truncated file if killed mid-write), and `bash/02` skips rebuild on mere
-  file existence and exits 0 even when its own sanity check fails.
-- `model/unet.py` pad/crop crashes (`int - None`) when exactly ONE of H/W is
-  window-divisible — latent (full-res 1059×1799 pads both dims), bites custom grid sizes.
-- **Single-sample RMSE vs the bilinear baseline is a biased yardstick:** a calibrated
-  generative model pays ~√2 vs the conditional mean. Evaluate ensemble-mean RMSE + CRPS +
-  power spectra (`Downscaler.ensemble()` exists in `evaluation/downscale.py`; nothing
-  calls it yet).
+- **OPEN — no probabilistic eval:** single-sample RMSE vs the bilinear baseline is a
+  biased yardstick (a calibrated generative model pays ~√2 vs the conditional mean).
+  Evaluate ensemble-mean RMSE + CRPS + power spectra; `Downscaler.ensemble()` exists in
+  `evaluation/downscale.py` but nothing calls it yet.
+- **FIXED — `compare_timestep.py --ckpt` loaded NO weights** (EMA dict is
+  `{"shadow": ...}`; `strict=False` hid the total mismatch → scored a random-weight
+  model). Now overlays the shadow onto `model_state_dict` and loads strict
+  (`load_eval_state()`, regression-tested in `tests/test_model.py`).
+- **FIXED — same script scored model winds against UN-rotated HRRR truth** while baseline
+  rows used rotated truth; the model rows now rotate identically (and the conditioning
+  dataset gets the wind-pair kwargs).
+- **FIXED — cos(lat) loss weights on the near-equal-area Lambert grid** (they down-weighted
+  the northern US ~33%): `precompute_stats.py` now writes uniform weights (key name
+  `cos_lat_weights` kept for compatibility), and the existing `norm_stats/stats.npz` was
+  patched in place — no rebuild needed.
+- **FIXED — Ocampo weighting was dead code** (update schedule never intersected val
+  epochs; "cap" halved instead of capping). Now: updates fire on the validation cadence
+  once past `start_epoch` (rate-limited by `update_every`), the cap is a real ceiling
+  applied pre-normalization, weights are normalized to mean 1 (no loss-scale jump), the
+  config caps (`logsp_weight_cap`/`logtp_weight_cap`) are actually wired through, and the
+  weights are persisted in checkpoints so resume doesn't silently reset them. Tests in
+  `tests/test_variable_weighting.py`.
+- **FIXED — stats pipeline crash-safety:** `precompute_stats.py` writes atomically
+  (tmp + `os.replace`); `bash/02` now fails loudly if the sanity check fails, guards the
+  config read, and takes a single-instance lock (`norm_stats/.build_lock`) — two
+  concurrent builds actually happened Jul 13 and raced the final write.
+- **FIXED — `model/unet.py` pad/crop `int - None` crash** when exactly one of H/W was
+  divisible by 2^n_levels (latent at full res; bit custom grid sizes). Crop is now
+  start + original extent; regression test in `tests/test_model.py`.
 
 ## STATUS (Jul 11 2026) — DOWNSCALER MOVED INTO THIS REPO (no jobs; GenCast unaffected)
 

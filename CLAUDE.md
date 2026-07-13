@@ -240,10 +240,11 @@ python train.py data.use_dummy=true training.max_steps=3 training.n_epochs=1 \
 # NOT on this login node, where nvidia-smi itself fails):
 torchrun --nproc_per_node=<N> train.py data.use_dummy=false
 
-pytest tests/   # 5 files: test_smoke (dummy data + one denoise step), test_model
-                # (UNet/EDM/EMA shapes & formulas), test_attention (Swin invariants,
-                # identity-at-init), test_var_spec (spec parsing + precip transform,
-                # DictConfig regression), test_wind_rotation (Lambert angle vs analytic)
+pytest tests/   # 6 files: test_smoke (dummy data + one denoise step), test_model
+                # (UNet/EDM/EMA shapes & formulas, ckpt weight loading), test_attention
+                # (Swin invariants, identity-at-init), test_var_spec (spec parsing +
+                # precip transform, DictConfig regression), test_wind_rotation (Lambert
+                # angle vs analytic), test_variable_weighting (Ocampo schedule/cap)
 ```
 
 Config is a Hydra tree; `configs/data/era5_hrrr.yaml` is the main knob. Hydra gotcha: keys
@@ -307,8 +308,10 @@ not already in the config need a `+` prefix — e.g. `+stats.n_samples=500` for
   must divide the bottleneck channel count `C_base * 2^len(n_res_blocks)` — remember this
   when shrinking `C_base` for smoke runs. `model.use_attention=false` recovers the source
   emulator's pure-conv U-Net.
-- `Era5HrrrDataset` regrids ERA5 **per `__getitem__`**, which is fine for smoke runs and
-  wasteful for production — regrid once offline and point the dataset at cached fields.
+- `Era5HrrrDataset` regrids ERA5 per `__getitem__` via **cached bilinear weights**
+  (built once; scipy-equivalence pinned by `tests/test_regrid.py`). A warm sample still
+  costs ~0.9 s of netCDF reads, so `data.num_workers` (12) is what keeps the GPUs fed —
+  2 workers starved an 8-GPU run to ~21 s/step (Jul 13, job 172).
 - Cluster-ops scripts from the source project (a3mega launchers, shard builders, rollout
   movies, watchdogs) were **not** copied; grab them from `moein/regional/hrrr_edm/scripts/`
   if needed.

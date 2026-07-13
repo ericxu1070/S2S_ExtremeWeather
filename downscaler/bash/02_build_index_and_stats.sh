@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 # =============================================================================
-# 02_build_index_and_stats.sh — one-time data prerequisites. CPU only, ~5 min.
+# 02_build_index_and_stats.sh — one-time data prerequisites. CPU only, ~35 min
+# (the stats pass streams 500 samples through the real read+regrid path at ~4 s each).
 #
 # Builds the two derived files real training needs, skipping whatever already
 # exists (delete a file, or FORCE_REBUILD=1, to redo it):
@@ -35,7 +36,20 @@ c = OmegaConf.load("configs/data/era5_hrrr.yaml")
 print(c.index_path); print(c.stats_path)
 PY
 )
-INDEX="${CFG[0]}"; STATS="${CFG[1]}"
+INDEX="${CFG[0]:-}"; STATS="${CFG[1]:-}"
+[ -n "$INDEX" ] && [ -n "$STATS" ] || {
+    echo "FAIL: could not read index_path/stats_path from configs/data/era5_hrrr.yaml"; exit 1; }
+
+# Single-instance lock: two concurrent builds race each other on the final stats write
+# (this actually happened on Jul 13 — two instances, ~30 min apart). mkdir is atomic.
+LOCK="$(dirname "$STATS")/.build_lock"
+mkdir -p "$(dirname "$STATS")"
+if ! mkdir "$LOCK" 2>/dev/null; then
+    echo "Another 02_build_index_and_stats.sh appears to be running (lock: $LOCK)."
+    echo "If you are sure it is not, remove the lock and rerun:  rmdir '$LOCK'"
+    exit 1
+fi
+trap 'rmdir "$LOCK" 2>/dev/null' EXIT
 
 # ---------------------------------------------------------------- 1. index
 echo "=============== 1. timestamp index ==============="
@@ -100,7 +114,7 @@ else
     [ -f "$STATS" ] || { echo "  FAIL: stats were not written — check the output above"; exit 1; }
 fi
 
-python - <<PY
+if ! python - <<PY
 import numpy as np
 s = np.load("$STATS")
 print("  stats check:")
@@ -110,6 +124,10 @@ bad = [k for k in ("era5_sigma", "hrrr_sigma", "diag_sigma") if not np.all(np.is
 assert not bad, f"non-finite or non-positive sigma in {bad}"
 print("    all sigmas finite and positive")
 PY
+then
+    echo "  FAIL: $STATS exists but failed the sanity check — delete it (or FORCE_REBUILD=1) and rerun"
+    exit 1
+fi
 
 echo
 echo "Done. Both prerequisites are in place — start training with: bash bash/03_train.sh"
