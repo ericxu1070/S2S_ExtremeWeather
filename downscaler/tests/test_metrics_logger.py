@@ -87,5 +87,28 @@ def test_plot_metrics_dedupes_resumed_steps(tmp_path):
     sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "scripts"))
     from plot_metrics import load_series
 
-    series = load_series(p)
+    series, _ = load_series(p)
     assert series["train/loss"] == {10: 0.7}
+
+
+def test_plot_metrics_splits_epoch_means_from_step_samples(tmp_path):
+    """The two train/loss row kinds must not be mixed.
+
+    A per-step row is ONE sample at ONE random sigma (sigma drives ~74% of the log-loss
+    variance, so that series is mostly noise); an epoch row carries train/epoch and holds
+    the epoch mean. The epoch mean is the curve worth plotting, so it comes back separately
+    and must not land in the per-step series.
+    """
+    p = str(tmp_path / "m.jsonl")
+    lg = JsonlMetricsLogger(p)
+    lg.log({"train/loss": 0.9}, step=10)                     # per-step sample
+    lg.log({"train/loss": 0.2}, step=20)                     # per-step sample
+    lg.log({"train/loss": 0.5, "train/epoch": 1}, step=20)   # epoch summary at the same step
+    lg.finish()
+
+    sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "scripts"))
+    from plot_metrics import load_series
+
+    series, epoch_loss = load_series(p)
+    assert epoch_loss == {20: 0.5}
+    assert series["train/loss"] == {10: 0.9, 20: 0.2}  # epoch mean did NOT overwrite step 20

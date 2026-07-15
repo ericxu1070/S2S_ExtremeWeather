@@ -27,9 +27,17 @@ C_AUX = "#eda100"     # yellow
 INK = "#42525f"       # text/axis ink — text never wears the series color
 
 
-def load_series(path: str) -> dict[str, dict[int, float]]:
-    """{metric_key: {step: last_value_seen}} from the JSONL log."""
+def load_series(path: str) -> tuple[dict[str, dict[int, float]], dict[int, float]]:
+    """({metric_key: {step: last_value_seen}}, {step: epoch_mean_loss}) from the JSONL log.
+
+    Two kinds of row carry train/loss and they must not be mixed. A per-step row holds the
+    loss of ONE micro-batch on rank 0 at ONE randomly drawn sigma; since sigma alone drives
+    ~74% of the variance in log-loss, that series is dominated by which sigma got rolled and
+    is a poor read on progress. An epoch row (it carries train/epoch) holds the mean over the
+    whole epoch, which is the curve you actually want to look at.
+    """
     series: dict[str, dict[int, float]] = {}
+    epoch_loss: dict[int, float] = {}
     with open(path) as f:
         for line in f:
             line = line.strip()
@@ -42,11 +50,15 @@ def load_series(path: str) -> dict[str, dict[int, float]]:
             if row.get("event") == "run_start" or "step" not in row:
                 continue
             step = int(row["step"])
+            if "train/epoch" in row:
+                if "train/loss" in row:
+                    epoch_loss[step] = float(row["train/loss"])
+                continue
             for k, v in row.items():
                 if k in ("step", "time", "event") or not isinstance(v, (int, float)):
                     continue
                 series.setdefault(k, {})[step] = float(v)
-    return series
+    return series, epoch_loss
 
 
 def _panel(ax, title, ylabel, log_y=False):
@@ -62,11 +74,11 @@ def _panel(ax, title, ylabel, log_y=False):
         ax.set_yscale("log")
 
 
-def _plot(ax, data: dict[int, float], color, label=None, marker=None):
+def _plot(ax, data: dict[int, float], color, label=None, marker=None, linewidth=1.8, alpha=1.0):
     steps = sorted(data)
     ax.plot(
         steps, [data[s] for s in steps],
-        color=color, linewidth=1.8, label=label,
+        color=color, linewidth=linewidth, label=label, alpha=alpha,
         marker=marker, markersize=4 if marker else 0,
     )
 
@@ -80,7 +92,7 @@ def main():
 
     if not os.path.exists(args.path):
         raise SystemExit(f"no metrics log at {args.path} — has training run with logging=local?")
-    series = load_series(args.path)
+    series, epoch_loss = load_series(args.path)
     if not series.get("train/loss"):
         raise SystemExit(f"{args.path} has no train/loss entries yet")
 
@@ -91,14 +103,18 @@ def main():
 
     ax = axes[0]
     _panel(ax, "Loss", "EDM loss", log_y=True)
-    _plot(ax, series["train/loss"], C_TRAIN, "train")
+    _plot(ax, series["train/loss"], C_TRAIN, "train (per step, 1 sample)",
+          linewidth=0.6, alpha=0.25)
+    if epoch_loss:
+        _plot(ax, epoch_loss, C_TRAIN, "train (epoch mean)")
     if series.get("val/loss"):
         _plot(ax, series["val/loss"], C_VAL, "val (EMA)", marker="o")
     ax.legend(frameon=False, fontsize=9, labelcolor=INK)
-    last_step = max(series["train/loss"])
+    headline = epoch_loss or series["train/loss"]
+    last_step = max(headline)
     ax.annotate(
-        f"{series['train/loss'][last_step]:.4f}",
-        (last_step, series["train/loss"][last_step]),
+        f"{headline[last_step]:.4f}",
+        (last_step, headline[last_step]),
         textcoords="offset points", xytext=(6, 0),
         fontsize=8, color=INK, va="center",
     )
@@ -117,8 +133,8 @@ def main():
     os.makedirs(os.path.dirname(args.out) or ".", exist_ok=True)
     fig.savefig(args.out, dpi=150)
     n = len(series["train/loss"])
-    print(f"wrote {args.out}  ({n} logged steps, latest step {last_step}, "
-          f"latest train/loss {series['train/loss'][last_step]:.4f})")
+    print(f"wrote {args.out}  ({n} logged steps, {len(epoch_loss)} epochs, latest step {last_step}, "
+          f"latest epoch-mean train/loss {headline[last_step]:.4f})")
 
 
 if __name__ == "__main__":
