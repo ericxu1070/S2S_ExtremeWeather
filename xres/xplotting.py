@@ -126,7 +126,7 @@ def plot_event(name, weeks, ccrs):
 def make_maps(weeks=None):
     import cartopy.crs as ccrs
     weeks = X.WEEKS if weeks is None else weeks
-    outdir = X.XFIG_DIR / "maps"
+    outdir = X.xfig_dir(weeks) / "maps"
     outdir.mkdir(parents=True, exist_ok=True)
     names = [n for n in X.events()
              if any(members(r, weeks, n, X.event_metric(n)) is not None for r in X.RES_ORDER)]

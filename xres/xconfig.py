@@ -16,7 +16,14 @@ from gencast_s2s import config as C
 # in runs/observations (resolution independent); forecasts/caches are per resolution.
 # --------------------------------------------------------------------------- #
 XRES_ROOT = C.RUNS / "xres"
-XFIG_DIR  = XRES_ROOT / "figures"          # cross-resolution comparison figures
+XFIG_DIR  = XRES_ROOT / "figures"          # cross-resolution comparison figures (root)
+
+
+def xfig_dir(weeks: int) -> Path:
+    """Cross-resolution comparison figures for one horizon. Week-namespaced so the
+    week2/3/4 compare outputs coexist instead of overwriting each other's fixed
+    filenames (xres_combined_mean.png, xres_brier.png, <event>_compare_map.png, ...)."""
+    return XFIG_DIR / f"week{weeks}"
 
 
 def res_dir(res: str, weeks: int) -> Path:

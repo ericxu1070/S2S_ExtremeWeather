@@ -310,7 +310,8 @@ def _save(fig, fname, outdirs):
 
 def make_all(weeks=None):
     weeks = X.WEEKS if weeks is None else weeks
-    outdirs = [X.XFIG_DIR, C.ROOT / "figures" / "xres"]
+    xfig = X.xfig_dir(weeks)
+    outdirs = [xfig, C.ROOT / "figures" / "xres" / f"week{weeks}"]
     rows = []
     for common in (False, True):        # own-grid batch + common-0.25deg-baseline batch
         plot_brier(weeks, outdirs, rows, common=common)
@@ -318,5 +319,6 @@ def make_all(weeks=None):
         plot_rank_hists(weeks, outdirs, rows, common=common)
     if rows:
         df = pd.DataFrame(rows)
-        df.to_csv(Path(X.XFIG_DIR) / "xres_scores.csv", index=False)
-        print(f"[xres scores] scores table -> {X.XFIG_DIR}/xres_scores.csv")
+        xfig.mkdir(parents=True, exist_ok=True)
+        df.to_csv(Path(xfig) / "xres_scores.csv", index=False)
+        print(f"[xres scores] scores table -> {xfig}/xres_scores.csv")

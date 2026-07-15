@@ -23,6 +23,33 @@
 
 ---
 
+## STATUS (Jul 15 2026) — xres WEEK-3 & WEEK-4 experiments added (scripts + figure namespacing)
+
+Extends the completed week-2 xres run to **21-day (week 3)** and **28-day (week 4)** leads,
+runnable on **two clusters**: the a3mega **8×H100** box (primary, this checkout) and Derecho
+**4×A100-40GB** (fallback). The Python was already `--weeks {2,3,4}`-parameterized; no core
+logic changed. **Runbook: [`xres/WEEK34.md`](xres/WEEK34.md)** (copy-paste for both clusters).
+
+- **New submission scripts (8):**
+  - a3mega (pmap, 8 GPUs, no walltime cap): `slurm/xres_res{0p25,1p0}_week{3,4}.slurm`
+    (0.25° fits pmap on H100-80GB). Budgets 36/48 h for 0.25°, 12/18 h for 1.0°.
+  - Derecho (serial 24-subjob member arrays, 12 h cap): `pbs/xres_member_{0p25,1p0}_week{3,4}.pbs`.
+    Week-4 0.25° (~15 h) exceeds the cap **by design** — resubmit the array once, cached
+    `(event, member)` files skip in ~2 min (member-resume, same as week 2).
+- **Code change (compare figures now week-namespaced):** `xres/xconfig.py` gained
+  `xfig_dir(weeks)` → `runs/xres/figures/week{W}/`; `xres/{xplotting,xcombined,xscores}.py`
+  write there and to `figures/xres/week{W}/`. Without this, week-3/4 compare would overwrite
+  week-2's fixed-name PNGs. Cubes/verif were already week-namespaced. Existing synced
+  `figures/xres/*.png` (week 2) are left in place as historical artifacts.
+- **Validated on the a3mega login node:** `--weeks 3/4` → 42/56 steps, `week{3,4}` output
+  trees; single-event prep (1.0°, week 3, PNW_HeatDome_2021) builds the init frame from
+  cloud ERA5. `build_hrrr_truth` safely skips here (no `/glade`); ERA5/HRRR verification
+  truth is horizon-independent and already cached, so new-weeks prep only builds init frames.
+- **Next step (a3mega):** login-node `python run_xres.py --stage prep --weeks 3` (then 4) to
+  build all init frames, then `sbatch slurm/xres_res1p0_week3.slurm` etc. per WEEK34.md.
+  0.25° pmap on a3mega is otherwise unexercised (all prior 0.25° runs were Derecho serial);
+  watch the first event's timing.
+
 ## STATUS (Jul 13 2026) — DOWNSCALER: TRANSFORMER BOTTLENECK + READY TO TRAIN (no GenCast changes)
 
 Downscaler-only update; GenCast untouched. Three things landed:

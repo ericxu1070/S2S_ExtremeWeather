@@ -207,7 +207,7 @@ MODES = {
 
 def make_all(weeks=None):
     weeks = X.WEEKS if weeks is None else weeks
-    outdirs = [X.XFIG_DIR, C.ROOT / "figures" / "xres"]
+    outdirs = [X.xfig_dir(weeks), C.ROOT / "figures" / "xres" / f"week{weeks}"]
     for mode, (desc, tag) in MODES.items():
         # Batch 1: truth at both grids (own-grid baseline for each resolution).
         _figure(mode,

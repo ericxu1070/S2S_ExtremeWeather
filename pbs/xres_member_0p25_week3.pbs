@@ -1,0 +1,71 @@
+#!/bin/bash
+#PBS -N xres_0p25_m3
+#PBS -A UCSC0009
+#PBS -q main
+#PBS -l job_priority=regular
+#PBS -J 0-23
+#PBS -l select=1:ncpus=16:ngpus=1:mem=243gb
+#PBS -l walltime=12:00:00
+#PBS -j oe
+#PBS -o /glade/derecho/scratch/exu/S2S_ExtremeWeather/logs/
+
+# 0.25deg WEEK-3 (21-day lead) infer as a 24-subjob PBS ARRAY: subjob N rolls ensemble
+# member N for ALL 12 events on ONE GPU and caches it to
+# runs/xres/0p25/week3/cache/<event>_memberNN.nc. The last subjob to complete an event
+# assembles the cube (races are safe: atomic writes + tolerant assembly).
+#
+# Sizing: week 3 is 42 rollout steps (vs 28 at week 2). One serial 0.25deg process at
+# ~80 s/step => 12 events x 42 steps x ~80 s + ~20 min load ~= 11.5 h per subjob, which
+# is close to the 12 h account cap. If a subjob is walltime-killed it will have cached the
+# members it finished; JUST RESUBMIT the whole array (qsub pbs/xres_member_0p25_week3.pbs)
+# and each subjob skips its already-cached (event, member) files and continues. Same
+# ~243 GB host RAM as week 2 => two subjobs share one 4-GPU node.
+
+set -eo pipefail
+shopt -s nullglob
+
+WEEKS=3
+export XRES_WEEKS=$WEEKS
+
+module load conda
+conda activate my-env
+
+SITE=$(python -c "import site; print(site.getsitepackages()[0])")
+export LD_LIBRARY_PATH="$(echo "$SITE"/nvidia/*/lib | tr ' ' ':')${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
+
+export XRES_SERIAL_INFER=1
+export XRES_BF16=1
+export XRES_MEMBER_SEL=$PBS_ARRAY_INDEX
+export XRES_WORKER=$PBS_ARRAY_INDEX
+export XLA_PYTHON_CLIENT_PREALLOCATE=false
+export XLA_PYTHON_CLIENT_MEM_FRACTION=.90
+# 'platform' is slow but the only allocator proven to fit 40 GB here.
+export XLA_PYTHON_CLIENT_ALLOCATOR=${XRES_XLA_ALLOC:-platform}
+export TF_GPU_ALLOCATOR=cuda_malloc_async
+export PYTHONUNBUFFERED=1
+export JAX_CAPTURED_CONSTANTS_WARN_BYTES=-1
+
+cd /glade/derecho/scratch/exu/S2S_ExtremeWeather
+
+echo "Host: $(hostname)"; echo "Start: $(date)"
+echo "Job: $PBS_JOBID  member: $PBS_ARRAY_INDEX  WEEKS: $WEEKS"
+
+# If PBS did not cgroup-isolate the GPU (all 4 visible), pin by member index so
+# co-scheduled subjobs spread instead of piling onto GPU 0.
+NGPU=$(nvidia-smi -L 2>/dev/null | wc -l || echo 0)
+if [ "$NGPU" -gt 1 ] && [ -z "${CUDA_VISIBLE_DEVICES:-}" ]; then
+  export CUDA_VISIBLE_DEVICES=$((PBS_ARRAY_INDEX % NGPU))
+  echo "WARNING: $NGPU GPUs visible; pinned CUDA_VISIBLE_DEVICES=$CUDA_VISIBLE_DEVICES"
+fi
+nvidia-smi -L || true
+
+# Prep must already be done (member subjobs are offline and skip prep entirely).
+inp=(runs/xres/0p25/week${WEEKS}/inputs/*_inputs.nc)
+if [ "${#inp[@]}" -lt 12 ] || [ ! -f "runs/models/params/GenCast 0p25deg <2019.npz" ]; then
+  echo "ERROR: prep incomplete (${#inp[@]}/12 inputs). Run: qsub -v XRES_WEEKS=${WEEKS} pbs/xres_prep.pbs" >&2
+  exit 1
+fi
+
+python run_xres.py --stage infer --res 0p25 --weeks "$WEEKS"
+
+echo "End: $(date)"

@@ -9,7 +9,7 @@ verification week. The original pipeline is untouched (this writes to `runs/xres
 | | original `gencast_s2s` | this `xres` experiment |
 |---|---|---|
 | Model | GenCast 1p0deg **Mini** | full **0p25deg `<2019`** and **1p0deg `<2019`** (matched pair) |
-| Horizons | weeks 2/3/4 | **week 2 only** (3/4 held) |
+| Horizons | weeks 2/3/4 | **weeks 2, 3, 4** (`--weeks`; see [`WEEK34.md`](WEEK34.md) to run 3/4) |
 | Saved output | week-mean **T2m** over CONUS (~165 KB/event) | **entire output cube** — all target vars, every rollout step, every member, CONUS box |
 | Events | 6 heat/cold | 6 heat/cold + **3 hurricanes** + **3 extreme-rain** (12 total) |
 | Metrics | T2m anomaly | T2m anomaly **+ u850 wind speed + total precip** |
@@ -44,10 +44,19 @@ runs/
     └── figures/                                  cross-resolution maps + the 3 combined PDFs
 ```
 
-The 3 combined PDFs are also copied to the project root:
-`xres_combined_mean.png`, `xres_combined_best.png`, `xres_combined_extreme.png`.
+Figures are **week-namespaced** — the cross-resolution maps, combined PDFs and skill
+figures for horizon *W* go to `runs/xres/figures/week{W}/` and `figures/xres/week{W}/`
+(so week-2/3/4 results coexist). The 3 combined PDFs are also copied to
+`figures/xres/week{W}/`: `xres_combined_mean.png`, `xres_combined_best.png`,
+`xres_combined_extreme.png`. (Historical week-2 figures synced at the top level of
+`figures/xres/` predate the per-week layout; re-running week-2 compare writes to
+`figures/xres/week2/`.)
 
 ## Run it (2 GPU nodes, one per resolution)
+
+This section is the **week-2** flow. For the **week-3 / week-4** horizons (a3mega H100s
+*and* Derecho A100s, prep → infer → compare for both), follow [`WEEK34.md`](WEEK34.md);
+it is the same pipeline with `--weeks 3` / `--weeks 4`.
 
 ```bash
 # 0) login node (internet, CPU): pull both checkpoints + build ERA5/HRRR truth + inputs
