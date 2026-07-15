@@ -112,3 +112,24 @@ def test_plot_metrics_splits_epoch_means_from_step_samples(tmp_path):
     series, epoch_loss = load_series(p)
     assert epoch_loss == {20: 0.5}
     assert series["train/loss"] == {10: 0.9, 20: 0.2}  # epoch mean did NOT overwrite step 20
+
+
+def test_window_averages_reduces_and_stratifies():
+    """The logged loss is the window sum / micro-batch count, and empty sigma buckets drop out."""
+    from training.trainer import _window_averages, SIGMA_LOG_BUCKET_NAMES
+
+    assert len(SIGMA_LOG_BUCKET_NAMES) == 4
+    win_sum = [0.8, 0.6, 0.2]   # sums over the window
+    win_n = 4                   # 4 micro-batches
+    bkt_sum = [0.9, 0.0, 0.0, 0.05]
+    bkt_n = [3, 0, 0, 1]        # buckets 'mlo'/'mhi' never sampled this window
+
+    out = _window_averages(win_sum, win_n, bkt_sum, bkt_n)
+
+    assert abs(out["train/loss"] - 0.2) < 1e-9       # 0.8 / 4
+    assert abs(out["train/loss_prog"] - 0.15) < 1e-9
+    assert abs(out["train/loss_diag"] - 0.05) < 1e-9
+    assert abs(out["train/loss_sigma_lo"] - 0.3) < 1e-9   # 0.9 / 3
+    assert abs(out["train/loss_sigma_hi"] - 0.05) < 1e-9  # 0.05 / 1
+    assert "train/loss_sigma_mlo" not in out  # empty bucket omitted, not logged as NaN
+    assert "train/loss_sigma_mhi" not in out

@@ -23,6 +23,40 @@ from training.loss import EDMLoss
 from training.sigma_sampler import EDMSigmaSampler
 from training.variable_weighting import OcampoWeighting
 
+# Sigma-stratified train logging. The EDM loss depends strongly on the sampled noise level
+# (empirically sigma alone drives ~74% of the per-step log-loss variance), so a single
+# unstratified number is dominated by which sigma was drawn, not by whether the model
+# improved. These edges split the sampled sigma into 4 bands (the sampler's P_mean=-1.2 puts
+# the median sigma near 0.3) so each band's mean loss is a stable read on progress at that
+# noise scale. torch.bucketize(sigma, EDGES) -> 0..len(EDGES); names line up with the bands.
+SIGMA_LOG_EDGES = (0.1, 0.5, 2.0)
+SIGMA_LOG_BUCKET_NAMES = ("lo", "mlo", "mhi", "hi")  # <0.1, 0.1-0.5, 0.5-2, >2
+
+
+def _window_averages(win_sum, win_n, bkt_sum, bkt_n) -> dict:
+    """Turn summed logging-window accumulators into mean losses. Pure arithmetic (unit-tested).
+
+    Inputs are already reduced across ranks (a plain SUM all-reduce). Dividing the summed
+    loss by the summed micro-batch count yields the mean over accum_steps * log_every_n_steps
+    * world_size samples, versus the one-rank-one-sample value the trainer used to log.
+
+    win_sum: indexable of [loss, loss_prog, loss_diag] sums over the window.
+    win_n:   scalar count of micro-batches summed into win_sum.
+    bkt_sum / bkt_n: per-sigma-bucket loss sums and micro-batch counts (len == buckets).
+    Returns {metric: float}; empty sigma buckets are omitted rather than logged as NaN.
+    """
+    out: dict = {}
+    n = float(win_n)
+    if n > 0:
+        out["train/loss"] = float(win_sum[0]) / n
+        out["train/loss_prog"] = float(win_sum[1]) / n
+        out["train/loss_diag"] = float(win_sum[2]) / n
+    for i, name in enumerate(SIGMA_LOG_BUCKET_NAMES):
+        ni = float(bkt_n[i])
+        if ni > 0:
+            out[f"train/loss_sigma_{name}"] = float(bkt_sum[i]) / ni
+    return out
+
 
 class Trainer:
     """DDP-aware training loop for HRRR EDM.
@@ -313,6 +347,19 @@ class Trainer:
         B = 0
         t_start = time.perf_counter()
 
+        # Logging window: EVERY micro-batch feeds these accumulators; at each logging
+        # boundary they are all-reduced across ranks, averaged, and reset. This replaces the
+        # old "log one rank's single micro-batch loss" with a mean over
+        # accum_steps * log_every_n_steps * world_size samples — the smoothing you were
+        # eyeballing in the plot, done at the source. GPU tensors so nothing syncs to host
+        # until a logging boundary.
+        edges = torch.tensor(SIGMA_LOG_EDGES, device=self.device)
+        n_buckets = len(SIGMA_LOG_BUCKET_NAMES)
+        win_sum = torch.zeros(3, device=self.device)   # loss, loss_prog, loss_diag
+        win_n = torch.zeros((), device=self.device)    # micro-batch count
+        bkt_sum = torch.zeros(n_buckets, device=self.device)
+        bkt_n = torch.zeros(n_buckets, device=self.device)
+
         self.optimizer.zero_grad()
 
         for micro_step, batch in enumerate(self._iter_batches()):
@@ -352,6 +399,18 @@ class Trainer:
 
                 loss.backward()
 
+            # Feed the logging window on EVERY micro-batch (detached; no host sync here).
+            # Bucketing by the micro-batch's mean sigma is exact at per_gpu_batch=1 (one
+            # sigma per micro-batch, the current config) and an approximation above that.
+            with torch.no_grad():
+                win_sum[0] += loss_dict["loss"].detach()
+                win_sum[1] += loss_dict["loss_prog"].detach()
+                win_sum[2] += loss_dict["loss_diag"].detach()
+                win_n += 1
+                b = torch.bucketize(sigma.mean().detach().reshape(1), edges)
+                bkt_sum.index_add_(0, b, loss_dict["loss"].detach().reshape(1))
+                bkt_n.index_add_(0, b, torch.ones(1, device=self.device))
+
             # Optimizer step at accumulation boundary
             if not is_accum_step:
                 grad_norm = torch.nn.utils.clip_grad_norm_(
@@ -375,24 +434,27 @@ class Trainer:
                              f"loss={loss_dict['loss'].item():.4f} "
                              f"peak_gb={torch.cuda.max_memory_allocated(self.device)/1e9:.1f}")
 
-                # Per-step metrics (wandb or local JSONL, per cfg.logging.backend)
-                if (
-                    self.metrics_run is not None
-                    and self.global_step % self.cfg.logging.log_every_n_steps == 0
-                ):
-                    self.metrics_run.log(
-                        {
-                            "train/loss": loss_dict["loss"].item(),
-                            "train/loss_prog": loss_dict["loss_prog"].item(),
-                            "train/loss_diag": loss_dict["loss_diag"].item(),
+                # Smoothed / rank-reduced / sigma-stratified train metrics. The all-reduce
+                # runs on EVERY rank (like _check_stop) and must stay OUTSIDE the rank-0
+                # `metrics_run` guard: if only rank 0 entered the collective the other ranks
+                # would never reach it and NCCL would hang until timeout. Only rank 0 then
+                # writes the reduced values. The window is reset on all ranks afterwards.
+                if self.global_step % self.cfg.logging.log_every_n_steps == 0:
+                    packed = torch.cat([win_sum, win_n.reshape(1), bkt_sum, bkt_n])
+                    if dist.is_initialized():
+                        dist.all_reduce(packed, op=dist.ReduceOp.SUM)
+                    if self.metrics_run is not None:
+                        r_sum, r_n = packed[:3], packed[3]
+                        r_bsum, r_bn = packed[4:4 + n_buckets], packed[4 + n_buckets:]
+                        log_dict = _window_averages(r_sum, r_n, r_bsum, r_bn)
+                        log_dict.update({
                             "train/grad_norm": grad_norm.item() if isinstance(grad_norm, torch.Tensor) else grad_norm,
                             "train/lr": self.scheduler.get_last_lr()[0],
                             "train/sigma_mean": sigma.mean().item(),
-                            "train/sigma_std": sigma.std().item(),
                             "train/peak_mem_gb": torch.cuda.max_memory_allocated(self.device) / 1e9,
-                        },
-                        step=self.global_step,
-                    )
+                        })
+                        self.metrics_run.log(log_dict, step=self.global_step)
+                    win_sum.zero_(); win_n.zero_(); bkt_sum.zero_(); bkt_n.zero_()
 
                 # Periodic checkpoint. An epoch on the real dataset is far too coarse to
                 # be the unit of durability for a job that gets killed by hand.
