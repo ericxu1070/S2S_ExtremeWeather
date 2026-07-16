@@ -11,9 +11,10 @@
 > **Machine check before running any triage step:** if `hostname` starts with `nucla3m` you
 > are on the a3mega Slurm box, NOT Derecho. That box's `qstat`/`qsub` are Slurm
 > compat-wrappers for the LOCAL cluster — `qstat -u exu` there exits 0 with EMPTY output,
-> which means "wrong machine", not "no jobs". The xres `runs/` data (cubes, verif) exists
-> only on Derecho; the a3mega box holds only the synced figures (`figures/xres/`) and logs
-> (named `logs/<id>.desched1.OU` there, not `logs/xres_*_m.o<id>.<m>`).
+> which means "wrong machine", not "no jobs". Since Jul 15–16 2026 the a3mega box holds the
+> **complete** xres `runs/xres/` tree (week2 synced from Derecho; week3/4 produced locally
+> via Slurm) plus all figures — Derecho is only needed for new PBS runs or HRRR truth
+> rebuilds (its logs are named `logs/<id>.desched1.OU`, not `logs/xres_*_m.o<id>.<m>`).
 >
 > The repo also contains **`downscaler/`** (ERA5 1° → HRRR 3 km diffusion model, PyTorch, runs
 > off-Derecho). It has **no cluster jobs, no queue state, and nothing to triage**, so it is
@@ -23,7 +24,41 @@
 
 ---
 
-## STATUS (Jul 15 2026) — xres WEEK-3 & WEEK-4 experiments added (scripts + figure namespacing)
+## STATUS (Jul 16 2026) — ✅ WEEK-3/4 RUNS COMPLETE ON A3MEGA; ALL COMPARE + NEW FIGURE SETS BUILT LOCALLY
+
+All four week-3/4 infer arms finished on the a3mega H100 nodes (Slurm, this checkout), and
+the figure pipeline now runs entirely on this box's login node from cached data.
+
+- **Infer outcomes (Slurm jobs, Jul 15–16):** 1.0° pmap `218` (wk3, 2h44m) and `219` (wk4,
+  3h16m) COMPLETED, 12/12 cubes each. 0.25° pmap `220`/`221` **FAILED** — 38 GiB device
+  alloc OOM: contrary to the Jul 15 entry below, 0.25° does NOT fit 8-wide pmap on
+  H100-80GB. Replaced by **untracked** 8-worker serial-pool scripts
+  `slurm/xres_pool_0p25_week{3,4}.slurm` (one `XRES_SERIAL_INFER=1 XRES_BF16=1` worker
+  pinned per GPU, `cache/claims/` work-stealing): jobs `223` (wk3, 12h41m) and `224` (wk4,
+  16h52m) COMPLETED, `cubes=12/12 workers-failed=0`. Probe job `222` was superseded and
+  cancelled. (Jobs 220/221 also ran prep in-job on the GPU nodes — see CLAUDE.md's
+  "GPU nodes are for GPU compute ONLY" incident note.)
+- **Data now all-local:** `runs/xres/` is complete for all six (res, week) combos, ~234 GB
+  (week2 rsynced from Derecho Jul 15 — see `xres_dryrun.log`; week3/4 produced here).
+  12 inputs + 12 cubes + 18 verif files per (res, week); `runs/observations/` unchanged.
+- **Figures (login-node CPU, driver `make_xres_figs.sh`):**
+  - `xcombined.make_all` run locally for weeks 2/3/4 → `figures/xres/week{2,3,4}/` (8 PNGs
+    each; the pooled 4-curve PDFs are the headline). NOTE: `xscores`/`xplotting.make_maps`
+    were NOT run for weeks 3/4 — use `run_xres.py --stage compare --weeks N` if wanted.
+  - NEW `xres/xleadpdfs.py` → `figures/xres/leads/xres_pdf_leads_{0p25,1p0}.png`: per
+    resolution, week-2/3/4 pooled-member PDFs overlaid vs ERA5 truth, 12 event panels.
+  - NEW `xres/xmapgrid.py` → `figures/xres/maps3var/` (12 PNGs): 4 representative events
+    (PNW/Uri/Ida/CA-AR) × 3 leads, downscaler-fig1/2-style map grids from CACHED metrics
+    only (headline + secondary; rows: heat/cold 1, hurricane/rain 2), columns ERA5 truth |
+    0.25° mean | 1.0° mean | both errors, cos(lat)-weighted RMSE/bias badges.
+  - Badge math independently verified (Ida wk3 0.25° u850: RMSE 1.53, bias −0.36).
+- **Stray but valid:** `runs/xres/1p0/week2/verif/HurricaneIda_2021_t2m_anom_members.nc`
+  (a non-headline metric derived from the cube as a smoke test; standard format, unused by
+  current figures).
+
+---
+
+## PREVIOUS STATUS (Jul 15 2026) — xres WEEK-3 & WEEK-4 experiments added (scripts + figure namespacing)
 
 Extends the completed week-2 xres run to **21-day (week 3)** and **28-day (week 4)** leads,
 runnable on **two clusters**: the a3mega **8×H100** box (primary, this checkout) and Derecho

@@ -1,0 +1,132 @@
+receiving incremental file list
+./
+cache/
+cache/California_AR_Floods_2023_cube.nc
+cache/California_HeatWave_2022_cube.nc
+cache/HurricaneIan_2022_cube.nc
+cache/HurricaneIda_2021_cube.nc
+cache/HurricaneIdalia_2023_cube.nc
+cache/Kentucky_Floods_2022_cube.nc
+cache/PNW_HeatDome_2021_cube.nc
+cache/PolarVortex_2019_cube.nc
+cache/Southwest_HeatWave_2020_cube.nc
+cache/Vermont_Floods_2023_cube.nc
+cache/WinterStorm_Elliott_2022_cube.nc
+cache/WinterStorm_Uri_2021_cube.nc
+figures/
+figures/maps/
+inputs/
+inputs/California_AR_Floods_2023_inputs.nc
+inputs/California_HeatWave_2022_inputs.nc
+inputs/HurricaneIan_2022_inputs.nc
+inputs/HurricaneIda_2021_inputs.nc
+inputs/HurricaneIdalia_2023_inputs.nc
+inputs/Kentucky_Floods_2022_inputs.nc
+inputs/PNW_HeatDome_2021_inputs.nc
+inputs/PolarVortex_2019_inputs.nc
+inputs/Southwest_HeatWave_2020_inputs.nc
+inputs/Vermont_Floods_2023_inputs.nc
+inputs/WinterStorm_Elliott_2022_inputs.nc
+inputs/WinterStorm_Uri_2021_inputs.nc
+verif/
+verif/California_AR_Floods_2023_tp_max12h_members.nc
+verif/California_AR_Floods_2023_tp_total_members.nc
+verif/California_HeatWave_2022_t2m_anom_members.nc
+verif/HurricaneIan_2022_u850_speed_max_members.nc
+verif/HurricaneIan_2022_u850_speed_members.nc
+verif/HurricaneIda_2021_u850_speed_max_members.nc
+verif/HurricaneIda_2021_u850_speed_members.nc
+verif/HurricaneIdalia_2023_u850_speed_max_members.nc
+verif/HurricaneIdalia_2023_u850_speed_members.nc
+verif/Kentucky_Floods_2022_tp_max12h_members.nc
+verif/Kentucky_Floods_2022_tp_total_members.nc
+verif/PNW_HeatDome_2021_t2m_anom_members.nc
+verif/PolarVortex_2019_t2m_anom_members.nc
+verif/Southwest_HeatWave_2020_t2m_anom_members.nc
+verif/Vermont_Floods_2023_tp_max12h_members.nc
+verif/Vermont_Floods_2023_tp_total_members.nc
+verif/WinterStorm_Elliott_2022_t2m_anom_members.nc
+verif/WinterStorm_Uri_2021_t2m_anom_members.nc
+
+Number of files: 48 (reg: 42, dir: 6)
+Number of created files: 47 (reg: 42, dir: 5)
+Number of deleted files: 0
+Number of regular files transferred: 42
+Total file size: 55.04G bytes
+Total transferred file size: 55.04G bytes
+Literal data: 0 bytes
+Matched data: 0 bytes
+File list size: 2.01K
+File list generation time: 0.003 seconds
+File list transfer time: 0.000 seconds
+Total bytes sent: 173
+Total bytes received: 2.17K
+
+sent 173 bytes  received 2.17K bytes  312.40 bytes/sec
+total size is 55.04G  speedup is 23,492,954.16 (DRY RUN)
+receiving incremental file list
+./
+cache/
+cache/California_AR_Floods_2023_cube.nc
+cache/California_HeatWave_2022_cube.nc
+cache/HurricaneIan_2022_cube.nc
+cache/HurricaneIda_2021_cube.nc
+cache/HurricaneIdalia_2023_cube.nc
+cache/Kentucky_Floods_2022_cube.nc
+cache/PNW_HeatDome_2021_cube.nc
+cache/PolarVortex_2019_cube.nc
+cache/Southwest_HeatWave_2020_cube.nc
+cache/Vermont_Floods_2023_cube.nc
+cache/WinterStorm_Elliott_2022_cube.nc
+cache/WinterStorm_Uri_2021_cube.nc
+figures/
+figures/maps/
+inputs/
+inputs/California_AR_Floods_2023_inputs.nc
+inputs/California_HeatWave_2022_inputs.nc
+inputs/HurricaneIan_2022_inputs.nc
+inputs/HurricaneIda_2021_inputs.nc
+inputs/HurricaneIdalia_2023_inputs.nc
+inputs/Kentucky_Floods_2022_inputs.nc
+inputs/PNW_HeatDome_2021_inputs.nc
+inputs/PolarVortex_2019_inputs.nc
+inputs/Southwest_HeatWave_2020_inputs.nc
+inputs/Vermont_Floods_2023_inputs.nc
+inputs/WinterStorm_Elliott_2022_inputs.nc
+inputs/WinterStorm_Uri_2021_inputs.nc
+verif/
+verif/California_AR_Floods_2023_tp_max12h_members.nc
+verif/California_AR_Floods_2023_tp_total_members.nc
+verif/California_HeatWave_2022_t2m_anom_members.nc
+verif/HurricaneIan_2022_u850_speed_max_members.nc
+verif/HurricaneIan_2022_u850_speed_members.nc
+verif/HurricaneIda_2021_u850_speed_max_members.nc
+verif/HurricaneIda_2021_u850_speed_members.nc
+verif/HurricaneIdalia_2023_u850_speed_max_members.nc
+verif/HurricaneIdalia_2023_u850_speed_members.nc
+verif/Kentucky_Floods_2022_tp_max12h_members.nc
+verif/Kentucky_Floods_2022_tp_total_members.nc
+verif/PNW_HeatDome_2021_t2m_anom_members.nc
+verif/PolarVortex_2019_t2m_anom_members.nc
+verif/Southwest_HeatWave_2020_t2m_anom_members.nc
+verif/Vermont_Floods_2023_tp_max12h_members.nc
+verif/Vermont_Floods_2023_tp_total_members.nc
+verif/WinterStorm_Elliott_2022_t2m_anom_members.nc
+verif/WinterStorm_Uri_2021_t2m_anom_members.nc
+
+Number of files: 48 (reg: 42, dir: 6)
+Number of created files: 47 (reg: 42, dir: 5)
+Number of deleted files: 0
+Number of regular files transferred: 42
+Total file size: 3.74G bytes
+Total transferred file size: 3.74G bytes
+Literal data: 0 bytes
+Matched data: 0 bytes
+File list size: 1.99K
+File list generation time: 0.002 seconds
+File list transfer time: 0.000 seconds
+Total bytes sent: 173
+Total bytes received: 2.15K
+
+sent 173 bytes  received 2.15K bytes  160.21 bytes/sec
+total size is 3.74G  speedup is 1,608,312.56 (DRY RUN)

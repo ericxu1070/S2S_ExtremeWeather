@@ -1,0 +1,82 @@
+Host: nucla3m-a3meganodeset-3
+Start: Wed Jul 15 05:02:55 UTC 2026
+WEEKS=3
+GPU 0: NVIDIA H100 80GB HBM3 (UUID: GPU-3d728601-5a90-3332-b4f8-55a26b42a17b)
+GPU 1: NVIDIA H100 80GB HBM3 (UUID: GPU-b189949f-6b30-1a6a-bf9e-a1f13b566ce4)
+GPU 2: NVIDIA H100 80GB HBM3 (UUID: GPU-78950a76-0d22-aa22-2931-ff4e9e591bf6)
+GPU 3: NVIDIA H100 80GB HBM3 (UUID: GPU-f545a6c6-519b-ded3-1d46-a56618ba791c)
+GPU 4: NVIDIA H100 80GB HBM3 (UUID: GPU-5d3a37da-d139-e33f-6aa9-24142cd182f0)
+GPU 5: NVIDIA H100 80GB HBM3 (UUID: GPU-140f8c08-c442-2c67-bf38-d0f0e31ef4ea)
+GPU 6: NVIDIA H100 80GB HBM3 (UUID: GPU-6d85aa1f-f837-6673-e525-d8778183da70)
+GPU 7: NVIDIA H100 80GB HBM3 (UUID: GPU-59e0f36c-c2c3-2bc1-c010-a6e20c827c65)
+JAX devices: [CudaDevice(id=0), CudaDevice(id=1), CudaDevice(id=2), CudaDevice(id=3), CudaDevice(id=4), CudaDevice(id=5), CudaDevice(id=6), CudaDevice(id=7)]
+[model] checkpoint (0p25): GenCast 0p25deg <2019.npz
+[model] checkpoint (1p0): GenCast 1p0deg <2019.npz
+[model] stats: diffs_stddev_by_level.nc
+[model] stats: mean_by_level.nc
+[model] stats: stddev_by_level.nc
+[model] stats: min_by_level.nc
+[model] statics (orography + land-sea mask)
+[model] statics cached: statics.nc
+[clim] cached: clim_1990_2019_t2m_conus.nc
+[model] done
+[prep] subprocess event=PNW_HeatDome_2021
+[era5-truth] cached: PNW_HeatDome_2021_verif_t2m_anom.nc
+[hrrr-truth] HRRR archive not found at /glade/derecho/scratch/mdarman/hrrr_work/hrrr_nc_v3; skipping HRRR
+[inputs 0p25 week3] PNW_HeatDome_2021: init=peak-21d -> PNW_HeatDome_2021_inputs.nc
+[prep] subprocess event=Southwest_HeatWave_2020
+[era5-truth] cached: Southwest_HeatWave_2020_verif_t2m_anom.nc
+[hrrr-truth] HRRR archive not found at /glade/derecho/scratch/mdarman/hrrr_work/hrrr_nc_v3; skipping HRRR
+[inputs 0p25 week3] Southwest_HeatWave_2020: init=peak-21d -> Southwest_HeatWave_2020_inputs.nc
+[prep] subprocess event=California_HeatWave_2022
+[era5-truth] cached: California_HeatWave_2022_verif_t2m_anom.nc
+[hrrr-truth] HRRR archive not found at /glade/derecho/scratch/mdarman/hrrr_work/hrrr_nc_v3; skipping HRRR
+[inputs 0p25 week3] California_HeatWave_2022: init=peak-21d -> California_HeatWave_2022_inputs.nc
+[prep] subprocess event=WinterStorm_Uri_2021
+[era5-truth] cached: WinterStorm_Uri_2021_verif_t2m_anom.nc
+[hrrr-truth] HRRR archive not found at /glade/derecho/scratch/mdarman/hrrr_work/hrrr_nc_v3; skipping HRRR
+[inputs 0p25 week3] WinterStorm_Uri_2021: init=peak-21d -> WinterStorm_Uri_2021_inputs.nc
+[prep] subprocess event=PolarVortex_2019
+[era5-truth] cached: PolarVortex_2019_verif_t2m_anom.nc
+[hrrr-truth] HRRR archive not found at /glade/derecho/scratch/mdarman/hrrr_work/hrrr_nc_v3; skipping HRRR
+[inputs 0p25 week3] PolarVortex_2019: init=peak-21d -> PolarVortex_2019_inputs.nc
+[prep] subprocess event=WinterStorm_Elliott_2022
+[era5-truth] cached: WinterStorm_Elliott_2022_verif_t2m_anom.nc
+[hrrr-truth] HRRR archive not found at /glade/derecho/scratch/mdarman/hrrr_work/hrrr_nc_v3; skipping HRRR
+[inputs 0p25 week3] WinterStorm_Elliott_2022: init=peak-21d -> WinterStorm_Elliott_2022_inputs.nc
+[prep] subprocess event=HurricaneIda_2021
+[era5-truth] cached: HurricaneIda_2021_verif_u850_speed.nc
+[era5-truth] cached: HurricaneIda_2021_verif_u850_speed_max.nc
+[hrrr-truth] HRRR archive not found at /glade/derecho/scratch/mdarman/hrrr_work/hrrr_nc_v3; skipping HRRR
+[inputs 0p25 week3] HurricaneIda_2021: init=peak-21d -> HurricaneIda_2021_inputs.nc
+[prep] subprocess event=HurricaneIan_2022
+[era5-truth] cached: HurricaneIan_2022_verif_u850_speed.nc
+[era5-truth] cached: HurricaneIan_2022_verif_u850_speed_max.nc
+[hrrr-truth] HRRR archive not found at /glade/derecho/scratch/mdarman/hrrr_work/hrrr_nc_v3; skipping HRRR
+[inputs 0p25 week3] HurricaneIan_2022: init=peak-21d -> HurricaneIan_2022_inputs.nc
+[prep] subprocess event=HurricaneIdalia_2023
+[era5-truth] cached: HurricaneIdalia_2023_verif_u850_speed.nc
+[era5-truth] cached: HurricaneIdalia_2023_verif_u850_speed_max.nc
+[hrrr-truth] HRRR archive not found at /glade/derecho/scratch/mdarman/hrrr_work/hrrr_nc_v3; skipping HRRR
+   (using ARCO-ERA5: past WB2 coverage)
+[inputs 0p25 week3] HurricaneIdalia_2023: init=peak-21d -> HurricaneIdalia_2023_inputs.nc
+[prep] subprocess event=California_AR_Floods_2023
+[era5-truth] California_AR_Floods_2023 [tp_total]: mean=+14 max=+259 -> California_AR_Floods_2023_verif_tp_total.nc
+[era5-truth] California_AR_Floods_2023 [tp_max12h]: mean=+6.63 max=+77.1 -> California_AR_Floods_2023_verif_tp_max12h.nc
+[hrrr-truth] HRRR archive not found at /glade/derecho/scratch/mdarman/hrrr_work/hrrr_nc_v3; skipping HRRR
+[inputs 0p25 week3] California_AR_Floods_2023: init=peak-21d -> California_AR_Floods_2023_inputs.nc
+[prep] subprocess event=Kentucky_Floods_2022
+[era5-truth] Kentucky_Floods_2022 [tp_total]: mean=+12.9 max=+128 -> Kentucky_Floods_2022_verif_tp_total.nc
+[era5-truth] Kentucky_Floods_2022 [tp_max12h]: mean=+6.61 max=+85.2 -> Kentucky_Floods_2022_verif_tp_max12h.nc
+[hrrr-truth] HRRR archive not found at /glade/derecho/scratch/mdarman/hrrr_work/hrrr_nc_v3; skipping HRRR
+[inputs 0p25 week3] Kentucky_Floods_2022: init=peak-21d -> Kentucky_Floods_2022_inputs.nc
+[prep] subprocess event=Vermont_Floods_2023
+[era5-truth] cached: Vermont_Floods_2023_verif_tp_total.nc
+[era5-truth] cached: Vermont_Floods_2023_verif_tp_max12h.nc
+[hrrr-truth] HRRR archive not found at /glade/derecho/scratch/mdarman/hrrr_work/hrrr_nc_v3; skipping HRRR
+   (using ARCO-ERA5: past WB2 coverage)
+[inputs 0p25 week3] Vermont_Floods_2023: init=peak-21d -> Vermont_Floods_2023_inputs.nc
+=== xres 0p25 (GenCast 0.25deg): week3, lead 21d, 42 steps, 24 members, pmap ===
+[model] GenCast loaded on 8 device(s); ensemble=24 (3 wave(s) of 8). task pressure levels: 13
+PNW_HeatDome_2021 [0p25 week3] init=peak-21d ... (event 1/12)
+  rollout: 42 steps x 3 waves of 8 members (24 total, pmap x8); JAX compile on first step often takes 15-40 min

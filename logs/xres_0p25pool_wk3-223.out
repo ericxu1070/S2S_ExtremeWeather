@@ -1,0 +1,27 @@
+Host: nucla3m-a3meganodeset-3  Start: Wed Jul 15 06:57:36 UTC 2026  WEEKS=3  NGPU=8
+GPU 0: NVIDIA H100 80GB HBM3 (UUID: GPU-3d728601-5a90-3332-b4f8-55a26b42a17b)
+GPU 1: NVIDIA H100 80GB HBM3 (UUID: GPU-b189949f-6b30-1a6a-bf9e-a1f13b566ce4)
+GPU 2: NVIDIA H100 80GB HBM3 (UUID: GPU-78950a76-0d22-aa22-2931-ff4e9e591bf6)
+GPU 3: NVIDIA H100 80GB HBM3 (UUID: GPU-f545a6c6-519b-ded3-1d46-a56618ba791c)
+GPU 4: NVIDIA H100 80GB HBM3 (UUID: GPU-5d3a37da-d139-e33f-6aa9-24142cd182f0)
+GPU 5: NVIDIA H100 80GB HBM3 (UUID: GPU-140f8c08-c442-2c67-bf38-d0f0e31ef4ea)
+GPU 6: NVIDIA H100 80GB HBM3 (UUID: GPU-6d85aa1f-f837-6673-e525-d8778183da70)
+GPU 7: NVIDIA H100 80GB HBM3 (UUID: GPU-59e0f36c-c2c3-2bc1-c010-a6e20c827c65)
+[launcher] worker 0 -> GPU 0 -> logs/xres_0p25pool_wk3_223_w0.log
+[launcher] worker 1 -> GPU 1 -> logs/xres_0p25pool_wk3_223_w1.log
+[launcher] worker 2 -> GPU 2 -> logs/xres_0p25pool_wk3_223_w2.log
+[launcher] worker 3 -> GPU 3 -> logs/xres_0p25pool_wk3_223_w3.log
+[launcher] worker 4 -> GPU 4 -> logs/xres_0p25pool_wk3_223_w4.log
+[launcher] worker 5 -> GPU 5 -> logs/xres_0p25pool_wk3_223_w5.log
+[launcher] worker 6 -> GPU 6 -> logs/xres_0p25pool_wk3_223_w6.log
+[launcher] worker 7 -> GPU 7 -> logs/xres_0p25pool_wk3_223_w7.log
+[launcher] worker 0 ok
+[launcher] worker 1 ok
+[launcher] worker 2 ok
+[launcher] worker 3 ok
+[launcher] worker 4 ok
+[launcher] worker 5 ok
+[launcher] worker 6 ok
+[launcher] worker 7 ok
+[status] cubes=12/12  workers-failed=0
+End: Wed Jul 15 19:38:23 UTC 2026

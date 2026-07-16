@@ -2,6 +2,13 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+## Subagent model tier (ultracode / multi-agent runs)
+
+When orchestrating subagents (Agent tool or Workflow `agent()` calls), run them **one model
+tier below the main session model**: Fable main → `opus` subagents; Opus main → `sonnet`
+subagents. Pass the override explicitly (e.g. `model: 'opus'`) — do not let subagents
+inherit the top-tier session model.
+
 ## Which machine you are on (read this first)
 
 This checkout lives on the **a3mega Slurm GPU cluster** (GCP; hostnames start with
@@ -17,16 +24,53 @@ Traps this split sets:
 - This box has `qstat`/`qsub` binaries, but they are **Slurm's PBS-compat wrappers for the
   local cluster**. `qstat -u exu` exits 0 with EMPTY output — that means "wrong machine",
   not "no jobs". Every PBS/qstat command in this file and in `HANDOFF.md` is Derecho-only.
-- **Never run GenCast stages on this box** (`python run_xres.py ...`,
-  `python run_experiment.py ...`, `qsub pbs/*`). The imports succeed in `moe` and there is
-  **no machine guard**: the code will start writing into the local `runs/` tree, then fail
-  on the hardcoded `/glade` HRRR path or the missing GPU.
+- **GenCast now runs on this cluster too** (since Jul 15 2026, weeks 3/4), but only with
+  the right resource split: GPU `infer` goes through `sbatch` (`slurm/xres_*` — the 0.25°
+  pmap path OOMs on H100-80GB; use the 8-worker serial pool scripts
+  `slurm/xres_pool_0p25_week*.slurm`), CPU `prep`/`compare`/figures run on the login node.
+  Never launch infer directly on the login node (no GPU), and note the HRRR overlay build
+  (`xhrrr`, `C.HRRR_NC`) is still Derecho-only (`/glade` path) — the synced
+  `runs/observations/*_hrrr_verif_*.nc` files cover it here.
 - What this box holds of GenCast: full source, model checkpoints (`runs/models/`), the
-  original horizon-experiment outputs (`runs/week{2,3,4}/`), the final xres figures
-  (`figures/xres/`, `figures/original/`) and synced Derecho logs (`logs/`). The xres data
-  cubes/verif (`runs/xres/`) were **never synced** — they exist only on Derecho.
-- The **downscaler is the live project on this machine**. GenCast work here is read-only
-  analysis of the synced figures/logs unless you are actually in a Derecho session.
+  original horizon-experiment outputs (`runs/week{2,3,4}/`), and — since Jul 15–16 2026 —
+  the **complete xres data tree** (`runs/xres/`, ~234 GB: week2 cubes/verif synced from
+  Derecho, week3/4 produced locally by Slurm jobs 218/219/223/224) plus all compare
+  figures (`figures/xres/`). Derecho is no longer required for xres analysis.
+- The **downscaler and xres analysis are the live projects on this machine**; only new
+  Derecho PBS runs (or HRRR truth rebuilds) need a Derecho session.
+
+## GPU nodes are for GPU compute ONLY (STRICT)
+
+A GPU allocation — an `sbatch` job on the a3mega H100 nodes, or a Derecho GPU/PBS job — is
+reserved **exclusively for the work that actually needs the GPU**: the inference rollout
+(GenCast / `xres`) or the training / eval steps (downscaler). H100 nodes are scarce and
+hard to get; a whole 8×H100 node doing anything a CPU could do is pure waste (a node idling
+on ERA5 downloads for an hour burns ~dozens of GPU-hours).
+
+**Everything that does NOT need the GPU must be done first, on a cheaper resource** — the
+**login node** (has internet) or a CPU/`debug` node (a3mega) / the `develop` CPU queue
+(Derecho). That includes:
+
+- **Data gathering / I/O:** checkpoint/stats/statics downloads, ERA5/HRRR reads, building
+  per-event init frames and verification truth (`run_xres.py --stage prep`), the
+  downscaler's timestamp index + norm stats (`downscaler/bash/02_*`). Pre-stage all of it to
+  the shared NFS `runs/` caches.
+- **Environment / software builds & compiles:** conda/pip installs, editable installs,
+  `setup_env.sh`, any CUDA-extension or package compilation.
+- **Preprocessing / figures:** the `compare` stage, plotting, metrics, CSVs.
+
+By the time a GPU job starts, **all inputs must already exist so the job is a pure
+cache-hit → GPU compute**. For `xres`: run `python run_xres.py --stage prep --weeks N` on the
+**login node**, confirm `ls runs/xres/<res>/weekN/inputs/*_inputs.nc | wc -l` == 12, and only
+*then* `sbatch` the infer job. The infer scripts still call `prep` in-job, but that must be an
+instant **cache verify**, never a builder — if a GPU job is seen downloading or building data,
+stop it and pre-stage on the login node.
+
+The one unavoidable on-GPU startup cost is the **JAX/XLA first-step compile** (it targets the
+device and cannot be moved off-GPU). That is acceptable, but it must be the *only* startup the
+GPU pays — never compound it with prep/downloads. (Incident 2026-07-15: `xres` week3/4 were
+`sbatch`ed straight to the H100s and spent ~75 min per node building ERA5 init frames with all
+8 GPUs idle before compiling — exactly what this rule forbids. Do prep on the login node.)
 
 ## What this is
 

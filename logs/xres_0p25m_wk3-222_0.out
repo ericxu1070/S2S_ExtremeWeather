@@ -1,0 +1,33 @@
+Host: nucla3m-a3meganodeset-3  Start: Wed Jul 15 06:39:36 UTC 2026
+Job: 222  member(array task): 0  WEEKS: 3
+CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7
+GPU 0: NVIDIA H100 80GB HBM3 (UUID: GPU-3d728601-5a90-3332-b4f8-55a26b42a17b)
+GPU 1: NVIDIA H100 80GB HBM3 (UUID: GPU-b189949f-6b30-1a6a-bf9e-a1f13b566ce4)
+GPU 2: NVIDIA H100 80GB HBM3 (UUID: GPU-78950a76-0d22-aa22-2931-ff4e9e591bf6)
+GPU 3: NVIDIA H100 80GB HBM3 (UUID: GPU-f545a6c6-519b-ded3-1d46-a56618ba791c)
+GPU 4: NVIDIA H100 80GB HBM3 (UUID: GPU-5d3a37da-d139-e33f-6aa9-24142cd182f0)
+GPU 5: NVIDIA H100 80GB HBM3 (UUID: GPU-140f8c08-c442-2c67-bf38-d0f0e31ef4ea)
+GPU 6: NVIDIA H100 80GB HBM3 (UUID: GPU-6d85aa1f-f837-6673-e525-d8778183da70)
+GPU 7: NVIDIA H100 80GB HBM3 (UUID: GPU-59e0f36c-c2c3-2bc1-c010-a6e20c827c65)
+=== xres 0p25 (GenCast 0.25deg): week3, lead 21d, 42 steps, 24 members, serial member 0 only ===
+PNW_HeatDome_2021 [m0 0p25 week3] (event 1/12)
+[model] serial infer on 8 device(s); ensemble=24 (24 sample(s), one at a time). task pressure levels: 13
+  [w0 0p25] PNW_HeatDome_2021: member 1/24  step 1/42
+  [w0 0p25] PNW_HeatDome_2021: member 1/24  step 2/42
+  [w0 0p25] PNW_HeatDome_2021: member 1/24  step 3/42
+  [w0 0p25] PNW_HeatDome_2021: member 1/24  step 4/42
+  [w0 0p25] PNW_HeatDome_2021: member 1/24  step 5/42
+  [w0 0p25] PNW_HeatDome_2021: member 1/24  step 6/42
+  [w0 0p25] PNW_HeatDome_2021: member 1/24  step 7/42
+  [w0 0p25] PNW_HeatDome_2021: member 1/24  step 8/42
+  [w0 0p25] PNW_HeatDome_2021: member 1/24  step 9/42
+  [w0 0p25] PNW_HeatDome_2021: member 1/24  step 10/42
+  [w0 0p25] PNW_HeatDome_2021: member 1/24  step 11/42
+  [w0 0p25] PNW_HeatDome_2021: member 1/24  step 12/42
+  [w0 0p25] PNW_HeatDome_2021: member 1/24  step 13/42
+  [w0 0p25] PNW_HeatDome_2021: member 1/24  step 14/42
+  [w0 0p25] PNW_HeatDome_2021: member 1/24  step 15/42
+  [w0 0p25] PNW_HeatDome_2021: member 1/24  step 16/42
+  [w0 0p25] PNW_HeatDome_2021: member 1/24  step 17/42
+  [w0 0p25] PNW_HeatDome_2021: member 1/24  step 18/42
+  [w0 0p25] PNW_HeatDome_2021: member 1/24  step 19/42

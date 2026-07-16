@@ -1,0 +1,35 @@
+WARNING: Logging before flag parsing goes to stderr.
+I0715 06:40:46.766468 21413845568384 xla_bridge.py:849] Unable to initialize backend 'tpu': INTERNAL: Failed to open libtpu.so: libtpu.so: cannot open shared object file: No such file or directory
+I0715 06:41:08.770003 21413845568384 rollout.py:205] Sample 0/1
+/home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/third_party/graphcast/graphcast/rollout.py:328: FutureWarning: The return type of `Dataset.dims` will be changed to return a set of dimension names in future, in order to be more consistent with `DataArray.dims`. To access a mapping from dimension names to lengths, please use `Dataset.sizes`.
+  num_target_steps = targets_template.dims["time"]
+I0715 06:41:08.778309 21413845568384 rollout.py:361] Chunk 0/42
+/home/ubuntu/miniconda3/envs/moe/lib/python3.12/site-packages/scipy/sparse/_index.py:210: SparseEfficiencyWarning: Changing the sparsity structure of a csr_matrix is expensive. lil and dok are more efficient.
+  self._set_arrayXarray(i, j, x)
+/home/ubuntu/miniconda3/envs/moe/lib/python3.12/site-packages/scipy/sparse/_index.py:210: SparseEfficiencyWarning: Changing the sparsity structure of a csr_matrix is expensive. lil and dok are more efficient.
+  self._set_arrayXarray(i, j, x)
+I0715 06:44:33.691651 21413845568384 sparse_transformer.py:507] mask_block_size: 10273.
+/home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/third_party/graphcast/graphcast/rollout.py:435: FutureWarning: The return type of `Dataset.dims` will be changed to return a set of dimension names in future, in order to be more consistent with `DataArray.dims`. To access a mapping from dimension names to lengths, please use `Dataset.sizes`.
+  num_inputs = prev_inputs.dims["time"]
+/home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/third_party/graphcast/graphcast/rollout.py:437: FutureWarning: In a future version of xarray the default value for compat will change from compat='equals' to compat='override'. This change will result in the following ValueError: Cannot specify both data_vars='different' and compat='override'. The recommendation is to set compat explicitly for this case.
+  xarray.concat(
+I0715 06:47:20.322099 21413845568384 rollout.py:361] Chunk 1/42
+I0715 06:47:48.325801 21413845568384 rollout.py:361] Chunk 2/42
+I0715 06:48:16.324775 21413845568384 rollout.py:361] Chunk 3/42
+I0715 06:48:44.333248 21413845568384 rollout.py:361] Chunk 4/42
+I0715 06:49:12.337801 21413845568384 rollout.py:361] Chunk 5/42
+I0715 06:49:40.369263 21413845568384 rollout.py:361] Chunk 6/42
+I0715 06:50:08.381515 21413845568384 rollout.py:361] Chunk 7/42
+I0715 06:50:36.400535 21413845568384 rollout.py:361] Chunk 8/42
+I0715 06:51:04.409693 21413845568384 rollout.py:361] Chunk 9/42
+I0715 06:51:32.441963 21413845568384 rollout.py:361] Chunk 10/42
+I0715 06:52:00.470607 21413845568384 rollout.py:361] Chunk 11/42
+I0715 06:52:28.500570 21413845568384 rollout.py:361] Chunk 12/42
+I0715 06:52:56.509384 21413845568384 rollout.py:361] Chunk 13/42
+I0715 06:53:24.522344 21413845568384 rollout.py:361] Chunk 14/42
+I0715 06:53:52.527877 21413845568384 rollout.py:361] Chunk 15/42
+I0715 06:54:20.541527 21413845568384 rollout.py:361] Chunk 16/42
+I0715 06:54:48.550239 21413845568384 rollout.py:361] Chunk 17/42
+I0715 06:55:16.581721 21413845568384 rollout.py:361] Chunk 18/42
+I0715 06:55:44.600786 21413845568384 rollout.py:361] Chunk 19/42
+[2026-07-15T06:56:01.727] error: *** JOB 222 ON nucla3m-a3meganodeset-3 CANCELLED AT 2026-07-15T06:56:01 DUE to SIGNAL Terminated ***

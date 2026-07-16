@@ -1,0 +1,105 @@
+Traceback (most recent call last):
+  File "/home/ubuntu/miniconda3/envs/moe/lib/python3.12/weakref.py", line 666, in _exitfunc
+    f()
+  File "/home/ubuntu/miniconda3/envs/moe/lib/python3.12/weakref.py", line 590, in __call__
+    return info.func(*info.args, **(info.kwargs or {}))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ubuntu/miniconda3/envs/moe/lib/python3.12/site-packages/gcsfs/core.py", line 406, in close_session
+    asyn.sync(asyn.loop[0], session.close, timeout=0.1)
+  File "/home/ubuntu/miniconda3/envs/moe/lib/python3.12/site-packages/fsspec/asyn.py", line 103, in sync
+    raise return_result
+  File "/home/ubuntu/miniconda3/envs/moe/lib/python3.12/site-packages/fsspec/asyn.py", line 56, in _runner
+    result[0] = await coro
+                ^^^^^^^^^^
+  File "/home/ubuntu/miniconda3/envs/moe/lib/python3.12/asyncio/tasks.py", line 520, in wait_for
+    return await fut
+           ^^^^^^^^^
+  File "/home/ubuntu/miniconda3/envs/moe/lib/python3.12/site-packages/aiohttp/client.py", line 1349, in close
+    await self._connector.close()
+  File "/home/ubuntu/miniconda3/envs/moe/lib/python3.12/site-packages/aiohttp/connector.py", line 1074, in close
+    await super().close(abort_ssl=abort_ssl or self._ssl_shutdown_timeout == 0)
+RuntimeError: Task <Task pending name='Task-1106' coro=<_runner() running at /home/ubuntu/miniconda3/envs/moe/lib/python3.12/site-packages/fsspec/asyn.py:56> cb=[_chain_future.<locals>._call_set_state() at /home/ubuntu/miniconda3/envs/moe/lib/python3.12/asyncio/futures.py:396]> got Future <Task pending name='Task-1107' coro=<_wait_for_close() running at /home/ubuntu/miniconda3/envs/moe/lib/python3.12/site-packages/aiohttp/connector.py:138> wait_for=<_GatheringFuture pending cb=[Task.task_wakeup()]>> attached to a different loop
+Task was destroyed but it is pending!
+task: <Task pending name='Task-1107' coro=<_wait_for_close() done, defined at /home/ubuntu/miniconda3/envs/moe/lib/python3.12/site-packages/aiohttp/connector.py:136> wait_for=<_GatheringFuture pending cb=[Task.task_wakeup()]>>
+Traceback (most recent call last):
+  File "/home/ubuntu/miniconda3/envs/moe/lib/python3.12/weakref.py", line 666, in _exitfunc
+    f()
+  File "/home/ubuntu/miniconda3/envs/moe/lib/python3.12/weakref.py", line 590, in __call__
+    return info.func(*info.args, **(info.kwargs or {}))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ubuntu/miniconda3/envs/moe/lib/python3.12/site-packages/gcsfs/core.py", line 406, in close_session
+    asyn.sync(asyn.loop[0], session.close, timeout=0.1)
+  File "/home/ubuntu/miniconda3/envs/moe/lib/python3.12/site-packages/fsspec/asyn.py", line 103, in sync
+    raise return_result
+  File "/home/ubuntu/miniconda3/envs/moe/lib/python3.12/site-packages/fsspec/asyn.py", line 56, in _runner
+    result[0] = await coro
+                ^^^^^^^^^^
+  File "/home/ubuntu/miniconda3/envs/moe/lib/python3.12/asyncio/tasks.py", line 520, in wait_for
+    return await fut
+           ^^^^^^^^^
+  File "/home/ubuntu/miniconda3/envs/moe/lib/python3.12/site-packages/aiohttp/client.py", line 1349, in close
+    await self._connector.close()
+  File "/home/ubuntu/miniconda3/envs/moe/lib/python3.12/site-packages/aiohttp/connector.py", line 1074, in close
+    await super().close(abort_ssl=abort_ssl or self._ssl_shutdown_timeout == 0)
+RuntimeError: Task <Task pending name='Task-1106' coro=<_runner() running at /home/ubuntu/miniconda3/envs/moe/lib/python3.12/site-packages/fsspec/asyn.py:56> cb=[_chain_future.<locals>._call_set_state() at /home/ubuntu/miniconda3/envs/moe/lib/python3.12/asyncio/futures.py:396]> got Future <Task pending name='Task-1107' coro=<_wait_for_close() running at /home/ubuntu/miniconda3/envs/moe/lib/python3.12/site-packages/aiohttp/connector.py:138> wait_for=<_GatheringFuture pending cb=[Task.task_wakeup()]>> attached to a different loop
+Task was destroyed but it is pending!
+task: <Task pending name='Task-1107' coro=<_wait_for_close() done, defined at /home/ubuntu/miniconda3/envs/moe/lib/python3.12/site-packages/aiohttp/connector.py:136> wait_for=<_GatheringFuture pending cb=[Task.task_wakeup()]>>
+WARNING: Logging before flag parsing goes to stderr.
+I0715 06:17:23.997120 6481447701376 xla_bridge.py:849] Unable to initialize backend 'tpu': INTERNAL: Failed to open libtpu.so: libtpu.so: cannot open shared object file: No such file or directory
+I0715 06:17:50.320930 6481447701376 rollout.py:149] Samples slice(0, 8, None) out of 24
+/home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/third_party/graphcast/graphcast/rollout.py:328: FutureWarning: The return type of `Dataset.dims` will be changed to return a set of dimension names in future, in order to be more consistent with `DataArray.dims`. To access a mapping from dimension names to lengths, please use `Dataset.sizes`.
+  num_target_steps = targets_template.dims["time"]
+I0715 06:17:52.268289 6481447701376 rollout.py:361] Chunk 0/42
+/home/ubuntu/miniconda3/envs/moe/lib/python3.12/site-packages/scipy/sparse/_index.py:210: SparseEfficiencyWarning: Changing the sparsity structure of a csr_matrix is expensive. lil and dok are more efficient.
+  self._set_arrayXarray(i, j, x)
+/home/ubuntu/miniconda3/envs/moe/lib/python3.12/site-packages/scipy/sparse/_index.py:210: SparseEfficiencyWarning: Changing the sparsity structure of a csr_matrix is expensive. lil and dok are more efficient.
+  self._set_arrayXarray(i, j, x)
+I0715 06:22:42.831484 6481447701376 sparse_transformer.py:507] mask_block_size: 10273.
+/home/ubuntu/miniconda3/envs/moe/lib/python3.12/site-packages/jax/_src/interpreters/mlir.py:1246: UserWarning: A large amount of constants were captured during lowering (76.48GB total). If this is intentional, disable this warning by setting JAX_CAPTURED_CONSTANTS_WARN_BYTES=-1. To obtain a report of where these constants were encountered, set JAX_CAPTURED_CONSTANTS_REPORT_FRAMES=-1.
+  warnings.warn(message)
+W0715 06:26:39.282415 1703843 bfc_allocator.cc:514] Allocator (GPU_0_bfc) ran out of memory trying to allocate 38.18GiB (rounded to 40996238592)requested by op 
+If the cause is memory fragmentation maybe the environment variable 'TF_GPU_ALLOCATOR=cuda_malloc_async' will improve the situation. 
+Current allocation summary follows.
+Current allocation summary follows.
+W0715 06:26:39.288801 1703843 bfc_allocator.cc:525] ***________________________________________________________________________________________________*
+Traceback (most recent call last):
+  File "/home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/run_xres.py", line 102, in <module>
+    main()
+  File "/home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/run_xres.py", line 95, in main
+    do_infer(args.res, args.weeks, args.members)
+  File "/home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/run_xres.py", line 67, in do_infer
+    xinference.run_all(res, weeks, n_members=members)
+  File "/home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/xres/xinference.py", line 396, in run_all
+    _run_event_pmap(bundle, res, weeks, name, peak)
+  File "/home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/xres/xinference.py", line 306, in _run_event_pmap
+    for chunk_i, chunk in enumerate(gen, start=1):
+                          ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/third_party/graphcast/graphcast/rollout.py", line 188, in chunked_prediction_generator_multiple_runs
+    for prediction_chunk in chunked_prediction_generator(
+                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/third_party/graphcast/graphcast/rollout.py", line 393, in chunked_prediction_generator
+    predictions = jax.device_get(predictions)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ubuntu/miniconda3/envs/moe/lib/python3.12/site-packages/jax/_src/api.py", line 2314, in device_get
+    return tree_map(_device_get, x)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ubuntu/miniconda3/envs/moe/lib/python3.12/site-packages/jax/_src/tree_util.py", line 399, in tree_map
+    return treedef.unflatten(f(*xs) for xs in zip(*all_leaves))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ubuntu/miniconda3/envs/moe/lib/python3.12/site-packages/jax/_src/tree_util.py", line 399, in <genexpr>
+    return treedef.unflatten(f(*xs) for xs in zip(*all_leaves))
+                             ^^^^^^
+  File "/home/ubuntu/miniconda3/envs/moe/lib/python3.12/site-packages/jax/_src/api.py", line 2275, in _device_get
+    return toarray()
+           ^^^^^^^^^
+  File "/home/ubuntu/miniconda3/envs/moe/lib/python3.12/site-packages/jax/_src/array.py", line 414, in __array__
+    return np.asarray(self._value, dtype=dtype, **kwds)  # pyrefly: ignore[no-matching-overload]
+                      ^^^^^^^^^^^
+  File "/home/ubuntu/miniconda3/envs/moe/lib/python3.12/site-packages/jax/_src/profiler.py", line 420, in wrapper
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ubuntu/miniconda3/envs/moe/lib/python3.12/site-packages/jax/_src/array.py", line 647, in _value
+    npy_value[ind], _ = self._arrays[i]._single_device_array_to_np_array_did_copy()
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+jax.errors.JaxRuntimeError: RESOURCE_EXHAUSTED: Out of memory while trying to allocate 38.18GiB. [executable_name='jit__fun'] [tf-allocator-allocation-error='']
+/var/spool/slurmd/job00220/slurm_script: line 44: 1703228 Segmentation fault      (core dumped) python run_xres.py --stage infer --res 0p25 --weeks "$WEEKS"

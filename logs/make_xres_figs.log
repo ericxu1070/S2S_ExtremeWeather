@@ -1,0 +1,43 @@
+== [1/3] set 1: per-week combined PDFs (weeks 2/3/4) ==
+[xres combined] 12 events -> xres_combined_mean.png
+[xres combined] 12 events -> xres_combined_mean_vs_era5_0p25.png
+[xres combined] 12 events -> xres_combined_pooled.png
+[xres combined] 12 events -> xres_combined_pooled_vs_era5_0p25.png
+[xres combined] 12 events -> xres_combined_best.png
+[xres combined] 12 events -> xres_combined_best_vs_era5_0p25.png
+[xres combined] 12 events -> xres_combined_extreme.png
+[xres combined] 12 events -> xres_combined_extreme_vs_era5_0p25.png
+[xres combined] 12 events -> xres_combined_mean.png
+[xres combined] 12 events -> xres_combined_mean_vs_era5_0p25.png
+[xres combined] 12 events -> xres_combined_pooled.png
+[xres combined] 12 events -> xres_combined_pooled_vs_era5_0p25.png
+[xres combined] 12 events -> xres_combined_best.png
+[xres combined] 12 events -> xres_combined_best_vs_era5_0p25.png
+[xres combined] 12 events -> xres_combined_extreme.png
+[xres combined] 12 events -> xres_combined_extreme_vs_era5_0p25.png
+[xres combined] 12 events -> xres_combined_mean.png
+[xres combined] 12 events -> xres_combined_mean_vs_era5_0p25.png
+[xres combined] 12 events -> xres_combined_pooled.png
+[xres combined] 12 events -> xres_combined_pooled_vs_era5_0p25.png
+[xres combined] 12 events -> xres_combined_best.png
+[xres combined] 12 events -> xres_combined_best_vs_era5_0p25.png
+[xres combined] 12 events -> xres_combined_extreme.png
+[xres combined] 12 events -> xres_combined_extreme_vs_era5_0p25.png
+== [2/3] set 2: cross-lead PDFs (one figure per resolution) ==
+[xres leadpdfs] 12 events -> xres_pdf_leads_0p25.png
+[xres leadpdfs] 12 events -> xres_pdf_leads_1p0.png
+== [3/3] set 3: CONUS map grids (4 events x 3 weeks, cached metrics only) ==
+[maps3var] PNW_HeatDome_2021 week2 (1 row(s)) -> PNW_HeatDome_2021_week2_maps3var.png
+[maps3var] WinterStorm_Uri_2021 week2 (1 row(s)) -> WinterStorm_Uri_2021_week2_maps3var.png
+[maps3var] HurricaneIda_2021 week2 (2 row(s)) -> HurricaneIda_2021_week2_maps3var.png
+[maps3var] California_AR_Floods_2023 week2 (2 row(s)) -> California_AR_Floods_2023_week2_maps3var.png
+[maps3var] PNW_HeatDome_2021 week3 (1 row(s)) -> PNW_HeatDome_2021_week3_maps3var.png
+[maps3var] WinterStorm_Uri_2021 week3 (1 row(s)) -> WinterStorm_Uri_2021_week3_maps3var.png
+[maps3var] HurricaneIda_2021 week3 (2 row(s)) -> HurricaneIda_2021_week3_maps3var.png
+[maps3var] California_AR_Floods_2023 week3 (2 row(s)) -> California_AR_Floods_2023_week3_maps3var.png
+[maps3var] PNW_HeatDome_2021 week4 (1 row(s)) -> PNW_HeatDome_2021_week4_maps3var.png
+[maps3var] WinterStorm_Uri_2021 week4 (1 row(s)) -> WinterStorm_Uri_2021_week4_maps3var.png
+[maps3var] HurricaneIda_2021 week4 (2 row(s)) -> HurricaneIda_2021_week4_maps3var.png
+[maps3var] California_AR_Floods_2023 week4 (2 row(s)) -> California_AR_Floods_2023_week4_maps3var.png
+[maps3var] wrote 12/12 figures -> /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/xres/figures/maps3var, /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/figures/xres/maps3var
+done — figures under figures/xres/{week2,week3,week4,leads,maps3var}/
