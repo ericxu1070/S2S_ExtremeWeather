@@ -1,0 +1,38 @@
+#!/bin/bash
+#PBS -N hw2026_infer
+#PBS -A UCSC0009
+#PBS -q main
+#PBS -l job_priority=regular
+#PBS -l select=1:ncpus=64:ngpus=4
+#PBS -l walltime=08:00:00
+#PBS -j oe
+#PBS -o /glade/derecho/scratch/exu/S2S_ExtremeWeather/logs/hw2026_infer.log
+
+set -eo pipefail
+
+module load conda
+conda activate my-env
+
+SITE=$(python -c "import site; print(site.getsitepackages()[0])")
+export LD_LIBRARY_PATH="$(echo "$SITE"/nvidia/*/lib | tr ' ' ':')${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
+
+export XLA_PYTHON_CLIENT_PREALLOCATE=false
+export XLA_PYTHON_CLIENT_MEM_FRACTION=.95
+export PYTHONUNBUFFERED=1
+export JAX_CAPTURED_CONSTANTS_WARN_BYTES=-1
+
+# 16 ensemble members = 4 waves of 4 GPUs (override with HW2026_N_MEMBERS).
+export HW2026_N_MEMBERS=${HW2026_N_MEMBERS:-16}
+
+cd /glade/derecho/scratch/exu/S2S_ExtremeWeather
+
+echo "Host: $(hostname)"; echo "Start: $(date)"
+nvidia-smi -L || true
+python -c "import jax; print('JAX devices:', jax.devices())"
+
+# prep should already be a pure cache-hit (init frames pre-staged); this only verifies.
+python run_heatwave2026.py --stage prep
+python run_heatwave2026.py --stage infer
+
+echo "End: $(date)"
+ls -lh runs/heatwave2026/forecasts/ 2>/dev/null

@@ -1,0 +1,97 @@
+Host: dec0614
+Start: Thu Jul 16 03:58:46 AM MDT 2026
+/glade/work/exu/conda-envs/my-env/lib/python3.10/site-packages/google/api_core/_python_version_support.py:255: FutureWarning: You are using a Python version (3.10.20) which Google will stop supporting in new releases of google.api_core once it reaches its end of life (2026-10-04). Please upgrade to the latest Python version, or at least Python 3.11, to continue receiving updates for google.api_core past that date.
+  warnings.warn(message, FutureWarning)
+/glade/work/exu/conda-envs/my-env/lib/python3.10/site-packages/google/api_core/_python_version_support.py:255: FutureWarning: You are using a Python version (3.10.20) which Google will stop supporting in new releases of google.cloud._storage_v2 once it reaches its end of life (2026-10-04). Please upgrade to the latest Python version, or at least Python 3.11, to continue receiving updates for google.cloud._storage_v2 past that date.
+  warnings.warn(message, FutureWarning)
+/glade/work/exu/conda-envs/my-env/lib/python3.10/site-packages/google/api_core/_python_version_support.py:255: FutureWarning: You are using a Python version (3.10.20) which Google will stop supporting in new releases of google.cloud.storage_control_v2 once it reaches its end of life (2026-10-04). Please upgrade to the latest Python version, or at least Python 3.11, to continue receiving updates for google.cloud.storage_control_v2 past that date.
+  warnings.warn(message, FutureWarning)
+[model] checkpoint: GenCast 1p0deg Mini <2019.npz
+[model] stats: diffs_stddev_by_level.nc
+[model] stats: mean_by_level.nc
+[model] stats: stddev_by_level.nc
+[model] stats: min_by_level.nc
+[model] statics (orography + land-sea mask)
+[clim] cached: clim_1990_2019_t2m_conus.nc
+[model] done
+   (using ARCO-ERA5: past WB2 coverage)
+[inputs] 2026-06-01 -> init_20260601_inputs.nc
+   (using ARCO-ERA5: past WB2 coverage)
+[inputs] 2026-06-02 -> init_20260602_inputs.nc
+   (using ARCO-ERA5: past WB2 coverage)
+[inputs] 2026-06-03 -> init_20260603_inputs.nc
+   (using ARCO-ERA5: past WB2 coverage)
+[inputs] 2026-06-04 -> init_20260604_inputs.nc
+   (using ARCO-ERA5: past WB2 coverage)
+[inputs] 2026-06-05 -> init_20260605_inputs.nc
+   (using ARCO-ERA5: past WB2 coverage)
+[inputs] 2026-06-06 -> init_20260606_inputs.nc
+   (using ARCO-ERA5: past WB2 coverage)
+[inputs] 2026-06-07 -> init_20260607_inputs.nc
+   (using ARCO-ERA5: past WB2 coverage)
+[inputs] 2026-06-08 -> init_20260608_inputs.nc
+   (using ARCO-ERA5: past WB2 coverage)
+[inputs] 2026-06-09 -> init_20260609_inputs.nc
+   (using ARCO-ERA5: past WB2 coverage)
+[inputs] 2026-06-10 -> init_20260610_inputs.nc
+   (using ARCO-ERA5: past WB2 coverage)
+[inputs] 2026-06-11 -> init_20260611_inputs.nc
+   (using ARCO-ERA5: past WB2 coverage)
+[inputs] 2026-06-12 -> init_20260612_inputs.nc
+   (using ARCO-ERA5: past WB2 coverage)
+[inputs] 2026-06-13 -> init_20260613_inputs.nc
+   (using ARCO-ERA5: past WB2 coverage)
+[inputs] 2026-06-14 -> init_20260614_inputs.nc
+   (using ARCO-ERA5: past WB2 coverage)
+[inputs] 2026-06-15 -> init_20260615_inputs.nc
+   (using ARCO-ERA5: past WB2 coverage)
+[inputs] 2026-06-16 -> init_20260616_inputs.nc
+   (using ARCO-ERA5: past WB2 coverage)
+[inputs] 2026-06-17 -> init_20260617_inputs.nc
+   (using ARCO-ERA5: past WB2 coverage)
+[inputs] 2026-06-18 -> init_20260618_inputs.nc
+[truth] 2026-06-15: obs-mean +20.8C anom +0.20K max +10.41K
+[truth] 2026-06-16: obs-mean +21.1C anom +0.38K max +9.57K
+[truth] 2026-06-17: obs-mean +21.8C anom +1.05K max +10.18K
+[truth] 2026-06-18: obs-mean +21.8C anom +0.95K max +8.47K
+[truth] 2026-06-19: obs-mean +21.4C anom +0.38K max +8.55K
+[truth] 2026-06-20: obs-mean +21.2C anom +0.11K max +7.73K
+[truth] 2026-06-21: obs-mean +21.4C anom +0.17K max +6.41K
+[truth] 2026-06-22: obs-mean +21.5C anom +0.22K max +6.25K
+[truth] 2026-06-23: obs-mean +21.8C anom +0.36K max +8.02K
+[truth] 2026-06-24: obs-mean +22.1C anom +0.62K max +8.44K
+[truth] 2026-06-25: obs-mean +22.0C anom +0.40K max +6.50K
+[truth] 2026-06-26: obs-mean +22.0C anom +0.36K max +5.77K
+[truth] 2026-06-27: obs-mean +22.2C anom +0.41K max +5.57K
+[truth] 2026-06-28: obs-mean +22.2C anom +0.34K max +7.59K
+[truth] 2026-06-29: obs-mean +22.5C anom +0.58K max +8.31K
+[truth] 2026-06-30: obs-mean +22.9C anom +0.88K max +8.82K
+[truth] 2026-07-01: obs-mean +23.0C anom +0.89K max +11.01K
+[truth] 2026-07-02: obs-mean +23.4C anom +1.21K max +10.23K
+[truth] wrote 18 daily obs/anom/clim -> /glade/derecho/scratch/exu/S2S_ExtremeWeather/runs/heatwave2026/observations
+End: Thu Jul 16 04:35:51 AM MDT 2026
+--- init frames ---
+total 762M
+-rw-r--r-- 1 exu ncar 43M Jul 16 04:01 init_20260601_inputs.nc
+-rw-r--r-- 1 exu ncar 43M Jul 16 04:03 init_20260602_inputs.nc
+-rw-r--r-- 1 exu ncar 43M Jul 16 04:05 init_20260603_inputs.nc
+-rw-r--r-- 1 exu ncar 43M Jul 16 04:07 init_20260604_inputs.nc
+-rw-r--r-- 1 exu ncar 43M Jul 16 04:09 init_20260605_inputs.nc
+-rw-r--r-- 1 exu ncar 43M Jul 16 04:11 init_20260606_inputs.nc
+-rw-r--r-- 1 exu ncar 43M Jul 16 04:13 init_20260607_inputs.nc
+-rw-r--r-- 1 exu ncar 43M Jul 16 04:15 init_20260608_inputs.nc
+-rw-r--r-- 1 exu ncar 43M Jul 16 04:17 init_20260609_inputs.nc
+-rw-r--r-- 1 exu ncar 43M Jul 16 04:19 init_20260610_inputs.nc
+-rw-r--r-- 1 exu ncar 43M Jul 16 04:21 init_20260611_inputs.nc
+-rw-r--r-- 1 exu ncar 43M Jul 16 04:23 init_20260612_inputs.nc
+-rw-r--r-- 1 exu ncar 43M Jul 16 04:25 init_20260613_inputs.nc
+-rw-r--r-- 1 exu ncar 43M Jul 16 04:27 init_20260614_inputs.nc
+-rw-r--r-- 1 exu ncar 43M Jul 16 04:29 init_20260615_inputs.nc
+-rw-r--r-- 1 exu ncar 43M Jul 16 04:31 init_20260616_inputs.nc
+-rw-r--r-- 1 exu ncar 43M Jul 16 04:33 init_20260617_inputs.nc
+-rw-r--r-- 1 exu ncar 43M Jul 16 04:35 init_20260618_inputs.nc
+--- observations ---
+total 1.5K
+-rw-r--r-- 1 exu ncar 124K Jul 16 04:35 clim_daily_t2m.nc
+-rw-r--r-- 1 exu ncar 238K Jul 16 04:35 obs_daily_t2m_anom.nc
+-rw-r--r-- 1 exu ncar 238K Jul 16 04:35 obs_daily_t2m.nc

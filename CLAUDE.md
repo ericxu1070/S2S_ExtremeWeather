@@ -72,6 +72,39 @@ GPU pays — never compound it with prep/downloads. (Incident 2026-07-15: `xres`
 `sbatch`ed straight to the H100s and spent ~75 min per node building ERA5 init frames with all
 8 GPUs idle before compiling — exactly what this rule forbids. Do prep on the login node.)
 
+## GPU nodes are for GPU compute ONLY (STRICT)
+
+A GPU allocation — an `sbatch` job on the a3mega H100 nodes, or a Derecho GPU/PBS job — is
+reserved **exclusively for the work that actually needs the GPU**: the inference rollout
+(GenCast / `xres`) or the training / eval steps (downscaler). H100 nodes are scarce and
+hard to get; a whole 8×H100 node doing anything a CPU could do is pure waste (a node idling
+on ERA5 downloads for an hour burns ~dozens of GPU-hours).
+
+**Everything that does NOT need the GPU must be done first, on a cheaper resource** — the
+**login node** (has internet) or a CPU/`debug` node (a3mega) / the `develop` CPU queue
+(Derecho). That includes:
+
+- **Data gathering / I/O:** checkpoint/stats/statics downloads, ERA5/HRRR reads, building
+  per-event init frames and verification truth (`run_xres.py --stage prep`), the
+  downscaler's timestamp index + norm stats (`downscaler/bash/02_*`). Pre-stage all of it to
+  the shared NFS `runs/` caches.
+- **Environment / software builds & compiles:** conda/pip installs, editable installs,
+  `setup_env.sh`, any CUDA-extension or package compilation.
+- **Preprocessing / figures:** the `compare` stage, plotting, metrics, CSVs.
+
+By the time a GPU job starts, **all inputs must already exist so the job is a pure
+cache-hit → GPU compute**. For `xres`: run `python run_xres.py --stage prep --weeks N` on the
+**login node**, confirm `ls runs/xres/<res>/weekN/inputs/*_inputs.nc | wc -l` == 12, and only
+*then* `sbatch` the infer job. The infer scripts still call `prep` in-job, but that must be an
+instant **cache verify**, never a builder — if a GPU job is seen downloading or building data,
+stop it and pre-stage on the login node.
+
+The one unavoidable on-GPU startup cost is the **JAX/XLA first-step compile** (it targets the
+device and cannot be moved off-GPU). That is acceptable, but it must be the *only* startup the
+GPU pays — never compound it with prep/downloads. (Incident 2026-07-15: `xres` week3/4 were
+`sbatch`ed straight to the H100s and spent ~75 min per node building ERA5 init frames with all
+8 GPUs idle before compiling — exactly what this rule forbids. Do prep on the login node.)
+
 ## What this is
 
 **Two independent stacks live in this repo.** They share a scientific goal (skillful,
