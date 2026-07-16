@@ -1,0 +1,25 @@
+#!/bin/bash
+#PBS -N hw2026_prep
+#PBS -A UCSC0009
+#PBS -q develop
+#PBS -l select=1:ncpus=8:mem=120GB
+#PBS -l walltime=04:00:00
+#PBS -j oe
+#PBS -o /glade/derecho/scratch/exu/S2S_ExtremeWeather/logs/hw2026_prep.log
+
+export PYTHONUNBUFFERED=1
+
+set -eo pipefail
+
+module load conda
+conda activate my-env
+
+cd /glade/derecho/scratch/exu/S2S_ExtremeWeather
+
+echo "Host: $(hostname)"; echo "Start: $(date)"
+
+python run_heatwave2026.py --stage prep
+
+echo "End: $(date)"
+echo "--- init frames ---";   ls -lh runs/heatwave2026/inputs/ 2>/dev/null
+echo "--- observations ---";  ls -lh runs/heatwave2026/observations/ 2>/dev/null

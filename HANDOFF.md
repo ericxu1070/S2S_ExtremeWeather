@@ -748,3 +748,28 @@ of the Jul 8–9 entries — no jobs are expected in `qstat`.*
 *(Historical note: the previous footer, dated Jul 7 ~19:10 MDT, described the then-live member
 arrays `6665322[]` / `6665323[]` / compare `6665324` and disk state "0p25 cubes 0/12". That
 footer was already stale — those arrays finished Jul 8 with all 48 subjobs exit 0.)*
+
+---
+
+## Jul 16 2026 — one-off: GenCast added to the Vayuh Jun–Jul 2026 heat-wave report
+
+Deliverable: drop **our GenCast 1.0°** forecast into the Vayuh.ai report
+(`Vayuh_S2S_Forecast_Analysis_July_Heatwave2026.pdf`) figures over CONUS. Self-contained,
+separate from weeks-2/3/4 and xres. Code: `gencast_s2s/heatwave2026.py` (prep+infer),
+`gencast_s2s/heatwave2026_plot.py`, `run_heatwave2026.py`, `convert_vayuh_h5.py`,
+`pbs/heatwave2026_{prep,infer}.pbs`. Output tree: `runs/heatwave2026/`.
+
+- **Inits** 1–18 Jun 2026 (18), 16-member ensemble, 18-day rollouts, daily-mean tmp2m cubes.
+  Covers peak targets 29 Jun–2 Jul at leads 14–18 + a lead-14 East-US series.
+- **Vayuh** source = `us_prob_forecast_2026.h5` (pandas HDFStore → convert under **npl-2025b**,
+  my-env lacks pytables). **CFSv2 omitted** — no CFSv2 data in repo; figures are
+  Observed(ERA5) | Vayuh | GenCast. Anomalies vs 1990-2019 ERA5 clim.
+- Jobs (all Exit 0): prep `6749584` (cpudev, 37 min); infer `6750076` (gpu, ngpus=4, 1h34m).
+- Figures in `runs/heatwave2026/figures/` + combined `Vayuh_plus_GenCast_Heatwave2026.pdf`.
+- **Result:** at the peak (pooled leads 14–18) GenCast reproduces the observed West-cool /
+  East-warm dipole (ACC +0.44, MAE 2.1 °C) that Vayuh's smooth everywhere-warm field misses
+  (ACC +0.15, MAE 2.8 °C); GenCast beats Vayuh on MAE at every lead. Both stay
+  amplitude-muted (~⅓ of observed peak) in the East-US series — the expected S2S behavior.
+- Re-run: `convert_vayuh_h5.py` (npl-2025b) → `qsub pbs/heatwave2026_prep.pbs` →
+  `qsub pbs/heatwave2026_infer.pbs` → `python run_heatwave2026.py --stage plot`. All stages
+  cache-aware; plot is login-node only.
