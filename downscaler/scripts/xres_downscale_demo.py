@@ -10,7 +10,7 @@ Produces three figures:
   2. COUPLING DEMO      one coarse 1deg GenCast *forecast* member of an out-of-distribution
                         extreme event (from an xres cube, a 2-3 week lead), downscaled to
                         3 km HRRR, vs the HRRR analysis truth at the event time.
-                        cols: [ GenCast 1deg forecast | HRRR 3km predicted | HRRR 3km truth ]
+                        cols: [ GenCast 1deg forecast | HRRR 3km truth | HRRR 3km predicted ]
 
   3. PDFs               spatial distributions, over the CONUS interior actually covered by the
                         GenCast box, of HRRR truth vs predicted HRRR vs the coarse forecast.
@@ -568,9 +568,9 @@ def stage_plot():
     m = CASES["idalia"]["member"]
     _maps_figure(
         "idalia",
-        col_order=["coarse", "pred", "truth"],
-        col_titles=["GenCast 1° forecast\n(regridded to HRRR)", "HRRR 3 km predicted\n(downscaled forecast)",
-                    "HRRR 3 km truth\n(analysis at event)"],
+        col_order=["coarse", "truth", "pred"],
+        col_titles=["GenCast 1° forecast\n(regridded to HRRR)", "HRRR 3 km truth\n(analysis at event)",
+                    "HRRR 3 km predicted\n(downscaled forecast)"],
         out_png=os.path.join(outdir, "fig2_gencast_downscaled.png"),
         suptitle=CASES["idalia"]["title"].format(m=m),
     )
