@@ -41,3 +41,4 @@ downscaler/metrics/*
 # *.nc
 # *.zarr/
 # data/    <-- do NOT uncomment: it would also ignore downscaler/data/, which is source code
+us_prob_forecast_2026.h5

@@ -46,19 +46,12 @@ K2C = 273.15
 # --------------------------------------------------------------------------- #
 # Contiguous-US land mask (Natural Earth admin-0 ∩ CONUS box)
 # --------------------------------------------------------------------------- #
-def _us_land_mask(lat: xr.DataArray, lon: xr.DataArray) -> xr.DataArray:
-    """Boolean (lat, lon) mask: True on contiguous-US land only.
-
-    Built from the cached Natural Earth admin-1 states shapefile (no network): keep
-    US states inside the CONUS box, drop Alaska / Hawaii / territories. Mexico and
-    ocean cells stay False even when the rectangular CONUS box covers them.
-    """
+def _conus_usa_geom():
+    """Unary union of contiguous-US state polygons from the local cartopy cache."""
     from pathlib import Path
 
     import cartopy.io.shapereader as shpreader
-    from shapely.geometry import Point
     from shapely.ops import unary_union
-    from shapely.prepared import prep
 
     # Prefer a local cartopy cache path so we never hit naturalearth.s3 (Derecho
     # login nodes often cannot download). Fall back to natural_earth() only if
@@ -72,7 +65,6 @@ def _us_land_mask(lat: xr.DataArray, lon: xr.DataArray) -> xr.DataArray:
             resolution="50m", category="cultural",
             name="admin_1_states_provinces_lakes")
 
-    west, east, south, north = C.CONUS_EXTENT
     geoms = []
     for rec in shpreader.Reader(fname).records():
         attrs = rec.attributes
@@ -85,7 +77,22 @@ def _us_land_mask(lat: xr.DataArray, lon: xr.DataArray) -> xr.DataArray:
         geoms.append(rec.geometry)
     if not geoms:
         raise RuntimeError(f"no CONUS state geometries in {fname}")
-    usa = prep(unary_union(geoms))
+    return unary_union(geoms)
+
+
+def _us_land_mask(lat: xr.DataArray, lon: xr.DataArray, usa_geom=None) -> xr.DataArray:
+    """Boolean (lat, lon) mask: True on contiguous-US land only.
+
+    Built from the cached Natural Earth admin-1 states shapefile (no network): keep
+    US states inside the CONUS box, drop Alaska / Hawaii / territories. Mexico and
+    ocean cells stay False even when the rectangular CONUS box covers them.
+    """
+    from shapely.geometry import Point
+    from shapely.prepared import prep
+
+    usa_raw = usa_geom if usa_geom is not None else _conus_usa_geom()
+    usa = prep(usa_raw)
+    west, east, south, north = C.CONUS_EXTENT
 
     lon180 = (((np.asarray(lon, dtype=float) + 180.0) % 360.0) - 180.0)
     latv = np.asarray(lat, dtype=float)
@@ -120,7 +127,8 @@ class Data:
         self.vayuh = self.vayuh.assign_coords(start_date=pd.DatetimeIndex(self.vayuh.start_date.values))
         self.grid_lat = self.vayuh.lat
         self.grid_lon = self.vayuh.lon
-        self.us_mask = _us_land_mask(self.grid_lat, self.grid_lon)
+        self.usa_geom = _conus_usa_geom()
+        self.us_mask = _us_land_mask(self.grid_lat, self.grid_lon, usa_geom=self.usa_geom)
         print(f"[plot] US land mask: {int(self.us_mask.sum())} / "
               f"{self.us_mask.size} cells on Vayuh grid")
 
@@ -199,6 +207,21 @@ class Data:
         return (fc.isel(member=hot_i), hot_i,
                 fc.isel(member=cold_i), cold_i)
 
+    def gencast_bestfit_field(self, target: pd.Timestamp, lead: int):
+        """Ensemble member closest to observed by latitude-weighted US-land MAE.
+
+        Returns ``(field, member_idx)``; both None if the ensemble or obs are missing.
+        """
+        fc = self.gencast_members_field(target, lead)
+        obs = self.obs_field(target)
+        if fc is None or obs is None:
+            return None, None
+        w = np.cos(np.deg2rad(fc.lat))
+        mae = (np.abs(fc - obs).where(self.us_mask)
+               .weighted(w).mean(("lat", "lon")))
+        best_i = int(mae.argmin("member"))
+        return fc.isel(member=best_i), best_i
+
     # -- absolute-temperature accessors (Kelvin) for the °C series column -----------------
     def clim_field(self, target: pd.Timestamp):
         target = pd.Timestamp(target).normalize()
@@ -265,24 +288,47 @@ def _to_180(da):
 
 def _features(ax):
     import cartopy.feature as cfeature
-    for feat, kw in ((cfeature.COASTLINE, dict(lw=0.6)),
-                     (cfeature.BORDERS, dict(lw=0.5)),
-                     (cfeature.STATES, dict(lw=0.3, edgecolor="grey"))):
+    for feat, kw in ((cfeature.COASTLINE, dict(lw=0.6, zorder=3)),
+                     (cfeature.BORDERS, dict(lw=0.5, zorder=3)),
+                     (cfeature.STATES, dict(lw=0.3, edgecolor="grey", zorder=3))):
         try:
             ax.add_feature(feat, **kw)
         except Exception:
             pass
 
 
-def _map_panel(fig, pos, da, title, ccrs, us_mask=None):
+def _clip_to_geom(mesh, ax, geom):
+    """Clip a pcolormesh to the (lon/lat) USA border polygon.
+
+    Keeps the colour on contiguous-US land only while leaving Mexico / Canada / ocean
+    visible underneath (as coastline + border outlines) instead of overpainting them
+    white. The clip follows the actual coastline/border and the Great-Lakes holes, so
+    the panel edge is crisp rather than blocky whole-cell staircases.
+    """
+    from cartopy.mpl.patch import geos_to_path
+    from matplotlib.path import Path
+
+    paths = geos_to_path(geom)
+    if not paths:
+        return
+    clip = Path.make_compound_path(*paths)
+    mesh.set_clip_path(clip, transform=ax.transData)
+
+
+def _map_panel(fig, pos, da, title, ccrs, us_mask=None, usa_geom=None):
+    """Draw one CONUS map panel: US data clipped to the US border, neighbours kept."""
+    _ = us_mask  # scoring uses the mask; the panel clips to usa_geom for a crisp edge
     ax = fig.add_subplot(*pos, projection=ccrs.PlateCarree())
     ax.set_extent(C.CONUS_EXTENT, ccrs.PlateCarree())
+    ax.set_facecolor("white")
     m = None
     if da is not None:
-        d = _apply_us(da, us_mask) if us_mask is not None else da
-        d = _to_180(d)
+        d = _to_180(da)
         m = ax.pcolormesh(d.lon, d.lat, d.values, transform=ccrs.PlateCarree(),
-                          cmap=CMAP, vmin=-VMAX, vmax=VMAX, shading="auto")
+                          cmap=CMAP, vmin=-VMAX, vmax=VMAX, shading="auto",
+                          zorder=1)
+        if usa_geom is not None:
+            _clip_to_geom(m, ax, usa_geom)
     _features(ax)
     ax.set_title(title, fontsize=8)
     return ax, m
@@ -310,42 +356,51 @@ def _pool(data: Data, model: str):
 
 
 def _pool_extremes(data: Data):
-    """Pool warmest / coldest member fields over (peak targets x leads).
+    """Pool warmest / coldest / best-fit member fields over (peak targets x leads).
 
-    Members are not aligned across inits, so for each (T, L) we pick the hot/cold
-    member of that ensemble and average those selected fields (mirrors ens-mean pooling).
+    Members are not aligned across inits, so for each (T, L) we pick the hot / cold /
+    best-fit member of that ensemble and average those selected fields (mirrors
+    ens-mean pooling). "best-fit" = member closest to that day's observed (US-land MAE).
     """
-    hot_fields, cold_fields = [], []
+    hot_fields, cold_fields, best_fields = [], [], []
     for T in H.PEAK_TARGETS:
         for L in H.LEADS:
             hot, _, cold, _ = data.gencast_extreme_fields(T, L)
+            best, _ = data.gencast_bestfit_field(T, L)
             if hot is not None:
                 hot_fields.append(hot)
             if cold is not None:
                 cold_fields.append(cold)
+            if best is not None:
+                best_fields.append(best)
     hot = xr.concat(hot_fields, dim="s").mean("s") if hot_fields else None
     cold = xr.concat(cold_fields, dim="s").mean("s") if cold_fields else None
-    return hot, cold
+    best = xr.concat(best_fields, dim="s").mean("s") if best_fields else None
+    return hot, cold, best
 
 
 def fig_peak_map(data: Data, ccrs):
     us = data.us_mask
+    geom = data.usa_geom
     obs, vay, gc = (_pool(data, m) for m in ("obs", "vayuh", "gencast"))
-    hot, cold = _pool_extremes(data)
+    hot, cold, best = _pool_extremes(data)
     a_v, m_v = acc_mae(vay, obs, us)
     a_g, m_g = acc_mae(gc, obs, us)
+    a_b, m_b = acc_mae(best, obs, us)
     a_h, m_h = acc_mae(hot, obs, us)
     a_c, m_c = acc_mae(cold, obs, us)
-    fig = plt.figure(figsize=(22.0, 4.4))
-    _map_panel(fig, (1, 5, 1), obs, "Observed (ERA5)", ccrs, us)
-    _map_panel(fig, (1, 5, 2), vay,
-               f"Vayuh (wk 3-4 pooled)\nACC {a_v:+.2f}  MAE {m_v:.1f}°C", ccrs, us)
-    _map_panel(fig, (1, 5, 3), gc,
-               f"GenCast mean (leads 14-18)\nACC {a_g:+.2f}  MAE {m_g:.1f}°C", ccrs, us)
-    _map_panel(fig, (1, 5, 4), hot,
-               f"GenCast warmest member\nACC {a_h:+.2f}  MAE {m_h:.1f}°C", ccrs, us)
-    _, m = _map_panel(fig, (1, 5, 5), cold,
-                      f"GenCast coldest member\nACC {a_c:+.2f}  MAE {m_c:.1f}°C", ccrs, us)
+    fig = plt.figure(figsize=(26.4, 4.4))
+    _map_panel(fig, (1, 6, 1), obs, "Observed (ERA5)", ccrs, us, geom)
+    _map_panel(fig, (1, 6, 2), vay,
+               f"Vayuh (wk 3-4 pooled)\nACC {a_v:+.2f}  MAE {m_v:.1f}°C", ccrs, us, geom)
+    _map_panel(fig, (1, 6, 3), gc,
+               f"GenCast mean (leads 14-18)\nACC {a_g:+.2f}  MAE {m_g:.1f}°C", ccrs, us, geom)
+    _map_panel(fig, (1, 6, 4), best,
+               f"GenCast best-fit member\nACC {a_b:+.2f}  MAE {m_b:.1f}°C", ccrs, us, geom)
+    _map_panel(fig, (1, 6, 5), hot,
+               f"GenCast warmest member\nACC {a_h:+.2f}  MAE {m_h:.1f}°C", ccrs, us, geom)
+    _, m = _map_panel(fig, (1, 6, 6), cold,
+                      f"GenCast coldest member\nACC {a_c:+.2f}  MAE {m_c:.1f}°C", ccrs, us, geom)
     fig.suptitle("June/July 2026 NE-US heat wave — peak (29 Jun-2 Jul) tmp2m anomaly, "
                  "subseasonal leads 14-18 (US land only)", y=1.02, fontsize=12)
     cax = fig.add_axes([0.25, 0.02, 0.5, 0.03])
@@ -361,35 +416,42 @@ def fig_peak_map(data: Data, ccrs):
 def fig_per_lead_grid(data: Data, target: pd.Timestamp, ccrs):
     target = pd.Timestamp(target)
     us = data.us_mask
+    geom = data.usa_geom
     leads = H.LEADS
     nrows = len(leads)
-    fig = plt.figure(figsize=(18.0, 2.7 * nrows))
+    fig = plt.figure(figsize=(21.6, 2.7 * nrows))
     obs = data.obs_field(target)
     lastm = None
     for i, L in enumerate(leads):
         init = target.normalize() - L * DAY
         vay = data.vayuh_field(target, L)
         gc = data.gencast_field(target, L)
+        best, best_i = data.gencast_bestfit_field(target, L)
         hot, hot_i, cold, cold_i = data.gencast_extreme_fields(target, L)
         a_v, m_v = acc_mae(vay, obs, us)
         a_g, m_g = acc_mae(gc, obs, us)
+        a_b, m_b = acc_mae(best, obs, us)
         a_h, m_h = acc_mae(hot, obs, us)
         a_c, m_c = acc_mae(cold, obs, us)
+        best_lab = f"#{best_i}" if best_i is not None else "?"
         hot_lab = f"#{hot_i}" if hot_i is not None else "?"
         cold_lab = f"#{cold_i}" if cold_i is not None else "?"
-        _map_panel(fig, (nrows, 5, 5 * i + 1),
+        _map_panel(fig, (nrows, 6, 6 * i + 1),
                    obs, ("Observed" if i == 0 else "") + f"\nlead {L}d (init {init:%b %d})",
-                   ccrs, us)
-        _map_panel(fig, (nrows, 5, 5 * i + 2), vay,
-                   f"Vayuh  ACC {a_v:+.2f} MAE {m_v:.1f}", ccrs, us)
-        _map_panel(fig, (nrows, 5, 5 * i + 3), gc,
-                   f"GenCast mean  ACC {a_g:+.2f} MAE {m_g:.1f}", ccrs, us)
-        _map_panel(fig, (nrows, 5, 5 * i + 4), hot,
-                   f"Warmest {hot_lab}  ACC {a_h:+.2f} MAE {m_h:.1f}", ccrs, us)
-        _, lastm = _map_panel(fig, (nrows, 5, 5 * i + 5), cold,
-                              f"Coldest {cold_lab}  ACC {a_c:+.2f} MAE {m_c:.1f}", ccrs, us)
+                   ccrs, us, geom)
+        _map_panel(fig, (nrows, 6, 6 * i + 2), vay,
+                   f"Vayuh  ACC {a_v:+.2f} MAE {m_v:.1f}", ccrs, us, geom)
+        _map_panel(fig, (nrows, 6, 6 * i + 3), gc,
+                   f"GenCast mean  ACC {a_g:+.2f} MAE {m_g:.1f}", ccrs, us, geom)
+        _map_panel(fig, (nrows, 6, 6 * i + 4), best,
+                   f"Best-fit {best_lab}  ACC {a_b:+.2f} MAE {m_b:.1f}", ccrs, us, geom)
+        _map_panel(fig, (nrows, 6, 6 * i + 5), hot,
+                   f"Warmest {hot_lab}  ACC {a_h:+.2f} MAE {m_h:.1f}", ccrs, us, geom)
+        _, lastm = _map_panel(fig, (nrows, 6, 6 * i + 6), cold,
+                              f"Coldest {cold_lab}  ACC {a_c:+.2f} MAE {m_c:.1f}",
+                              ccrs, us, geom)
     fig.suptitle(f"CONUS heat-wave forecast anomaly by lead — TARGET {target:%Y-%m-%d (%a)}\n"
-                 f"Observed | Vayuh | GenCast mean | warmest | coldest  (US land only)",
+                 f"Observed | Vayuh | GenCast mean | best-fit | warmest | coldest  (US land only)",
                  y=1.005, fontsize=12)
     if lastm is not None:
         cax = fig.add_axes([0.25, 0.005, 0.5, 0.012])

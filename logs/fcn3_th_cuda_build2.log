@@ -1,0 +1,19 @@
+=== CUDA-TH BUILD2 START Mon Jul 20 05:13:50 PM MDT 2026 ===
+CC=/glade/u/apps/common/25.10/spack/opt/spack/gcc/12.5.0/hsbg/bin/gcc gcc (Spack GCC) 12.5.0
+nvcc=/glade/u/apps/common/25.10/spack/opt/spack/cuda/12.9.0/b74h/bin/nvcc
+Collecting torch-harmonics @ git+https://github.com/NVIDIA/torch-harmonics.git@a632ca748a12bd9f74dbc1e00653317810991f74
+  Cloning https://github.com/NVIDIA/torch-harmonics.git (to revision a632ca748a12bd9f74dbc1e00653317810991f74) to /glade/derecho/scratch/exu/tmp/fcn3_build/pip-install-ilof6kjp/torch-harmonics_5e3d8169ae4642d680528bf19a248bb0
+  Running command git clone --filter=blob:none --quiet https://github.com/NVIDIA/torch-harmonics.git /glade/derecho/scratch/exu/tmp/fcn3_build/pip-install-ilof6kjp/torch-harmonics_5e3d8169ae4642d680528bf19a248bb0
+  Running command git rev-parse -q --verify 'sha^a632ca748a12bd9f74dbc1e00653317810991f74'
+  Running command git fetch -q https://github.com/NVIDIA/torch-harmonics.git a632ca748a12bd9f74dbc1e00653317810991f74
+  Running command git checkout -q a632ca748a12bd9f74dbc1e00653317810991f74
+  Resolved https://github.com/NVIDIA/torch-harmonics.git to commit a632ca748a12bd9f74dbc1e00653317810991f74
+  Preparing metadata (pyproject.toml): started
+  Preparing metadata (pyproject.toml): finished with status 'done'
+Building wheels for collected packages: torch-harmonics
+  Building wheel for torch-harmonics (pyproject.toml): started
+  Building wheel for torch-harmonics (pyproject.toml): still running...
+  Building wheel for torch-harmonics (pyproject.toml): still running...
+  Building wheel for torch-harmonics (pyproject.toml): still running...
+  Building wheel for torch-harmonics (pyproject.toml): still running...
+  Building wheel for torch-harmonics (pyproject.toml): still running...

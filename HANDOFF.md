@@ -1,775 +1,201 @@
-# GenCast xres (0.25° vs 1.0° week-2) — Agent Handoff
+# FourCastNet 3 vs GenCast — PNW Heat Dome, 2-week lead — Agent Handoff
 
-**Goal:** Run the cross-resolution GenCast S2S experiment comparing **0.25°** and
-**1.0°** full checkpoints on **12 out-of-sample extreme events** at **week-2**
-(14-day lead), then produce cross-resolution comparison figures.
+**Goal:** Compare **FourCastNet 3 (FCN3)** against **GenCast** on the **PNW Heat Dome 2021**
+event at **2-week (14-day) lead**, at **0.25°**. Produce (1) T2m-anomaly PDF plots
+(FCN3 vs GenCast vs ERA5 truth) and (2) a comparison of the **wall time to generate 12
+ensemble members** for each model. GenCast results are reused from cache; FCN3 is new work.
 
-> **Scope of this file.** This handoff tracks the **GenCast experiments only** (`gencast_s2s/`,
-> `xres/`) — live PBS job IDs, what data is built, failure modes, triage. Everything below
-> the next section assumes Derecho/PBS/JAX.
->
-> **Machine check before running any triage step:** if `hostname` starts with `nucla3m` you
-> are on the a3mega Slurm box, NOT Derecho. That box's `qstat`/`qsub` are Slurm
-> compat-wrappers for the LOCAL cluster — `qstat -u exu` there exits 0 with EMPTY output,
-> which means "wrong machine", not "no jobs". Since Jul 15–16 2026 the a3mega box holds the
-> **complete** xres `runs/xres/` tree (week2 synced from Derecho; week3/4 produced locally
-> via Slurm) plus all figures — Derecho is only needed for new PBS runs or HRRR truth
-> rebuilds (its logs are named `logs/<id>.desched1.OU`, not `logs/xres_*_m.o<id>.<m>`).
->
-> The repo also contains **`downscaler/`** (ERA5 1° → HRRR 3 km diffusion model, PyTorch, runs
-> off-Derecho). It has **no cluster jobs, no queue state, and nothing to triage**, so it is
-> deliberately not tracked in the STATUS stack below — see the Jul 11 entry for where it came
-> from, `CLAUDE.md` for how the two stacks relate, and `downscaler/README.md` for the project
-> itself. If you were sent here to work on the downscaler, this file has almost nothing for you.
+> **Where to run FCN3:** the **H100 (80 GB) nodes**. FCN3's checkpoint badge says **80 GB
+> GPU** — Derecho has **only A100-40GB** (`pbsnodes` → `a100_40gb`, no 80GB / no H100), so
+> the full FCN3 run is being moved to the **a3mega H100 80GB** cluster (Slurm). GenCast
+> stays as-is (already run on Derecho A100-40GB; cache is synced to a3mega per prior notes).
 
 ---
 
-## STATUS (Jul 16 2026) — ✅ WEEK-3/4 RUNS COMPLETE ON A3MEGA; ALL COMPARE + NEW FIGURE SETS BUILT LOCALLY
+## STATUS (Jul 20 2026, later) — FCN3 env BUILT + prep DONE on Derecho; run moved OFF Derecho
 
-All four week-3/4 infer arms finished on the a3mega H100 nodes (Slurm, this checkout), and
-the figure pipeline now runs entirely on this box's login node from cached data.
+Per user: **do not run FCN3 on Derecho** (A100-40GB). Move the run to the a3mega **H100
+80GB** cluster. Derecho was used only to build the env and pre-stage data; all Derecho jobs
+are cancelled and none are queued.
 
-- **Infer outcomes (Slurm jobs, Jul 15–16):** 1.0° pmap `218` (wk3, 2h44m) and `219` (wk4,
-  3h16m) COMPLETED, 12/12 cubes each. 0.25° pmap `220`/`221` **FAILED** — 38 GiB device
-  alloc OOM: contrary to the Jul 15 entry below, 0.25° does NOT fit 8-wide pmap on
-  H100-80GB. Replaced by **untracked** 8-worker serial-pool scripts
-  `slurm/xres_pool_0p25_week{3,4}.slurm` (one `XRES_SERIAL_INFER=1 XRES_BF16=1` worker
-  pinned per GPU, `cache/claims/` work-stealing): jobs `223` (wk3, 12h41m) and `224` (wk4,
-  16h52m) COMPLETED, `cubes=12/12 workers-failed=0`. Probe job `222` was superseded and
-  cancelled. (Jobs 220/221 also ran prep in-job on the GPU nodes — see CLAUDE.md's
-  "GPU nodes are for GPU compute ONLY" incident note.)
-- **Data now all-local:** `runs/xres/` is complete for all six (res, week) combos, ~234 GB
-  (week2 rsynced from Derecho Jul 15 — see `xres_dryrun.log`; week3/4 produced here).
-  12 inputs + 12 cubes + 18 verif files per (res, week); `runs/observations/` unchanged.
-- **Figures (login-node CPU, driver `make_xres_figs.sh`):**
-  - `xcombined.make_all` run locally for weeks 2/3/4 → `figures/xres/week{2,3,4}/` (8 PNGs
-    each; the pooled 4-curve PDFs are the headline). NOTE: `xscores`/`xplotting.make_maps`
-    were NOT run for weeks 3/4 — use `run_xres.py --stage compare --weeks N` if wanted.
-  - NEW `xres/xleadpdfs.py` → `figures/xres/leads/xres_pdf_leads_{0p25,1p0}.png`: per
-    resolution, week-2/3/4 pooled-member PDFs overlaid vs ERA5 truth, 12 event panels.
-  - NEW `xres/xmapgrid.py` → `figures/xres/maps3var/` (12 PNGs): 4 representative events
-    (PNW/Uri/Ida/CA-AR) × 3 leads, downscaler-fig1/2-style map grids from CACHED metrics
-    only (headline + secondary; rows: heat/cold 1, hurricane/rain 2), columns ERA5 truth |
-    0.25° mean | 1.0° mean | both errors, cos(lat)-weighted RMSE/bias badges.
-  - Badge math independently verified (Ida wk3 0.25° u850: RMSE 1.53, bias −0.36).
-- **Stray but valid:** `runs/xres/1p0/week2/verif/HurricaneIda_2021_t2m_anom_members.nc`
-  (a non-headline metric derived from the cube as a smoke test; standard format, unused by
-  current figures).
+**What is already done and reusable (mostly machine-portable):**
+- `fcn3/run_fcn3.py` (prep/infer driver), `fcn3/compare_fcn3_gencast.py` (my-env plots),
+  `pbs/fcn3_infer.pbs` (Derecho; rewrite as an sbatch on a3mega).
+- **prep DONE:** global ERA5 IC (`runs/fcn3/PNW_HeatDome_2021/PNW_HeatDome_2021_ic.nc`,
+  299 MB, 72 vars 721×1440) + FCN3 checkpoint (2.7 GB `best_ckpt_mp0.tar` + aux) cached in
+  `runs/fcn3/.cache/e2s/fcn3/`. NOTE: these are on Derecho scratch — re-fetch on a3mega
+  (login node, has internet) via `run_fcn3.py --stage prep`, or copy the cache over.
+- Conda env `/glade/derecho/scratch/exu/conda-envs/fcn3` is Derecho-specific — **rebuild on
+  a3mega** (see recipe below; the `[[fcn3-env-recipe]]` memory has the full gotcha list).
 
----
+**Verified findings (carry to H100):**
+- Env recipe: Python 3.11; makani + torch-harmonics fork are **git-pinned in
+  `[tool.uv.sources]`** (plain pip can't resolve `makani` → install both from git FIRST, then
+  `earth2studio[fcn3]`). On Derecho A100 torch had to be **cu12**: `torch==2.11.0+cu128` from
+  `--index-url https://download.pytorch.org/whl/cu128` (default PyPI torch 2.12.1 is cu13,
+  won't load; cu128 index tops out at 2.11.0). `torchvision==0.26.0+cu128` to match.
+  `LD_LIBRARY_PATH` must include the env's `site-packages/nvidia/*/lib`. On H100 you can
+  likely use the default (cu13) torch 2.12.1 — the cu12 downgrade was only for Derecho's
+  driver.
+- **The torch-harmonics CUDA DISCO kernel is MANDATORY on GPU** — not the "slower fp32
+  fallback" the loader warning implies. Without it FCN3 crashes mid-forward:
+  `NotImplementedError: Could not run 'disco_kernels::forward' with the 'CUDA' backend`.
+  Build with `FORCE_CUDA_EXTENSION=1 TORCH_CUDA_ARCH_LIST=... module load cuda; pip install
+  --no-build-isolation --no-cache-dir --force-reinstall --no-deps "torch-harmonics @
+  git+...@a632ca7"`. **Gotcha:** nvcc rejects Derecho's default Intel `icpx` host compiler
+  (`icpx 0.0.0 < 6.0.0`); set `CC=gcc CXX=g++` (module `gcc/12.5.0`). On a3mega, use that
+  cluster's gcc + `TORCH_CUDA_ARCH_LIST=9.0` (H100).
+- **Precision:** FCN3 runs **bf16** iff the CUDA kernel is present (`torch.autocast(bfloat16
+  if _cuda_extension_available else float32)`), else fp32 — so bf16 is both the native path
+  and the fair match to GenCast's bf16 0.25° run.
+- **Memory:** the Derecho smoke test (job 6824712, 1 member/4 steps, batch_size=1) loaded the
+  model and *started* the forward on A100-40GB with **no OOM** (it crashed only on the missing
+  CUDA kernel). So a single member's memory looked fine on 40GB — model parallelism likely
+  unnecessary; on H100-80GB there is ample headroom to raise `batch_size` (data-parallel over
+  members). earth2studio's FCN3/`run.ensemble` is single-device only; makani has the
+  model-parallel machinery (`--h_parallel_size`/`--w_parallel_size`) but it's not exposed
+  through earth2studio.
 
-## PREVIOUS STATUS (Jul 15 2026) — xres WEEK-3 & WEEK-4 experiments added (scripts + figure namespacing)
-
-Extends the completed week-2 xres run to **21-day (week 3)** and **28-day (week 4)** leads,
-runnable on **two clusters**: the a3mega **8×H100** box (primary, this checkout) and Derecho
-**4×A100-40GB** (fallback). The Python was already `--weeks {2,3,4}`-parameterized; no core
-logic changed. **Runbook: [`xres/WEEK34.md`](xres/WEEK34.md)** (copy-paste for both clusters).
-
-- **New submission scripts (8):**
-  - a3mega (pmap, 8 GPUs, no walltime cap): `slurm/xres_res{0p25,1p0}_week{3,4}.slurm`
-    (0.25° fits pmap on H100-80GB). Budgets 36/48 h for 0.25°, 12/18 h for 1.0°.
-  - Derecho (serial 24-subjob member arrays, 12 h cap): `pbs/xres_member_{0p25,1p0}_week{3,4}.pbs`.
-    Week-4 0.25° (~15 h) exceeds the cap **by design** — resubmit the array once, cached
-    `(event, member)` files skip in ~2 min (member-resume, same as week 2).
-- **Code change (compare figures now week-namespaced):** `xres/xconfig.py` gained
-  `xfig_dir(weeks)` → `runs/xres/figures/week{W}/`; `xres/{xplotting,xcombined,xscores}.py`
-  write there and to `figures/xres/week{W}/`. Without this, week-3/4 compare would overwrite
-  week-2's fixed-name PNGs. Cubes/verif were already week-namespaced. Existing synced
-  `figures/xres/*.png` (week 2) are left in place as historical artifacts.
-- **Validated on the a3mega login node:** `--weeks 3/4` → 42/56 steps, `week{3,4}` output
-  trees; single-event prep (1.0°, week 3, PNW_HeatDome_2021) builds the init frame from
-  cloud ERA5. `build_hrrr_truth` safely skips here (no `/glade`); ERA5/HRRR verification
-  truth is horizon-independent and already cached, so new-weeks prep only builds init frames.
-- **Next step (a3mega):** login-node `python run_xres.py --stage prep --weeks 3` (then 4) to
-  build all init frames, then `sbatch slurm/xres_res1p0_week3.slurm` etc. per WEEK34.md.
-  0.25° pmap on a3mega is otherwise unexercised (all prior 0.25° runs were Derecho serial);
-  watch the first event's timing.
-
-## STATUS (Jul 13 2026) — DOWNSCALER: TRANSFORMER BOTTLENECK + READY TO TRAIN (no GenCast changes)
-
-Downscaler-only update; GenCast untouched. Three things landed:
-
-1. **The U-Net is now a transformer U-Net.** The `WindowedSelfAttention` stub is a real
-   Swin-style windowed-attention bottleneck (4 blocks, 16×16 windows, adaLN-Zero — identity
-   at init), on by default. 38.2M → 54.0M params. Spec: `downscaler/docs/model_reference.html`.
-2. **Real-data blockers**: the timestamp index is built (16,019 timestamps where both an
-   ERA5 and an HRRR file exist, 2015–2025 — independently re-verified as a correct
-   two-sided intersection). `norm_stats/stats.npz` was still **mid-build** when this entry
-   was first written (launched 00:46 Jul 13, takes ~35 min, not the documented ~5; log:
-   `downscaler/logs/build_stats.log`) — verify with `ls downscaler/norm_stats/stats.npz`
-   rather than trusting this sentence, and never run two `02_build_index_and_stats.sh`
-   instances at once (the stats write is not atomic). Building the
-   stats surfaced and fixed a real bug: dict-form variable specs from the Hydra config
-   (OmegaConf `DictConfig`) failed `isinstance(spec, dict)` and were silently stringified —
-   the precip channel would have crashed every real-data run (`data/era5_hrrr_dataset.py`,
-   regression test in `tests/test_var_spec.py`).
-3. **Operator runbook for cluster owners**: `downscaler/bash/` — numbered scripts
-   (preflight → smoke → data prep → train/stop/status) so the a3mega owners can run
-   training in their idle gaps without knowing the project. `downscaler/bash/README.md`
-   is the handoff doc. Training itself is the interruptible harness from `slurm/`.
-
-Next actual step: `bash downscaler/bash/03_train.sh` on the cluster (it exits 1 with
-"missing norm stats" until `stats.npz` exists — that is the guard working, not a bug).
-
-### Jul 13 (later) — input pipeline fixed (2.9x), first real training verified (jobs 172, 175)
-
-- The first real 8-GPU run (job 172) trained correctly but was **input-bound**: 21.4 s per
-  optimizer step, with starved ranks idling their GPU while the other 7 spin-waited at the
-  gradient allreduce. Cause: `data.num_workers: 2` (vs 24 CPUs/rank allocated) on top of a
-  scipy `RegularGridInterpolator` rebuilt per channel per sample — the regrid was ~1.9 s of
-  a ~2.5 s `__getitem__`.
-- Fix: `CachedBilinearRegridder` in `data/era5_hrrr_dataset.py` — bilinear corner
-  indices/weights computed once and reused for every channel/sample; equivalence with the
-  old scipy path (including edge extrapolation) is pinned by `tests/test_regrid.py`. Warm
-  sample: 2.5 s → 0.9 s (now netCDF-read-bound). `data.num_workers` 2 → 12. Suite after
-  the change: 74 passed, 1 skipped.
-- Verification run (job 175, ~15 min wall): **7.37 s/optimizer step** steady (2.9x), all
-  8 GPUs at 99–100% over a 30 s sample, peak VRAM 16.5 GB, host RAM 116/1842 GB. Epoch 0
-  (exactly 90 optimizer steps, ~11.7 min) completed with mean train/loss 0.748; the
-  end-of-epoch checkpoint (step 90) landed, and `bash/04_stop.sh` (STOP-file path)
-  checkpointed at step 98 and exited `COMPLETED 0:0` — the full save/stop/resume machinery
-  the long run depends on is exercised on real data.
-- Projection at the measured rate: 90 steps/epoch x 200 epochs ~ 37 h of training — two
-  24 h walltime windows (one resubmit), vs ~4.5 days before the fix.
-- **Note for the definitive run:** `checkpoints/` holds this verification run's step-98
-  checkpoint, so `bash/03_train.sh` will RESUME from it — fine if the config is unchanged.
-  If the split decision above (train_end 2018) or any variable list changes, clear
-  `checkpoints/` (and rebuild stats for variable changes) so the run starts fresh.
-
-### Jul 13 code/methodology review — findings & status
-
-Found by a four-way review (docs-vs-code audit, environment audit, fresh-agent usability
-test, methodology review). All code fixes below were applied later on Jul 13 and are
-covered by `pytest tests/` (74 passed, 1 skipped); two items remain open by choice:
-
-- **OPEN (deliberate) — eval-contaminating split:** train years 2015–2022 contain 9 of the
-  12 xres events, so scoring downscaled GenCast members on pre-2023 events evaluates on
-  training data. Deferred per user decision; before the definitive run either set
-  `train_end: 2018-12-31` in `downscaler/configs/data/era5_hrrr.yaml` (mirrors GenCast
-  `<2019`) or score only 2023+ events downstream. (The 2024–25 test years are still
-  referenced by no code.)
-- **OPEN — no probabilistic eval:** single-sample RMSE vs the bilinear baseline is a
-  biased yardstick (a calibrated generative model pays ~√2 vs the conditional mean).
-  Evaluate ensemble-mean RMSE + CRPS + power spectra; `Downscaler.ensemble()` exists in
-  `evaluation/downscale.py` but nothing calls it yet.
-- **FIXED — `compare_timestep.py --ckpt` loaded NO weights** (EMA dict is
-  `{"shadow": ...}`; `strict=False` hid the total mismatch → scored a random-weight
-  model). Now overlays the shadow onto `model_state_dict` and loads strict
-  (`load_eval_state()`, regression-tested in `tests/test_model.py`).
-- **FIXED — same script scored model winds against UN-rotated HRRR truth** while baseline
-  rows used rotated truth; the model rows now rotate identically (and the conditioning
-  dataset gets the wind-pair kwargs).
-- **FIXED — cos(lat) loss weights on the near-equal-area Lambert grid** (they down-weighted
-  the northern US ~33%): `precompute_stats.py` now writes uniform weights (key name
-  `cos_lat_weights` kept for compatibility), and the existing `norm_stats/stats.npz` was
-  patched in place — no rebuild needed.
-- **FIXED — Ocampo weighting was dead code** (update schedule never intersected val
-  epochs; "cap" halved instead of capping). Now: updates fire on the validation cadence
-  once past `start_epoch` (rate-limited by `update_every`), the cap is a real ceiling
-  applied pre-normalization, weights are normalized to mean 1 (no loss-scale jump), the
-  config caps (`logsp_weight_cap`/`logtp_weight_cap`) are actually wired through, and the
-  weights are persisted in checkpoints so resume doesn't silently reset them. Tests in
-  `tests/test_variable_weighting.py`.
-- **FIXED — stats pipeline crash-safety:** `precompute_stats.py` writes atomically
-  (tmp + `os.replace`); `bash/02` now fails loudly if the sanity check fails, guards the
-  config read, and takes a single-instance lock (`norm_stats/.build_lock`) — two
-  concurrent builds actually happened Jul 13 and raced the final write.
-- **FIXED — `model/unet.py` pad/crop `int - None` crash** when exactly one of H/W was
-  divisible by 2^n_levels (latent at full res; bit custom grid sizes). Crop is now
-  start + original extent; regression test in `tests/test_model.py`.
-
-## STATUS (Jul 11 2026) — DOWNSCALER MOVED INTO THIS REPO (no jobs; GenCast unaffected)
-
-The ERA5→HRRR diffusion downscaler was moved from `eric/downscaler` to **`downscaler/`**
-inside this repo, because it is an **extension of this project** rather than a separate one:
-`xres` measured what 0.25° buys at week-2 and how brutally it costs (~50 GiB VRAM/member,
-~15 h/event, ~185 GPU-h for one 12-event pass) — the downscaler is the cheap alternative
-path to fine scale. Keep the ensemble coarse at 1.0°, and learn 1° → 3 km as a separate
-generative model. Because it trains on ERA5/HRRR *analysis* pairs it is forecast-agnostic,
-so it can eventually be applied to a coarse GenCast member to produce a **3 km downscaled S2S
-ensemble** with no 0.25° GenCast run at all.
-
-**Nothing about the GenCast experiments changed** — no code, config, path, `runs/` output, or
-figure was touched, and the completed xres results below still stand.
-
-What the move involved:
-
-- `mv` into `downscaler/` (it had no git history of its own; it is now untracked content in
-  this repo — `git add downscaler/` when you want it versioned).
-- Rewrote the 3 absolute paths that pointed at the old location (`ckpt_dir` in
-  `downscaler/configs/config.yaml`; `stats_path` + `index_path` in
-  `downscaler/configs/data/era5_hrrr.yaml`). The other absolute paths in that config
-  (`era5_dir`, `hrrr_dir`, `grid_meta_path`) point outside the project and were left alone.
-- Re-ran the CPU smoke test from the new location — passes end-to-end, and the checkpoint
-  writes to the new `ckpt_dir`, confirming the rewrite. Its artifacts (`checkpoints/`,
-  hydra `outputs/`) were deleted afterwards and are now gitignored.
-
-**The two stacks are decoupled and must stay that way** — `downscaler/` does not import from
-`gencast_s2s/` or `xres/`, uses PyTorch (not JAX), and runs in the `moe` env on a GPU box (not
-`my-env` on Derecho). Do not submit it to PBS. The GenCast↔downscaler coupling described
-above is **not built yet**; when it is, it belongs in a thin adapter that writes GenCast
-members into the format `Era5HrrrDataset` expects, not in a cross-import.
-
-**Status of the downscaler itself: plumbing works, no science yet.** The 1° ERA5 is still on
-Derecho (scratch was down), so `data.use_dummy: true` is the default and the model has only
-ever been run on *random tensors*. `downscaler/README.md` lists the 6 steps to switch to real
-data — the first is transferring the 1° ERA5 off Derecho, which is the actual blocker.
-
-## PREVIOUS STATUS (Jul 9 2026, later) — SECOND VERIFICATION BATCH + ROOT DIR SORTED (job `6684088`)
-
-- Every PDF/Brier/CRPS/rank figure now comes in TWO batches: own-grid truth (no
-  suffix, as before) and a **common-baseline batch** (`*_vs_era5_0p25.png`) where
-  BOTH resolutions are verified against native 0.25deg ERA5 (1.0deg members
-  nearest-upsampled; PDF variant drops the ERA5 1.0deg curve).
-  `xres_scores.csv` gained a `truth` column (`own_grid` / `era5_0p25`).
-- **Project root sorted**: all figure PNGs now live under `figures/xres/` (xres) and
-  `figures/original/` (original-experiment combined PDFs + allbestmaps); compare
-  writes to `figures/xres/` + `runs/xres/figures/`, NOT the root anymore. Stray
-  `true.e/o*` PBS logs moved into `logs/`.
-- Forecast-curve styling made more visible (dense dots, white halo, dark marker
-  edges, slightly deeper light colors).
-
-## PREVIOUS STATUS (Jul 9 2026) — FIGURE OVERHAUL (compare job `6677479`)
-
-Per user request the compare-stage figures were reworked (all code in
-`xres/xcombined.py`, new `xres/xscores.py`, colors in `xres/xconfig.py`):
-
-- **Combined PDFs** (`xres_combined_*.png`): HRRR curve REMOVED; ERA5 now drawn at
-  BOTH grids (0.25deg native + sampled onto the 1.0deg forecast grid); y floor
-  lowered to 1e-6; PDFs switched from gaussian_kde to the binned-histogram
-  `PDF_histogram` method of github.com/moeindarman77/TransferLearning-QG
-  (100 bins over mean±4sigma, hist/N, shared bin range per panel, physical x-axis).
-  Style: truth = dark + solid, forecast = light + dotted; reds = 0.25deg,
-  blues = 1.0deg; distinct markers per curve (colorblind-redundant).
-- **New skill figures** (`xres/xscores.py`, same 4x3 grids, each res scored vs ERA5
-  on ITS OWN grid): `xres_brier.png` (tail-exceedance BS at 75/90/95/99th truth
-  percentiles, extreme-direction aware, f(1-f) reference), `xres_crps.png`
-  (lat-weighted CRPS bars per event, paneled by metric family, % = 0.25 vs 1.0),
-  `xres_rank_hist.png` + `xres_rank_hist_pooled.png`. Numbers also in
-  `runs/xres/figures/xres_scores.csv`. Reader's guide with the math:
-  `docs/xres_score_figures.html`.
-- HRRR truth files and map panels are untouched (only the PDF curves dropped HRRR).
-
-## PREVIOUS STATUS (Jul 8 2026 morning) — ✅ EXPERIMENT COMPLETE (both resolutions + figures)
-
-The member arrays finished overnight, **all 48 subjobs exit 0**:
-
-- **0.25°: DONE.** 12/12 cubes (verified 24 members each), 18/18 verif files.
-  Subjobs queued 20:16 Jul 7 → started 00:55-01:34 (≈5 h queue wait, all 24
-  concurrent, one node each) → last done 09:46. ~7.7 h/subjob, ≈185 GPU-h total.
-- **1.0°: DONE.** Idalia + Vermont re-rolled post-epoch-fix; 12/12 cubes, 18/18
-  verif. Subjobs took only **~9 min each** (2 events, packed up to 4/node).
-- **Compare `6665324` ran automatically** (end 09:49 Jul 8): 12 maps +
-  `xres_combined_{mean,pooled,best,extreme}.png` now include ERA5 + HRRR + both
-  resolutions. Quarantine dir `runs/xres/quarantine_1964_epoch_bug/` is now safe
-  to delete after a figure sanity-check.
-
-Scheduling/charging facts confirmed (docs + qhist): Derecho GPU nodes CAN be
-shared by `ngpus=1` jobs (1.0° subjobs packed 4/node); accounting records
-NGPUs=1 per subjob, and per NCAR charging docs shared jobs are charged for the
-requested `ngpus` only. Single-GPU subjobs also backfilled ~5 h after submission
-where the earlier full-node request had waited ~24 h without starting.
-
-## PREVIOUS STATUS (Jul 7 2026, night) — INFER RESTRUCTURED AS 24-MEMBER PBS ARRAYS (both resolutions)
-
-Per user request, infer now runs as **single-GPU PBS array jobs — one subjob = one
-ensemble member across all 12 events** (cheaper than full nodes, schedules/backfills
-faster, and members cache independently). The full-node jobs `6664794` (0.25°
-self-chain) and `6665042` (1.0° re-infer) and held compare `6665043` were **qdel'd**
-and replaced Jul 7 ~19:00 by:
-
-| Job | What | Per subjob | Status |
-|---|---|---|---|
-| `6665322[]` | 0.25° infer, `pbs/xres_member_0p25.pbs`, 24 subjobs | 1 GPU, 16 cpu, **243 GB** (2/node), 12 h; ~8 h expected | Q |
-| `6665323[]` | 1.0° infer, `pbs/xres_member_1p0.pbs`, 24 subjobs | 1 GPU, 16 cpu, 100 GB (4/node), 3 h; only re-rolls Idalia+Vermont (10 cubes cached) | Q |
-| `6665324` | compare, `pbs/xres_compare_dev.pbs` | cpudev | H, `afterok:6665322[]:6665323[]` |
-
-Mechanics (`XRES_MEMBER_SEL` mode in `xres/xinference.py`): subjob N rolls ONLY
-member N of each event into `cache/<event>_memberNN.nc` (skipped if cached, and
-events with a complete cube are skipped outright — that's why the 1.0° array is
-cheap). The last subjob to finish an event assembles the cube + verif metrics and
-deletes the member files; assembly races across nodes are safe (atomic writes +
-tolerant reader), and member-0's subjob picks up any cube whose assembler died.
-No claim files, no self-chaining in this mode. **Recovery = resubmit the array**
-(`qsub pbs/xres_member_0p25.pbs`): cached subjobs exit in ~2 min without loading
-the model. Compare afterok requires ALL subjobs to exit 0 — if a few failed,
-fix/resubmit the array, then `qsub pbs/xres_compare_dev.pbs` manually.
-Per-subjob logs: `logs/xres_0p25_m.o<id>.<member>` / `logs/xres_1p0_m.o<id>.<member>`.
-Smoke-tested on cached 1.0° events (skip path + assembly wiring, exit 0).
-
-The full-node worker-pool/self-chain path (previous status below) still exists in
-`pbs/xres_res0p25_week2.pbs` as a fallback but is **superseded** by the arrays.
-
-## PREVIOUS STATUS (Jul 7 2026, late evening) — ARCO_EPOCH BUG FOUND; Idalia + Vermont REBUILDING
-
-- **ARCO_EPOCH bug (found Jul 7 ~18:30, fixed in `gencast_s2s/data.py`).** The v3 ARCO
-  store's time axis is `hours since 1900-01-01`, but `ARCO_EPOCH` was 1959-01-01 — every
-  ARCO read was shifted **59 years into the past**. Any event whose truth window or init
-  frames fall past `WB2_END` (2023-01-10T18) was built from 1964 ERA5 data:
-  **HurricaneIdalia_2023** (u850 truth + inputs) and **Vermont_Floods_2023** (tp truth +
-  inputs). California_AR_Floods_2023 (peak 2023-01-10) squeaks under the cutoff — clean.
-  All other events and the HRRR truths are unaffected. Symptom that exposed it: ERA5
-  weekly-mean |u850| for Idalia had its max over the Great Lakes and no hurricane, while
-  HRRR showed 64 m/s in the SE; Ian/Ida ERA5-vs-HRRR correlate 0.99, Idalia only 0.54.
-- **Contaminated files quarantined** (moved, not deleted) to
-  `runs/xres/quarantine_1964_epoch_bug/`: 4 ERA5 truth files, 2×2 inputs, 2 1p0 cubes,
-  4 1p0 verif files. Safe to delete once the rebuild is verified.
-- **Rebuild chain submitted:** `6665041` `xres_prep_fix1964` (develop; rebuilds the 4
-  truth files + 4 inputs via `XRES_EVENTS_SEL=HurricaneIdalia_2023,Vermont_Floods_2023`)
-  → afterok → `6665042` 1.0° re-infer (cache-aware: only the 2 missing events re-roll)
-  → afterok → `6665043` compare (regenerates all figures incl. new pooled mode).
-- **Prep-fix DONE & VERIFIED (Jul 7 18:28, exit 0).** All 4 truth + 4 input files
-  rebuilt from real 2023 data: Idalia inputs carry 2023-08-15T12/16T00 frames; Idalia
-  ERA5-vs-HRRR u850 corr 0.54 → **0.96** with hurricane-strength max (45.9 m/s) in the
-  W Atlantic; Vermont tp corr 0.50 ≈ Kentucky's 0.55 (normal for summer convection;
-  Vermont-box means agree, 24 vs 22 mm). GPU jobs `6664794` (0.25° chain) + `6665042`
-  (1.0° re-infer) auto-released to Q. Quarantine dir is safe to delete after figures
-  are confirmed.
-- **0.25° chain `6664794`: race with the prep-fix CLOSED (Jul 7 ~18:20)** via
-  `qalter -W depend=afterok:6665041 6664794` — it now waits for the prep-fix and
-  auto-releases, keeping its queue position. Verified while checking the race: all
-  truth/input writes are atomic (`tmp.<pid>` + `os.replace`, `gencast_s2s/data.py` /
-  `xres/xdata.py`), so concurrent prep could not have corrupted files; the real risk
-  was different — in `pbs/xres_res0p25_week2.pbs` prep runs BEFORE the successor is
-  submitted, so a prep crash (missing inputs + no GCS from a GPU node) would have
-  killed the job before chaining and the self-chain would silently never start.
-  If `6665041` fails, `6664794` stays Held forever: fix prep, then
-  `qalter -W depend=None 6664794` (or qdel + fresh qsub).
-- **New figure mode (Jul 7 ~17:45):** `xres/xcombined.py` gained an ALL-MEMBERS-POOLED
-  figure (`xres_combined_pooled.png`, matches the original experiment's pooled
-  `combinedpdf.png` statistic); `pbs/xres_combined_figs.pbs` regenerates just the 4
-  combined-PDF figures on develop.
-
-## PREVIOUS STATUS (Jul 7 2026, evening) — 1.0° + HRRR DONE, 0.25° RESTARTED (self-chaining job `6664794`)
-
-- **Prep: complete.** 18/18 ERA5 truth files, 12/12 inputs per resolution.
-- **1.0° infer: complete & verified.** All 12 cubes (24 members × 28 steps) in
-  `runs/xres/1p0/week2/cache/`, all 18 verif files in `runs/xres/1p0/week2/verif/`.
-  Log shows clean end Jul 7 03:40 (third attempt in `logs/xres_1p0_wk2.log`; the
-  first two runs in that log failed on a jax `P` AttributeError and a pandas
-  InvalidIndexError, both fixed before the final run).
-- **0.25° infer: RESTARTED Jul 7 evening with a reworked pipeline.** The abandoned
-  Jul 6-7 attempt (job `6654166`) hit the 12 h walltime with zero output: serial
-  single-GPU rollout at ~80 s/step needs ~15 h for ONE event (24 members × 28 steps
-  = 672 chunks), and cubes were only written after ALL members finished, so 19
-  completed members were discarded. Fixed with per-member caching + resume,
-  memory-gated multi-worker rollout, and self-chaining PBS jobs (see
-  **"0.25° pipeline design"** below). First job of the chain: **`6664794`**.
-  The chain runs unattended — each hop resumes from cached members and the finishing
-  job submits compare itself. Expect several 12 h hops (≈2-5 days wall-clock
-  depending on how many workers fit in host RAM).
-- **Compare/figures: DONE (Jul 7 17:19).** Ran via new `pbs/xres_compare_dev.pbs`
-  (develop queue — the original `pbs/xres_compare.pbs` routes to the `cpu` queue which
-  had ~1800 queued jobs; submission `6664453` was qdel'd). Job `6664462` produced all
-  figures; job `6664470` regenerated them after `xres/xplotting.py::plot_event` was
-  changed to drop missing panels (HRRR + 0.25°) instead of leaving blank axes, so
-  per-event maps are now 3 panels: ERA5 | 1.0° mean | 1.0° error.
-  Outputs: `xres_combined_{mean,best,extreme}.png` at project root (all 12 events,
-  ERA5 black vs GenCast 1.0° orange) and 12 maps in `runs/xres/figures/maps/`.
-- **HRRR overlay: DONE (Jul 7 17:34, job `6664608`).** The npz shard archive never
-  existed on Derecho, but a HRRR v3 netCDF archive does:
-  `/glade/derecho/scratch/mdarman/hrrr_work/hrrr_nc_v3` (6-hourly, 2015–2025, one
-  file per timestamp with `t2m`, `u`/`v` on pressure levels, `log_tp`; full coverage
-  of all 12 event windows). `gencast_s2s/config.py` now points there (`HRRR_NC`,
-  env-overridable) and `gencast_s2s/hrrr.py` + `xres/xhrrr.py` read nc instead of npz
-  (`HRRR_SHARDS`/`HRRR_GRID_REF`/`HRRR_T2M_CHANNEL` are gone). All 18
-  `runs/observations/*_hrrr_verif_*.nc` files built via `pbs/xres_hrrr_compare.pbs`
-  (develop queue), and figures were regenerated with the red "Observed (HRRR)"
-  curve/panel. Legends now also state the ensemble size, e.g.
-  "GenCast 1.0deg wk-2 mean (24 members)".
-  When the 0.25° chain finishes, compare re-runs automatically and all figures
-  regenerate with the 0.25° panels/curves added.
-
-### 0.25° pipeline design (added Jul 7, in `xres/xinference.py` + `pbs/xres_res0p25_week2.pbs`)
-
-Why: 0.25° needs ~50 GiB VRAM/member → no pmap on A100-40GB → serial one-member-at-
-a-time rollout at ~80 s/step → ~15 h/event → longer than the 12 h walltime cap. Also
-one serial process peaked at **~237 GiB host RAM** (job `6654166`,
-`resources_used.mem`), so 4 naive per-GPU processes (~950 GiB) may not fit the
-node's 487 GB either. Design:
-
-1. **Per-member caching (resume).** In serial mode every finished member is written
-   immediately to `cache/<event>_memberNN.nc`. When all 24 exist, whichever worker
-   wrote the last one assembles the cube, derives the verif metrics, and deletes the
-   member files. A killed job loses at most the member in flight (~37 min).
-2. **Work-stealing workers.** Members are claimed via atomic claim files in
-   `cache/claims/` (PID-stamped; claims of dead PIDs are stolen). Any number of
-   concurrent worker processes cooperate with no static partition. A worker that
-   finds no claimable work exits WITHOUT loading the model (lazy load), so extra
-   workers and post-completion hops are cheap.
-3. **Adaptive worker pool.** The PBS job starts worker 0 on GPU 0, then every 15 min
-   (`XRES_WORKER_STAGGER=900`) starts the next worker (GPU 1-3) only if
-   `MemAvailable` ≥ `XRES_WORKER_MIN_FREE_GB` (250). Worst case it degrades to the
-   old 1-worker throughput — but now resumable.
-4. **Self-chaining jobs.** Right after prep, each job submits an `afterany`
-   successor of itself (`XRES_CHAIN_REMAIN` hops left, default 11, decremented per
-   hop). Walltime kills are the *expected* end of most hops. The hop that finds 12
-   cubes + 18 verif files qdels its successor and submits `pbs/xres_compare_dev.pbs`;
-   a hop that makes zero progress qdels its successor and stops the chain.
-
-**To STOP everything:** `qstat -u exu`, then `qdel` BOTH the running `xres_0p25_wk2`
-job AND its held successor (there is always at most one successor pending).
-
-**Throughput math:** 288 member-rollouts total, ~37 min each ⇒ ~180 GPU-h ⇒ ~16 hops
-at 1 worker, ~8 at 2, ~4-5 at 4. If the 11-hop budget exhausts before completion,
-just `qsub pbs/xres_res0p25_week2.pbs` — it resumes from cache with a fresh budget.
-
-**Logs per hop:** orchestration in `logs/xres_0p25_wk2.o<jobid>` (written at job
-end); live worker progress in `logs/xres_0p25_wk2_<jobid>_w<0-3>.log` (tail these).
-
-**Env knobs** (set via `qsub -v`): `XRES_MAX_WORKERS` (4), `XRES_WORKER_STAGGER`
-(900 s), `XRES_WORKER_MIN_FREE_GB` (250), `XRES_CHAIN_REMAIN` (11),
-`XRES_XLA_ALLOC` (`platform`; try `default` for the faster BFC allocator — if it
-OOMs the chain just resumes).
-
-**System:** NCAR **Derecho** (PBS Pro). Conda env: **`my-env`**
-(`/glade/work/exu/conda-envs/my-env`, Python 3.10). Project dir:
-`/glade/derecho/scratch/exu/S2S_ExtremeWeather/`.
-
-**Use this file when:** a job disappears from `qstat -u exu` — either it finished
-(success or failure) or was killed. Spin up a new agent, point it at this file,
-and follow the **"When a job leaves qstat"** section below.
+**Remaining on H100:** rebuild env → prep (or copy cache) → build CUDA kernel (arch 9.0) →
+run `infer` (12 members, 56 steps; raise batch_size on 80GB) → `compare_fcn3_gencast.py`.
 
 ---
 
-## Pipeline (current: member arrays)
+## (original plan) GenCast side DONE (cached); FCN3 side
 
-```
-prep (done)  ─►  xres_0p25_m[0-23]  (24 × 1-GPU subjobs) ──┐
-                                                            ├─afterok─►  xres_compare (cpudev)
-                 xres_1p0_m[0-23]   (24 × 1-GPU subjobs) ──┘
+### ✅ Done — GenCast (reuse from cache, do NOT rerun)
+
+The 0.25° week-2 GenCast forecast for PNW Heat Dome already exists:
+
+- Cube: `runs/xres/0p25/week2/cache/PNW_HeatDome_2021_cube.nc`
+  (24 members, 28×12-hourly steps, all vars/levels; init 2021-06-14 00:00, peak 2021-06-28)
+- Per-member week-mean T2m anomaly: `runs/xres/0p25/week2/verif/PNW_HeatDome_2021_t2m_anom_members.nc`
+  (24 members, 105×237 on the CONUS box)
+- ERA5 0.25° truth: `runs/observations/PNW_HeatDome_2021_verif_t2m_anom.nc`
+- **Subsample GenCast 24 → 12 members** to match FCN3 for the comparison.
+
+### GenCast runtime (pulled from logs — no need to re-time)
+
+Source: `logs/6665322[0].desched1.OU` (Derecho A100-40GB, node deg0050, Jul 8; job
+`6665322` = 24-subjob member array, subjob N = member N of all 12 events). Timestamped
+rollout chunks for PNW member 0:
+
+- **~80 s / 12-hourly step**, 28 steps/member ⇒ **~37 min/member** at steady state.
+- One-time XLA compile **~5 min** (first member only). PNW member 0 incl. compile:
+  00:56:59 → ~01:44 ≈ **47 min**.
+- **12 members on one A100-40GB ≈ 7.5 h** (5 min compile + 12 × 37 min). This is the
+  head-to-head "time to generate 12 members" number for GenCast. (Production parallelized
+  members across the 24-subjob array, so per-subjob wall clock was ~37–47 min, but the
+  single-GPU cost for 12 members is ~7.5 h.)
+
+### ⬜ Not started — FCN3
+
+Nothing built yet. New conda env required (existing `my-env` is Python 3.10; earth2studio
+needs ≥3.11). See plan below.
+
+---
+
+## FCN3 facts (verified against NVIDIA source / HF, Jul 20 2026)
+
+- **Code:** inference in **`NVIDIA/earth2studio`** (`earth2studio.models.px.FCN3`,
+  `models/px/fcn3.py`); **`NVIDIA/makani`** is a hard runtime dep (FCN3 imports
+  `makani.models.model_package.load_model_package`). Paper: arXiv **2507.12144**.
+- **Checkpoint:** `hf://nvidia/fourcastnet3@76ef0c60237e458b33196ba027134e27f3fc4538`
+  — **NOT gated**, Apache-2.0, ~2.85 GB. (NGC mirror `nvidia/earth-2/fourcastnet3` needs
+  an NGC key; use HF to avoid that.) 710,867,670 params.
+- **Install:** `pip install "earth2studio[fcn3] @ git+https://github.com/NVIDIA/earth2studio.git"`.
+  Pulls makani (pinned commit `b38fcb27…`), `torch-harmonics>=0.8.0` (pinned NVIDIA fork
+  commit `a632ca74…`), ruamel.yaml, scipy, moviepy. Needs **Python ≥3.11, torch ≥2.5**
+  (examples pin torch==2.11.0). Tested GPUs: A100 / H100 / L40S, Linux only.
+- **torch-harmonics CUDA gotcha:** the DISCO kernel must be compiled
+  (`export FORCE_CUDA_EXTENSION=1; pip install --no-build-isolation torch-harmonics`), else
+  inference falls back to a slow fp32 path (code emits a warning and drops bf16).
+- **Model:** global **0.25°, 721×1440** equirectangular (lat 90→-90, lon 0→360 endpoint
+  excluded), **6-hourly** steps, 72 variables
+  (surface: u10m,v10m,u100m,v100m,t2m,msl,tcwv; + 13 levels ×{u,v,z,t,q}). Levels:
+  50,100,150,200,250,300,400,500,600,700,850,925,1000 hPa.
+  Input tensor `(batch, time, lead_time=1, 72, 721, 1440)` — **single init frame** (unlike
+  GenCast's 2-frame init).
+- **Ensemble mechanism:** FCN3 is **probabilistic with INTERNAL stochastic noise** (latent
+  noise diffusion on the sphere, per batch/ensemble index, reset at rollout start). Do NOT
+  perturb the IC — replicate the same IC across the ensemble dim and pass
+  **`earth2studio.perturbation.Zero()`**. Seed via `FCN3(core_model, seed=…)` /
+  `model.set_rng(seed=…, reset=True)`. Paper evaluates with 50 members.
+- **Perf claim:** 60-day 0.25° 6-hourly global rollout in **<4 min on one H100** (NVIDIA).
+  So 12 members × 14 days should be minutes, not hours — the expected punchline vs
+  GenCast's ~7.5 h.
+- **S2S recipe caveat:** `earth2studio/recipes/s2s/` only wires DLESyM + HENS-SFNO, NOT
+  FCN3. Build the FCN3 rollout on the generic `earth2studio.run.ensemble(...)` API.
+
+### Minimal FCN3 ensemble call (self-assembled — validate against `fcn3.py`/`run.py`)
+
+```python
+from earth2studio.data import ARCO          # or ERA5-backed source; 0.25° global IC
+from earth2studio.io import ZarrBackend
+from earth2studio.models.px import FCN3
+from earth2studio.perturbation import Zero
+from earth2studio.run import ensemble
+
+package = FCN3.load_default_package()        # hf://nvidia/fourcastnet3@76ef0c6…
+model   = FCN3.load_model(package)
+data    = ARCO()
+io = ZarrBackend(file_name="outputs/fcn3_pnw.zarr",
+                 chunks={"ensemble": 1, "time": 1, "lead_time": 1},
+                 backend_kwargs={"overwrite": True})
+io = ensemble(["2021-06-14T00:00:00"], nsteps=56, nensemble=12,
+              model, data, io, Zero(),
+              batch_size=12)   # batch_size: 12 on H100-80GB; drop to 1 if OOM
 ```
 
-| Job / array | Name | PBS script | Per subjob | Log | Status |
-|---|---|---|---|---|---|
-| `6652566` | `xres_prep` | `pbs/xres_prep.pbs` | cpudev | `logs/xres_prep.log` | done (+ fix1964 `6665041`) |
-| `6665322[]` | `xres_0p25_m` | `pbs/xres_member_0p25.pbs` | 1 GPU, 243 GB, 12 h | `logs/xres_0p25_m.o<id>.<m>` | **queued** |
-| `6665323[]` | `xres_1p0_m` | `pbs/xres_member_1p0.pbs` | 1 GPU, 100 GB, 3 h | `logs/xres_1p0_m.o<id>.<m>` | **queued** |
-| `6665324` | `xres_compare` | `pbs/xres_compare_dev.pbs` | cpudev, 2 h | `logs/xres_compare.log` | Held on both arrays |
-
-Subjob N = ensemble member N for all events. `qstat -t "6665322[]"` lists per-subjob
-states. Superseded scripts kept as fallback: `pbs/xres_res0p25_week2.pbs` (full-node
-self-chaining pool) and `pbs/xres_res1p0_week2.pbs` (full-node pmap).
-
-Historical prep attempts (all resolved Jul 6): 6651105/6652181/6652312 OOM'd on ARCO
-events pre-fix; 6651299 sat unstarted in the `cpu` queue; 6652121 cancelled.
-Historical 0.25° attempts: 6652567/6653517/6653688/6653768/6653941/6653948/6653990
-(config/code errors), 6654166 (ran 12 h at ~80 s/step, walltime-killed at member
-19/24 of event 1 with nothing saved — the failure that motivated the redesign).
+`nsteps=56` = 14 days @ 6h; `nensemble=12`; `Zero()` because stochasticity is internal.
 
 ---
 
-## What is already done
+## Matched hyperparameters (FCN3 ← GenCast week-2 cache)
 
-### Environment (`my-env`)
-- `setup_env.sh` was adapted for Derecho and run successfully.
-- Installed: `jax[cuda12]`, `dm-haiku`, `jraph`, `dm-tree`, `trimesh`, `rtree`,
-  `chex`, `dask`, `gcsfs`, `zarr`, `netCDF4`, `cartopy`, `matplotlib`, `pandas`,
-  `properscoring`, `dinosaur-dycore`.
-- GraphCast cloned to `third_party/graphcast/` (editable install, xarray patch applied).
-- Imports verified: `from graphcast import gencast` works.
-
-### Data (`runs/`) — prep in progress (`6652566`)
-
-**Complete (models + shared):**
-- `runs/models/params/` — both GenCast checkpoints (0p25 + 1p0)
-- `runs/models/stats/` — normalization stats (4 files)
-- `runs/models/statics.nc`, `runs/models/clim_1990_2019_t2m_conus.nc`
-
-**ERA5 truth: 12 / 18 files** (`runs/observations/*_verif_*.nc`)
-
-| Status | Events |
+| | value |
 |---|---|
-| Done (12) | 6 heat/cold T2m + Ida + Ian + **Idalia** wind metrics |
-| **TODO (6)** | `California_AR_Floods_2023`, `Kentucky_Floods_2022`, `Vermont_Floods_2023` (each needs `tp_total` + `tp_max12h`) |
+| Init | 2021-06-14 00:00 UTC (ERA5 0.25° **global** IC — FCN3 is a global model) |
+| Lead / rollout | 14 days (FCN3 `nsteps=56` @ 6h; GenCast 28 @ 12h — same window) |
+| Verification week | 7 days ending at peak **2021-06-28 00:00** |
+| Ensemble | **12 members** (subsample GenCast 24→12 to match) |
+| Grid / region | native **0.25°**, scored on CONUS box **24–50°N, 235–294°E** |
+| Metric | week-mean **T2m anomaly** vs same ERA5 climatology |
+| Truth | ERA5 0.25° (`runs/observations/PNW_HeatDome_2021_verif_t2m_anom.nc`) |
 
-**Model inputs: 1 / 12 per resolution** (`runs/xres/*/week2/inputs/`)
-
-| Resolution | Done | Remaining |
-|---|---|---|
-| 0.25° | `HurricaneIdalia_2023_inputs.nc` | 11 events |
-| 1.0° | `HurricaneIdalia_2023_inputs.nc` | 11 events |
-
-HRRR truth skipped (no shard archive on Derecho; figures are ERA5-only).
-
-### Code fixes applied (Jul 6 evening)
-- **ARCO OOM root cause:** `xr.open_zarr()` on the full ARCO store (277 vars) OOM'd at
-  ~120 GB. Fixed in `gencast_s2s/data.py` — direct zarr array reads via `arco_read()`.
-- **Per-event subprocess isolation** in `run_xres.py` (`XRES_PREP_ISOLATE=1` default).
-- **Timestep-wise ERA5 loads** for WB2 stores + incremental numpy reductions in
-  `xres/xmetrics.py`.
-- `pbs/xres_prep.pbs`: `PYTHONUNBUFFERED=1` for live log output.
-
-### PBS scripts
-All in `pbs/`:
-- `xres_prep.pbs` — CPU prep on develop/cpudev (8 cores, 120 GB)
-- `xres_res0p25_week2.pbs` — GPU prep+infer 0.25° via `main` queue
-- `xres_res1p0_week2.pbs` — GPU prep+infer 1.0° via `main` queue
-- `xres_compare.pbs` — CPU compare after both infer jobs
+> GenCast reuses its cropped/cached CONUS inputs, but **FCN3 needs the full global ERA5 IC**
+> (721×1440) — fetch it fresh via earth2studio's data source, do NOT reuse GenCast's
+> CONUS-cropped `runs/xres/0p25/week2/inputs/*.nc`.
 
 ---
 
-## When a job leaves qstat
+## Plan (remaining work — all FCN3 side)
 
-Run these first:
+1. **Env** (login node, has internet): new conda env (Py 3.11),
+   `pip install "earth2studio[fcn3] @ git+…"`, compile torch-harmonics CUDA ext
+   (`FORCE_CUDA_EXTENSION=1`), pre-download the HF checkpoint.
+2. **Smoke test** (short GPU job): load FCN3, run 1–2 steps, confirm it fits and produces
+   sane output.
+3. **Driver** `fcn3/run_fcn3.py`: fetch 2021-06-14 00:00 global ERA5 IC, roll 12 members ×
+   56 steps, save T2m over the verification week into a cube/verif matching GenCast's layout
+   (CONUS box, week-mean T2m anomaly vs the same ERA5 climatology); **record wall time** for
+   the 12-member generation.
+4. **Submit** the FCN3 job (Slurm on a3mega H100).
+5. **Comparison + plots** (CPU): matched week-mean T2m-anomaly PDFs (pooled members, log-y —
+   mirror `xres/xcombined.py` `PDF_histogram`) for FCN3 vs GenCast-12 vs ERA5 truth, plus a
+   runtime bar chart (FCN3 vs GenCast, 12 members).
 
-```bash
-cd /glade/derecho/scratch/exu/S2S_ExtremeWeather
+## Key paths
 
-# Which jobs are still active?
-qstat -u exu
-
-# Exit status of a finished job (0 = success)
-qstat -fx JOBID.desched1 | grep -E "job_state|Exit_status|resources_used.walltime"
-
-# Tail the log
-tail -80 logs/<jobname>.log
-```
-
-Then match the finished job to the section below.
-
----
-
-### If `xres_prep` finished
-
-**Check success:**
-```bash
-grep -E "End:|Traceback|Error|Killed" logs/xres_prep.log
-ls runs/observations/*_verif_*.nc | wc -l   # expect 18
-ls runs/xres/0p25/week2/inputs/*_inputs.nc | wc -l   # expect 12
-ls runs/xres/1p0/week2/inputs/*_inputs.nc | wc -l    # expect 12
-```
-
-| Outcome | What happens next | Your action |
-|---|---|---|
-| **Success** (Exit_status=0, all inputs exist) | GPU jobs auto-release from Hold | Monitor GPU jobs; nothing to resubmit |
-| **Failed** (nonzero exit, Traceback, or Killed) | GPU jobs stay Held forever | Diagnose log, resubmit prep, re-chain GPU jobs (see **Resubmit** below) |
-| **Partial** (some inputs missing) | GPU jobs may start but infer fails mid-run | Resubmit prep; cache skips completed files |
-
-Common prep failures:
-- **OOM (historical)** — pre-ARCO-fix jobs OOM'd on Idalia + precip events. Fixed Jul 6.
-  If OOM recurs, check log for which event; smoke-test with
-  `XRES_EVENTS_SEL=<event> XRES_PREP_SKIP_MODELS=1 python run_xres.py --stage prep`.
-- **Never run on login node** — use PBS cpudev/develop.
-- **GCS timeout** — rerun; downloads are cache-aware.
-- **Walltime** — increase `#PBS -l walltime` in `pbs/xres_prep.pbs` (currently 4 h).
-- **Google FutureWarning** — harmless (Python 3.10 EOL notice from gcsfs); ignore.
+- GenCast cube / verif / truth: see "Done" section above.
+- PDF convention to mirror: `xres/xcombined.py` (`PDF_histogram` — pooled all-members,
+  100 bins over mean±4σ, log-y), and `xres/xleadpdfs.py`.
+- GenCast runtime source log: `logs/6665322[0].desched1.OU`.
+- New FCN3 code should live in a **new `fcn3/` dir** — do not touch `gencast_s2s/` or `xres/`.
 
 ---
 
-### If member-array subjobs (`xres_0p25_m` / `xres_1p0_m`) finished
-
-**Check progress / success:**
-```bash
-# Durable outputs per resolution (0p25 shown; same for 1p0)
-ls runs/xres/0p25/week2/cache/*_cube.nc | wc -l          # 12 when done
-ls runs/xres/0p25/week2/verif/*_members.nc | wc -l       # 18 when done
-ls runs/xres/0p25/week2/cache/*_member*.nc | wc -l       # members of not-yet-assembled events
-
-# Per-subjob states (X = finished):
-qstat -t "6665322[]"          # 0.25°
-qstat -t "6665323[]"          # 1.0°
-
-# A subjob's log (member m):
-tail -20 logs/xres_0p25_m.o<arrayid>.<m>
-
-# Any subjob failures?
-for m in $(seq 0 23); do qstat -fx "6665322[$m]" | grep -q "Exit_status = 0" || echo "member $m NOT ok"; done
-```
-
-| Outcome | What happens next | Your action |
-|---|---|---|
-| **All subjobs exit 0** | 12 cubes + 18 verif per res; compare auto-releases | Verify figures after compare |
-| **A few subjobs failed** | Their members missing; affected cubes unassembled; compare stays Held (afterok) | Resubmit that array (`qsub pbs/xres_member_0p25.pbs`) — cached members skip in ~2 min; then `qsub pbs/xres_compare_dev.pbs` manually (the Held one dies with the failed dependency) |
-| **Subjob walltime kill (0.25°)** | Shouldn't happen (~8 h of ~12 h used) | Check its log for abnormal step times; resubmit array |
-| **Subjob host-mem kill** | mem=243gb vs ~237 GiB observed peak | Bump `mem=` in `pbs/xres_member_0p25.pbs` (2/node needs ≤243gb; 1/node up to 487gb), resubmit array |
-
-Cube assembly: last finisher per event assembles; if an assembler died mid-way, the
-member files are still there and **member-0's subjob assembles it on the next array
-resubmit** (or run assembly manually on cpudev: `XRES_SERIAL_INFER=1 XRES_MEMBER_SEL=0
-python run_xres.py --stage infer --res 0p25` — no GPU needed if all members exist).
-
----
-
-### If `xres_compare` finished
-
-**Check success:**
-```bash
-grep -E "End:|Traceback|Error" logs/xres_compare.log
-ls -la xres_combined_*.png
-ls -la runs/xres/figures/
-```
-
-| Outcome | Your action |
-|---|---|
-| **Success** | Done. Figures at project root: `xres_combined_mean.png`, `xres_combined_best.png`, `xres_combined_extreme.png`. Cross-resolution maps in `runs/xres/figures/`. |
-| **Failed** | Both infer jobs must have finished. Check verif files exist, then rerun: `python run_xres.py --stage compare` or `qsub pbs/xres_compare.pbs`. |
-
----
-
-## Resubmit
-
-```bash
-cd /glade/derecho/scratch/exu/S2S_ExtremeWeather
-
-# Member arrays (current method; fully cache-aware, resubmitting is cheap):
-A025=$(qsub pbs/xres_member_0p25.pbs)
-A10=$(qsub pbs/xres_member_1p0.pbs)
-qsub -W depend=afterok:$A025:$A10 pbs/xres_compare_dev.pbs
-
-# Only if ever needed:
-qsub pbs/xres_prep.pbs             # prep (cache-aware)
-qsub pbs/xres_compare_dev.pbs      # figures alone (develop queue; xres_compare.pbs = slow cpu queue)
-qsub pbs/xres_res0p25_week2.pbs    # fallback: full-node self-chaining worker pool
-qsub pbs/xres_res1p0_week2.pbs     # fallback: full-node pmap
-```
-
-**Update the Job ID table at the top of this file** after resubmitting.
-
----
-
-## Key commands (manual stages)
-
-```bash
-module load conda && conda activate my-env
-cd /glade/derecho/scratch/exu/S2S_ExtremeWeather
-
-# Prep (CPU, needs internet — use PBS not login node)
-python run_xres.py --stage prep
-
-# Infer (GPU only)
-python run_xres.py --stage prep  --res 0p25   # cache-aware
-python run_xres.py --stage infer --res 0p25
-python run_xres.py --stage prep  --res 1p0
-python run_xres.py --stage infer --res 1p0
-
-# Compare (CPU, after BOTH infer jobs)
-python run_xres.py --stage compare
-
-# Smoke test: one event (useful after OOM fix validation)
-XRES_EVENTS_SEL=HurricaneIdalia_2023 XRES_PREP_SKIP_MODELS=1 \
-  python run_xres.py --stage prep
-
-# Disable per-event subprocess isolation (default is on)
-XRES_PREP_ISOLATE=0 python run_xres.py --stage prep
-```
-
----
-
-## Known issues / constraints
-
-| Issue | Detail |
-|---|---|
-| **Direct `gpu` queue denied** | `qsub -q gpu` returns "Access to queue is denied". Use `#PBS -q main` with `select=1:ncpus=64:ngpus=4` — routes to production `gpu` queue. |
-| **Do NOT use `gpudev`** | User requested production GPU nodes. `develop` queue routes to gpudev/cpudev — only used for **prep**, not infer. |
-| **Walltime limit** | Account max is **12 h**. 0.25° infer needs ~180 GPU-h total, so it runs as a self-chain of 12 h hops with per-member resume (see "0.25° pipeline design"). |
-| **Host RAM per worker** | One serial 0.25° process peaked at ~237 GiB (job 6654166). The PBS launcher only starts extra per-GPU workers while `MemAvailable` ≥ 250 GB — expect 1-2 workers usually, not 4. |
-| **Claim files** | `runs/xres/0p25/week2/cache/claims/` coordinates same-node workers; PID-based, cleared at each hop start. If you run serial infer manually, `rm -f` that dir's contents first. |
-| **GPU hardware** | Production nodes via `main` are **4× A100-40GB** (not H100). Code works but slower than original 8×H100 Ubuntu cluster. |
-| **HRRR overlay (fixed Jul 7)** | Now sourced from the netCDF archive `/glade/derecho/scratch/mdarman/hrrr_work/hrrr_nc_v3` via `C.HRRR_NC`. Figures include the red HRRR curve/panel. |
-| **Login node OOM** | Never run `prep` on login node — killed with exit 137. |
-| **ARCO ERA5 OOM (fixed)** | Post-2023 events use ARCO zarr. Do **not** `xr.open_zarr` the ARCO root; use `arco_read()` in `gencast_s2s/data.py`. |
-| **cpudev vs cpu queue** | cpudev (120 GB, shared) starts fast. cpu queue (200 GB) needs exclusive node — long queue (~1200 jobs). Use cpudev for prep. |
-| **Google FutureWarning** | Python 3.10 EOL notice from gcsfs on import. Harmless until Oct 2026. |
-| **Ensemble size** | Default 24 members. pmap path (1.0°) needs a multiple of the GPU count (4); the serial 0.25° path has no such constraint. Override: `XRES_N_MEMBERS_0P25=16`. Changing it invalidates existing cubes (member-count mismatch → re-roll). |
-
----
-
-## Output layout
-
-```
-runs/
-├── models/params/          # GenCast 0p25deg + 1p0deg checkpoints (downloaded)
-├── models/stats/           # normalization stats
-├── models/statics.nc       # orography + LSM
-├── models/clim_*.nc        # T2m climatology (built during prep)
-├── observations/           # ERA5 truth per (event, metric)
-└── xres/
-    ├── 0p25/week2/{inputs,cache,verif,figures}
-    │     └── cache/ also holds transient <event>_memberNN.nc files + claims/
-    │         while the 0.25° chain is running (deleted once a cube is assembled)
-    ├── 1p0/week2/{inputs,cache,verif,figures}
-    └── figures/            # cross-resolution comparison maps
-
-# After compare:
-xres_combined_mean.png      # project root
-xres_combined_best.png
-xres_combined_extreme.png
-```
-
----
-
-## Files reference
-
-| File | Purpose |
-|---|---|
-| `run_xres.py` | Driver: `--stage prep\|infer\|compare` |
-| `xres/README.md` | Experiment design docs |
-| `setup_env.sh` | One-time env setup (already run) |
-| `pbs/*.pbs` | PBS job scripts |
-| `logs/*.log` | Job stdout/stderr |
-| `gencast_s2s/` | Core package (config, data, model, inference) |
-| `xres/` | Cross-resolution extensions |
-| `third_party/graphcast/` | GraphCast source (editable install) |
-| `downscaler/` | **Separate stack:** ERA5 1° → HRRR 3 km diffusion model (PyTorch, no PBS). See `downscaler/README.md` |
-
----
-
-## Agent checklist (copy-paste for new agent)
-
-When user says "a job left qstat, read HANDOFF.md":
-
-1. `qstat -t "6665322[]"` / `qstat -t "6665323[]"` — per-subjob states of the two
-   member arrays (subjob N = ensemble member N; `X` = finished).
-2. `ls runs/xres/<res>/week2/cache/*_cube.nc | wc -l` (12 = done per res) and
-   `... *_member*.nc | wc -l` — members of not-yet-assembled events.
-3. Subjob failures: `qstat -fx "6665322[<m>]" | grep Exit_status` (0 = ok);
-   tracebacks in `logs/xres_0p25_m.o<arrayid>.<m>` / `logs/xres_1p0_m.o<arrayid>.<m>`.
-4. **All subjobs ok →** compare `6665324` auto-releases; afterwards verify
-   `xres_combined_{mean,best,extreme,pooled}.png` + `runs/xres/figures/maps/`
-   include the 0.25° curves/panels.
-5. **Some subjobs failed →** resubmit that array (`qsub pbs/xres_member_0p25.pbs`
-   and/or `_1p0.pbs`; cached members skip in ~2 min), then submit compare manually
-   (`qsub pbs/xres_compare_dev.pbs` — the Held one dies with its failed dependency).
-6. **All members exist but a cube is missing →** the assembler died; resubmit the
-   array (member-0's subjob assembles) or assemble on CPU:
-   `XRES_SERIAL_INFER=1 XRES_MEMBER_SEL=0 python run_xres.py --stage infer --res <res>`.
-7. **Update this file** (STATUS + job table) whenever the picture changes.
-
----
-
-*Last updated: Sun Jul 13 2026 (downscaler status corrected, machine-check note and Jul 13
-review findings added; GenCast state unchanged). The `downscaler/` project (ERA5 1° → HRRR 3 km diffusion)
-was moved into this repo as an extension — no GenCast code, config, or output was touched,
-and it has no cluster jobs; see the Jul 11 STATUS entry at the top. The GenCast xres
-experiment itself remains **complete** (both resolutions, 12/12 cubes each, figures built) as
-of the Jul 8–9 entries — no jobs are expected in `qstat`.*
-
-*(Historical note: the previous footer, dated Jul 7 ~19:10 MDT, described the then-live member
-arrays `6665322[]` / `6665323[]` / compare `6665324` and disk state "0p25 cubes 0/12". That
-footer was already stale — those arrays finished Jul 8 with all 48 subjobs exit 0.)*
-
----
-
-## Jul 16 2026 — one-off: GenCast added to the Vayuh Jun–Jul 2026 heat-wave report
-
-Deliverable: drop **our GenCast 1.0°** forecast into the Vayuh.ai report
-(`Vayuh_S2S_Forecast_Analysis_July_Heatwave2026.pdf`) figures over CONUS. Self-contained,
-separate from weeks-2/3/4 and xres. Code: `gencast_s2s/heatwave2026.py` (prep+infer),
-`gencast_s2s/heatwave2026_plot.py`, `run_heatwave2026.py`, `convert_vayuh_h5.py`,
-`pbs/heatwave2026_{prep,infer}.pbs`. Output tree: `runs/heatwave2026/`.
-
-- **Inits** 1–18 Jun 2026 (18), 16-member ensemble, 18-day rollouts, daily-mean tmp2m cubes.
-  Covers peak targets 29 Jun–2 Jul at leads 14–18 + a lead-14 East-US series.
-- **Vayuh** source = `us_prob_forecast_2026.h5` (pandas HDFStore → convert under **npl-2025b**,
-  my-env lacks pytables). **CFSv2 omitted** — no CFSv2 data in repo; figures are
-  Observed(ERA5) | Vayuh | GenCast. Anomalies vs 1990-2019 ERA5 clim.
-- Jobs (all Exit 0): prep `6749584` (cpudev, 37 min); infer `6750076` (gpu, ngpus=4, 1h34m).
-- Figures in `runs/heatwave2026/figures/` + combined `Vayuh_plus_GenCast_Heatwave2026.pdf`.
-- **Result:** at the peak (pooled leads 14–18) GenCast reproduces the observed West-cool /
-  East-warm dipole (ACC +0.44, MAE 2.1 °C) that Vayuh's smooth everywhere-warm field misses
-  (ACC +0.15, MAE 2.8 °C); GenCast beats Vayuh on MAE at every lead. Both stay
-  amplitude-muted (~⅓ of observed peak) in the East-US series — the expected S2S behavior.
-- Re-run: `convert_vayuh_h5.py` (npl-2025b) → `qsub pbs/heatwave2026_prep.pbs` →
-  `qsub pbs/heatwave2026_infer.pbs` → `python run_heatwave2026.py --stage plot`. All stages
-  cache-aware; plot is login-node only.
+*Last updated: Mon Jul 20 2026. This handoff was reset to track the FCN3-vs-GenCast PNW
+Heat Dome comparison. The prior GenCast xres (0.25° vs 1.0°, weeks 2/3/4) handoff content
+was cleared — that experiment is complete (all cubes/figures built) and its history lives in
+git and in `CLAUDE.md`.*

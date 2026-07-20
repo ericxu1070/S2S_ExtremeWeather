@@ -1,0 +1,22 @@
+Collecting torch-harmonics @ git+https://github.com/NVIDIA/torch-harmonics.git@a632ca748a12bd9f74dbc1e00653317810991f74
+  Cloning https://github.com/NVIDIA/torch-harmonics.git (to revision a632ca748a12bd9f74dbc1e00653317810991f74) to /glade/derecho/scratch/exu/tmp/fcn3_build/pip-install-_wwr0so_/torch-harmonics_140e47f817c644a3b8d540ed90535c66
+  Running command git clone --filter=blob:none --quiet https://github.com/NVIDIA/torch-harmonics.git /glade/derecho/scratch/exu/tmp/fcn3_build/pip-install-_wwr0so_/torch-harmonics_140e47f817c644a3b8d540ed90535c66
+  Running command git rev-parse -q --verify 'sha^a632ca748a12bd9f74dbc1e00653317810991f74'
+  Running command git fetch -q https://github.com/NVIDIA/torch-harmonics.git a632ca748a12bd9f74dbc1e00653317810991f74
+  Running command git checkout -q a632ca748a12bd9f74dbc1e00653317810991f74
+  Resolved https://github.com/NVIDIA/torch-harmonics.git to commit a632ca748a12bd9f74dbc1e00653317810991f74
+  Preparing metadata (pyproject.toml): started
+  Preparing metadata (pyproject.toml): finished with status 'done'
+Building wheels for collected packages: torch-harmonics
+  Building wheel for torch-harmonics (pyproject.toml): started
+  Building wheel for torch-harmonics (pyproject.toml): still running...
+  Building wheel for torch-harmonics (pyproject.toml): finished with status 'done'
+  Created wheel for torch-harmonics: filename=torch_harmonics-0.8.1-cp311-cp311-linux_x86_64.whl size=384548 sha256=f879e56439abf37b1db9ae7e84e0b14295b0b29d565f308d4bb8ca135c3c61b0
+  Stored in directory: /glade/derecho/scratch/exu/tmp/fcn3_build/pip-ephem-wheel-cache-gy7mlrry/wheels/d2/51/d1/bccc486ae5be9295ddaccc859f945f4c94095d3693de5a84af
+Successfully built torch-harmonics
+Installing collected packages: torch-harmonics
+  Attempting uninstall: torch-harmonics
+    Found existing installation: torch_harmonics 0.8.1
+    Uninstalling torch_harmonics-0.8.1:
+      Successfully uninstalled torch_harmonics-0.8.1
+Successfully installed torch-harmonics-0.8.1
