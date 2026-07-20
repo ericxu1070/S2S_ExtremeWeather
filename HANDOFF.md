@@ -12,7 +12,56 @@ ensemble members** for each model. GenCast results are reused from cache; FCN3 i
 
 ---
 
-## STATUS (Jul 20 2026) — GenCast side DONE (cached); FCN3 side NOT STARTED
+## STATUS (Jul 20 2026, later) — FCN3 env BUILT + prep DONE on Derecho; run moved OFF Derecho
+
+Per user: **do not run FCN3 on Derecho** (A100-40GB). Move the run to the a3mega **H100
+80GB** cluster. Derecho was used only to build the env and pre-stage data; all Derecho jobs
+are cancelled and none are queued.
+
+**What is already done and reusable (mostly machine-portable):**
+- `fcn3/run_fcn3.py` (prep/infer driver), `fcn3/compare_fcn3_gencast.py` (my-env plots),
+  `pbs/fcn3_infer.pbs` (Derecho; rewrite as an sbatch on a3mega).
+- **prep DONE:** global ERA5 IC (`runs/fcn3/PNW_HeatDome_2021/PNW_HeatDome_2021_ic.nc`,
+  299 MB, 72 vars 721×1440) + FCN3 checkpoint (2.7 GB `best_ckpt_mp0.tar` + aux) cached in
+  `runs/fcn3/.cache/e2s/fcn3/`. NOTE: these are on Derecho scratch — re-fetch on a3mega
+  (login node, has internet) via `run_fcn3.py --stage prep`, or copy the cache over.
+- Conda env `/glade/derecho/scratch/exu/conda-envs/fcn3` is Derecho-specific — **rebuild on
+  a3mega** (see recipe below; the `[[fcn3-env-recipe]]` memory has the full gotcha list).
+
+**Verified findings (carry to H100):**
+- Env recipe: Python 3.11; makani + torch-harmonics fork are **git-pinned in
+  `[tool.uv.sources]`** (plain pip can't resolve `makani` → install both from git FIRST, then
+  `earth2studio[fcn3]`). On Derecho A100 torch had to be **cu12**: `torch==2.11.0+cu128` from
+  `--index-url https://download.pytorch.org/whl/cu128` (default PyPI torch 2.12.1 is cu13,
+  won't load; cu128 index tops out at 2.11.0). `torchvision==0.26.0+cu128` to match.
+  `LD_LIBRARY_PATH` must include the env's `site-packages/nvidia/*/lib`. On H100 you can
+  likely use the default (cu13) torch 2.12.1 — the cu12 downgrade was only for Derecho's
+  driver.
+- **The torch-harmonics CUDA DISCO kernel is MANDATORY on GPU** — not the "slower fp32
+  fallback" the loader warning implies. Without it FCN3 crashes mid-forward:
+  `NotImplementedError: Could not run 'disco_kernels::forward' with the 'CUDA' backend`.
+  Build with `FORCE_CUDA_EXTENSION=1 TORCH_CUDA_ARCH_LIST=... module load cuda; pip install
+  --no-build-isolation --no-cache-dir --force-reinstall --no-deps "torch-harmonics @
+  git+...@a632ca7"`. **Gotcha:** nvcc rejects Derecho's default Intel `icpx` host compiler
+  (`icpx 0.0.0 < 6.0.0`); set `CC=gcc CXX=g++` (module `gcc/12.5.0`). On a3mega, use that
+  cluster's gcc + `TORCH_CUDA_ARCH_LIST=9.0` (H100).
+- **Precision:** FCN3 runs **bf16** iff the CUDA kernel is present (`torch.autocast(bfloat16
+  if _cuda_extension_available else float32)`), else fp32 — so bf16 is both the native path
+  and the fair match to GenCast's bf16 0.25° run.
+- **Memory:** the Derecho smoke test (job 6824712, 1 member/4 steps, batch_size=1) loaded the
+  model and *started* the forward on A100-40GB with **no OOM** (it crashed only on the missing
+  CUDA kernel). So a single member's memory looked fine on 40GB — model parallelism likely
+  unnecessary; on H100-80GB there is ample headroom to raise `batch_size` (data-parallel over
+  members). earth2studio's FCN3/`run.ensemble` is single-device only; makani has the
+  model-parallel machinery (`--h_parallel_size`/`--w_parallel_size`) but it's not exposed
+  through earth2studio.
+
+**Remaining on H100:** rebuild env → prep (or copy cache) → build CUDA kernel (arch 9.0) →
+run `infer` (12 members, 56 steps; raise batch_size on 80GB) → `compare_fcn3_gencast.py`.
+
+---
+
+## (original plan) GenCast side DONE (cached); FCN3 side
 
 ### ✅ Done — GenCast (reuse from cache, do NOT rerun)
 
