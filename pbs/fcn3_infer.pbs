@@ -1,0 +1,44 @@
+#!/bin/bash
+#PBS -N fcn3_infer
+#PBS -A UCSC0009
+#PBS -q main
+#PBS -l job_priority=regular
+#PBS -l select=1:ncpus=8:ngpus=1:mem=80gb
+#PBS -l walltime=02:00:00
+#PBS -j oe
+#PBS -o /glade/derecho/scratch/exu/S2S_ExtremeWeather/logs/
+
+# FourCastNet 3 ensemble infer for PNW Heat Dome 2021, week-2 (0.25 deg), on ONE
+# A100-40GB. FCN3's checkpoint badge says 80GB, so this job doubles as the go/no-go
+# memory test on 40GB: batch_size=1 (serial members) is the smallest footprint.
+#
+# The IC + checkpoint MUST be pre-staged on the login node first:
+#   /glade/derecho/scratch/exu/conda-envs/fcn3/bin/python fcn3/run_fcn3.py --stage prep
+# Then submit, optionally overriding the ensemble/rollout size for a smoke test:
+#   qsub pbs/fcn3_infer.pbs                                  # full: 12 members x 56 steps
+#   qsub -v FCN3_MEMBERS=1,FCN3_NSTEPS=4 pbs/fcn3_infer.pbs  # smoke: 1 member x 4 steps
+
+set -eo pipefail
+cd /glade/derecho/scratch/exu/S2S_ExtremeWeather
+
+PY=/glade/derecho/scratch/exu/conda-envs/fcn3/bin/python
+SITE=$("$PY" -c "import site; print(site.getsitepackages()[0])")
+export LD_LIBRARY_PATH="$(echo "$SITE"/nvidia/*/lib | tr ' ' ':')${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
+
+# shared caches on scratch (must match run_fcn3.py defaults)
+export EARTH2STUDIO_CACHE=/glade/derecho/scratch/exu/S2S_ExtremeWeather/runs/fcn3/.cache/e2s
+export HF_HOME=/glade/derecho/scratch/exu/S2S_ExtremeWeather/runs/fcn3/.cache/hf
+# Checkpoint is pre-staged in EARTH2STUDIO_CACHE (WholeFileCache, 1-yr expiry -> cache hit,
+# no re-download). Derecho compute nodes have internet as a fallback if a listing is needed.
+
+MEMBERS=${FCN3_MEMBERS:-12}
+NSTEPS=${FCN3_NSTEPS:-56}
+BATCH=${FCN3_BATCH:-1}
+
+echo "Host: $(hostname)"; echo "Start: $(date)"
+nvidia-smi --query-gpu=name,memory.total --format=csv,noheader || true
+echo "FCN3 infer: members=$MEMBERS nsteps=$NSTEPS batch_size=$BATCH"
+
+"$PY" fcn3/run_fcn3.py --stage infer --members "$MEMBERS" --nsteps "$NSTEPS" --batch-size "$BATCH"
+
+echo "End: $(date)"

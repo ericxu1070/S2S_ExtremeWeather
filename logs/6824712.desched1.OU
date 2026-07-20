@@ -1,0 +1,162 @@
+Host: deg0031
+Start: Mon Jul 20 05:04:23 PM MDT 2026
+NVIDIA A100-SXM4-40GB, 40960 MiB
+FCN3 infer: members=1 nsteps=4 batch_size=1
+[infer] device=cuda; torch 2.11.0+cu128 (cuda build 12.8)
+[infer] GPU: NVIDIA A100-SXM4-40GB  42 GB
+[infer] loading FCN3 checkpoint ...
+[32m2026-07-20 17:07:41.764[0m | [33m[1mWARNING [0m | [36mearth2studio.models.px.fcn3[0m:[36mload_model[0m:[36m290[0m - [33m[1mtorch-harmonics disco CUDA extension is not available.
+FCN3 run on GPU/CUDA will be slower.
+Please install torch-harmonics in the following way:
+export FORCE_CUDA_EXTENSION=1
+pip install --no-build-isolation torch-harmonics[0m
+[infer] rolling 1 members x 4 steps (batch_size=1) ...
+[32m2026-07-20 17:09:23.595[0m | [1mINFO    [0m | [36mearth2studio.run[0m:[36mensemble[0m:[36m400[0m - [1mRunning ensemble inference![0m
+[32m2026-07-20 17:09:23.595[0m | [1mINFO    [0m | [36mearth2studio.run[0m:[36mensemble[0m:[36m407[0m - [1mInference device: cuda[0m
+[32m2026-07-20 17:09:24.860[0m | [32m[1mSUCCESS [0m | [36mearth2studio.run[0m:[36mensemble[0m:[36m428[0m - [32m[1mFetched data from LocalIC[0m
+[32m2026-07-20 17:09:24.907[0m | [1mINFO    [0m | [36mearth2studio.run[0m:[36mensemble[0m:[36m472[0m - [1mStarting 1 Member Ensemble Inference with             1 number of batches.[0m
+
+
+Total Ensemble Batches:   0%|          | 0/1 [00:00<?, ?it/s][A[A
+Running batch 0 inference:   0%|          | 0/5 [00:00<?, ?it/s][A
+Running batch 0 inference:  20%|██        | 1/5 [00:01<00:06,  1.54s/it][A
+                                                                        [ATotal Ensemble Batches:   0%|          | 0/1 [00:13<?, ?it/s]
+Traceback (most recent call last):
+  File "/glade/derecho/scratch/exu/S2S_ExtremeWeather/fcn3/run_fcn3.py", line 213, in <module>
+    main()
+  File "/glade/derecho/scratch/exu/S2S_ExtremeWeather/fcn3/run_fcn3.py", line 209, in main
+    stage_infer(args.members, args.nsteps, args.batch_size, args.seed)
+  File "/glade/derecho/scratch/exu/S2S_ExtremeWeather/fcn3/run_fcn3.py", line 149, in stage_infer
+    io = ensemble(
+         ^^^^^^^^^
+  File "/glade/derecho/scratch/exu/conda-envs/fcn3/lib/python3.11/site-packages/earth2studio/run.py", line 521, in ensemble
+    for local_step, (x, coords) in enumerate(model):
+  File "/glade/derecho/scratch/exu/conda-envs/fcn3/lib/python3.11/site-packages/earth2studio/models/px/fcn3.py", line 462, in create_iterator
+    yield from self._default_generator(x, coords)
+  File "/glade/derecho/scratch/exu/conda-envs/fcn3/lib/python3.11/site-packages/earth2studio/models/batch.py", line 269, in _wrapper
+    response = gen.send(request)
+               ^^^^^^^^^^^^^^^^^
+  File "/glade/derecho/scratch/exu/conda-envs/fcn3/lib/python3.11/site-packages/earth2studio/models/px/fcn3.py", line 438, in _default_generator
+    x, coords = self._forward(x, coords)
+                ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/glade/derecho/scratch/exu/conda-envs/fcn3/lib/python3.11/site-packages/torch/utils/_contextlib.py", line 124, in decorate_context
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/glade/derecho/scratch/exu/conda-envs/fcn3/lib/python3.11/site-packages/earth2studio/models/px/fcn3.py", line 388, in _forward
+    x[j, i : i + 1] = self.model(
+                      ^^^^^^^^^^^
+  File "/glade/derecho/scratch/exu/conda-envs/fcn3/lib/python3.11/site-packages/torch/nn/modules/module.py", line 1779, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/glade/derecho/scratch/exu/conda-envs/fcn3/lib/python3.11/site-packages/torch/nn/modules/module.py", line 1790, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/glade/derecho/scratch/exu/conda-envs/fcn3/lib/python3.11/site-packages/makani/models/model_package.py", line 167, in forward
+    out = self.model(x, replace_state=replace_state)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/glade/derecho/scratch/exu/conda-envs/fcn3/lib/python3.11/site-packages/torch/nn/modules/module.py", line 1779, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/glade/derecho/scratch/exu/conda-envs/fcn3/lib/python3.11/site-packages/torch/nn/modules/module.py", line 1790, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/glade/derecho/scratch/exu/conda-envs/fcn3/lib/python3.11/site-packages/makani/models/stepper.py", line 44, in forward
+    yn = self.model(inpans)
+         ^^^^^^^^^^^^^^^^^^
+  File "/glade/derecho/scratch/exu/conda-envs/fcn3/lib/python3.11/site-packages/torch/nn/modules/module.py", line 1779, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/glade/derecho/scratch/exu/conda-envs/fcn3/lib/python3.11/site-packages/torch/nn/modules/module.py", line 1790, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/glade/derecho/scratch/exu/conda-envs/fcn3/lib/python3.11/site-packages/makani/models/networks/fourcastnet3.py", line 842, in forward
+    x_aux = self.encode_auxiliary_channels(x)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/glade/derecho/scratch/exu/conda-envs/fcn3/lib/python3.11/site-packages/makani/models/networks/fourcastnet3.py", line 781, in encode_auxiliary_channels
+    x_aux = self.aux_encoder(x_aux)
+            ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/glade/derecho/scratch/exu/conda-envs/fcn3/lib/python3.11/site-packages/torch/nn/modules/module.py", line 1779, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/glade/derecho/scratch/exu/conda-envs/fcn3/lib/python3.11/site-packages/torch/nn/modules/module.py", line 1790, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/glade/derecho/scratch/exu/conda-envs/fcn3/lib/python3.11/site-packages/makani/models/networks/fourcastnet3.py", line 127, in forward
+    x = self.conv(x)
+        ^^^^^^^^^^^^
+  File "/glade/derecho/scratch/exu/conda-envs/fcn3/lib/python3.11/site-packages/torch/nn/modules/module.py", line 1779, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/glade/derecho/scratch/exu/conda-envs/fcn3/lib/python3.11/site-packages/torch/nn/modules/module.py", line 1790, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/glade/derecho/scratch/exu/conda-envs/fcn3/lib/python3.11/site-packages/torch_harmonics/disco/convolution.py", line 507, in forward
+    x = _disco_s2_contraction_optimized(
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/glade/derecho/scratch/exu/conda-envs/fcn3/lib/python3.11/site-packages/torch/_library/custom_ops.py", line 698, in __call__
+    return self._opoverload(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/glade/derecho/scratch/exu/conda-envs/fcn3/lib/python3.11/site-packages/torch/_ops.py", line 865, in __call__
+    return self._op(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/glade/derecho/scratch/exu/conda-envs/fcn3/lib/python3.11/site-packages/torch/_library/custom_ops.py", line 347, in backend_impl
+    result = self._backend_fns[device_type](*args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/glade/derecho/scratch/exu/conda-envs/fcn3/lib/python3.11/site-packages/torch/_compile.py", line 54, in inner
+    return disable_fn(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/glade/derecho/scratch/exu/conda-envs/fcn3/lib/python3.11/site-packages/torch/_dynamo/eval_frame.py", line 1263, in _fn
+    return fn(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^
+  File "/glade/derecho/scratch/exu/conda-envs/fcn3/lib/python3.11/site-packages/torch/_library/custom_ops.py", line 382, in wrapped_fn
+    return fn(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^
+  File "/glade/derecho/scratch/exu/conda-envs/fcn3/lib/python3.11/site-packages/torch_harmonics/disco/_disco_utils.py", line 64, in _disco_s2_contraction_optimized
+    out = disco_kernels.forward.default(inp, roff_idx, ker_idx, row_idx, col_idx, vals, kernel_size, nlat_out, nlon_out)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/glade/derecho/scratch/exu/conda-envs/fcn3/lib/python3.11/site-packages/torch/_ops.py", line 865, in __call__
+    return self._op(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+NotImplementedError: Could not run 'disco_kernels::forward' with arguments from the 'CUDA' backend. This could be because the operator doesn't exist for this backend, or was omitted during the selective/custom build process (if using custom build). If you are a Facebook employee using PyTorch on mobile, please visit https://fburl.com/ptmfixes for possible resolutions. 'disco_kernels::forward' is only available for these backends: [CPU, Meta, BackendSelect, Python, FuncTorchDynamicLayerBackMode, Functionalize, Named, Conjugate, Negative, ZeroTensor, ADInplaceOrView, AutogradOther, AutogradCPU, AutogradCUDA, AutogradXLA, AutogradMPS, AutogradXPU, AutogradHPU, AutogradLazy, AutogradMTIA, AutogradMAIA, AutogradPrivateUse1, AutogradMeta, Tracer, AutocastCPU, AutocastMTIA, AutocastMAIA, AutocastXPU, AutocastMPS, AutocastCUDA, FuncTorchBatched, BatchedNestedTensor, FuncTorchVmapMode, Batched, VmapMode, FuncTorchGradWrapper, PythonTLSSnapshot, FuncTorchDynamicLayerFrontMode, PreDispatch, PythonDispatcher].
+
+CPU: registered at torch_harmonics/disco/csrc/disco_cpu.cpp:97 [kernel]
+Meta: registered at /glade/derecho/scratch/exu/conda-envs/fcn3/lib/python3.11/site-packages/torch/library.py:1083 [kernel]
+BackendSelect: fallthrough registered at /pytorch/aten/src/ATen/core/BackendSelectFallbackKernel.cpp:3 [backend fallback]
+Python: registered at /pytorch/aten/src/ATen/core/PythonFallbackKernel.cpp:198 [backend fallback]
+FuncTorchDynamicLayerBackMode: registered at /pytorch/aten/src/ATen/functorch/DynamicLayer.cpp:477 [backend fallback]
+Functionalize: registered at /pytorch/aten/src/ATen/FunctionalizeFallbackKernel.cpp:384 [backend fallback]
+Named: registered at /pytorch/aten/src/ATen/core/NamedRegistrations.cpp:5 [backend fallback]
+Conjugate: registered at /pytorch/aten/src/ATen/ConjugateFallback.cpp:17 [backend fallback]
+Negative: registered at /pytorch/aten/src/ATen/native/NegateFallback.cpp:18 [backend fallback]
+ZeroTensor: registered at /pytorch/aten/src/ATen/ZeroTensorFallback.cpp:115 [backend fallback]
+ADInplaceOrView: fallthrough registered at /pytorch/aten/src/ATen/core/VariableFallbackKernel.cpp:103 [backend fallback]
+AutogradOther: registered at /pytorch/aten/src/ATen/core/VariableFallbackKernel.cpp:62 [backend fallback]
+AutogradCPU: registered at /pytorch/aten/src/ATen/core/VariableFallbackKernel.cpp:66 [backend fallback]
+AutogradCUDA: registered at /pytorch/aten/src/ATen/core/VariableFallbackKernel.cpp:74 [backend fallback]
+AutogradXLA: registered at /pytorch/aten/src/ATen/core/VariableFallbackKernel.cpp:86 [backend fallback]
+AutogradMPS: registered at /pytorch/aten/src/ATen/core/VariableFallbackKernel.cpp:94 [backend fallback]
+AutogradXPU: registered at /pytorch/aten/src/ATen/core/VariableFallbackKernel.cpp:70 [backend fallback]
+AutogradHPU: registered at /pytorch/aten/src/ATen/core/VariableFallbackKernel.cpp:107 [backend fallback]
+AutogradLazy: registered at /pytorch/aten/src/ATen/core/VariableFallbackKernel.cpp:90 [backend fallback]
+AutogradMTIA: registered at /pytorch/aten/src/ATen/core/VariableFallbackKernel.cpp:78 [backend fallback]
+AutogradMAIA: registered at /pytorch/aten/src/ATen/core/VariableFallbackKernel.cpp:82 [backend fallback]
+AutogradPrivateUse1: registered at /pytorch/aten/src/ATen/core/VariableFallbackKernel.cpp:111 [backend fallback]
+AutogradMeta: registered at /pytorch/aten/src/ATen/core/VariableFallbackKernel.cpp:98 [backend fallback]
+Tracer: registered at /pytorch/torch/csrc/autograd/TraceTypeManual.cpp:296 [backend fallback]
+AutocastCPU: fallthrough registered at /pytorch/aten/src/ATen/autocast_mode.cpp:336 [backend fallback]
+AutocastMTIA: fallthrough registered at /pytorch/aten/src/ATen/autocast_mode.cpp:480 [backend fallback]
+AutocastMAIA: fallthrough registered at /pytorch/aten/src/ATen/autocast_mode.cpp:518 [backend fallback]
+AutocastXPU: fallthrough registered at /pytorch/aten/src/ATen/autocast_mode.cpp:556 [backend fallback]
+AutocastMPS: fallthrough registered at /pytorch/aten/src/ATen/autocast_mode.cpp:221 [backend fallback]
+AutocastCUDA: fallthrough registered at /pytorch/aten/src/ATen/autocast_mode.cpp:177 [backend fallback]
+FuncTorchBatched: registered at /pytorch/aten/src/ATen/functorch/LegacyBatchingRegistrations.cpp:727 [backend fallback]
+BatchedNestedTensor: registered at /pytorch/aten/src/ATen/functorch/LegacyBatchingRegistrations.cpp:754 [backend fallback]
+FuncTorchVmapMode: fallthrough registered at /pytorch/aten/src/ATen/functorch/VmapModeRegistrations.cpp:22 [backend fallback]
+Batched: registered at /pytorch/aten/src/ATen/LegacyBatchingRegistrations.cpp:1072 [backend fallback]
+VmapMode: fallthrough registered at /pytorch/aten/src/ATen/VmapModeRegistrations.cpp:32 [backend fallback]
+FuncTorchGradWrapper: registered at /pytorch/aten/src/ATen/functorch/TensorWrapper.cpp:210 [backend fallback]
+PythonTLSSnapshot: registered at /pytorch/aten/src/ATen/core/PythonFallbackKernel.cpp:206 [backend fallback]
+FuncTorchDynamicLayerFrontMode: registered at /pytorch/aten/src/ATen/functorch/DynamicLayer.cpp:473 [backend fallback]
+PreDispatch: registered at /pytorch/aten/src/ATen/core/PythonFallbackKernel.cpp:210 [backend fallback]
+PythonDispatcher: registered at /pytorch/aten/src/ATen/core/PythonFallbackKernel.cpp:202 [backend fallback]
+

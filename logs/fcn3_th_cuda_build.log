@@ -1,0 +1,202 @@
+=== CUDA-TH BUILD START Mon Jul 20 05:11:42 PM MDT 2026 ===
+nvcc: /glade/u/apps/common/25.10/spack/opt/spack/cuda/12.9.0/b74h/bin/nvcc
+Cuda compilation tools, release 12.9, V12.9.41
+Build cuda_12.9.r12.9/compiler.35813241_0
+CUDA_HOME=/glade/u/apps/common/25.10/spack/opt/spack/cuda/12.9.0/b74h
+Collecting torch-harmonics @ git+https://github.com/NVIDIA/torch-harmonics.git@a632ca748a12bd9f74dbc1e00653317810991f74
+  Cloning https://github.com/NVIDIA/torch-harmonics.git (to revision a632ca748a12bd9f74dbc1e00653317810991f74) to /glade/derecho/scratch/exu/tmp/fcn3_build/pip-install-ybnqchan/torch-harmonics_53d05369f21847a393d1b59ee0c3fd1a
+  Running command git clone --filter=blob:none --quiet https://github.com/NVIDIA/torch-harmonics.git /glade/derecho/scratch/exu/tmp/fcn3_build/pip-install-ybnqchan/torch-harmonics_53d05369f21847a393d1b59ee0c3fd1a
+  Running command git rev-parse -q --verify 'sha^a632ca748a12bd9f74dbc1e00653317810991f74'
+  Running command git fetch -q https://github.com/NVIDIA/torch-harmonics.git a632ca748a12bd9f74dbc1e00653317810991f74
+  Running command git checkout -q a632ca748a12bd9f74dbc1e00653317810991f74
+  Resolved https://github.com/NVIDIA/torch-harmonics.git to commit a632ca748a12bd9f74dbc1e00653317810991f74
+  Preparing metadata (pyproject.toml): started
+  Preparing metadata (pyproject.toml): finished with status 'done'
+Building wheels for collected packages: torch-harmonics
+  Building wheel for torch-harmonics (pyproject.toml): started
+  Building wheel for torch-harmonics (pyproject.toml): finished with status 'error'
+  error: subprocess-exited-with-error
+  
+  × Building wheel for torch-harmonics (pyproject.toml) did not run successfully.
+  │ exit code: 1
+  ╰─> [170 lines of output]
+      W0720 17:12:58.397000 58035 site-packages/torch/utils/cpp_extension.py:140] No CUDA runtime is found, using CUDA_HOME='/glade/u/apps/common/25.10/spack/opt/spack/cuda/12.9.0/b74h'
+      /glade/derecho/scratch/exu/conda-envs/fcn3/lib/python3.11/site-packages/setuptools/config/_apply_pyprojecttoml.py:61: SetuptoolsDeprecationWarning: License classifiers are deprecated.
+      !!
+      
+              ********************************************************************************
+              Please consider removing the following classifiers in favor of a SPDX license expression:
+      
+              License :: OSI Approved :: BSD License
+      
+              See https://packaging.python.org/en/latest/guides/writing-pyproject-toml/#license for details.
+              ********************************************************************************
+      
+      !!
+        dist._finalize_license_expression()
+      /glade/derecho/scratch/exu/conda-envs/fcn3/lib/python3.11/site-packages/setuptools/dist.py:759: SetuptoolsDeprecationWarning: License classifiers are deprecated.
+      !!
+      
+              ********************************************************************************
+              Please consider removing the following classifiers in favor of a SPDX license expression:
+      
+              License :: OSI Approved :: BSD License
+      
+              See https://packaging.python.org/en/latest/guides/writing-pyproject-toml/#license for details.
+              ********************************************************************************
+      
+      !!
+        self._finalize_license_expression()
+      setup.py with torch 2.11.0+cu128
+      Compiling helper routines for torch-harmonics.
+      Compiling custom CUDA kernels for torch-harmonics.
+      NOTE: Compiling disco with release flags
+      Compiling attention CUDA kernels for torch-harmonics.
+      NOTE: Compiling attention with release flags
+      running bdist_wheel
+      W0720 17:12:58.810000 58035 site-packages/torch/utils/cpp_extension.py:680] Attempted to use ninja as the BuildExtension backend but we could not find ninja.. Falling back to using the slow distutils backend.
+      running build
+      running build_py
+      creating build/lib.linux-x86_64-cpython-311/torch_harmonics
+      copying torch_harmonics/__init__.py -> build/lib.linux-x86_64-cpython-311/torch_harmonics
+      copying torch_harmonics/plotting.py -> build/lib.linux-x86_64-cpython-311/torch_harmonics
+      copying torch_harmonics/filter_basis.py -> build/lib.linux-x86_64-cpython-311/torch_harmonics
+      copying torch_harmonics/fft.py -> build/lib.linux-x86_64-cpython-311/torch_harmonics
+      copying torch_harmonics/quadrature.py -> build/lib.linux-x86_64-cpython-311/torch_harmonics
+      copying torch_harmonics/spectral_convolution.py -> build/lib.linux-x86_64-cpython-311/torch_harmonics
+      copying torch_harmonics/cache.py -> build/lib.linux-x86_64-cpython-311/torch_harmonics
+      copying torch_harmonics/truncation.py -> build/lib.linux-x86_64-cpython-311/torch_harmonics
+      copying torch_harmonics/random_fields.py -> build/lib.linux-x86_64-cpython-311/torch_harmonics
+      copying torch_harmonics/sht.py -> build/lib.linux-x86_64-cpython-311/torch_harmonics
+      copying torch_harmonics/resample.py -> build/lib.linux-x86_64-cpython-311/torch_harmonics
+      copying torch_harmonics/legendre.py -> build/lib.linux-x86_64-cpython-311/torch_harmonics
+      creating build/lib.linux-x86_64-cpython-311/torch_harmonics/disco
+      copying torch_harmonics/disco/_disco_utils.py -> build/lib.linux-x86_64-cpython-311/torch_harmonics/disco
+      copying torch_harmonics/disco/__init__.py -> build/lib.linux-x86_64-cpython-311/torch_harmonics/disco
+      copying torch_harmonics/disco/convolution.py -> build/lib.linux-x86_64-cpython-311/torch_harmonics/disco
+      creating build/lib.linux-x86_64-cpython-311/torch_harmonics/attention
+      copying torch_harmonics/attention/attention.py -> build/lib.linux-x86_64-cpython-311/torch_harmonics/attention
+      copying torch_harmonics/attention/__init__.py -> build/lib.linux-x86_64-cpython-311/torch_harmonics/attention
+      copying torch_harmonics/attention/_attention_utils.py -> build/lib.linux-x86_64-cpython-311/torch_harmonics/attention
+      creating build/lib.linux-x86_64-cpython-311/torch_harmonics/distributed
+      copying torch_harmonics/distributed/utils.py -> build/lib.linux-x86_64-cpython-311/torch_harmonics/distributed
+      copying torch_harmonics/distributed/__init__.py -> build/lib.linux-x86_64-cpython-311/torch_harmonics/distributed
+      copying torch_harmonics/distributed/distributed_resample.py -> build/lib.linux-x86_64-cpython-311/torch_harmonics/distributed
+      copying torch_harmonics/distributed/distributed_quadrature.py -> build/lib.linux-x86_64-cpython-311/torch_harmonics/distributed
+      copying torch_harmonics/distributed/distributed_spectral_convolution.py -> build/lib.linux-x86_64-cpython-311/torch_harmonics/distributed
+      copying torch_harmonics/distributed/primitives.py -> build/lib.linux-x86_64-cpython-311/torch_harmonics/distributed
+      copying torch_harmonics/distributed/distributed_sht.py -> build/lib.linux-x86_64-cpython-311/torch_harmonics/distributed
+      copying torch_harmonics/distributed/distributed_convolution.py -> build/lib.linux-x86_64-cpython-311/torch_harmonics/distributed
+      creating build/lib.linux-x86_64-cpython-311/torch_harmonics/examples
+      copying torch_harmonics/examples/__init__.py -> build/lib.linux-x86_64-cpython-311/torch_harmonics/examples
+      copying torch_harmonics/examples/losses.py -> build/lib.linux-x86_64-cpython-311/torch_harmonics/examples
+      copying torch_harmonics/examples/pde_sphere.py -> build/lib.linux-x86_64-cpython-311/torch_harmonics/examples
+      copying torch_harmonics/examples/stanford_2d3ds_dataset.py -> build/lib.linux-x86_64-cpython-311/torch_harmonics/examples
+      copying torch_harmonics/examples/pde_dataset.py -> build/lib.linux-x86_64-cpython-311/torch_harmonics/examples
+      copying torch_harmonics/examples/metrics.py -> build/lib.linux-x86_64-cpython-311/torch_harmonics/examples
+      copying torch_harmonics/examples/shallow_water_equations.py -> build/lib.linux-x86_64-cpython-311/torch_harmonics/examples
+      creating build/lib.linux-x86_64-cpython-311/torch_harmonics/examples/models
+      copying torch_harmonics/examples/models/s2unet.py -> build/lib.linux-x86_64-cpython-311/torch_harmonics/examples/models
+      copying torch_harmonics/examples/models/s2transformer.py -> build/lib.linux-x86_64-cpython-311/torch_harmonics/examples/models
+      copying torch_harmonics/examples/models/__init__.py -> build/lib.linux-x86_64-cpython-311/torch_harmonics/examples/models
+      copying torch_harmonics/examples/models/_layers.py -> build/lib.linux-x86_64-cpython-311/torch_harmonics/examples/models
+      copying torch_harmonics/examples/models/lsno.py -> build/lib.linux-x86_64-cpython-311/torch_harmonics/examples/models
+      copying torch_harmonics/examples/models/sfno.py -> build/lib.linux-x86_64-cpython-311/torch_harmonics/examples/models
+      copying torch_harmonics/examples/models/s2segformer.py -> build/lib.linux-x86_64-cpython-311/torch_harmonics/examples/models
+      running egg_info
+      creating torch_harmonics.egg-info
+      writing torch_harmonics.egg-info/PKG-INFO
+      writing dependency_links to torch_harmonics.egg-info/dependency_links.txt
+      writing requirements to torch_harmonics.egg-info/requires.txt
+      writing top-level names to torch_harmonics.egg-info/top_level.txt
+      writing manifest file 'torch_harmonics.egg-info/SOURCES.txt'
+      reading manifest file 'torch_harmonics.egg-info/SOURCES.txt'
+      adding license file 'LICENSE'
+      adding license file 'AUTHORS'
+      writing manifest file 'torch_harmonics.egg-info/SOURCES.txt'
+      creating build/lib.linux-x86_64-cpython-311/torch_harmonics/disco/csrc
+      copying torch_harmonics/disco/csrc/disco_cpu.cpp -> build/lib.linux-x86_64-cpython-311/torch_harmonics/disco/csrc
+      copying torch_harmonics/disco/csrc/disco_cuda_bwd.cu -> build/lib.linux-x86_64-cpython-311/torch_harmonics/disco/csrc
+      copying torch_harmonics/disco/csrc/disco_cuda_fwd.cu -> build/lib.linux-x86_64-cpython-311/torch_harmonics/disco/csrc
+      copying torch_harmonics/disco/csrc/disco_helpers.cpp -> build/lib.linux-x86_64-cpython-311/torch_harmonics/disco/csrc
+      copying torch_harmonics/disco/csrc/disco_interface.cpp -> build/lib.linux-x86_64-cpython-311/torch_harmonics/disco/csrc
+      creating build/lib.linux-x86_64-cpython-311/torch_harmonics/attention/csrc
+      copying torch_harmonics/attention/csrc/attention_cpu_bwd.cpp -> build/lib.linux-x86_64-cpython-311/torch_harmonics/attention/csrc
+      copying torch_harmonics/attention/csrc/attention_cpu_fwd.cpp -> build/lib.linux-x86_64-cpython-311/torch_harmonics/attention/csrc
+      copying torch_harmonics/attention/csrc/attention_cuda_bwd.cu -> build/lib.linux-x86_64-cpython-311/torch_harmonics/attention/csrc
+      copying torch_harmonics/attention/csrc/attention_cuda_fwd.cu -> build/lib.linux-x86_64-cpython-311/torch_harmonics/attention/csrc
+      copying torch_harmonics/attention/csrc/attention_cuda_utils.cu -> build/lib.linux-x86_64-cpython-311/torch_harmonics/attention/csrc
+      copying torch_harmonics/attention/csrc/attention_helpers.cpp -> build/lib.linux-x86_64-cpython-311/torch_harmonics/attention/csrc
+      copying torch_harmonics/attention/csrc/attention_interface.cpp -> build/lib.linux-x86_64-cpython-311/torch_harmonics/attention/csrc
+      running build_ext
+      W0720 17:13:00.028000 58035 site-packages/torch/utils/cpp_extension.py:489]                                !! WARNING !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!Your compiler (icpx) is not compatible with the compiler Pytorch wasbuilt with for this platform, which is g++ on linux. Pleaseuse g++ to compile your extension. Alternatively, you maycompile PyTorch from source using icpx, and then you can also useicpx to compile your extension.See https://github.com/pytorch/pytorch/blob/master/CONTRIBUTING.md for helpwith compiling PyTorch from source.!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!                              !! WARNING !!
+      W0720 17:13:00.046000 58035 site-packages/torch/utils/cpp_extension.py:546] The detected CUDA version (12.9) has a minor version mismatch with the version that was used to compile PyTorch (12.8). Most likely this shouldn't be a problem.
+      Traceback (most recent call last):
+        File "/glade/derecho/scratch/exu/conda-envs/fcn3/lib/python3.11/site-packages/pip/_vendor/pyproject_hooks/_in_process/_in_process.py", line 389, in <module>
+          main()
+        File "/glade/derecho/scratch/exu/conda-envs/fcn3/lib/python3.11/site-packages/pip/_vendor/pyproject_hooks/_in_process/_in_process.py", line 373, in main
+          json_out["return_val"] = hook(**hook_input["kwargs"])
+                                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        File "/glade/derecho/scratch/exu/conda-envs/fcn3/lib/python3.11/site-packages/pip/_vendor/pyproject_hooks/_in_process/_in_process.py", line 280, in build_wheel
+          return _build_backend().build_wheel(
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        File "/glade/derecho/scratch/exu/conda-envs/fcn3/lib/python3.11/site-packages/setuptools/build_meta.py", line 438, in build_wheel
+          return _build(['bdist_wheel', '--dist-info-dir', str(metadata_directory)])
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        File "/glade/derecho/scratch/exu/conda-envs/fcn3/lib/python3.11/site-packages/setuptools/build_meta.py", line 426, in _build
+          return self._build_with_temp_dir(
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^
+        File "/glade/derecho/scratch/exu/conda-envs/fcn3/lib/python3.11/site-packages/setuptools/build_meta.py", line 407, in _build_with_temp_dir
+          self.run_setup()
+        File "/glade/derecho/scratch/exu/conda-envs/fcn3/lib/python3.11/site-packages/setuptools/build_meta.py", line 320, in run_setup
+          exec(code, locals())
+        File "<string>", line 189, in <module>
+        File "/glade/derecho/scratch/exu/conda-envs/fcn3/lib/python3.11/site-packages/setuptools/__init__.py", line 117, in setup
+          return distutils.core.setup(**attrs)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        File "/glade/derecho/scratch/exu/conda-envs/fcn3/lib/python3.11/site-packages/setuptools/_distutils/core.py", line 186, in setup
+          return run_commands(dist)
+                 ^^^^^^^^^^^^^^^^^^
+        File "/glade/derecho/scratch/exu/conda-envs/fcn3/lib/python3.11/site-packages/setuptools/_distutils/core.py", line 202, in run_commands
+          dist.run_commands()
+        File "/glade/derecho/scratch/exu/conda-envs/fcn3/lib/python3.11/site-packages/setuptools/_distutils/dist.py", line 1002, in run_commands
+          self.run_command(cmd)
+        File "/glade/derecho/scratch/exu/conda-envs/fcn3/lib/python3.11/site-packages/setuptools/dist.py", line 1104, in run_command
+          super().run_command(command)
+        File "/glade/derecho/scratch/exu/conda-envs/fcn3/lib/python3.11/site-packages/setuptools/_distutils/dist.py", line 1021, in run_command
+          cmd_obj.run()
+        File "/glade/derecho/scratch/exu/conda-envs/fcn3/lib/python3.11/site-packages/setuptools/command/bdist_wheel.py", line 370, in run
+          self.run_command("build")
+        File "/glade/derecho/scratch/exu/conda-envs/fcn3/lib/python3.11/site-packages/setuptools/_distutils/cmd.py", line 357, in run_command
+          self.distribution.run_command(command)
+        File "/glade/derecho/scratch/exu/conda-envs/fcn3/lib/python3.11/site-packages/setuptools/dist.py", line 1104, in run_command
+          super().run_command(command)
+        File "/glade/derecho/scratch/exu/conda-envs/fcn3/lib/python3.11/site-packages/setuptools/_distutils/dist.py", line 1021, in run_command
+          cmd_obj.run()
+        File "/glade/derecho/scratch/exu/conda-envs/fcn3/lib/python3.11/site-packages/setuptools/_distutils/command/build.py", line 135, in run
+          self.run_command(cmd_name)
+        File "/glade/derecho/scratch/exu/conda-envs/fcn3/lib/python3.11/site-packages/setuptools/_distutils/cmd.py", line 357, in run_command
+          self.distribution.run_command(command)
+        File "/glade/derecho/scratch/exu/conda-envs/fcn3/lib/python3.11/site-packages/setuptools/dist.py", line 1104, in run_command
+          super().run_command(command)
+        File "/glade/derecho/scratch/exu/conda-envs/fcn3/lib/python3.11/site-packages/setuptools/_distutils/dist.py", line 1021, in run_command
+          cmd_obj.run()
+        File "/glade/derecho/scratch/exu/conda-envs/fcn3/lib/python3.11/site-packages/setuptools/command/build_ext.py", line 99, in run
+          _build_ext.run(self)
+        File "/glade/derecho/scratch/exu/conda-envs/fcn3/lib/python3.11/site-packages/setuptools/_distutils/command/build_ext.py", line 368, in run
+          self.build_extensions()
+        File "/glade/derecho/scratch/exu/conda-envs/fcn3/lib/python3.11/site-packages/torch/utils/cpp_extension.py", line 716, in build_extensions
+          _check_cuda_version(compiler_name, compiler_version)
+        File "/glade/derecho/scratch/exu/conda-envs/fcn3/lib/python3.11/site-packages/torch/utils/cpp_extension.py", line 568, in _check_cuda_version
+          raise RuntimeError(
+      RuntimeError: The current installed version of icpx (0.0.0) is less than the minimum required version by CUDA 12.9 (6.0.0). Please make sure to use an adequate version of icpx (>=6.0.0, <14.0).
+      [end of output]
+  
+  note: This error originates from a subprocess, and is likely not a problem with pip.
+  ERROR: Failed building wheel for torch-harmonics
+Failed to build torch-harmonics
+error: failed-wheel-build-for-install
+
+× Failed to build installable wheels for some pyproject.toml based projects
+╰─> torch-harmonics
+=== BUILD EXIT 1 Mon Jul 20 05:13:00 PM MDT 2026 ===
