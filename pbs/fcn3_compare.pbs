@@ -1,0 +1,25 @@
+#!/bin/bash
+#PBS -N fcn3_compare
+#PBS -A UCSC0009
+#PBS -q develop
+#PBS -l select=1:ncpus=4:mem=60GB
+#PBS -l walltime=01:00:00
+#PBS -j oe
+#PBS -o /glade/derecho/scratch/exu/S2S_ExtremeWeather/logs/fcn3_compare.log
+
+# FCN3 vs GenCast comparison figures (PNW Heat Dome 2021, week-2, 0.25 deg).
+# CPU-only, runs in my-env (needs gencast_s2s / xres + ERA5 climatology + truth).
+# Reads runs/fcn3/.../_fcn3_cube.nc (from the infer job) and the GenCast week-2 cube;
+# writes figures/fcn3/fcn3_vs_gencast_{pdf,runtime}.png.
+
+export PYTHONUNBUFFERED=1
+set -eo pipefail
+
+module load conda
+conda activate my-env
+
+cd /glade/derecho/scratch/exu/S2S_ExtremeWeather
+
+echo "Host: $(hostname)"; echo "Start: $(date)"
+python fcn3/compare_fcn3_gencast.py
+echo "End: $(date)"
