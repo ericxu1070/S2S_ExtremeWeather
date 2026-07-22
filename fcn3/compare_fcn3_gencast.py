@@ -29,7 +29,7 @@ from xres.xcombined import PDF_histogram, YMIN
 
 EVENT = "PNW_HeatDome_2021"
 PEAK = pd.Timestamp("2021-06-28T00:00:00")
-N_MATCH = 12
+N_MATCH = 24
 
 ROOT = Path("/glade/derecho/scratch/exu/S2S_ExtremeWeather")
 FCN3_CUBE = ROOT / "runs/fcn3" / EVENT / f"{EVENT}_fcn3_cube.nc"
