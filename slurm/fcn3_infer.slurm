@@ -31,7 +31,10 @@
 set -eo pipefail
 
 source /home/ubuntu/miniconda3/etc/profile.d/conda.sh
-conda activate moe
+# FCN3 needs earth2studio + torch 2.11.0+cu128; moe carries torch 2.8.0 for the downscaler,
+# so infer runs in a dedicated env by default. Override with FCN3_CONDA_ENV if you built it
+# into a different env. (compare/ still runs in moe -- it needs gencast_s2s/xres, not this.)
+conda activate "${FCN3_CONDA_ENV:-/home/ubuntu/Vayuh/data/eric/conda-envs/fcn3}"
 
 SITE=$(python -c "import site; print(site.getsitepackages()[0])")
 export LD_LIBRARY_PATH="$(echo "$SITE"/nvidia/*/lib | tr ' ' ':')${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
