@@ -1,0 +1,39 @@
+#!/bin/bash
+#PBS -N fcn3_prep
+#PBS -A UCSC0009
+#PBS -q develop
+#PBS -l select=1:ncpus=8:mem=60GB
+#PBS -l walltime=02:00:00
+#PBS -j oe
+#PBS -o /glade/derecho/scratch/exu/S2S_ExtremeWeather/logs/fcn3_prep.log
+
+# DERECHO. Stage the FCN3 inputs for the six-event comparison: one global 72-variable
+# ERA5 IC per event (~299 MB each) plus the checkpoint cache. CPU + internet only -- no
+# GPU (project rule: GPU allocations are for GPU compute only).
+#
+# Runs on `develop` rather than the login node: Derecho's login node OOM-kills prep
+# (exit 137). This never builds the model, only downloads -- see stage_prep().
+#
+# NOTE the inits changed when the experiment moved to week-3 (21 d lead). Any IC cached
+# from the old week-2 run is for the WRONG init (e.g. PNW week-2 = 2021-06-14, week-3 =
+# 2021-06-07) and lives under the old runs/fcn3/<event>/ layout; the new tree is
+# runs/fcn3/week3/ic/. Nothing is reused, nothing is clobbered.
+#
+#   qsub pbs/fcn3_prep.pbs                                   # all six events
+#   qsub -v FCN3_EVENTS=PNW_HeatDome_2021 pbs/fcn3_prep.pbs  # just the smoke event
+set -eo pipefail
+
+cd /glade/derecho/scratch/exu/S2S_ExtremeWeather
+
+PY=/glade/derecho/scratch/exu/conda-envs/fcn3/bin/python
+SITE=$("$PY" -c "import site; print(site.getsitepackages()[0])")
+export LD_LIBRARY_PATH="$(echo "$SITE"/nvidia/*/lib | tr ' ' ':')${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
+
+export EARTH2STUDIO_CACHE=/glade/derecho/scratch/exu/S2S_ExtremeWeather/runs/fcn3/.cache/e2s
+export HF_HOME=/glade/derecho/scratch/exu/S2S_ExtremeWeather/runs/fcn3/.cache/hf
+export PYTHONUNBUFFERED=1
+
+echo "Host: $(hostname)"; echo "Start: $(date)"
+"$PY" fcn3/run_fcn3.py --stage plan
+"$PY" fcn3/run_fcn3.py --stage prep
+echo "End: $(date)"

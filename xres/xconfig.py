@@ -126,6 +126,42 @@ XRES_EVENTS = {
 # Cold events (extreme = coldest member, negative T2m anomaly). Heat events default to +1.
 COLD_EVENTS = {"WinterStorm_Uri_2021", "PolarVortex_2019", "WinterStorm_Elliott_2022"}
 
+# --------------------------------------------------------------------------- #
+# Additive event injection. XRES_EXTRA_EVENTS lets another experiment borrow this whole
+# pipeline (truth -> init frames -> ensemble -> cube) for events that are not part of the
+# 12 above, WITHOUT editing this list. Used by the FCN3-vs-GenCast comparison to run
+# GenCast on three p90 cases (see fcn3/fevents.py). Unset -> exactly the 12 events above,
+# so every existing run is bit-identical.
+#
+# Value is either a path to a JSON object {"name": ["peak", "metric"], ...} or the inline
+# form "name=YYYY-MM-DD:metric,name2=YYYY-MM-DD:metric2". Injected events are appended
+# (an existing name is never overwritten), then the usual SEL/MAX filters apply.
+# --------------------------------------------------------------------------- #
+def _parse_extra_events(spec: str) -> dict:
+    p = Path(spec)
+    if p.suffix == ".json" or p.exists():
+        import json
+        raw = json.loads(p.read_text())
+        return {k: (v[0], v[1]) for k, v in raw.items()}
+    out = {}
+    for item in spec.split(","):
+        item = item.strip()
+        if not item:
+            continue
+        name, _, rhs = item.partition("=")
+        peak, _, metric = rhs.partition(":")
+        if not (name and peak and metric):
+            raise ValueError(
+                f"bad XRES_EXTRA_EVENTS entry {item!r}; expected name=YYYY-MM-DD:metric")
+        out[name.strip()] = (peak.strip(), metric.strip())
+    return out
+
+
+_extra = os.environ.get("XRES_EXTRA_EVENTS")
+if _extra:
+    for _k, _v in _parse_extra_events(_extra).items():
+        XRES_EVENTS.setdefault(_k, _v)
+
 # Optional subsetting for smoke tests (mirrors gencast_s2s):
 #   XRES_EVENTS_SEL="HurricaneIda_2021,Kentucky_Floods_2022"
 #   XRES_MAX_EVENTS=1
