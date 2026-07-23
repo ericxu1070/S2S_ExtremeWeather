@@ -159,6 +159,31 @@ qsub -v FCN3_EVENTS=HurricaneIan_2022,FCN3_MEMBERS=2,FCN3_NSTEPS=4 pbs/fcn3_prep
 qsub -v FCN3_EVENTS=HurricaneIan_2022,FCN3_MEMBERS=2,FCN3_NSTEPS=4 pbs/fcn3_infer.pbs
 ```
 
+### Smoke result (2026-07-23, job 6857923 on Derecho A100-40GB)
+
+- **DISCO CUDA kernel:** rebuilt for A100 arch 8.0 and confirmed `PRESENT -> FCN3 runs
+  bf16` in both prep and infer. Recipe worked with the Derecho `cuda/12.9.0` module for
+  nvcc (minor skew vs cu128 torch is fine; no conda cuda-toolkit needed) +
+  `module load gcc/12.5.0`, `CC=gcc CXX=g++`, `TORCH_CUDA_ARCH_LIST=8.0`. Wheel 4.6 MB,
+  `disco/_C*.so` 7.1 MB, `cuda_kernels_is_available()` and `_cuda_extension_available`
+  both True. ~12 min compile.
+- **Model build:** `model ready in 2.1 min`. Small -> the build-once cache below is NOT
+  worth implementing.
+- **Rollout:** started cleanly (fetched LocalIC, began batch 0), so the registry, init
+  arithmetic, construction, and the ensemble/perturbation wiring all work.
+- **BLOCKER - OOM, and it is a real hardware limit, not a bug:** the first forward died
+  in the decoder DISCO conv `torch.einsum(...).contiguous()` (torch_harmonics
+  `convolution.py:518`) trying to allocate **20.37 GiB** on top of **29.51 GiB** already
+  resident => **~50 GiB peak**, over the A100's 40. That einsum runs whether or not the
+  CUDA kernel is present (the kernel only does the sparse contraction at :507), so the
+  bf16 kernel does not shrink it. `members=1` does not help (OOM is inside one member's
+  forward); `expandable_segments` does not help (hard capacity gap, not fragmentation).
+  **The FCN3 80 GB badge is real.** A scorable cube, s/step and peak-mem must come from
+  the a3mega H100-80GB, where ~50 GiB peak fits => plan **batch_size=1 only** (batch>1
+  would roughly double activations past 80 GB). The old note here that "40 GB is fine,
+  job 6824712 started the forward with no OOM" was wrong: that run died before reaching
+  the decoder.
+
 ### What to report back
 
 1. `[check] ... DISCO CUDA extension: PRESENT -> FCN3 runs bf16` (else the run is invalid).
@@ -318,5 +343,7 @@ earth2studio's `[tool.uv.sources]` pins (`>=0.8.0` + that commit) — not a regr
 
 ---
 
-*Last updated: Thu Jul 23 2026 — scope extended from the single PNW Heat Dome week-2 test to
-six events at week-3 (added Hurricane Ian, Winter Storm Uri and three p90 cases).*
+*Last updated: Thu Jul 23 2026 — Derecho smoke (job 6857923) run: DISCO bf16 kernel rebuilt
+& confirmed, model builds in 2.1 min, rollout starts, but the forward OOMs on the A100-40GB
+(~50 GiB peak) — FCN3 needs the 80 GB H100. Machine-independent half proven; a3mega H100 run
+is the next step. See "Smoke result" above.*

@@ -12,10 +12,16 @@
 # week-3 (21 d lead, 0.25 deg). Derecho gives one GPU per job, so this runs a SINGLE
 # shard (all members on that GPU) -- the 8-shard split is the a3mega path.
 #
-# Purpose here is the SMOKE TEST: prove the stack builds a model and rolls a forecast,
-# and produce a real cube, before committing an 8xH100 node on a3mega. Memory is fine
-# at batch_size=1 despite FCN3's 80 GB badge -- an earlier Derecho smoke (job 6824712)
-# loaded the model and started the forward on 40 GB with no OOM.
+# Purpose here is the SMOKE TEST: prove the stack builds a model and rolls a forecast
+# before committing an 8xH100 node on a3mega. It CANNOT produce a scorable cube on
+# Derecho: FCN3's 80 GB badge is real. Smoke 6857923 (2026-07-23) confirmed the model
+# builds (2.1 min) and the rollout starts with the bf16 DISCO kernel, then OOMed inside
+# the FIRST forward -- the decoder DISCO conv einsum (torch_harmonics
+# convolution.py:518, always run whether or not the CUDA kernel is present) needs a
+# 20.4 GiB allocation on top of ~29.5 GiB resident => ~50 GiB peak, over the A100's 40.
+# members=1 and expandable_segments do NOT help (single-member forward; hard capacity
+# gap, not fragmentation). A completed step + s/step + peak-mem must come from the
+# a3mega H100-80GB, where ~50 GiB peak fits with headroom (=> batch_size=1 only).
 #
 #   qsub -v FCN3_EVENTS=PNW_HeatDome_2021,FCN3_MEMBERS=4,FCN3_NSTEPS=4 pbs/fcn3_infer.pbs
 #   qsub -v FCN3_EVENTS=HurricaneIan_2022,FCN3_MEMBERS=2,FCN3_NSTEPS=4 pbs/fcn3_infer.pbs
