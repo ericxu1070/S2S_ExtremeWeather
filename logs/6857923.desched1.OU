@@ -1,0 +1,105 @@
+Host: deg0037
+Start: Wed Jul 22 11:36:02 PM MDT 2026
+NVIDIA A100-SXM4-40GB, 40960 MiB
+FCN3 vs GenCast comparison -- week3 (21 d lead), 0p25, 4 members, 4 x 6 h steps
+
+  PNW_HeatDome_2021      heat      peak 2021-06-28  init 2021-06-07  t2m_anom    GenCast: cached
+  HurricaneIan_2022      hurricane peak 2022-09-28  init 2022-09-07  u850_speed  GenCast: cached
+  WinterStorm_Uri_2021   cold      peak 2021-02-15  init 2021-01-25  t2m_anom    GenCast: cached
+  p90_20231107           p90       peak 2023-11-07  init 2023-10-17  t2m_anom    GenCast: MUST RUN
+  p90_20240802           p90       peak 2024-08-02  init 2024-07-12  t2m_anom    GenCast: MUST RUN
+  p90_20251224           p90       peak 2025-12-24  init 2025-12-03  t2m_anom    GenCast: MUST RUN
+FCN3 infer: members=4 batch_size=1 threads=1 (single shard)
+[check] torch-harmonics DISCO CUDA extension: PRESENT -> FCN3 runs bf16
+[infer] CPU threads: torch=1 OMP_NUM_THREADS=1
+[infer] host=deg0037 shard=0/1: members 0..3 (4 of 4) over 1 event(s)
+[infer] device=cuda; torch 2.11.0+cu128 (cuda build 12.8)
+[infer] GPU: NVIDIA A100-SXM4-40GB  42 GB
+[infer] loading FCN3 checkpoint (CPU-bound model construction) ...
+[infer] model ready in 2.1 min
+[infer] PNW_HeatDome_2021: rolling 4 member(s) x 4 steps (init 2021-06-07T00:00:00, vars=['t2m'], seed=333) ...
+[32m2026-07-22 23:43:02.682[0m | [1mINFO    [0m | [36mearth2studio.run[0m:[36mensemble[0m:[36m400[0m - [1mRunning ensemble inference![0m
+[32m2026-07-22 23:43:02.683[0m | [1mINFO    [0m | [36mearth2studio.run[0m:[36mensemble[0m:[36m407[0m - [1mInference device: cuda[0m
+[32m2026-07-22 23:43:03.962[0m | [32m[1mSUCCESS [0m | [36mearth2studio.run[0m:[36mensemble[0m:[36m428[0m - [32m[1mFetched data from LocalIC[0m
+[32m2026-07-22 23:43:04.000[0m | [1mINFO    [0m | [36mearth2studio.run[0m:[36mensemble[0m:[36m472[0m - [1mStarting 4 Member Ensemble Inference with             4 number of batches.[0m
+
+
+Total Ensemble Batches:   0%|          | 0/4 [00:00<?, ?it/s][A[A
+Running batch 0 inference:   0%|          | 0/5 [00:00<?, ?it/s][A
+Running batch 0 inference:  20%|██        | 1/5 [00:01<00:05,  1.44s/it][A
+                                                                        [ATotal Ensemble Batches:   0%|          | 0/4 [01:27<?, ?it/s]
+[infer] PNW_HeatDome_2021: FAILED (OutOfMemoryError: CUDA out of memory. Tried to allocate 20.37 GiB. GPU 0 has a total capacity of 39.49 GiB of which 9.98 GiB is free. Including non-PyTorch memory, this process has 29.51 GiB memory in use. Of the allocated memory 28.66 GiB is allocated by PyTorch, and 346.31 MiB is reserved by PyTorch but unallocated. If reserved but unallocated memory is large try setting PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True to avoid fragmentation.  See documentation for Memory Management  (https://docs.pytorch.org/docs/stable/notes/cuda.html#optimizing-memory-usage-with-pytorch-cuda-alloc-conf))
+Traceback (most recent call last):
+  File "/glade/derecho/scratch/exu/S2S_ExtremeWeather/fcn3/run_fcn3.py", line 337, in stage_infer
+    io = ensemble([ev.init.strftime("%Y-%m-%dT%H:%M:%S")], F.NSTEPS, count,
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/glade/derecho/scratch/exu/conda-envs/fcn3/lib/python3.11/site-packages/earth2studio/run.py", line 521, in ensemble
+    for local_step, (x, coords) in enumerate(model):
+  File "/glade/derecho/scratch/exu/conda-envs/fcn3/lib/python3.11/site-packages/earth2studio/models/px/fcn3.py", line 462, in create_iterator
+    yield from self._default_generator(x, coords)
+  File "/glade/derecho/scratch/exu/conda-envs/fcn3/lib/python3.11/site-packages/earth2studio/models/batch.py", line 269, in _wrapper
+    response = gen.send(request)
+               ^^^^^^^^^^^^^^^^^
+  File "/glade/derecho/scratch/exu/conda-envs/fcn3/lib/python3.11/site-packages/earth2studio/models/px/fcn3.py", line 438, in _default_generator
+    x, coords = self._forward(x, coords)
+                ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/glade/derecho/scratch/exu/conda-envs/fcn3/lib/python3.11/site-packages/torch/utils/_contextlib.py", line 124, in decorate_context
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/glade/derecho/scratch/exu/conda-envs/fcn3/lib/python3.11/site-packages/earth2studio/models/px/fcn3.py", line 388, in _forward
+    x[j, i : i + 1] = self.model(
+                      ^^^^^^^^^^^
+  File "/glade/derecho/scratch/exu/conda-envs/fcn3/lib/python3.11/site-packages/torch/nn/modules/module.py", line 1779, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/glade/derecho/scratch/exu/conda-envs/fcn3/lib/python3.11/site-packages/torch/nn/modules/module.py", line 1790, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/glade/derecho/scratch/exu/conda-envs/fcn3/lib/python3.11/site-packages/makani/models/model_package.py", line 167, in forward
+    out = self.model(x, replace_state=replace_state)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/glade/derecho/scratch/exu/conda-envs/fcn3/lib/python3.11/site-packages/torch/nn/modules/module.py", line 1779, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/glade/derecho/scratch/exu/conda-envs/fcn3/lib/python3.11/site-packages/torch/nn/modules/module.py", line 1790, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/glade/derecho/scratch/exu/conda-envs/fcn3/lib/python3.11/site-packages/makani/models/stepper.py", line 44, in forward
+    yn = self.model(inpans)
+         ^^^^^^^^^^^^^^^^^^
+  File "/glade/derecho/scratch/exu/conda-envs/fcn3/lib/python3.11/site-packages/torch/nn/modules/module.py", line 1779, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/glade/derecho/scratch/exu/conda-envs/fcn3/lib/python3.11/site-packages/torch/nn/modules/module.py", line 1790, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/glade/derecho/scratch/exu/conda-envs/fcn3/lib/python3.11/site-packages/makani/models/networks/fourcastnet3.py", line 857, in forward
+    x = self.decode(x)
+        ^^^^^^^^^^^^^^
+  File "/glade/derecho/scratch/exu/conda-envs/fcn3/lib/python3.11/site-packages/makani/models/networks/fourcastnet3.py", line 796, in decode
+    x_atmo = self.atmo_decoder(x_atmo)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/glade/derecho/scratch/exu/conda-envs/fcn3/lib/python3.11/site-packages/torch/nn/modules/module.py", line 1779, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/glade/derecho/scratch/exu/conda-envs/fcn3/lib/python3.11/site-packages/torch/nn/modules/module.py", line 1790, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/glade/derecho/scratch/exu/conda-envs/fcn3/lib/python3.11/site-packages/makani/models/networks/fourcastnet3.py", line 227, in forward
+    x = self.conv(x)
+        ^^^^^^^^^^^^
+  File "/glade/derecho/scratch/exu/conda-envs/fcn3/lib/python3.11/site-packages/torch/nn/modules/module.py", line 1779, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/glade/derecho/scratch/exu/conda-envs/fcn3/lib/python3.11/site-packages/torch/nn/modules/module.py", line 1790, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/glade/derecho/scratch/exu/conda-envs/fcn3/lib/python3.11/site-packages/torch_harmonics/disco/convolution.py", line 518, in forward
+    out = torch.einsum("bgckxy,gock->bgoxy", x, self.weight.reshape(self.groups, -1, self.weight.shape[1], self.weight.shape[2])).contiguous()
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/glade/derecho/scratch/exu/conda-envs/fcn3/lib/python3.11/site-packages/torch/functional.py", line 373, in einsum
+    return _VF.einsum(equation, operands)  # type: ignore[attr-defined]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+torch.OutOfMemoryError: CUDA out of memory. Tried to allocate 20.37 GiB. GPU 0 has a total capacity of 39.49 GiB of which 9.98 GiB is free. Including non-PyTorch memory, this process has 29.51 GiB memory in use. Of the allocated memory 28.66 GiB is allocated by PyTorch, and 346.31 MiB is reserved by PyTorch but unallocated. If reserved but unallocated memory is large try setting PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True to avoid fragmentation.  See documentation for Memory Management  (https://docs.pytorch.org/docs/stable/notes/cuda.html#optimizing-memory-usage-with-pytorch-cuda-alloc-conf)
+[infer] shard 0/1 summary: done=0 skipped=0 failed=1
+[infer] failed events: PNW_HeatDome_2021
