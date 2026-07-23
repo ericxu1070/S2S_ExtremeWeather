@@ -3,42 +3,69 @@
 #PBS -A UCSC0009
 #PBS -q main
 #PBS -l job_priority=regular
-#PBS -l select=1:ncpus=8:ngpus=1:mem=80gb
-#PBS -l walltime=02:00:00
+#PBS -l select=1:ncpus=32:ngpus=1:mem=120gb
+#PBS -l walltime=04:00:00
 #PBS -j oe
 #PBS -o /glade/derecho/scratch/exu/S2S_ExtremeWeather/logs/
 
-# FourCastNet 3 ensemble infer for PNW Heat Dome 2021, week-2 (0.25 deg), on ONE
-# A100-40GB. FCN3's checkpoint badge says 80GB, so this job doubles as the go/no-go
-# memory test on 40GB: batch_size=1 (serial members) is the smallest footprint.
+# DERECHO / A100-40GB. FourCastNet 3 ensemble infer for the six-event comparison at
+# week-3 (21 d lead, 0.25 deg). Derecho gives one GPU per job, so this runs a SINGLE
+# shard (all members on that GPU) -- the 8-shard split is the a3mega path.
 #
-# The IC + checkpoint MUST be pre-staged on the login node first:
-#   /glade/derecho/scratch/exu/conda-envs/fcn3/bin/python fcn3/run_fcn3.py --stage prep
-# Then submit, optionally overriding the ensemble/rollout size for a smoke test:
-#   qsub pbs/fcn3_infer.pbs                                  # full: 12 members x 56 steps
-#   qsub -v FCN3_MEMBERS=1,FCN3_NSTEPS=4 pbs/fcn3_infer.pbs  # smoke: 1 member x 4 steps
-
+# Purpose here is the SMOKE TEST: prove the stack builds a model and rolls a forecast,
+# and produce a real cube, before committing an 8xH100 node on a3mega. Memory is fine
+# at batch_size=1 despite FCN3's 80 GB badge -- an earlier Derecho smoke (job 6824712)
+# loaded the model and started the forward on 40 GB with no OOM.
+#
+#   qsub -v FCN3_EVENTS=PNW_HeatDome_2021,FCN3_MEMBERS=4,FCN3_NSTEPS=4 pbs/fcn3_infer.pbs
+#   qsub -v FCN3_EVENTS=HurricaneIan_2022,FCN3_MEMBERS=2,FCN3_NSTEPS=4 pbs/fcn3_infer.pbs
+#       ^ also exercises the multi-variable path (u850/v850), which T2m events do not
+#   qsub pbs/fcn3_infer.pbs                                   # full: 6 events x 24 members
+#
+# PREREQS -- both are hard requirements and both fail loudly if missing:
+#   1. ICs staged:            qsub pbs/fcn3_prep.pbs
+#   2. torch-harmonics built WITH the DISCO CUDA kernel for THIS GPU's arch.
+#      Derecho A100 => TORCH_CUDA_ARCH_LIST=8.0 (a3mega H100 is 9.0, not portable).
+#      Without it FCN3 silently drops to fp32 (earth2studio fcn3.py:382 gates
+#      bfloat16 on the kernel), which invalidates the runtime comparison.
+#      run_fcn3.py::check_disco_kernel() aborts the job rather than let that happen.
+#      Full rebuild recipe + the four traps: see HANDOFF.md.
 set -eo pipefail
+
 cd /glade/derecho/scratch/exu/S2S_ExtremeWeather
 
 PY=/glade/derecho/scratch/exu/conda-envs/fcn3/bin/python
 SITE=$("$PY" -c "import site; print(site.getsitepackages()[0])")
 export LD_LIBRARY_PATH="$(echo "$SITE"/nvidia/*/lib | tr ' ' ':')${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
 
-# shared caches on scratch (must match run_fcn3.py defaults)
+# shared caches on scratch (must match fcn3/fevents.py defaults)
 export EARTH2STUDIO_CACHE=/glade/derecho/scratch/exu/S2S_ExtremeWeather/runs/fcn3/.cache/e2s
 export HF_HOME=/glade/derecho/scratch/exu/S2S_ExtremeWeather/runs/fcn3/.cache/hf
-# Checkpoint is pre-staged in EARTH2STUDIO_CACHE (WholeFileCache, 1-yr expiry -> cache hit,
-# no re-download). Derecho compute nodes have internet as a fallback if a listing is needed.
+export PYTHONUNBUFFERED=1
 
-MEMBERS=${FCN3_MEMBERS:-12}
-NSTEPS=${FCN3_NSTEPS:-56}
+# FCN3 model CONSTRUCTION is CPU-bound (torch-harmonics precomputes the DISCO convolution
+# tensors) and happens before the GPU is touched at all. Pin threads to the cores PBS
+# actually gave us: unpinned, torch spawns one thread per core ON THE NODE and thrashes
+# the cgroup. (a3mega incident 2026-07-23, job 700: 8 shards x ~208 threads on 208 cores,
+# GPUs idle at 0% for 80+ min without a single rollout step.)
+NCPUS=$(wc -l < "${PBS_NODEFILE:-/dev/null}" 2>/dev/null || echo 0)
+[ "${NCPUS:-0}" -lt 1 ] && NCPUS=$(nproc)
+THREADS=${FCN3_THREADS:-$NCPUS}
+export OMP_NUM_THREADS=$THREADS MKL_NUM_THREADS=$THREADS
+export OPENBLAS_NUM_THREADS=$THREADS NUMEXPR_NUM_THREADS=$THREADS
+
+MEMBERS=${FCN3_MEMBERS:-24}
 BATCH=${FCN3_BATCH:-1}
 
 echo "Host: $(hostname)"; echo "Start: $(date)"
 nvidia-smi --query-gpu=name,memory.total --format=csv,noheader || true
-echo "FCN3 infer: members=$MEMBERS nsteps=$NSTEPS batch_size=$BATCH"
+"$PY" fcn3/run_fcn3.py --stage plan
+echo "FCN3 infer: members=$MEMBERS batch_size=$BATCH threads=$THREADS (single shard)"
 
-"$PY" fcn3/run_fcn3.py --stage infer --members "$MEMBERS" --nsteps "$NSTEPS" --batch-size "$BATCH"
+# Single GPU => one shard covering the whole ensemble; --stage assemble is a no-op for
+# nshards=1 because infer already writes the canonical per-event cube.
+"$PY" fcn3/run_fcn3.py --stage infer --members "$MEMBERS" --batch-size "$BATCH" \
+      --nshards 1 --shard 0
 
+echo "Cubes: $(ls runs/fcn3/week${FCN3_WEEKS:-3}/cache/*_cube.nc 2>/dev/null | wc -l)"
 echo "End: $(date)"

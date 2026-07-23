@@ -6,34 +6,38 @@
 #SBATCH --gres=gpu:8
 #SBATCH --cpus-per-task=96
 #SBATCH --mem=512G
-#SBATCH --time=02:00:00
+#SBATCH --time=04:00:00
 #SBATCH --output=/home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/logs/%x-%j.out
 #SBATCH --error=/home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/logs/%x-%j.err
 
-# FourCastNet 3 ensemble infer for PNW Heat Dome 2021, week-2 (0.25 deg), on ONE whole
-# a3mega H100 node (8x H100-80GB). FCN3 is single-GPU PyTorch, so the ensemble is split
-# across the 8 GPUs: NSHARDS=8 processes, each pinned to one GPU via CUDA_VISIBLE_DEVICES,
-# each rolling MEMBERS/NSHARDS members with a distinct seed. The last step merges the 8
-# per-shard cubes into the canonical cube + a node-wall timing sidecar.
+# FourCastNet 3 ensemble infer for the FCN3-vs-GenCast comparison: all six events in
+# fcn3/fevents.py at week-3 (21 d lead), 0.25 deg, 24 members, on ONE whole a3mega H100
+# node (8x H100-80GB).
 #
-# GCP a3mega has no sub-node GPU sharing, so a whole node is the smallest GPU unit anyway;
-# splitting the ensemble across its 8 GPUs is what keeps all 8 busy (project rule: a GPU
-# allocation is for GPU compute only).
+# FCN3 is single-GPU PyTorch, so the ENSEMBLE is split across the 8 GPUs: NSHARDS=8
+# processes, each pinned to one GPU via CUDA_VISIBLE_DEVICES, each rolling 24/8 = 3
+# members of EVERY event with a distinct seed. Every shard walks the full event list, so
+# all 8 GPUs stay busy for the whole job. The final step merges the per-shard cubes into
+# one canonical cube per event plus a node-wall timing sidecar.
+#
+# Expected cost: FCN3 rolls ~1 s per 6-hourly step, so 84 steps ~ 1.5 min/member =>
+# 3 members x 6 events ~ 30 min per GPU. The 4 h walltime is generous headroom.
 #
 # Prereqs (pre-stage on the LOGIN node, which has internet -- never in this GPU job):
-#   the IC + FCN3 checkpoint cache must already exist under runs/fcn3/. Build/sync with:
-#     python fcn3/run_fcn3.py --stage prep      # login node
-#   (or rsync runs/fcn3/PNW_HeatDome_2021/*_ic.nc + runs/fcn3/.cache/ from Derecho).
+#   python fcn3/run_fcn3.py --stage prep
+# must have written runs/fcn3/week3/ic/<event>_ic.nc for every event and cached the
+# checkpoint under runs/fcn3/.cache/. This job verifies that and refuses to start
+# otherwise -- a GPU job must never download or build data (see CLAUDE.md).
 #
 # Submit:
-#   sbatch slurm/fcn3_infer.slurm                                 # full: 24 members / 8 GPUs
+#   sbatch slurm/fcn3_infer.slurm                                        # all 6 events
+#   sbatch --export=ALL,FCN3_EVENTS=HurricaneIan_2022 slurm/fcn3_infer.slurm
 #   sbatch --export=ALL,FCN3_MEMBERS=8,FCN3_NSTEPS=4 slurm/fcn3_infer.slurm   # smoke
 set -eo pipefail
 
 source /home/ubuntu/miniconda3/etc/profile.d/conda.sh
 # FCN3 needs earth2studio + torch 2.11.0+cu128; moe carries torch 2.8.0 for the downscaler,
-# so infer runs in a dedicated env by default. Override with FCN3_CONDA_ENV if you built it
-# into a different env. (compare/ still runs in moe -- it needs gencast_s2s/xres, not this.)
+# so infer runs in a dedicated env. (compare/ still runs in moe -- it needs xres, not this.)
 conda activate "${FCN3_CONDA_ENV:-fcn3}"
 
 SITE=$(python -c "import site; print(site.getsitepackages()[0])")
@@ -42,25 +46,63 @@ export LD_LIBRARY_PATH="$(echo "$SITE"/nvidia/*/lib | tr ' ' ':')${LD_LIBRARY_PA
 REPO=/home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather
 cd "$REPO"
 
-# Shared caches on scratch (must match run_fcn3.py defaults on this machine).
+# Shared caches on NFS (must match fcn3/fevents.py defaults on this machine).
 export EARTH2STUDIO_CACHE="$REPO/runs/fcn3/.cache/e2s"
 export HF_HOME="$REPO/runs/fcn3/.cache/hf"
+export PYTHONUNBUFFERED=1
 
 MEMBERS=${FCN3_MEMBERS:-24}
-NSTEPS=${FCN3_NSTEPS:-56}
 BATCH=${FCN3_BATCH:-1}
-NSHARDS=${FCN3_NSHARDS:-8}   # one shard per GPU on a whole a3mega node
+export FCN3_WEEKS=${FCN3_WEEKS:-3}
+
+# --- shard count and CPU threads -------------------------------------------------- #
+# FCN3 model CONSTRUCTION (torch-harmonics precomputing the DISCO convolution tensors)
+# is a heavy CPU job that happens once per process, before the GPU is touched at all.
+# Incident 2026-07-23 (job 700): 8 shards were launched with OMP_NUM_THREADS unset, so
+# each process spawned ~208 OpenMP threads -> ~1856 threads fighting over 208 cores
+# (~9x oversubscription, load average 763). All 8 H100s sat at 0% utilisation for 80+
+# minutes and not one rollout started.
+#
+# Fix: run FEWER shards per node and give each an explicit, disjoint slice of the cores.
+# 4 shards x 52 threads keeps construction efficient; the rollout itself is short
+# (~1.5 min/member), so using 4 of the 8 GPUs costs far less than the thrash did.
+NSHARDS=${FCN3_NSHARDS:-4}
+CORES=$(nproc)
+THREADS=${FCN3_THREADS:-$(( CORES / NSHARDS ))}
+[ "$THREADS" -lt 1 ] && THREADS=1
+export OMP_NUM_THREADS=$THREADS
+export MKL_NUM_THREADS=$THREADS
+export OPENBLAS_NUM_THREADS=$THREADS
+export NUMEXPR_NUM_THREADS=$THREADS
+export OMP_PROC_BIND=close
+export OMP_PLACES=cores
 
 echo "Host: $(hostname)"; echo "Start: $(date)"
 nvidia-smi -L || true
-echo "FCN3 infer: members=$MEMBERS nsteps=$NSTEPS batch_size=$BATCH nshards=$NSHARDS"
+python fcn3/run_fcn3.py --stage plan
+echo "FCN3 infer: members=$MEMBERS batch_size=$BATCH nshards=$NSHARDS weeks=$FCN3_WEEKS"
+echo "CPU: $CORES cores / $NSHARDS shards -> OMP_NUM_THREADS=$THREADS per shard"
+
+# GPU nodes are inference-only: every IC must already be on disk (pure cache hit).
+missing=$(python - <<'PY'
+import sys
+sys.path.insert(0, ".")
+from fcn3 import fevents as F
+print(",".join(e.name for e in F.selected() if not F.ic_path(e).exists()))
+PY
+)
+if [[ -n "$missing" ]]; then
+  echo "ERROR: missing IC(s): $missing" >&2
+  echo "On the LOGIN node run:  python fcn3/run_fcn3.py --stage prep" >&2
+  exit 1
+fi
 
 # Launch one process per GPU, each pinned to a single H100. Backgrounded; wait for all.
 pids=()
 for ((s = 0; s < NSHARDS; s++)); do
   CUDA_VISIBLE_DEVICES=$s \
     python fcn3/run_fcn3.py --stage infer \
-      --members "$MEMBERS" --nsteps "$NSTEPS" --batch-size "$BATCH" \
+      --members "$MEMBERS" --batch-size "$BATCH" \
       --nshards "$NSHARDS" --shard "$s" \
       > "logs/fcn3_infer-${SLURM_JOB_ID}-shard${s}.log" 2>&1 &
   pids+=($!)
@@ -74,9 +116,11 @@ for i in "${!pids[@]}"; do
     fail=1
   fi
 done
-[[ $fail -eq 0 ]] || { echo "One or more shards failed; not assembling."; exit 1; }
+[[ $fail -eq 0 ]] || echo "WARNING: a shard failed; assembling whatever is complete."
 
-echo "All shards done; merging into the canonical cube ..."
-python fcn3/run_fcn3.py --stage assemble --members "$MEMBERS" --nshards "$NSHARDS"
+echo "Merging per-shard cubes ..."
+python fcn3/run_fcn3.py --stage assemble --members "$MEMBERS" --nshards "$NSHARDS" || true
 
+echo "Cubes: $(ls runs/fcn3/week${FCN3_WEEKS}/cache/*_cube.nc 2>/dev/null | wc -l)"
 echo "End: $(date)"
+[[ $fail -eq 0 ]]

@@ -1,68 +1,103 @@
 #!/bin/bash
-# FCN3 vs GenCast head-to-head test driver (PNW Heat Dome 2021, week-2, 0.25 deg).
+# FCN3 vs GenCast head-to-head driver -- six events, week-3 (21 d lead), 0.25 deg.
 #
-# a3mega cluster (Slurm / H100). CPU work runs on the login node; the ensemble infer runs
-# on ONE whole 8-GPU H100 node via sbatch, with the 24-member ensemble split across the 8
-# GPUs (see slurm/fcn3_infer.slurm). The compare step is CPU-only and runs on the login
-# node in `moe` (needs the synced xres cube + ERA5 truth).
+# Events (fcn3/fevents.py): PNW Heat Dome 2021 (heat), Hurricane Ian 2022 (u850 wind
+# speed), Winter Storm Uri 2021 (cold), plus three p90 CONUS-mean-T2m cases spanning
+# year/season/magnitude. Week 3 is both the xres week3 lead and the frozen p90 lead, so
+# GenCast is already cached for the first three and only the three p90 cases need a run.
+#
+# a3mega cluster (Slurm / H100). ALL CPU + internet work runs on the login node; both
+# infer jobs run on ONE whole 8-GPU H100 node via sbatch. Compare is CPU-only, in `moe`.
 #
 # Stages:
-#   1. prep      login node: fetch/verify the ERA5 IC + FCN3 checkpoint cache
-#   2. infer     sbatch slurm/fcn3_infer.slurm: 8 GPUs -> 8 shard cubes -> merged cube + timing
-#   3. compare   login node, after infer completes: FCN3-vs-GenCast PDF + runtime figures
+#   prep-gencast  login node, moe:  ERA5 truth + GenCast init frames for the 3 p90 events
+#   prep-fcn3     login node, fcn3: global ERA5 ICs for all 6 events + checkpoint cache
+#   submit-fcn3   sbatch slurm/fcn3_infer.slurm            (~30 min, all 6 events)
+#   submit-gencast sbatch slurm/xres_pool_0p25_week3_p90.slurm  (~3.2 h, 3 p90 events)
+#   compare       login node, moe:  PDFs + skill + runtime figures and the scores CSV
 #
-# Usage (run from the repo root or from fcn3/):
-#   bash fcn3/run_test.sh                 # full: prep -> sbatch infer(24 members / 8 GPUs)
-#   bash fcn3/run_test.sh smoke           # smoke: prep -> sbatch infer(8 members x 4 steps)
-#   bash fcn3/run_test.sh prep            # prep only (login node)
-#   bash fcn3/run_test.sh submit          # skip prep, just sbatch infer
-#   bash fcn3/run_test.sh compare         # run the compare figures on the login node
+# Usage (from the repo root or from fcn3/):
+#   bash fcn3/run_test.sh plan       # print the event table + what is already built
+#   bash fcn3/run_test.sh prep       # both prep stages (login node; safe to re-run)
+#   bash fcn3/run_test.sh submit     # both infer jobs
+#   bash fcn3/run_test.sh compare    # figures + scores
+#   bash fcn3/run_test.sh all        # prep -> submit (compare after the jobs finish)
 set -eo pipefail
 
 REPO=/home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather
 cd "$REPO"
 
-EVENT=PNW_HeatDome_2021
-IC=runs/fcn3/$EVENT/${EVENT}_ic.nc
+WEEKS=${FCN3_WEEKS:-3}
+export FCN3_WEEKS=$WEEKS
+CONDA_SH=/home/ubuntu/miniconda3/etc/profile.d/conda.sh
 
-MODE=${1:-full}
+P90_EVENTS=$(python -c "
+import sys; sys.path.insert(0,'.')
+from fcn3 import fevents as F
+print(','.join(e.name for e in F.EVENTS.values() if e.source=='p90'))")
 
-run_prep() {
-  if [[ -f "$IC" ]]; then
-    echo "[prep] IC already cached: $IC (delete it to force a refetch) -- skipping prep"
-  else
-    echo "[prep] fetching IC + FCN3 checkpoint on the login node ..."
-    python fcn3/run_fcn3.py --stage prep
-  fi
-  [[ -f "$IC" ]] || { echo "[prep] FAILED: $IC not created"; exit 1; }
+plan() {
+  python fcn3/run_fcn3.py --stage plan
+  echo
+  echo "FCN3 ICs:        $(ls runs/fcn3/week$WEEKS/ic/*_ic.nc 2>/dev/null | wc -l)/6"
+  echo "FCN3 cubes:      $(ls runs/fcn3/week$WEEKS/cache/*_cube.nc 2>/dev/null | wc -l)/6"
+  echo "GenCast inputs (p90): $(ls runs/xres/0p25/week$WEEKS/inputs/p90_*_inputs.nc 2>/dev/null | wc -l)/3"
+  echo "GenCast cubes (p90):  $(ls runs/xres/0p25/week$WEEKS/cache/p90_*_cube.nc 2>/dev/null | wc -l)/3"
+  echo "ERA5 truth (p90):     $(ls runs/observations/p90_*_verif_t2m_anom.nc 2>/dev/null | wc -l)/3"
 }
 
-submit_infer() {
-  local export_arg="$1"
-  echo "[infer] sbatch slurm/fcn3_infer.slurm ${export_arg:+($export_arg)}"
+prep_gencast() {
+  echo "[prep-gencast] ERA5 truth + init frames for: $P90_EVENTS"
+  # shellcheck disable=SC1090
+  source "$CONDA_SH"; conda activate moe
+  XRES_EXTRA_EVENTS="$(python fcn3/fevents.py --spec)" \
+  XRES_EVENTS_SEL="$P90_EVENTS" \
+    python run_xres.py --stage prep --res 0p25 --weeks "$WEEKS"
+}
+
+prep_fcn3() {
+  echo "[prep-fcn3] global ERA5 ICs for all 6 events + FCN3 checkpoint cache"
+  # shellcheck disable=SC1090
+  source "$CONDA_SH"; conda activate "${FCN3_CONDA_ENV:-fcn3}"
+  SITE=$(python -c "import site; print(site.getsitepackages()[0])")
+  export LD_LIBRARY_PATH="$(echo "$SITE"/nvidia/*/lib | tr ' ' ':')${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
+  python fcn3/run_fcn3.py --stage prep
+}
+
+submit_fcn3() {
   local JID
-  if [[ -n "$export_arg" ]]; then
-    JID=$(sbatch --parsable --export="ALL,$export_arg" slurm/fcn3_infer.slurm)
-  else
-    JID=$(sbatch --parsable slurm/fcn3_infer.slurm)
+  JID=$(sbatch --parsable slurm/fcn3_infer.slurm)
+  echo "[submit] FCN3 infer -> job $JID   (tail -f logs/fcn3_infer-$JID.out)"
+}
+
+submit_gencast() {
+  local n
+  n=$(ls runs/xres/0p25/week"$WEEKS"/cache/p90_*_cube.nc 2>/dev/null | wc -l)
+  if [[ "$n" -eq 3 ]]; then
+    echo "[submit] GenCast p90 cubes already built (3/3); skipping"
+    return
   fi
-  echo "[infer] submitted job $JID"
-  echo
-  echo "Monitor:      squeue -u \$USER -n fcn3_infer"
-  echo "Live log:     tail -f logs/fcn3_infer-${JID}.out"
-  echo "After it OKs: bash fcn3/run_test.sh compare"
+  local JID
+  JID=$(sbatch --parsable slurm/xres_pool_0p25_week3_p90.slurm)
+  echo "[submit] GenCast p90 infer -> job $JID   (tail -f logs/xres_0p25pool_wk3_p90-$JID.out)"
 }
 
 run_compare() {
-  echo "[compare] FCN3 vs GenCast figures (login node, moe) ..."
+  echo "[compare] FCN3 vs GenCast figures + scores (login node, moe)"
+  # shellcheck disable=SC1090
+  source "$CONDA_SH"; conda activate moe
   python fcn3/compare_fcn3_gencast.py
 }
 
-case "$MODE" in
-  prep)    run_prep ;;
-  submit)  submit_infer "" ;;
-  smoke)   run_prep; submit_infer "FCN3_MEMBERS=8,FCN3_NSTEPS=4" ;;
-  full)    run_prep; submit_infer "" ;;
-  compare) run_compare ;;
-  *)       echo "unknown mode: $MODE (use: full | smoke | prep | submit | compare)"; exit 2 ;;
+case "${1:-plan}" in
+  plan)           plan ;;
+  prep)           prep_gencast; prep_fcn3 ;;
+  prep-gencast)   prep_gencast ;;
+  prep-fcn3)      prep_fcn3 ;;
+  submit)         submit_fcn3; submit_gencast ;;
+  submit-fcn3)    submit_fcn3 ;;
+  submit-gencast) submit_gencast ;;
+  compare)        run_compare ;;
+  all)            prep_gencast; prep_fcn3; submit_fcn3; submit_gencast ;;
+  *) echo "unknown mode: $1"; echo "use: plan|prep|prep-gencast|prep-fcn3|submit|submit-fcn3|submit-gencast|compare|all"; exit 2 ;;
 esac
