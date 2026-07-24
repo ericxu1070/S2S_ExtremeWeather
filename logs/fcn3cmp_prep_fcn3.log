@@ -1,0 +1,39 @@
+[prep-fcn3] global ERA5 ICs for all 6 events + FCN3 checkpoint cache
+Warp CUDA error 100: no CUDA-capable device is detected (in function init_cuda_driver, /builds/omniverse/warp/warp/native/cuda_util.cpp:319)
+[prep] 6 event(s), 72 FCN3 variables per IC, week3 (21 d lead)
+[prep] 1/6 PNW_HeatDome_2021: fetching IC at 2021-06-07T00:00:00 (peak 2021-06-28)
+Fetching ARCO data:   0%|          | 0/12 [00:00<?, ?it/s]Fetching ARCO data:   8%|▊         | 1/12 [00:00<00:02,  5.07it/s]Fetching ARCO data:  17%|█▋        | 2/12 [00:00<00:01,  6.43it/s]Fetching ARCO data:  50%|█████     | 6/12 [00:00<00:00, 18.13it/s]Fetching ARCO data:  75%|███████▌  | 9/12 [00:03<00:01,  2.38it/s]Fetching ARCO data:  92%|█████████▏| 11/12 [00:03<00:00,  2.73it/s]Fetching ARCO data: 100%|██████████| 12/12 [00:03<00:00,  3.37it/s]
+[prep]   IC {'time': 1, 'variable': 72, 'lat': 721, 'lon': 1440} lat[90.0..-90.0] lon[0.0..359.75]
+[prep]   wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/fcn3/week3/ic/PNW_HeatDome_2021_ic.nc
+[prep] 2/6 HurricaneIan_2022: fetching IC at 2022-09-07T00:00:00 (peak 2022-09-28)
+Fetching ARCO data:   0%|          | 0/12 [00:00<?, ?it/s]Fetching ARCO data:   8%|▊         | 1/12 [00:00<00:03,  3.31it/s]Fetching ARCO data:  42%|████▏     | 5/12 [00:00<00:00, 14.41it/s]Fetching ARCO data:  67%|██████▋   | 8/12 [00:03<00:02,  1.97it/s]Fetching ARCO data:  83%|████████▎ | 10/12 [00:04<00:00,  2.14it/s]Fetching ARCO data:  92%|█████████▏| 11/12 [00:04<00:00,  2.41it/s]Fetching ARCO data: 100%|██████████| 12/12 [00:04<00:00,  2.74it/s]
+[prep]   IC {'time': 1, 'variable': 72, 'lat': 721, 'lon': 1440} lat[90.0..-90.0] lon[0.0..359.75]
+[prep]   wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/fcn3/week3/ic/HurricaneIan_2022_ic.nc
+[prep] 3/6 WinterStorm_Uri_2021: fetching IC at 2021-01-25T00:00:00 (peak 2021-02-15)
+Fetching ARCO data:   0%|          | 0/12 [00:00<?, ?it/s]Fetching ARCO data:   8%|▊         | 1/12 [00:00<00:02,  4.22it/s]Fetching ARCO data:  42%|████▏     | 5/12 [00:00<00:00, 14.11it/s]Fetching ARCO data:  58%|█████▊    | 7/12 [00:00<00:00, 13.33it/s]Fetching ARCO data:  75%|███████▌  | 9/12 [00:01<00:00,  3.45it/s]Fetching ARCO data:  83%|████████▎ | 10/12 [00:03<00:00,  2.19it/s]Fetching ARCO data:  92%|█████████▏| 11/12 [00:03<00:00,  2.43it/s]Fetching ARCO data: 100%|██████████| 12/12 [00:03<00:00,  3.61it/s]
+[prep]   IC {'time': 1, 'variable': 72, 'lat': 721, 'lon': 1440} lat[90.0..-90.0] lon[0.0..359.75]
+[prep]   wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/fcn3/week3/ic/WinterStorm_Uri_2021_ic.nc
+[prep] 4/6 p90_20231107: fetching IC at 2023-10-17T00:00:00 (peak 2023-11-07)
+Fetching ARCO data:   0%|          | 0/12 [00:00<?, ?it/s]Fetching ARCO data:   8%|▊         | 1/12 [00:00<00:02,  3.91it/s]Fetching ARCO data:  42%|████▏     | 5/12 [00:00<00:00, 10.11it/s]Fetching ARCO data:  58%|█████▊    | 7/12 [00:00<00:00, 10.71it/s]Fetching ARCO data:  75%|███████▌  | 9/12 [00:03<00:01,  2.00it/s]Fetching ARCO data:  83%|████████▎ | 10/12 [00:03<00:00,  2.35it/s]Fetching ARCO data: 100%|██████████| 12/12 [00:03<00:00,  3.10it/s]Fetching ARCO data: 100%|██████████| 12/12 [00:03<00:00,  3.31it/s]
+[prep]   IC {'time': 1, 'variable': 72, 'lat': 721, 'lon': 1440} lat[90.0..-90.0] lon[0.0..359.75]
+[prep]   wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/fcn3/week3/ic/p90_20231107_ic.nc
+[prep] 5/6 p90_20240802: fetching IC at 2024-07-12T00:00:00 (peak 2024-08-02)
+Fetching ARCO data:   0%|          | 0/12 [00:00<?, ?it/s]Fetching ARCO data:   8%|▊         | 1/12 [00:00<00:04,  2.67it/s]Fetching ARCO data:  42%|████▏     | 5/12 [00:00<00:00, 12.40it/s]Fetching ARCO data:  67%|██████▋   | 8/12 [00:02<00:01,  2.32it/s]Fetching ARCO data:  83%|████████▎ | 10/12 [00:03<00:00,  2.42it/s]Fetching ARCO data:  92%|█████████▏| 11/12 [00:03<00:00,  2.76it/s]Fetching ARCO data: 100%|██████████| 12/12 [00:03<00:00,  3.14it/s]
+[prep]   IC {'time': 1, 'variable': 72, 'lat': 721, 'lon': 1440} lat[90.0..-90.0] lon[0.0..359.75]
+[prep]   wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/fcn3/week3/ic/p90_20240802_ic.nc
+[prep] 6/6 p90_20251224: fetching IC at 2025-12-03T00:00:00 (peak 2025-12-24)
+Fetching ARCO data:   0%|          | 0/12 [00:00<?, ?it/s]Fetching ARCO data:   8%|▊         | 1/12 [00:00<00:01,  6.34it/s]Fetching ARCO data:  17%|█▋        | 2/12 [00:00<00:01,  7.69it/s]Fetching ARCO data:  33%|███▎      | 4/12 [00:00<00:00, 11.51it/s]Fetching ARCO data:  67%|██████▋   | 8/12 [00:02<00:01,  3.32it/s]Fetching ARCO data:  75%|███████▌  | 9/12 [00:03<00:01,  2.37it/s]Fetching ARCO data:  92%|█████████▏| 11/12 [00:03<00:00,  2.68it/s]Fetching ARCO data: 100%|██████████| 12/12 [00:03<00:00,  3.29it/s]
+[prep]   IC {'time': 1, 'variable': 72, 'lat': 721, 'lon': 1440} lat[90.0..-90.0] lon[0.0..359.75]
+[prep]   wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/fcn3/week3/ic/p90_20251224_ic.nc
+[prep] pre-downloading FCN3 checkpoint files (no model build) ...
+[prep]   cached config.json -> /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/fcn3/.cache/e2s/fcn3/config.json
+Downloading metadata.json: 0%|          | 0.00/82.0 [00:00<?, ?B/s]Downloading metadata.json: 100%|██████████| 82.0/82.0 [00:00<00:00, 1.11kB/s]
+[prep]   cached metadata.json -> /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/fcn3/.cache/e2s/fcn3/metadata.json
+[prep]   skip best_ckpt_mp0.tar (FileNotFoundError: nvidia/fourcastnet3@76ef0c60237e458b33196ba027134e27f3fc4538/best_ckpt_mp0.tar)
+[prep]   cached orography.nc -> /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/fcn3/.cache/e2s/fcn3/orography.nc
+[prep]   cached land_mask.nc -> /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/fcn3/.cache/e2s/fcn3/land_mask.nc
+[prep]   cached global_means.npy -> /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/fcn3/.cache/e2s/fcn3/global_means.npy
+[prep]   cached global_stds.npy -> /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/fcn3/.cache/e2s/fcn3/global_stds.npy
+[prep]   cached mins.npy -> /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/fcn3/.cache/e2s/fcn3/mins.npy
+[prep]   cached maxs.npy -> /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/fcn3/.cache/e2s/fcn3/maxs.npy
+[prep] DONE: wrote 6 IC(s); cache /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/fcn3/.cache/e2s

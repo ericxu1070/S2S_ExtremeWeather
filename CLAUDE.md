@@ -9,6 +9,24 @@ tier below the main session model**: Fable main → `opus` subagents; Opus main 
 subagents. Pass the override explicitly (e.g. `model: 'opus'`) — do not let subagents
 inherit the top-tier session model.
 
+## Job name — always `Vayuh-s2s` (STRICT)
+
+**Every** cluster job submitted from this repo — Slurm and PBS, GPU and CPU, arrays,
+smoke tests, and ad-hoc `sbatch`/`qsub` — MUST use the job name `Vayuh-s2s`. This is a
+fixed, unique identifier for all of this project's jobs on shared schedulers; do not use
+per-task descriptive names.
+
+- Slurm scripts: `#SBATCH --job-name=Vayuh-s2s`
+- PBS scripts: `#PBS -N Vayuh-s2s`
+- Ad-hoc submissions: `sbatch --job-name=Vayuh-s2s ...`, `qsub -N Vayuh-s2s ...`
+- When creating a new job script or editing an existing one, set/replace the job name to
+  `Vayuh-s2s` — even if the surrounding script still has an old descriptive name.
+- Monitor this project's jobs with `squeue -u $USER -n Vayuh-s2s` (Slurm) or
+  `qstat -u exu` then filter on the name (PBS).
+
+Log files carry the job name via `%x-%j`, i.e. `logs/Vayuh-s2s-<jobid>.{out,err}`; per-run
+distinctiveness comes from the unique job id.
+
 ## Which machine you are on (read this first)
 
 This checkout lives on the **a3mega Slurm GPU cluster** (GCP; hostnames start with

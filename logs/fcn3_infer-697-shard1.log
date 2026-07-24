@@ -1,0 +1,9 @@
+[infer] host=nucla3m-a3meganodeset-5 shard=1/8: members 3..5 (3 of 24) over 6 event(s)
+[infer] device=cuda; torch 2.11.0+cu128 (cuda build 12.8)
+[infer] GPU: NVIDIA H100 80GB HBM3  85 GB
+[infer] loading FCN3 checkpoint ...
+[32m2026-07-23 00:42:55.263[0m | [33m[1mWARNING [0m | [36mearth2studio.models.px.fcn3[0m:[36mload_model[0m:[36m290[0m - [33m[1mtorch-harmonics disco CUDA extension is not available.
+FCN3 run on GPU/CUDA will be slower.
+Please install torch-harmonics in the following way:
+export FORCE_CUDA_EXTENSION=1
+pip install --no-build-isolation torch-harmonics[0m

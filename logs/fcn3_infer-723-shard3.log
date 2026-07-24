@@ -1,0 +1,6 @@
+[check] torch-harmonics DISCO CUDA extension: PRESENT -> FCN3 runs bf16
+[infer] CPU threads: torch=52 OMP_NUM_THREADS=52
+[infer] host=nucla3m-a3meganodeset-5 shard=3/4: members 18..23 (6 of 24) over 6 event(s)
+[infer] device=cuda; torch 2.11.0+cu128 (cuda build 12.8)
+[infer] GPU: NVIDIA H100 80GB HBM3  85 GB
+[infer] loading FCN3 checkpoint (CPU-bound model construction) ...

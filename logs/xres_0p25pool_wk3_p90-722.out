@@ -1,0 +1,51 @@
+Host: nucla3m-a3meganodeset-5  Start: Thu Jul 23 17:29:15 UTC 2026  WEEKS=3  NGPU=8
+Events (3): p90_20231107,p90_20240802,p90_20251224
+GPU 0: NVIDIA H100 80GB HBM3 (UUID: GPU-ec7332d6-58cf-c055-c278-22bf3bf7ecc4)
+GPU 1: NVIDIA H100 80GB HBM3 (UUID: GPU-517daa89-8265-5e70-22f8-9e36a4760413)
+GPU 2: NVIDIA H100 80GB HBM3 (UUID: GPU-b0c7adac-cf1c-0c37-2ad8-16e925bb9f41)
+GPU 3: NVIDIA H100 80GB HBM3 (UUID: GPU-4e05c5cf-a2ed-9d60-40b6-6882e68904ff)
+GPU 4: NVIDIA H100 80GB HBM3 (UUID: GPU-7adc1295-a770-3f46-c0fd-a9f3127e08ff)
+GPU 5: NVIDIA H100 80GB HBM3 (UUID: GPU-495b705c-0c99-a8a3-eaa3-cd720da55351)
+GPU 6: NVIDIA H100 80GB HBM3 (UUID: GPU-3fcfbafa-cb81-9d67-f0f0-6dc65c5825a9)
+GPU 7: NVIDIA H100 80GB HBM3 (UUID: GPU-1b9a59d4-734a-6a99-b0e7-2f5ff9b8920b)
+[launcher] worker 0 -> GPU 0 -> logs/xres_0p25pool_wk3_p90_722_w0.log
+[launcher] worker 1 -> GPU 1 -> logs/xres_0p25pool_wk3_p90_722_w1.log
+[launcher] worker 2 -> GPU 2 -> logs/xres_0p25pool_wk3_p90_722_w2.log
+[launcher] worker 3 -> GPU 3 -> logs/xres_0p25pool_wk3_p90_722_w3.log
+[launcher] worker 4 -> GPU 4 -> logs/xres_0p25pool_wk3_p90_722_w4.log
+[launcher] worker 5 -> GPU 5 -> logs/xres_0p25pool_wk3_p90_722_w5.log
+[launcher] worker 6 -> GPU 6 -> logs/xres_0p25pool_wk3_p90_722_w6.log
+[launcher] worker 7 -> GPU 7 -> logs/xres_0p25pool_wk3_p90_722_w7.log
+[launcher] worker 0 ok
+[launcher] worker 1 ok
+[launcher] worker 2 ok
+[launcher] worker 3 ok
+[launcher] worker 4 ok
+[launcher] worker 5 ok
+[launcher] worker 6 ok
+[launcher] worker 7 ok
+[status] cubes=3/3  workers-failed=0  wall=124 min
+[timing] wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/fcn3/week3/timing/gencast_pool_timing.json
+{
+  "model": "gencast",
+  "job_id": "722",
+  "weeks": 3,
+  "resolution": "0p25",
+  "members": 24,
+  "nsteps": 42,
+  "gpus": 8,
+  "events": [
+    "p90_20231107",
+    "p90_20240802",
+    "p90_20251224"
+  ],
+  "n_events": 3,
+  "cubes_built_this_job": 3,
+  "seconds_total": 7478,
+  "minutes_total": 124.63,
+  "minutes_per_event": 41.54,
+  "hardware": "a3mega 1 node x 8 H100-80GB",
+  "complete": true,
+  "note": "Node wall time for the whole pool over n_events. Valid as a runtime measurement only when cubes_built_this_job == n_events; a resubmit that skipped cached cubes under-reports the cost."
+}
+End: Thu Jul 23 19:33:58 UTC 2026
