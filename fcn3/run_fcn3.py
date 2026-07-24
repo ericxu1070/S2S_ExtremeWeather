@@ -192,6 +192,154 @@ class LocalIC:
         return self.da.sel(time=t, variable=v)
 
 
+# --------------------------------------------------------------------------- #
+# Build-once-load: constructing FCN3 recomputes the DISCO geometry tensors on CPU
+# (~2 min in isolation on Derecho). Running one build per shard CONCURRENTLY contends on
+# memory bandwidth -- a3mega job 723: 4 shards, still building at 17 min, GPUs idle. So
+# the FIRST shard to grab a node lock builds the model and pickles it to NFS; every other
+# shard (this job and later ones) just torch.loads it (~seconds). The whole built module
+# is saved, not state_dict(), because the geometry tensors are registered persistent=False
+# and would otherwise be dropped (verified: buffers + forward output identical after a
+# save/load round-trip). Everything is best-effort with graceful fallback: if the wrapper
+# does not pickle, or the env changed, a shard simply builds its own -- but still serially,
+# under the same lock, so builds never overlap.
+# --------------------------------------------------------------------------- #
+def _pid_alive(pid: int) -> bool:
+    try:
+        os.kill(pid, 0)
+    except ProcessLookupError:
+        return False
+    except PermissionError:
+        return True
+    return True
+
+
+def _try_claim(path: Path) -> bool:
+    """Atomically create a lock file. A lock held by a dead PID is stolen. Valid only
+    between processes on ONE node (PID-liveness check)."""
+    for _ in range(2):
+        try:
+            fd = os.open(path, os.O_CREAT | os.O_EXCL | os.O_WRONLY)
+        except FileExistsError:
+            try:
+                pid = int(path.read_text().strip() or "0")
+            except (OSError, ValueError):
+                pid = 0
+            if pid and _pid_alive(pid):
+                return False
+            try:
+                path.unlink()                          # dead owner -> steal and retry
+            except FileNotFoundError:
+                pass
+            continue
+        os.write(fd, str(os.getpid()).encode())
+        os.close(fd)
+        return True
+    return False
+
+
+def _model_cache_tag() -> str:
+    """Version key: any change here must invalidate a stored pickle. Covers the libraries
+    whose internals a pickled nn.Module depends on, plus the FCN3 variable set."""
+    import hashlib
+    import earth2studio
+    import torch
+    import torch_harmonics
+    parts = [torch.__version__, torch_harmonics.__version__,
+             getattr(earth2studio, "__version__", "?"),
+             ",".join(_fcn3_variables())]
+    h = hashlib.sha1("|".join(parts).encode()).hexdigest()[:12]
+    return f"{torch.__version__}_th{torch_harmonics.__version__}_{h}"
+
+
+def _build_model():
+    """Construct FCN3 from the cached package (CPU-bound). Timed -- it was the whole cost
+    of the failed jobs 700/723, so it must be visible, not inferred."""
+    from earth2studio.models.px import FCN3
+    print("[infer] building FCN3 (CPU-bound DISCO precompute) ...", flush=True)
+    t = time.perf_counter()
+    model = FCN3.load_model(FCN3.load_default_package())
+    print(f"[infer] model built in {(time.perf_counter()-t)/60:.2f} min", flush=True)
+    return model
+
+
+def _try_load_pickle(path: Path):
+    import torch
+    if not path.exists():
+        return None
+    try:
+        t = time.perf_counter()
+        # weights_only=False: this is our own file (built + written by _get_model on this
+        # cluster), never an untrusted download. map to CPU; ensemble() moves it to the GPU.
+        model = torch.load(path, map_location="cpu", weights_only=False)
+        print(f"[infer] loaded cached model {path.name} in {time.perf_counter()-t:.1f} s",
+              flush=True)
+        return model
+    except Exception as e:
+        print(f"[infer] cached model {path.name} unusable ({type(e).__name__}: {e}); "
+              f"will rebuild", flush=True)
+        return None
+
+
+def _save_pickle(model, path: Path) -> None:
+    import torch
+    tmp = path.parent / f"{path.name}.tmp.{os.getpid()}"   # name has dots -> avoid with_suffix
+    try:
+        torch.save(model, tmp)
+        os.replace(tmp, path)                          # atomic publish on NFS
+        print(f"[infer] saved built model -> {path.name} "
+              f"({path.stat().st_size/1e9:.2f} GB)", flush=True)
+    except Exception as e:
+        print(f"[infer] could not pickle model ({type(e).__name__}: {e}); "
+              f"other shards will build their own", flush=True)
+        try:
+            tmp.unlink()
+        except OSError:
+            pass
+
+
+def _get_model():
+    """Return an FCN3 model, building it AT MOST once per node via a lock. Fast path is a
+    pickle load; the lock only bites on a cold cache so builds never run concurrently."""
+    cache = F.model_cache_path(_model_cache_tag())
+    lock = F.model_build_lock()
+    F.model_cache_dir().mkdir(parents=True, exist_ok=True)
+
+    m = _try_load_pickle(cache)                        # 1. fast path, no lock
+    if m is not None:
+        return m
+
+    disabled = os.environ.get("FCN3_MODEL_CACHE", "1") == "0"
+    waited = 0.0
+    while True:
+        if _try_claim(lock):                           # 2. we build; others wait
+            try:
+                m = _try_load_pickle(cache)            # someone may have built while we waited
+                if m is None:
+                    m = _build_model()
+                    if not disabled:
+                        _save_pickle(m, cache)
+                return m
+            finally:
+                try:
+                    lock.unlink()
+                except FileNotFoundError:
+                    pass
+        # 3. another shard holds the lock. Poll for the pickle it is about to write; if
+        #    saving is impossible the holder frees the lock after ~1 build (~2 min) and the
+        #    next loop iteration lets THIS shard claim it -> builds stay serialized. The
+        #    timeout is generous (covers N serial builds if pickling never works) so it
+        #    fires only for a genuinely dead/stuck holder, not the normal wait.
+        time.sleep(10)
+        waited += 10
+        m = _try_load_pickle(cache)
+        if m is not None:
+            return m
+        if waited >= 2400:                             # ~40 min: builder truly stuck/dead
+            print("[infer] waited 40 min for a peer build; building locally", flush=True)
+            return _build_model()                      # last resort -- lock frees on exit
+
+
 def _crop_conus(da: xr.DataArray) -> xr.DataArray:
     """Crop to the CONUS box and match the climatology grid exactly.
 
@@ -255,7 +403,6 @@ def stage_infer(shard: int, nshards: int, members: int, batch_size: int,
     """Roll this shard's members for every selected event on ONE visible GPU."""
     import torch
     from earth2studio.io import ZarrBackend
-    from earth2studio.models.px import FCN3
     from earth2studio.perturbation import Zero
     from earth2studio.run import ensemble
 
@@ -306,15 +453,7 @@ def stage_infer(shard: int, nshards: int, members: int, batch_size: int,
             continue
         try:
             if model is None:
-                # Timed because this is CPU-bound (torch-harmonics precomputes the DISCO
-                # convolution tensors) and happens BEFORE the GPU is touched -- it was the
-                # entire cost of the failed job 700, so it must be visible, not inferred.
-                print("[infer] loading FCN3 checkpoint (CPU-bound model construction) ...",
-                      flush=True)
-                _t = time.perf_counter()
-                model = FCN3.load_model(FCN3.load_default_package())
-                print(f"[infer] model ready in {(time.perf_counter()-_t)/60:.1f} min",
-                      flush=True)
+                model = _get_model()                  # load-once-per-node (see _get_model)
 
             seed = F.seed_for(ev) + shard             # distinct RNG stream per (event, shard)
             model.set_rng(seed=seed, reset=True)

@@ -236,6 +236,27 @@ def era5_truth_path(ev: Event) -> Path:
     return RUNS / "observations" / f"{ev.name}_verif_{ev.metric}.nc"
 
 
+def model_cache_dir() -> Path:
+    """Where a pre-built FCN3 model is pickled so shards/jobs load it instead of each
+    rebuilding the (CPU-heavy) DISCO geometry tensors. Lives beside the checkpoint cache,
+    NOT under week{N}, because the built model is lead-independent."""
+    return FCN3_CACHE / "model"
+
+
+def model_cache_path(tag: str) -> Path:
+    """Pickled built model, filenamed by a version tag so an env upgrade (torch /
+    torch-harmonics / earth2studio) never loads a stale, incompatible pickle -- a mismatch
+    just misses the cache and rebuilds. ``tag`` is computed at runtime in run_fcn3.py."""
+    return model_cache_dir() / f"fcn3_model_{tag}.pt"
+
+
+def model_build_lock() -> Path:
+    """Node-local lock so only ONE shard builds the model at a time (concurrent DISCO
+    precomputes contend on memory bandwidth -- a3mega job 723: 4 builds, 17+ min, GPUs
+    idle). PID-based; a dead holder's lock is stealable."""
+    return model_cache_dir() / "build.lock"
+
+
 def fig_dir() -> Path:
     return ROOT / "figures" / "fcn3" / f"week{WEEKS}"
 
@@ -288,7 +309,7 @@ def gencast_a100_minutes(members: int = N_MEMBERS) -> float:
 
 def ensure_dirs() -> None:
     for d in (week_dir() / "ic", week_dir() / "cache", week_dir() / "timing",
-              shard_dir(), week_dir() / "scores", fig_dir()):
+              shard_dir(), week_dir() / "scores", fig_dir(), model_cache_dir()):
         d.mkdir(parents=True, exist_ok=True)
 
 
