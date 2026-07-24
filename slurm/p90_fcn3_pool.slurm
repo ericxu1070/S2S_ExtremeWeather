@@ -4,7 +4,7 @@
 #SBATCH --nodes=1
 #SBATCH --gres=gpu:8
 #SBATCH --exclusive
-#SBATCH --time=12:00:00
+#SBATCH --time=24:00:00
 #SBATCH --output=/home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/logs/%x-%j.out
 #SBATCH --error=/home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/logs/%x-%j.err
 
@@ -43,6 +43,22 @@ export EARTH2STUDIO_CACHE="$RUNS/fcn3/.cache/e2s"
 export HF_HOME="$RUNS/fcn3/.cache/hf"
 export PYTHONUNBUFFERED=1
 export PYTHONPATH="$ROOT${PYTHONPATH:+:$PYTHONPATH}"
+
+# FCN3 model construction is CPU-bound; unpinned, each of the 8 workers spawns one thread
+# per NODE core and they thrash (a3mega jobs 700/723). Give each worker a disjoint slice.
+# (With the build-once model cache this only matters for the lone builder / brief overlaps;
+# every worker normally just loads the shared pickle in seconds.)
+CORES=$(nproc)
+THREADS=${P90_FCN3_THREADS:-$(( CORES / NGPU ))}
+[ "$THREADS" -lt 1 ] && THREADS=1
+export OMP_NUM_THREADS=$THREADS MKL_NUM_THREADS=$THREADS
+export OPENBLAS_NUM_THREADS=$THREADS NUMEXPR_NUM_THREADS=$THREADS
+export OMP_PROC_BIND=close OMP_PLACES=cores
+
+# FCN3 peaks ~53 GiB/member at 0.25deg (decoder DISCO einsum); batch_size MUST be 1 on an
+# 80 GB H100 (batch>1 OOMs -- hard capacity, not fragmentation). Override only to test.
+P90_FCN3_BATCH=${P90_FCN3_BATCH:-1}
+echo "CPU: $CORES cores / $NGPU workers -> OMP_NUM_THREADS=$THREADS; batch_size=$P90_FCN3_BATCH"
 
 # Multi-node arrays: turn the array coordinates into a P90_SHARD so each node's
 # pool takes a disjoint slice of the 90 cases (run_p90.py does the position%n split).

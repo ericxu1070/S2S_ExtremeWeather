@@ -241,14 +241,32 @@ def _assemble_cube(name: str, row: pd.Series, members: int, seed: int):
 def stage_infer(case_sel, batch_size: int, clean_claims: bool):
     import torch
     from earth2studio.io import ZarrBackend
-    from earth2studio.models.px import FCN3
     from earth2studio.perturbation import Zero
     from earth2studio.run import ensemble
+    from fcn3.model_cache import get_model              # shared build-once-load cache
 
     worker = os.environ.get("P90_WORKER", "0")
     host = socket.gethostname()
     # Explicit truthiness: bool("0") is True, so P90_KEEP_ZARR=0/false/no must disable it.
     keep_zarr = os.environ.get("P90_KEEP_ZARR", "").lower() not in ("", "0", "false", "no")
+
+    # The DISCO CUDA kernel gates FCN3's bf16 path (earth2studio fcn3.py:382); without it
+    # the model silently runs fp32. Fail loudly rather than produce off-precision cubes.
+    try:
+        from disco_helpers import optimized_kernels_is_available
+        if not optimized_kernels_is_available() and os.environ.get("FCN3_ALLOW_FP32") != "1":
+            raise SystemExit(
+                "[infer] torch-harmonics DISCO CUDA extension MISSING -> FCN3 would run "
+                "fp32.\n        Rebuild it (see HANDOFF.md) or set FCN3_ALLOW_FP32=1.")
+    except ImportError:
+        pass
+
+    # Pin torch's intra-op threads to the launcher's per-worker core slice. Unpinned, each
+    # of the 8 pool workers spawns one thread per NODE core and they thrash during model
+    # setup (a3mega jobs 700/723). torch does not always read OMP_NUM_THREADS itself.
+    _omp = os.environ.get("OMP_NUM_THREADS")
+    if _omp:
+        torch.set_num_threads(int(_omp))
 
     df = P.cases()
     if case_sel:
@@ -297,10 +315,8 @@ def stage_infer(case_sel, batch_size: int, clean_claims: bool):
             icp = P.ic_path(name)
             if not icp.exists():
                 raise SystemExit(f"IC not found: {icp} -- run --stage prep-ic first")
-            if model is None:                          # lazy load: only on first real case
-                print("[infer] loading FCN3 checkpoint ...")
-                package = FCN3.load_default_package()
-                model = FCN3.load_model(package)
+            if model is None:                          # once per worker: load the shared
+                model = get_model(P.FCN3_CACHE / "model")   # pickle (built by fcn3 run 724)
 
             seed = P.seed_for(idx)
             model.set_rng(seed=seed, reset=True)
@@ -395,7 +411,8 @@ def main():
     ap.add_argument("--model", choices=list(P.MODELS), default="fcn3")
     ap.add_argument("--case", default=None, help="restrict to a single case name")
     ap.add_argument("--batch-size", type=int,
-                    default=int(os.environ.get("P90_FCN3_BATCH", 4)))
+                    default=int(os.environ.get("P90_FCN3_BATCH", 1)))  # FCN3 ~53 GiB/mem
+                    # -> batch>1 OOMs an 80 GB H100 (hard capacity, not fragmentation)
     ap.add_argument("--clean-claims", action="store_true",
                     help="unlink claim files for THIS shard's cases before infer")
     args = ap.parse_args()
