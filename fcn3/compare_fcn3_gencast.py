@@ -21,6 +21,7 @@ built yet are skipped with a warning rather than failing the whole run.
 from __future__ import annotations
 
 import json
+import math
 import os
 import sys
 from pathlib import Path
@@ -247,6 +248,133 @@ def make_pdfs() -> None:
 
 
 # --------------------------------------------------------------------------- #
+# Best-fit member ("can the model produce a realization that looks like reality?")
+# --------------------------------------------------------------------------- #
+# This is deliberate CHERRY-PICKING: per event, per model, pick the SINGLE ensemble
+# member whose verification field is closest to the observed field, by cos-lat-weighted
+# RMSE (the same metric ens_stats reports). It is not a forecast-skill score -- you cannot
+# know in advance which member will verify best -- but it shows the best the ensemble
+# *could* do, i.e. whether the truth is inside the ensemble's reach at all.
+#
+# A nice side effect for the PDF: a single member has exactly as many grid points as the
+# truth (24,885), so its histogram bottoms out at the same ~4e-5 floor -- the "forecast
+# reaches further down than truth" sample-count mismatch of the pooled PDF is gone here.
+def best_member(ev: F.Event, model: str, truth: np.ndarray, lat: np.ndarray,
+                nmax: int | None) -> dict | None:
+    """Index/RMSE/field of the member closest to the truth (min cos-lat-weighted RMSE)."""
+    mem = members_field(ev, model, nmax)              # (member, lat, lon)
+    if mem is None:
+        return None
+    rmse = np.array([math.sqrt(wmean((mem[m] - truth) ** 2, lat))
+                     for m in range(mem.shape[0])])
+    i = int(np.nanargmin(rmse))
+    return {"idx": i, "rmse": float(rmse[i]), "field": mem[i],
+            "n_members": int(mem.shape[0]), "worst_rmse": float(np.nanmax(rmse))}
+
+
+def _best_pdf_axes(ax, ev: F.Event, nmax: int | None) -> dict | None:
+    """One panel: ERA5 truth vs each model's best-fit member, all at truth sample size."""
+    truth = truth_field(ev)
+    if truth is None:
+        return None
+    lat = _lat(ev)
+    picks = {}
+    for model in ("fcn3", "gencast"):
+        bm = best_member(ev, model, truth, lat, nmax)
+        if bm is not None:
+            picks[model] = bm
+    if not picks:
+        return None
+
+    series = [truth.ravel()] + [bm["field"].ravel() for bm in picks.values()]
+    allv = np.concatenate(series)
+    allv = allv[np.isfinite(allv)]
+    xmin, xmax = float(allv.min()), float(allv.max())
+
+    x, d = PDF_histogram(truth.ravel(), xmin=xmin, xmax=xmax)
+    ax.plot(x, np.where(d <= 0, np.nan, d), color=COL["truth"], ls="-", lw=2.6,
+            label="ERA5 0.25° (truth)")
+    styles = {"gencast": (0, (1, 1)), "fcn3": (0, (4, 2))}
+    for model, bm in picks.items():
+        x, d = PDF_histogram(bm["field"].ravel(), xmin=xmin, xmax=xmax)
+        ax.plot(x, np.where(d <= 0, np.nan, d), color=COL[model], ls=styles[model], lw=2.1,
+                label=f"{LABEL[model]} best mem #{bm['idx']} "
+                      f"(RMSE {bm['rmse']:.2f} of {bm['n_members']})")
+
+    spec = XM.spec(ev.metric)
+    ax.set_yscale("log")
+    ax.set_ylim(bottom=YMIN)
+    ax.set_xlabel(f"{spec.label} ({spec.units})", fontsize=9)
+    title = ev.label + ("  [cold event]" if ev.cold else "")
+    ax.set_title(title, fontsize=10)
+    ax.grid(alpha=0.25, which="both")
+    ax.tick_params(labelsize=8)
+    return picks
+
+
+def make_best_member_pdfs() -> None:
+    """PDF figure using each model's best-fit (cherry-picked) member instead of the pool.
+    Per-event standalone plots + a combined 6-panel grid."""
+    events = F.selected()
+    F.ensure_dirs()
+    summary = []
+
+    for ev in events:
+        fig, ax = plt.subplots(figsize=(7.5, 5.2))
+        picks = _best_pdf_axes(ax, ev, n_members_available(ev))
+        if picks is None:
+            plt.close(fig)
+            print(f"[best] {ev.name}: no data yet; skip")
+            continue
+        ax.set_ylabel("probability (grid points, one member)", fontsize=9)
+        ax.legend(frameon=False, fontsize=8)
+        fig.suptitle(f"Best-fit ensemble member (cherry-picked, min RMSE vs truth)\n"
+                     f"week-{F.WEEKS} ({F.LEAD_DAYS}-day lead), 0.25°", fontsize=10)
+        out = F.fig_dir() / f"{ev.name}_best_member_pdf.png"
+        fig.tight_layout()
+        fig.savefig(out, dpi=150)
+        plt.close(fig)
+        print(f"[best] wrote {out}")
+        for model, bm in picks.items():
+            summary.append((ev.name, model, bm["idx"], bm["rmse"], bm["worst_rmse"]))
+
+    n = len(events)
+    ncol = 3
+    nrow = int(np.ceil(n / ncol))
+    fig, axes = plt.subplots(nrow, ncol, figsize=(5.0 * ncol, 3.9 * nrow), squeeze=False)
+    drew = 0
+    for k, ev in enumerate(events):
+        ax = axes[k // ncol][k % ncol]
+        if _best_pdf_axes(ax, ev, n_members_available(ev)) is not None:
+            drew += 1
+            if k % ncol == 0:
+                ax.set_ylabel("probability (one member)", fontsize=9)
+            ax.legend(frameon=False, fontsize=7)
+        else:
+            ax.text(0.5, 0.5, "not built yet", ha="center", va="center",
+                    transform=ax.transAxes, color="0.6")
+            ax.set_title(ev.label, fontsize=10)
+            ax.set_xticks([]); ax.set_yticks([])
+    for k in range(n, nrow * ncol):
+        axes[k // ncol][k % ncol].axis("off")
+    fig.suptitle(f"Best-fit ensemble member vs ERA5 truth — week-{F.WEEKS} "
+                 f"({F.LEAD_DAYS}-day lead), 0.25°  (cherry-picked min-RMSE member)",
+                 fontsize=12)
+    out = F.fig_dir() / "fcn3_vs_gencast_best_member_pdfs.png"
+    fig.tight_layout(rect=(0, 0, 1, 0.96))
+    fig.savefig(out, dpi=150)
+    plt.close(fig)
+    print(f"[best] wrote {out}  ({drew}/{n} panels populated)")
+
+    if summary:
+        print("\n[best] cherry-picked member per event (min cos-lat RMSE vs ERA5):")
+        print(f"  {'event':22s} {'model':8s} {'member':>6s} {'best_rmse':>10s} "
+              f"{'worst_rmse':>10s}")
+        for name, model, idx, r, wr in summary:
+            print(f"  {name:22s} {model:8s} {idx:6d} {r:10.3f} {wr:10.3f}")
+
+
+# --------------------------------------------------------------------------- #
 # Skill
 # --------------------------------------------------------------------------- #
 def make_skill(df: pd.DataFrame) -> None:
@@ -398,6 +526,7 @@ def make_all() -> None:
     print()
     df = build_scores()
     make_pdfs()
+    make_best_member_pdfs()
     make_skill(df)
     make_runtime()
     if not df.empty:
