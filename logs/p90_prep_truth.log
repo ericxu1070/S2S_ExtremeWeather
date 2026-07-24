@@ -1,0 +1,212 @@
+[prep-truth] 90 cases (P90_KIND=-)
+[prep-truth] 1/90 event_01_20220113: peak=2022-01-13T00:00:00 init=2021-12-23T00:00:00
+[prep-truth]   wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/p90_t2m/truth/event_01_20220113_verif_t2m_anom.nc
+[prep-truth]   wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/p90_t2m/truth/event_01_20220113_persist_t2m_anom.nc
+[prep-truth] 2/90 event_02_20220211: peak=2022-02-11T00:00:00 init=2022-01-21T00:00:00
+[prep-truth]   wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/p90_t2m/truth/event_02_20220211_verif_t2m_anom.nc
+[prep-truth]   wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/p90_t2m/truth/event_02_20220211_persist_t2m_anom.nc
+[prep-truth] 3/90 event_03_20220302: peak=2022-03-02T00:00:00 init=2022-02-09T00:00:00
+[prep-truth]   wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/p90_t2m/truth/event_03_20220302_verif_t2m_anom.nc
+[prep-truth]   wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/p90_t2m/truth/event_03_20220302_persist_t2m_anom.nc
+[prep-truth] 4/90 event_04_20220317: peak=2022-03-17T00:00:00 init=2022-02-24T00:00:00
+[prep-truth]   wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/p90_t2m/truth/event_04_20220317_verif_t2m_anom.nc
+[prep-truth]   wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/p90_t2m/truth/event_04_20220317_persist_t2m_anom.nc
+[prep-truth] 5/90 event_05_20220515: peak=2022-05-15T00:00:00 init=2022-04-24T00:00:00
+[prep-truth]   wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/p90_t2m/truth/event_05_20220515_verif_t2m_anom.nc
+[prep-truth]   wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/p90_t2m/truth/event_05_20220515_persist_t2m_anom.nc
+[prep-truth] 6/90 event_06_20221102: peak=2022-11-02T00:00:00 init=2022-10-12T00:00:00
+[prep-truth]   wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/p90_t2m/truth/event_06_20221102_verif_t2m_anom.nc
+[prep-truth]   wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/p90_t2m/truth/event_06_20221102_persist_t2m_anom.nc
+[prep-truth] 7/90 event_07_20221106: peak=2022-11-06T00:00:00 init=2022-10-16T00:00:00
+[prep-truth]   wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/p90_t2m/truth/event_07_20221106_verif_t2m_anom.nc
+[prep-truth]   wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/p90_t2m/truth/event_07_20221106_persist_t2m_anom.nc
+[prep-truth] 8/90 event_08_20230101: peak=2023-01-01T00:00:00 init=2022-12-11T00:00:00
+[prep-truth]   wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/p90_t2m/truth/event_08_20230101_verif_t2m_anom.nc
+[prep-truth]   wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/p90_t2m/truth/event_08_20230101_persist_t2m_anom.nc
+[prep-truth] 9/90 event_09_20230112: peak=2023-01-12T00:00:00 init=2022-12-22T00:00:00
+[prep-truth]   wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/p90_t2m/truth/event_09_20230112_verif_t2m_anom.nc
+[prep-truth]   wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/p90_t2m/truth/event_09_20230112_persist_t2m_anom.nc
+[prep-truth] 10/90 event_10_20230118: peak=2023-01-18T00:00:00 init=2022-12-28T00:00:00
+[prep-truth]   wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/p90_t2m/truth/event_10_20230118_verif_t2m_anom.nc
+[prep-truth]   wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/p90_t2m/truth/event_10_20230118_persist_t2m_anom.nc
+[prep-truth] 11/90 event_11_20230206: peak=2023-02-06T00:00:00 init=2023-01-16T00:00:00
+[prep-truth]   wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/p90_t2m/truth/event_11_20230206_verif_t2m_anom.nc
+[prep-truth]   wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/p90_t2m/truth/event_11_20230206_persist_t2m_anom.nc
+[prep-truth] 12/90 event_12_20230220: peak=2023-02-20T00:00:00 init=2023-01-30T00:00:00
+[prep-truth]   wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/p90_t2m/truth/event_12_20230220_verif_t2m_anom.nc
+[prep-truth]   wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/p90_t2m/truth/event_12_20230220_persist_t2m_anom.nc
+[prep-truth] 13/90 event_13_20230412: peak=2023-04-12T00:00:00 init=2023-03-22T00:00:00
+[prep-truth]   wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/p90_t2m/truth/event_13_20230412_verif_t2m_anom.nc
+[prep-truth]   wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/p90_t2m/truth/event_13_20230412_persist_t2m_anom.nc
+[prep-truth] 14/90 event_14_20231020: peak=2023-10-20T00:00:00 init=2023-09-29T00:00:00
+[prep-truth]   wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/p90_t2m/truth/event_14_20231020_verif_t2m_anom.nc
+[prep-truth]   wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/p90_t2m/truth/event_14_20231020_persist_t2m_anom.nc
+[prep-truth] 15/90 event_15_20231107: peak=2023-11-07T00:00:00 init=2023-10-17T00:00:00
+[prep-truth]   wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/p90_t2m/truth/event_15_20231107_verif_t2m_anom.nc
+[prep-truth]   wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/p90_t2m/truth/event_15_20231107_persist_t2m_anom.nc
+[prep-truth] 16/90 event_16_20231117: peak=2023-11-17T00:00:00 init=2023-10-27T00:00:00
+[prep-truth]   wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/p90_t2m/truth/event_16_20231117_verif_t2m_anom.nc
+[prep-truth]   wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/p90_t2m/truth/event_16_20231117_persist_t2m_anom.nc
+[prep-truth] 17/90 event_17_20231209: peak=2023-12-09T00:00:00 init=2023-11-18T00:00:00
+[prep-truth]   wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/p90_t2m/truth/event_17_20231209_verif_t2m_anom.nc
+[prep-truth]   wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/p90_t2m/truth/event_17_20231209_persist_t2m_anom.nc
+[prep-truth] 18/90 event_18_20231217: peak=2023-12-17T00:00:00 init=2023-11-26T00:00:00
+[prep-truth]   wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/p90_t2m/truth/event_18_20231217_verif_t2m_anom.nc
+[prep-truth]   wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/p90_t2m/truth/event_18_20231217_persist_t2m_anom.nc
+[prep-truth] 19/90 event_19_20231224: peak=2023-12-24T00:00:00 init=2023-12-03T00:00:00
+[prep-truth]   wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/p90_t2m/truth/event_19_20231224_verif_t2m_anom.nc
+[prep-truth]   wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/p90_t2m/truth/event_19_20231224_persist_t2m_anom.nc
+[prep-truth] 20/90 event_20_20240126: peak=2024-01-26T00:00:00 init=2024-01-05T00:00:00
+[prep-truth]   wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/p90_t2m/truth/event_20_20240126_verif_t2m_anom.nc
+[prep-truth]   wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/p90_t2m/truth/event_20_20240126_persist_t2m_anom.nc
+[prep-truth] 21/90 event_21_20240209: peak=2024-02-09T00:00:00 init=2024-01-19T00:00:00
+[prep-truth]   wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/p90_t2m/truth/event_21_20240209_verif_t2m_anom.nc
+[prep-truth]   wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/p90_t2m/truth/event_21_20240209_persist_t2m_anom.nc
+[prep-truth] 22/90 event_22_20240222: peak=2024-02-22T00:00:00 init=2024-02-01T00:00:00
+[prep-truth]   wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/p90_t2m/truth/event_22_20240222_verif_t2m_anom.nc
+[prep-truth]   wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/p90_t2m/truth/event_22_20240222_persist_t2m_anom.nc
+[prep-truth] 23/90 event_23_20240226: peak=2024-02-26T00:00:00 init=2024-02-05T00:00:00
+[prep-truth]   wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/p90_t2m/truth/event_23_20240226_verif_t2m_anom.nc
+[prep-truth]   wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/p90_t2m/truth/event_23_20240226_persist_t2m_anom.nc
+[prep-truth] 24/90 event_24_20240303: peak=2024-03-03T00:00:00 init=2024-02-11T00:00:00
+[prep-truth]   wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/p90_t2m/truth/event_24_20240303_verif_t2m_anom.nc
+[prep-truth]   wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/p90_t2m/truth/event_24_20240303_persist_t2m_anom.nc
+[prep-truth] 25/90 event_25_20240313: peak=2024-03-13T00:00:00 init=2024-02-21T00:00:00
+[prep-truth]   wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/p90_t2m/truth/event_25_20240313_verif_t2m_anom.nc
+[prep-truth]   wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/p90_t2m/truth/event_25_20240313_persist_t2m_anom.nc
+[prep-truth] 26/90 event_26_20240415: peak=2024-04-15T00:00:00 init=2024-03-25T00:00:00
+[prep-truth]   wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/p90_t2m/truth/event_26_20240415_verif_t2m_anom.nc
+[prep-truth]   wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/p90_t2m/truth/event_26_20240415_persist_t2m_anom.nc
+[prep-truth] 27/90 event_27_20240802: peak=2024-08-02T00:00:00 init=2024-07-12T00:00:00
+[prep-truth]   wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/p90_t2m/truth/event_27_20240802_verif_t2m_anom.nc
+[prep-truth]   wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/p90_t2m/truth/event_27_20240802_persist_t2m_anom.nc
+[prep-truth] 28/90 event_28_20240929: peak=2024-09-29T00:00:00 init=2024-09-08T00:00:00
+[prep-truth]   wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/p90_t2m/truth/event_28_20240929_verif_t2m_anom.nc
+[prep-truth]   wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/p90_t2m/truth/event_28_20240929_persist_t2m_anom.nc
+[prep-truth] 29/90 event_29_20241005: peak=2024-10-05T00:00:00 init=2024-09-14T00:00:00
+[prep-truth]   wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/p90_t2m/truth/event_29_20241005_verif_t2m_anom.nc
+[prep-truth]   wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/p90_t2m/truth/event_29_20241005_persist_t2m_anom.nc
+[prep-truth] 30/90 event_30_20241022: peak=2024-10-22T00:00:00 init=2024-10-01T00:00:00
+[prep-truth]   wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/p90_t2m/truth/event_30_20241022_verif_t2m_anom.nc
+[prep-truth]   wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/p90_t2m/truth/event_30_20241022_persist_t2m_anom.nc
+[prep-truth] 31/90 event_31_20241029: peak=2024-10-29T00:00:00 init=2024-10-08T00:00:00
+[prep-truth]   wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/p90_t2m/truth/event_31_20241029_verif_t2m_anom.nc
+[prep-truth]   wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/p90_t2m/truth/event_31_20241029_persist_t2m_anom.nc
+[prep-truth] 32/90 event_32_20241111: peak=2024-11-11T00:00:00 init=2024-10-21T00:00:00
+[prep-truth]   wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/p90_t2m/truth/event_32_20241111_verif_t2m_anom.nc
+[prep-truth]   wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/p90_t2m/truth/event_32_20241111_persist_t2m_anom.nc
+[prep-truth] 33/90 event_33_20241217: peak=2024-12-17T00:00:00 init=2024-11-26T00:00:00
+[prep-truth]   wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/p90_t2m/truth/event_33_20241217_verif_t2m_anom.nc
+[prep-truth]   wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/p90_t2m/truth/event_33_20241217_persist_t2m_anom.nc
+[prep-truth] 34/90 event_34_20241229: peak=2024-12-29T00:00:00 init=2024-12-08T00:00:00
+[prep-truth]   wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/p90_t2m/truth/event_34_20241229_verif_t2m_anom.nc
+[prep-truth]   wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/p90_t2m/truth/event_34_20241229_persist_t2m_anom.nc
+[prep-truth] 35/90 event_35_20250203: peak=2025-02-03T00:00:00 init=2025-01-13T00:00:00
+[prep-truth]   wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/p90_t2m/truth/event_35_20250203_verif_t2m_anom.nc
+[prep-truth]   wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/p90_t2m/truth/event_35_20250203_persist_t2m_anom.nc
+[prep-truth] 36/90 event_36_20250207: peak=2025-02-07T00:00:00 init=2025-01-17T00:00:00
+[prep-truth]   wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/p90_t2m/truth/event_36_20250207_verif_t2m_anom.nc
+[prep-truth]   wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/p90_t2m/truth/event_36_20250207_persist_t2m_anom.nc
+[prep-truth] 37/90 event_37_20250225: peak=2025-02-25T00:00:00 init=2025-02-04T00:00:00
+[prep-truth]   wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/p90_t2m/truth/event_37_20250225_verif_t2m_anom.nc
+[prep-truth]   wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/p90_t2m/truth/event_37_20250225_persist_t2m_anom.nc
+[prep-truth] 38/90 event_38_20250314: peak=2025-03-14T00:00:00 init=2025-02-21T00:00:00
+[prep-truth]   wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/p90_t2m/truth/event_38_20250314_verif_t2m_anom.nc
+[prep-truth]   wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/p90_t2m/truth/event_38_20250314_persist_t2m_anom.nc
+[prep-truth] 39/90 event_39_20250326: peak=2025-03-26T00:00:00 init=2025-03-05T00:00:00
+[prep-truth]   wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/p90_t2m/truth/event_39_20250326_verif_t2m_anom.nc
+[prep-truth]   wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/p90_t2m/truth/event_39_20250326_persist_t2m_anom.nc
+[prep-truth] 40/90 event_40_20250513: peak=2025-05-13T00:00:00 init=2025-04-22T00:00:00
+[prep-truth]   wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/p90_t2m/truth/event_40_20250513_verif_t2m_anom.nc
+[prep-truth]   wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/p90_t2m/truth/event_40_20250513_persist_t2m_anom.nc
+[prep-truth] 41/90 event_41_20250929: peak=2025-09-29T00:00:00 init=2025-09-08T00:00:00
+[prep-truth]   wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/p90_t2m/truth/event_41_20250929_verif_t2m_anom.nc
+[prep-truth]   wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/p90_t2m/truth/event_41_20250929_persist_t2m_anom.nc
+[prep-truth] 42/90 event_42_20251004: peak=2025-10-04T00:00:00 init=2025-09-13T00:00:00
+[prep-truth]   wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/p90_t2m/truth/event_42_20251004_verif_t2m_anom.nc
+[prep-truth]   wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/p90_t2m/truth/event_42_20251004_persist_t2m_anom.nc
+[prep-truth] 43/90 event_43_20251115: peak=2025-11-15T00:00:00 init=2025-10-25T00:00:00
+[prep-truth]   wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/p90_t2m/truth/event_43_20251115_verif_t2m_anom.nc
+[prep-truth]   wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/p90_t2m/truth/event_43_20251115_persist_t2m_anom.nc
+[prep-truth] 44/90 event_44_20251122: peak=2025-11-22T00:00:00 init=2025-11-01T00:00:00
+[prep-truth]   wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/p90_t2m/truth/event_44_20251122_verif_t2m_anom.nc
+[prep-truth]   wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/p90_t2m/truth/event_44_20251122_persist_t2m_anom.nc
+[prep-truth] 45/90 event_45_20251224: peak=2025-12-24T00:00:00 init=2025-12-03T00:00:00
+[prep-truth]   wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/p90_t2m/truth/event_45_20251224_verif_t2m_anom.nc
+[prep-truth]   wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/p90_t2m/truth/event_45_20251224_persist_t2m_anom.nc
+[prep-truth] 46/90 control_01_20220129: peak=2022-01-29T00:00:00 init=2022-01-08T00:00:00
+[prep-truth]   wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/p90_t2m/truth/control_01_20220129_verif_t2m_anom.nc
+[prep-truth]   wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/p90_t2m/truth/control_01_20220129_persist_t2m_anom.nc
+[prep-truth] 47/90 control_02_20220222: peak=2022-02-22T00:00:00 init=2022-02-01T00:00:00
+[prep-truth]   wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/p90_t2m/truth/control_02_20220222_verif_t2m_anom.nc
+[prep-truth]   wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/p90_t2m/truth/control_02_20220222_persist_t2m_anom.nc
+[prep-truth] 48/90 control_03_20230330: peak=2023-03-30T00:00:00 init=2023-03-09T00:00:00
+[prep-truth]   wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/p90_t2m/truth/control_03_20230330_verif_t2m_anom.nc
+[prep-truth]   wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/p90_t2m/truth/control_03_20230330_persist_t2m_anom.nc
+[prep-truth] 49/90 control_04_20240329: peak=2024-03-29T00:00:00 init=2024-03-08T00:00:00
+[prep-truth]   wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/p90_t2m/truth/control_04_20240329_verif_t2m_anom.nc
+[prep-truth]   wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/p90_t2m/truth/control_04_20240329_persist_t2m_anom.nc
+[prep-truth] 50/90 control_05_20250526: peak=2025-05-26T00:00:00 init=2025-05-05T00:00:00
+[prep-truth]   wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/p90_t2m/truth/control_05_20250526_verif_t2m_anom.nc
+[prep-truth]   wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/p90_t2m/truth/control_05_20250526_persist_t2m_anom.nc
+[prep-truth] 51/90 control_06_20241122: peak=2024-11-22T00:00:00 init=2024-11-01T00:00:00
+[prep-truth]   wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/p90_t2m/truth/control_06_20241122_verif_t2m_anom.nc
+[prep-truth]   wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/p90_t2m/truth/control_06_20241122_persist_t2m_anom.nc
+[prep-truth] 52/90 control_07_20221128: peak=2022-11-28T00:00:00 init=2022-11-07T00:00:00
+[prep-truth]   wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/p90_t2m/truth/control_07_20221128_verif_t2m_anom.nc
+[prep-truth]   wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/p90_t2m/truth/control_07_20221128_persist_t2m_anom.nc
+[prep-truth] 53/90 control_08_20240110: peak=2024-01-10T00:00:00 init=2023-12-20T00:00:00
+[prep-truth]   wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/p90_t2m/truth/control_08_20240110_verif_t2m_anom.nc
+[prep-truth]   wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/p90_t2m/truth/control_08_20240110_persist_t2m_anom.nc
+[prep-truth] 54/90 control_09_20250126: peak=2025-01-26T00:00:00 init=2025-01-05T00:00:00
+[prep-truth]   wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/p90_t2m/truth/control_09_20250126_verif_t2m_anom.nc
+[prep-truth]   wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/p90_t2m/truth/control_09_20250126_persist_t2m_anom.nc
+[prep-truth] 55/90 control_10_20250125: peak=2025-01-25T00:00:00 init=2025-01-04T00:00:00
+[prep-truth]   wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/p90_t2m/truth/control_10_20250125_verif_t2m_anom.nc
+[prep-truth]   wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/p90_t2m/truth/control_10_20250125_persist_t2m_anom.nc
+[prep-truth] 56/90 control_11_20220221: peak=2022-02-21T00:00:00 init=2022-01-31T00:00:00
+[prep-truth]   wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/p90_t2m/truth/control_11_20220221_verif_t2m_anom.nc
+[prep-truth]   wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/p90_t2m/truth/control_11_20220221_persist_t2m_anom.nc
+[prep-truth] 57/90 control_12_20250215: peak=2025-02-15T00:00:00 init=2025-01-25T00:00:00
+[prep-truth]   wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/p90_t2m/truth/control_12_20250215_verif_t2m_anom.nc
+[prep-truth]   wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/p90_t2m/truth/control_12_20250215_persist_t2m_anom.nc
+[prep-truth] 58/90 control_13_20250408: peak=2025-04-08T00:00:00 init=2025-03-18T00:00:00
+[prep-truth]   wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/p90_t2m/truth/control_13_20250408_verif_t2m_anom.nc
+[prep-truth]   wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/p90_t2m/truth/control_13_20250408_persist_t2m_anom.nc
+[prep-truth] 59/90 control_14_20251019: peak=2025-10-19T00:00:00 init=2025-09-28T00:00:00
+[prep-truth]   wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/p90_t2m/truth/control_14_20251019_verif_t2m_anom.nc
+[prep-truth]   wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/p90_t2m/truth/control_14_20251019_persist_t2m_anom.nc
+[prep-truth] 60/90 control_15_20251102: peak=2025-11-02T00:00:00 init=2025-10-12T00:00:00
+[prep-truth]   wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/p90_t2m/truth/control_15_20251102_verif_t2m_anom.nc
+[prep-truth]   wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/p90_t2m/truth/control_15_20251102_persist_t2m_anom.nc
+[prep-truth] 61/90 control_16_20241121: peak=2024-11-21T00:00:00 init=2024-10-31T00:00:00
+[prep-truth]   wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/p90_t2m/truth/control_16_20241121_verif_t2m_anom.nc
+[prep-truth]   wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/p90_t2m/truth/control_16_20241121_persist_t2m_anom.nc
+[prep-truth] 62/90 control_17_20221207: peak=2022-12-07T00:00:00 init=2022-11-16T00:00:00
+[prep-truth]   wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/p90_t2m/truth/control_17_20221207_verif_t2m_anom.nc
+[prep-truth]   wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/p90_t2m/truth/control_17_20221207_persist_t2m_anom.nc
+[prep-truth] 63/90 control_18_20241202: peak=2024-12-02T00:00:00 init=2024-11-11T00:00:00
+[prep-truth]   wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/p90_t2m/truth/control_18_20241202_verif_t2m_anom.nc
+[prep-truth]   wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/p90_t2m/truth/control_18_20241202_persist_t2m_anom.nc
+[prep-truth] 64/90 control_19_20221205: peak=2022-12-05T00:00:00 init=2022-11-14T00:00:00
+[prep-truth]   wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/p90_t2m/truth/control_19_20221205_verif_t2m_anom.nc
+[prep-truth]   wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/p90_t2m/truth/control_19_20221205_persist_t2m_anom.nc
+[prep-truth] 65/90 control_20_20230127: peak=2023-01-27T00:00:00 init=2023-01-06T00:00:00
+[prep-truth]   wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/p90_t2m/truth/control_20_20230127_verif_t2m_anom.nc
+[prep-truth]   wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/p90_t2m/truth/control_20_20230127_persist_t2m_anom.nc
+[prep-truth] 66/90 control_21_20220201: peak=2022-02-01T00:00:00 init=2022-01-11T00:00:00
+[prep-truth]   wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/p90_t2m/truth/control_21_20220201_verif_t2m_anom.nc
+[prep-truth]   wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/p90_t2m/truth/control_21_20220201_persist_t2m_anom.nc
+[prep-truth] 67/90 control_22_20220219: peak=2022-02-19T00:00:00 init=2022-01-29T00:00:00
+[prep-truth]   wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/p90_t2m/truth/control_22_20220219_verif_t2m_anom.nc
+[prep-truth]   wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/p90_t2m/truth/control_22_20220219_persist_t2m_anom.nc
+[prep-truth] 68/90 control_23_20220202: peak=2022-02-02T00:00:00 init=2022-01-12T00:00:00
+[prep-truth]   wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/p90_t2m/truth/control_23_20220202_verif_t2m_anom.nc
+[prep-truth]   wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/p90_t2m/truth/control_23_20220202_persist_t2m_anom.nc
+[prep-truth] 69/90 control_24_20230327: peak=2023-03-27T00:00:00 init=2023-03-06T00:00:00
+[prep-truth]   wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/p90_t2m/truth/control_24_20230327_verif_t2m_anom.nc
+[prep-truth]   wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/p90_t2m/truth/control_24_20230327_persist_t2m_anom.nc
+[prep-truth] 70/90 control_25_20230320: peak=2023-03-20T00:00:00 init=2023-02-27T00:00:00
+[prep-truth]   wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/p90_t2m/truth/control_25_20230320_verif_t2m_anom.nc
+[prep-truth]   wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/p90_t2m/truth/control_25_20230320_persist_t2m_anom.nc
+[prep-truth] 71/90 control_26_20220428: peak=2022-04-28T00:00:00 init=2022-04-07T00:00:00

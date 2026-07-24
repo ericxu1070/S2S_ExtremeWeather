@@ -1,0 +1,27 @@
+Host: nucla3m-a3meganodeset-1
+Start: Thu Jul 23 01:22:52 UTC 2026
+GPU 0: NVIDIA H100 80GB HBM3 (UUID: GPU-1e3346ed-8ba9-0194-f8b2-6b0f49a2e145)
+GPU 1: NVIDIA H100 80GB HBM3 (UUID: GPU-9e0f6cca-d4b1-e926-0d3c-579b3514ff7d)
+GPU 2: NVIDIA H100 80GB HBM3 (UUID: GPU-db0c696d-ea62-4e0f-c499-5c03774c457e)
+GPU 3: NVIDIA H100 80GB HBM3 (UUID: GPU-4a9ce45c-9d8e-586d-e45f-dd5c307a59c1)
+GPU 4: NVIDIA H100 80GB HBM3 (UUID: GPU-941242cf-b532-1f32-03ab-eea72707cd1d)
+GPU 5: NVIDIA H100 80GB HBM3 (UUID: GPU-da95ee82-a366-626b-2895-be2341bd6540)
+GPU 6: NVIDIA H100 80GB HBM3 (UUID: GPU-b34345f3-fadb-5154-7b48-5a63acdd0977)
+GPU 7: NVIDIA H100 80GB HBM3 (UUID: GPU-841b7e04-1b11-aba4-deea-91956c1d79c1)
+FCN3 vs GenCast comparison -- week3 (21 d lead), 0p25, 24 members, 84 x 6 h steps
+
+  PNW_HeatDome_2021      heat      peak 2021-06-28  init 2021-06-07  t2m_anom    GenCast: cached
+  HurricaneIan_2022      hurricane peak 2022-09-28  init 2022-09-07  u850_speed  GenCast: cached
+  WinterStorm_Uri_2021   cold      peak 2021-02-15  init 2021-01-25  t2m_anom    GenCast: cached
+  p90_20231107           p90       peak 2023-11-07  init 2023-10-17  t2m_anom    GenCast: MUST RUN
+  p90_20240802           p90       peak 2024-08-02  init 2024-07-12  t2m_anom    GenCast: MUST RUN
+  p90_20251224           p90       peak 2025-12-24  init 2025-12-03  t2m_anom    GenCast: MUST RUN
+FCN3 infer: members=24 batch_size=1 nshards=8 weeks=3
+  launched shard 0 on GPU 0 (pid 4112462)
+  launched shard 1 on GPU 1 (pid 4112463)
+  launched shard 2 on GPU 2 (pid 4112464)
+  launched shard 3 on GPU 3 (pid 4112465)
+  launched shard 4 on GPU 4 (pid 4112466)
+  launched shard 5 on GPU 5 (pid 4112467)
+  launched shard 6 on GPU 6 (pid 4112468)
+  launched shard 7 on GPU 7 (pid 4112469)

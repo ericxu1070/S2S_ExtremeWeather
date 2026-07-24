@@ -1,0 +1,488 @@
+=== xres 0p25 (GenCast 0.25deg): week3, lead 21d, 42 steps, 24 members, serial worker 1 ===
+p90_20231107 [w1 0p25 week3] pass 1 (event 1/3)
+WARNING: Logging before flag parsing goes to stderr.
+I0723 00:43:41.528284 21990608644992 xla_bridge.py:849] Unable to initialize backend 'tpu': INTERNAL: Failed to open libtpu.so: libtpu.so: cannot open shared object file: No such file or directory
+[model] serial infer on 1 device(s); ensemble=24 (24 sample(s), one at a time). task pressure levels: 13
+I0723 00:46:02.973919 21990608644992 rollout.py:205] Sample 0/1
+/home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/third_party/graphcast/graphcast/rollout.py:328: FutureWarning: The return type of `Dataset.dims` will be changed to return a set of dimension names in future, in order to be more consistent with `DataArray.dims`. To access a mapping from dimension names to lengths, please use `Dataset.sizes`.
+  num_target_steps = targets_template.dims["time"]
+I0723 00:46:02.976218 21990608644992 rollout.py:361] Chunk 0/42
+/home/ubuntu/miniconda3/envs/moe/lib/python3.12/site-packages/scipy/sparse/_index.py:210: SparseEfficiencyWarning: Changing the sparsity structure of a csr_matrix is expensive. lil and dok are more efficient.
+  self._set_arrayXarray(i, j, x)
+/home/ubuntu/miniconda3/envs/moe/lib/python3.12/site-packages/scipy/sparse/_index.py:210: SparseEfficiencyWarning: Changing the sparsity structure of a csr_matrix is expensive. lil and dok are more efficient.
+  self._set_arrayXarray(i, j, x)
+I0723 00:56:07.451279 21990608644992 sparse_transformer.py:507] mask_block_size: 10273.
+/home/ubuntu/miniconda3/envs/moe/lib/python3.12/site-packages/jax/_src/compiler.py:833: UserWarning: Error writing persistent compilation cache entry for 'jit_apply_fn': JaxRuntimeError: RESOURCE_EXHAUSTED: Failed to serialize message of type xla.gpu.GpuExecutableProto because its size must be smaller than 2GiB: 4171375981; at byte 0; at uncompressed byte 0; at byte 2909
+	failed to serialize the rest of the fields in GpuExecutableProto split proto (all fields except asm_text, binary, dnn_compiled_graphs, and constants)
+  warnings.warn(
+/home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/third_party/graphcast/graphcast/rollout.py:435: FutureWarning: The return type of `Dataset.dims` will be changed to return a set of dimension names in future, in order to be more consistent with `DataArray.dims`. To access a mapping from dimension names to lengths, please use `Dataset.sizes`.
+  num_inputs = prev_inputs.dims["time"]
+/home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/third_party/graphcast/graphcast/rollout.py:437: FutureWarning: In a future version of xarray the default value for compat will change from compat='equals' to compat='override'. This change will result in the following ValueError: Cannot specify both data_vars='different' and compat='override'. The recommendation is to set compat explicitly for this case.
+  xarray.concat(
+  [w1 0p25] p90_20231107: member 3/24  step 1/42
+I0723 00:59:48.421188 21990608644992 rollout.py:361] Chunk 1/42
+  [w1 0p25] p90_20231107: member 3/24  step 2/42
+I0723 01:00:16.424312 21990608644992 rollout.py:361] Chunk 2/42
+  [w1 0p25] p90_20231107: member 3/24  step 3/42
+I0723 01:00:44.403492 21990608644992 rollout.py:361] Chunk 3/42
+  [w1 0p25] p90_20231107: member 3/24  step 4/42
+I0723 01:01:12.402760 21990608644992 rollout.py:361] Chunk 4/42
+  [w1 0p25] p90_20231107: member 3/24  step 5/42
+I0723 01:01:40.431432 21990608644992 rollout.py:361] Chunk 5/42
+  [w1 0p25] p90_20231107: member 3/24  step 6/42
+I0723 01:02:08.467454 21990608644992 rollout.py:361] Chunk 6/42
+  [w1 0p25] p90_20231107: member 3/24  step 7/42
+I0723 01:02:36.478661 21990608644992 rollout.py:361] Chunk 7/42
+  [w1 0p25] p90_20231107: member 3/24  step 8/42
+I0723 01:03:04.499852 21990608644992 rollout.py:361] Chunk 8/42
+  [w1 0p25] p90_20231107: member 3/24  step 9/42
+I0723 01:03:32.506345 21990608644992 rollout.py:361] Chunk 9/42
+  [w1 0p25] p90_20231107: member 3/24  step 10/42
+I0723 01:04:00.538251 21990608644992 rollout.py:361] Chunk 10/42
+  [w1 0p25] p90_20231107: member 3/24  step 11/42
+I0723 01:04:28.548465 21990608644992 rollout.py:361] Chunk 11/42
+  [w1 0p25] p90_20231107: member 3/24  step 12/42
+I0723 01:04:56.570538 21990608644992 rollout.py:361] Chunk 12/42
+  [w1 0p25] p90_20231107: member 3/24  step 13/42
+I0723 01:05:24.592145 21990608644992 rollout.py:361] Chunk 13/42
+  [w1 0p25] p90_20231107: member 3/24  step 14/42
+I0723 01:05:52.601819 21990608644992 rollout.py:361] Chunk 14/42
+  [w1 0p25] p90_20231107: member 3/24  step 15/42
+I0723 01:06:20.596259 21990608644992 rollout.py:361] Chunk 15/42
+  [w1 0p25] p90_20231107: member 3/24  step 16/42
+I0723 01:06:48.600339 21990608644992 rollout.py:361] Chunk 16/42
+  [w1 0p25] p90_20231107: member 3/24  step 17/42
+I0723 01:07:16.604423 21990608644992 rollout.py:361] Chunk 17/42
+  [w1 0p25] p90_20231107: member 3/24  step 18/42
+I0723 01:07:44.606457 21990608644992 rollout.py:361] Chunk 18/42
+  [w1 0p25] p90_20231107: member 3/24  step 19/42
+I0723 01:08:12.621597 21990608644992 rollout.py:361] Chunk 19/42
+  [w1 0p25] p90_20231107: member 3/24  step 20/42
+I0723 01:08:40.653107 21990608644992 rollout.py:361] Chunk 20/42
+  [w1 0p25] p90_20231107: member 3/24  step 21/42
+I0723 01:09:08.654591 21990608644992 rollout.py:361] Chunk 21/42
+  [w1 0p25] p90_20231107: member 3/24  step 22/42
+I0723 01:09:36.668603 21990608644992 rollout.py:361] Chunk 22/42
+  [w1 0p25] p90_20231107: member 3/24  step 23/42
+I0723 01:10:04.700726 21990608644992 rollout.py:361] Chunk 23/42
+  [w1 0p25] p90_20231107: member 3/24  step 24/42
+I0723 01:10:32.697929 21990608644992 rollout.py:361] Chunk 24/42
+  [w1 0p25] p90_20231107: member 3/24  step 25/42
+I0723 01:11:00.702387 21990608644992 rollout.py:361] Chunk 25/42
+  [w1 0p25] p90_20231107: member 3/24  step 26/42
+I0723 01:11:28.697567 21990608644992 rollout.py:361] Chunk 26/42
+  [w1 0p25] p90_20231107: member 3/24  step 27/42
+I0723 01:11:56.702385 21990608644992 rollout.py:361] Chunk 27/42
+  [w1 0p25] p90_20231107: member 3/24  step 28/42
+I0723 01:12:24.722855 21990608644992 rollout.py:361] Chunk 28/42
+  [w1 0p25] p90_20231107: member 3/24  step 29/42
+I0723 01:12:52.730757 21990608644992 rollout.py:361] Chunk 29/42
+  [w1 0p25] p90_20231107: member 3/24  step 30/42
+I0723 01:13:20.725497 21990608644992 rollout.py:361] Chunk 30/42
+  [w1 0p25] p90_20231107: member 3/24  step 31/42
+I0723 01:13:48.744930 21990608644992 rollout.py:361] Chunk 31/42
+  [w1 0p25] p90_20231107: member 3/24  step 32/42
+I0723 01:14:16.750570 21990608644992 rollout.py:361] Chunk 32/42
+  [w1 0p25] p90_20231107: member 3/24  step 33/42
+I0723 01:14:44.767019 21990608644992 rollout.py:361] Chunk 33/42
+  [w1 0p25] p90_20231107: member 3/24  step 34/42
+I0723 01:15:12.800241 21990608644992 rollout.py:361] Chunk 34/42
+  [w1 0p25] p90_20231107: member 3/24  step 35/42
+I0723 01:15:40.825284 21990608644992 rollout.py:361] Chunk 35/42
+  [w1 0p25] p90_20231107: member 3/24  step 36/42
+I0723 01:16:08.864727 21990608644992 rollout.py:361] Chunk 36/42
+  [w1 0p25] p90_20231107: member 3/24  step 37/42
+I0723 01:16:36.865421 21990608644992 rollout.py:361] Chunk 37/42
+  [w1 0p25] p90_20231107: member 3/24  step 38/42
+I0723 01:17:04.867395 21990608644992 rollout.py:361] Chunk 38/42
+  [w1 0p25] p90_20231107: member 3/24  step 39/42
+I0723 01:17:32.873965 21990608644992 rollout.py:361] Chunk 39/42
+  [w1 0p25] p90_20231107: member 3/24  step 40/42
+I0723 01:18:00.878140 21990608644992 rollout.py:361] Chunk 40/42
+  [w1 0p25] p90_20231107: member 3/24  step 41/42
+I0723 01:18:28.884430 21990608644992 rollout.py:361] Chunk 41/42
+  [w1 0p25] p90_20231107: member 3/24  step 42/42
+  [w1 0p25] p90_20231107: member 3/24 saved
+I0723 01:19:05.243877 21990608644992 rollout.py:205] Sample 0/1
+/home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/third_party/graphcast/graphcast/rollout.py:328: FutureWarning: The return type of `Dataset.dims` will be changed to return a set of dimension names in future, in order to be more consistent with `DataArray.dims`. To access a mapping from dimension names to lengths, please use `Dataset.sizes`.
+  num_target_steps = targets_template.dims["time"]
+I0723 01:19:05.245557 21990608644992 rollout.py:361] Chunk 0/42
+/home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/third_party/graphcast/graphcast/rollout.py:435: FutureWarning: The return type of `Dataset.dims` will be changed to return a set of dimension names in future, in order to be more consistent with `DataArray.dims`. To access a mapping from dimension names to lengths, please use `Dataset.sizes`.
+  num_inputs = prev_inputs.dims["time"]
+/home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/third_party/graphcast/graphcast/rollout.py:437: FutureWarning: In a future version of xarray the default value for compat will change from compat='equals' to compat='override'. This change will result in the following ValueError: Cannot specify both data_vars='different' and compat='override'. The recommendation is to set compat explicitly for this case.
+  xarray.concat(
+  [w1 0p25] p90_20231107: member 14/24  step 1/42
+I0723 01:19:33.292715 21990608644992 rollout.py:361] Chunk 1/42
+  [w1 0p25] p90_20231107: member 14/24  step 2/42
+I0723 01:20:01.290553 21990608644992 rollout.py:361] Chunk 2/42
+  [w1 0p25] p90_20231107: member 14/24  step 3/42
+I0723 01:20:29.300949 21990608644992 rollout.py:361] Chunk 3/42
+  [w1 0p25] p90_20231107: member 14/24  step 4/42
+I0723 01:20:57.306784 21990608644992 rollout.py:361] Chunk 4/42
+  [w1 0p25] p90_20231107: member 14/24  step 5/42
+I0723 01:21:25.298760 21990608644992 rollout.py:361] Chunk 5/42
+  [w1 0p25] p90_20231107: member 14/24  step 6/42
+I0723 01:21:53.297727 21990608644992 rollout.py:361] Chunk 6/42
+  [w1 0p25] p90_20231107: member 14/24  step 7/42
+I0723 01:22:21.297298 21990608644992 rollout.py:361] Chunk 7/42
+  [w1 0p25] p90_20231107: member 14/24  step 8/42
+I0723 01:22:49.296001 21990608644992 rollout.py:361] Chunk 8/42
+  [w1 0p25] p90_20231107: member 14/24  step 9/42
+I0723 01:23:17.294209 21990608644992 rollout.py:361] Chunk 9/42
+  [w1 0p25] p90_20231107: member 14/24  step 10/42
+I0723 01:23:45.295059 21990608644992 rollout.py:361] Chunk 10/42
+  [w1 0p25] p90_20231107: member 14/24  step 11/42
+I0723 01:24:13.293176 21990608644992 rollout.py:361] Chunk 11/42
+  [w1 0p25] p90_20231107: member 14/24  step 12/42
+I0723 01:24:41.297126 21990608644992 rollout.py:361] Chunk 12/42
+  [w1 0p25] p90_20231107: member 14/24  step 13/42
+I0723 01:25:09.299248 21990608644992 rollout.py:361] Chunk 13/42
+  [w1 0p25] p90_20231107: member 14/24  step 14/42
+I0723 01:25:37.301539 21990608644992 rollout.py:361] Chunk 14/42
+  [w1 0p25] p90_20231107: member 14/24  step 15/42
+I0723 01:26:05.306191 21990608644992 rollout.py:361] Chunk 15/42
+  [w1 0p25] p90_20231107: member 14/24  step 16/42
+I0723 01:26:33.316632 21990608644992 rollout.py:361] Chunk 16/42
+  [w1 0p25] p90_20231107: member 14/24  step 17/42
+I0723 01:27:01.311678 21990608644992 rollout.py:361] Chunk 17/42
+  [w1 0p25] p90_20231107: member 14/24  step 18/42
+I0723 01:27:29.314656 21990608644992 rollout.py:361] Chunk 18/42
+  [w1 0p25] p90_20231107: member 14/24  step 19/42
+I0723 01:27:57.346648 21990608644992 rollout.py:361] Chunk 19/42
+  [w1 0p25] p90_20231107: member 14/24  step 20/42
+I0723 01:28:25.368599 21990608644992 rollout.py:361] Chunk 20/42
+  [w1 0p25] p90_20231107: member 14/24  step 21/42
+I0723 01:28:53.391621 21990608644992 rollout.py:361] Chunk 21/42
+  [w1 0p25] p90_20231107: member 14/24  step 22/42
+I0723 01:29:21.391641 21990608644992 rollout.py:361] Chunk 22/42
+  [w1 0p25] p90_20231107: member 14/24  step 23/42
+I0723 01:29:49.395841 21990608644992 rollout.py:361] Chunk 23/42
+  [w1 0p25] p90_20231107: member 14/24  step 24/42
+I0723 01:30:17.405802 21990608644992 rollout.py:361] Chunk 24/42
+  [w1 0p25] p90_20231107: member 14/24  step 25/42
+I0723 01:30:45.398918 21990608644992 rollout.py:361] Chunk 25/42
+  [w1 0p25] p90_20231107: member 14/24  step 26/42
+I0723 01:31:13.400083 21990608644992 rollout.py:361] Chunk 26/42
+  [w1 0p25] p90_20231107: member 14/24  step 27/42
+I0723 01:31:41.401623 21990608644992 rollout.py:361] Chunk 27/42
+  [w1 0p25] p90_20231107: member 14/24  step 28/42
+I0723 01:32:09.398733 21990608644992 rollout.py:361] Chunk 28/42
+  [w1 0p25] p90_20231107: member 14/24  step 29/42
+I0723 01:32:37.410032 21990608644992 rollout.py:361] Chunk 29/42
+  [w1 0p25] p90_20231107: member 14/24  step 30/42
+I0723 01:33:05.408912 21990608644992 rollout.py:361] Chunk 30/42
+  [w1 0p25] p90_20231107: member 14/24  step 31/42
+I0723 01:33:33.439033 21990608644992 rollout.py:361] Chunk 31/42
+  [w1 0p25] p90_20231107: member 14/24  step 32/42
+I0723 01:34:01.464243 21990608644992 rollout.py:361] Chunk 32/42
+  [w1 0p25] p90_20231107: member 14/24  step 33/42
+I0723 01:34:29.500562 21990608644992 rollout.py:361] Chunk 33/42
+  [w1 0p25] p90_20231107: member 14/24  step 34/42
+I0723 01:34:57.505289 21990608644992 rollout.py:361] Chunk 34/42
+  [w1 0p25] p90_20231107: member 14/24  step 35/42
+I0723 01:35:25.537834 21990608644992 rollout.py:361] Chunk 35/42
+  [w1 0p25] p90_20231107: member 14/24  step 36/42
+I0723 01:35:53.558318 21990608644992 rollout.py:361] Chunk 36/42
+  [w1 0p25] p90_20231107: member 14/24  step 37/42
+I0723 01:36:21.600888 21990608644992 rollout.py:361] Chunk 37/42
+  [w1 0p25] p90_20231107: member 14/24  step 38/42
+I0723 01:36:49.614621 21990608644992 rollout.py:361] Chunk 38/42
+  [w1 0p25] p90_20231107: member 14/24  step 39/42
+I0723 01:37:17.618932 21990608644992 rollout.py:361] Chunk 39/42
+  [w1 0p25] p90_20231107: member 14/24  step 40/42
+I0723 01:37:45.613962 21990608644992 rollout.py:361] Chunk 40/42
+  [w1 0p25] p90_20231107: member 14/24  step 41/42
+I0723 01:38:13.615872 21990608644992 rollout.py:361] Chunk 41/42
+  [w1 0p25] p90_20231107: member 14/24  step 42/42
+  [w1 0p25] p90_20231107: member 14/24 saved
+I0723 01:38:49.664228 21990608644992 rollout.py:205] Sample 0/1
+/home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/third_party/graphcast/graphcast/rollout.py:328: FutureWarning: The return type of `Dataset.dims` will be changed to return a set of dimension names in future, in order to be more consistent with `DataArray.dims`. To access a mapping from dimension names to lengths, please use `Dataset.sizes`.
+  num_target_steps = targets_template.dims["time"]
+I0723 01:38:49.665364 21990608644992 rollout.py:361] Chunk 0/42
+/home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/third_party/graphcast/graphcast/rollout.py:435: FutureWarning: The return type of `Dataset.dims` will be changed to return a set of dimension names in future, in order to be more consistent with `DataArray.dims`. To access a mapping from dimension names to lengths, please use `Dataset.sizes`.
+  num_inputs = prev_inputs.dims["time"]
+/home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/third_party/graphcast/graphcast/rollout.py:437: FutureWarning: In a future version of xarray the default value for compat will change from compat='equals' to compat='override'. This change will result in the following ValueError: Cannot specify both data_vars='different' and compat='override'. The recommendation is to set compat explicitly for this case.
+  xarray.concat(
+  [w1 0p25] p90_20231107: member 22/24  step 1/42
+I0723 01:39:17.714853 21990608644992 rollout.py:361] Chunk 1/42
+  [w1 0p25] p90_20231107: member 22/24  step 2/42
+I0723 01:39:45.701805 21990608644992 rollout.py:361] Chunk 2/42
+  [w1 0p25] p90_20231107: member 22/24  step 3/42
+I0723 01:40:13.705651 21990608644992 rollout.py:361] Chunk 3/42
+  [w1 0p25] p90_20231107: member 22/24  step 4/42
+I0723 01:40:41.698616 21990608644992 rollout.py:361] Chunk 4/42
+  [w1 0p25] p90_20231107: member 22/24  step 5/42
+I0723 01:41:09.694953 21990608644992 rollout.py:361] Chunk 5/42
+  [w1 0p25] p90_20231107: member 22/24  step 6/42
+I0723 01:41:37.694102 21990608644992 rollout.py:361] Chunk 6/42
+  [w1 0p25] p90_20231107: member 22/24  step 7/42
+I0723 01:42:05.698233 21990608644992 rollout.py:361] Chunk 7/42
+  [w1 0p25] p90_20231107: member 22/24  step 8/42
+I0723 01:42:33.703392 21990608644992 rollout.py:361] Chunk 8/42
+  [w1 0p25] p90_20231107: member 22/24  step 9/42
+I0723 01:43:01.701813 21990608644992 rollout.py:361] Chunk 9/42
+  [w1 0p25] p90_20231107: member 22/24  step 10/42
+I0723 01:43:29.699222 21990608644992 rollout.py:361] Chunk 10/42
+  [w1 0p25] p90_20231107: member 22/24  step 11/42
+I0723 01:43:57.698383 21990608644992 rollout.py:361] Chunk 11/42
+  [w1 0p25] p90_20231107: member 22/24  step 12/42
+I0723 01:44:25.697083 21990608644992 rollout.py:361] Chunk 12/42
+  [w1 0p25] p90_20231107: member 22/24  step 13/42
+I0723 01:44:53.698730 21990608644992 rollout.py:361] Chunk 13/42
+  [w1 0p25] p90_20231107: member 22/24  step 14/42
+I0723 01:45:21.716255 21990608644992 rollout.py:361] Chunk 14/42
+  [w1 0p25] p90_20231107: member 22/24  step 15/42
+I0723 01:45:49.707106 21990608644992 rollout.py:361] Chunk 15/42
+  [w1 0p25] p90_20231107: member 22/24  step 16/42
+I0723 01:46:17.723003 21990608644992 rollout.py:361] Chunk 16/42
+  [w1 0p25] p90_20231107: member 22/24  step 17/42
+I0723 01:46:45.727014 21990608644992 rollout.py:361] Chunk 17/42
+  [w1 0p25] p90_20231107: member 22/24  step 18/42
+I0723 01:47:13.767896 21990608644992 rollout.py:361] Chunk 18/42
+  [w1 0p25] p90_20231107: member 22/24  step 19/42
+I0723 01:47:41.799495 21990608644992 rollout.py:361] Chunk 19/42
+  [w1 0p25] p90_20231107: member 22/24  step 20/42
+I0723 01:48:09.822001 21990608644992 rollout.py:361] Chunk 20/42
+  [w1 0p25] p90_20231107: member 22/24  step 21/42
+I0723 01:48:37.827051 21990608644992 rollout.py:361] Chunk 21/42
+  [w1 0p25] p90_20231107: member 22/24  step 22/42
+I0723 01:49:05.841414 21990608644992 rollout.py:361] Chunk 22/42
+  [w1 0p25] p90_20231107: member 22/24  step 23/42
+I0723 01:49:33.864788 21990608644992 rollout.py:361] Chunk 23/42
+  [w1 0p25] p90_20231107: member 22/24  step 24/42
+I0723 01:50:01.866230 21990608644992 rollout.py:361] Chunk 24/42
+  [w1 0p25] p90_20231107: member 22/24  step 25/42
+I0723 01:50:29.894275 21990608644992 rollout.py:361] Chunk 25/42
+  [w1 0p25] p90_20231107: member 22/24  step 26/42
+I0723 01:50:57.897662 21990608644992 rollout.py:361] Chunk 26/42
+  [w1 0p25] p90_20231107: member 22/24  step 27/42
+I0723 01:51:25.888825 21990608644992 rollout.py:361] Chunk 27/42
+  [w1 0p25] p90_20231107: member 22/24  step 28/42
+I0723 01:51:53.890342 21990608644992 rollout.py:361] Chunk 28/42
+  [w1 0p25] p90_20231107: member 22/24  step 29/42
+I0723 01:52:21.882459 21990608644992 rollout.py:361] Chunk 29/42
+  [w1 0p25] p90_20231107: member 22/24  step 30/42
+I0723 01:52:49.897103 21990608644992 rollout.py:361] Chunk 30/42
+  [w1 0p25] p90_20231107: member 22/24  step 31/42
+I0723 01:53:17.899378 21990608644992 rollout.py:361] Chunk 31/42
+  [w1 0p25] p90_20231107: member 22/24  step 32/42
+I0723 01:53:45.915425 21990608644992 rollout.py:361] Chunk 32/42
+  [w1 0p25] p90_20231107: member 22/24  step 33/42
+I0723 01:54:13.922580 21990608644992 rollout.py:361] Chunk 33/42
+  [w1 0p25] p90_20231107: member 22/24  step 34/42
+I0723 01:54:41.951110 21990608644992 rollout.py:361] Chunk 34/42
+  [w1 0p25] p90_20231107: member 22/24  step 35/42
+I0723 01:55:09.990535 21990608644992 rollout.py:361] Chunk 35/42
+  [w1 0p25] p90_20231107: member 22/24  step 36/42
+I0723 01:55:38.003499 21990608644992 rollout.py:361] Chunk 36/42
+  [w1 0p25] p90_20231107: member 22/24  step 37/42
+I0723 01:56:06.005474 21990608644992 rollout.py:361] Chunk 37/42
+  [w1 0p25] p90_20231107: member 22/24  step 38/42
+I0723 01:56:33.996138 21990608644992 rollout.py:361] Chunk 38/42
+  [w1 0p25] p90_20231107: member 22/24  step 39/42
+I0723 01:57:01.997104 21990608644992 rollout.py:361] Chunk 39/42
+  [w1 0p25] p90_20231107: member 22/24  step 40/42
+I0723 01:57:30.006878 21990608644992 rollout.py:361] Chunk 40/42
+  [w1 0p25] p90_20231107: member 22/24  step 41/42
+I0723 01:57:57.999227 21990608644992 rollout.py:361] Chunk 41/42
+  [w1 0p25] p90_20231107: member 22/24  step 42/42
+  [w1 0p25] p90_20231107: member 22/24 saved
+p90_20240802 [w1 0p25 week3] pass 1 (event 2/3)
+I0723 01:59:26.509478 21990608644992 rollout.py:205] Sample 0/1
+/home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/third_party/graphcast/graphcast/rollout.py:328: FutureWarning: The return type of `Dataset.dims` will be changed to return a set of dimension names in future, in order to be more consistent with `DataArray.dims`. To access a mapping from dimension names to lengths, please use `Dataset.sizes`.
+  num_target_steps = targets_template.dims["time"]
+I0723 01:59:26.511180 21990608644992 rollout.py:361] Chunk 0/42
+/home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/third_party/graphcast/graphcast/rollout.py:435: FutureWarning: The return type of `Dataset.dims` will be changed to return a set of dimension names in future, in order to be more consistent with `DataArray.dims`. To access a mapping from dimension names to lengths, please use `Dataset.sizes`.
+  num_inputs = prev_inputs.dims["time"]
+/home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/third_party/graphcast/graphcast/rollout.py:437: FutureWarning: In a future version of xarray the default value for compat will change from compat='equals' to compat='override'. This change will result in the following ValueError: Cannot specify both data_vars='different' and compat='override'. The recommendation is to set compat explicitly for this case.
+  xarray.concat(
+  [w1 0p25] p90_20240802: member 6/24  step 1/42
+I0723 01:59:54.523409 21990608644992 rollout.py:361] Chunk 1/42
+  [w1 0p25] p90_20240802: member 6/24  step 2/42
+I0723 02:00:22.498872 21990608644992 rollout.py:361] Chunk 2/42
+  [w1 0p25] p90_20240802: member 6/24  step 3/42
+I0723 02:00:50.496811 21990608644992 rollout.py:361] Chunk 3/42
+  [w1 0p25] p90_20240802: member 6/24  step 4/42
+I0723 02:01:18.495814 21990608644992 rollout.py:361] Chunk 4/42
+  [w1 0p25] p90_20240802: member 6/24  step 5/42
+I0723 02:01:46.490638 21990608644992 rollout.py:361] Chunk 5/42
+  [w1 0p25] p90_20240802: member 6/24  step 6/42
+I0723 02:02:14.497018 21990608644992 rollout.py:361] Chunk 6/42
+  [w1 0p25] p90_20240802: member 6/24  step 7/42
+I0723 02:02:42.499075 21990608644992 rollout.py:361] Chunk 7/42
+  [w1 0p25] p90_20240802: member 6/24  step 8/42
+I0723 02:03:10.497345 21990608644992 rollout.py:361] Chunk 8/42
+  [w1 0p25] p90_20240802: member 6/24  step 9/42
+I0723 02:03:38.521847 21990608644992 rollout.py:361] Chunk 9/42
+  [w1 0p25] p90_20240802: member 6/24  step 10/42
+I0723 02:04:06.551831 21990608644992 rollout.py:361] Chunk 10/42
+  [w1 0p25] p90_20240802: member 6/24  step 11/42
+I0723 02:04:34.580257 21990608644992 rollout.py:361] Chunk 11/42
+  [w1 0p25] p90_20240802: member 6/24  step 12/42
+I0723 02:05:02.586495 21990608644992 rollout.py:361] Chunk 12/42
+  [w1 0p25] p90_20240802: member 6/24  step 13/42
+I0723 02:05:30.600386 21990608644992 rollout.py:361] Chunk 13/42
+  [w1 0p25] p90_20240802: member 6/24  step 14/42
+I0723 02:05:58.596136 21990608644992 rollout.py:361] Chunk 14/42
+  [w1 0p25] p90_20240802: member 6/24  step 15/42
+I0723 02:06:26.607539 21990608644992 rollout.py:361] Chunk 15/42
+  [w1 0p25] p90_20240802: member 6/24  step 16/42
+I0723 02:06:54.605344 21990608644992 rollout.py:361] Chunk 16/42
+  [w1 0p25] p90_20240802: member 6/24  step 17/42
+I0723 02:07:22.603924 21990608644992 rollout.py:361] Chunk 17/42
+  [w1 0p25] p90_20240802: member 6/24  step 18/42
+I0723 02:07:50.625510 21990608644992 rollout.py:361] Chunk 18/42
+  [w1 0p25] p90_20240802: member 6/24  step 19/42
+I0723 02:08:18.644688 21990608644992 rollout.py:361] Chunk 19/42
+  [w1 0p25] p90_20240802: member 6/24  step 20/42
+I0723 02:08:46.667778 21990608644992 rollout.py:361] Chunk 20/42
+  [w1 0p25] p90_20240802: member 6/24  step 21/42
+I0723 02:09:14.670129 21990608644992 rollout.py:361] Chunk 21/42
+  [w1 0p25] p90_20240802: member 6/24  step 22/42
+I0723 02:09:42.698612 21990608644992 rollout.py:361] Chunk 22/42
+  [w1 0p25] p90_20240802: member 6/24  step 23/42
+I0723 02:10:10.696196 21990608644992 rollout.py:361] Chunk 23/42
+  [w1 0p25] p90_20240802: member 6/24  step 24/42
+I0723 02:10:38.700798 21990608644992 rollout.py:361] Chunk 24/42
+  [w1 0p25] p90_20240802: member 6/24  step 25/42
+I0723 02:11:06.704568 21990608644992 rollout.py:361] Chunk 25/42
+  [w1 0p25] p90_20240802: member 6/24  step 26/42
+I0723 02:11:34.767519 21990608644992 rollout.py:361] Chunk 26/42
+  [w1 0p25] p90_20240802: member 6/24  step 27/42
+I0723 02:12:02.781320 21990608644992 rollout.py:361] Chunk 27/42
+  [w1 0p25] p90_20240802: member 6/24  step 28/42
+I0723 02:12:30.799085 21990608644992 rollout.py:361] Chunk 28/42
+  [w1 0p25] p90_20240802: member 6/24  step 29/42
+I0723 02:12:58.812184 21990608644992 rollout.py:361] Chunk 29/42
+  [w1 0p25] p90_20240802: member 6/24  step 30/42
+I0723 02:13:26.847892 21990608644992 rollout.py:361] Chunk 30/42
+  [w1 0p25] p90_20240802: member 6/24  step 31/42
+I0723 02:13:54.865831 21990608644992 rollout.py:361] Chunk 31/42
+  [w1 0p25] p90_20240802: member 6/24  step 32/42
+I0723 02:14:22.901058 21990608644992 rollout.py:361] Chunk 32/42
+  [w1 0p25] p90_20240802: member 6/24  step 33/42
+I0723 02:14:50.913053 21990608644992 rollout.py:361] Chunk 33/42
+  [w1 0p25] p90_20240802: member 6/24  step 34/42
+I0723 02:15:18.917703 21990608644992 rollout.py:361] Chunk 34/42
+  [w1 0p25] p90_20240802: member 6/24  step 35/42
+I0723 02:15:46.961527 21990608644992 rollout.py:361] Chunk 35/42
+  [w1 0p25] p90_20240802: member 6/24  step 36/42
+I0723 02:16:14.987313 21990608644992 rollout.py:361] Chunk 36/42
+  [w1 0p25] p90_20240802: member 6/24  step 37/42
+I0723 02:16:42.998565 21990608644992 rollout.py:361] Chunk 37/42
+  [w1 0p25] p90_20240802: member 6/24  step 38/42
+I0723 02:17:10.998544 21990608644992 rollout.py:361] Chunk 38/42
+  [w1 0p25] p90_20240802: member 6/24  step 39/42
+I0723 02:17:39.001533 21990608644992 rollout.py:361] Chunk 39/42
+  [w1 0p25] p90_20240802: member 6/24  step 40/42
+I0723 02:18:06.997467 21990608644992 rollout.py:361] Chunk 40/42
+  [w1 0p25] p90_20240802: member 6/24  step 41/42
+I0723 02:18:34.999814 21990608644992 rollout.py:361] Chunk 41/42
+  [w1 0p25] p90_20240802: member 6/24  step 42/42
+  [w1 0p25] p90_20240802: member 6/24 saved
+I0723 02:19:11.118679 21990608644992 rollout.py:205] Sample 0/1
+/home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/third_party/graphcast/graphcast/rollout.py:328: FutureWarning: The return type of `Dataset.dims` will be changed to return a set of dimension names in future, in order to be more consistent with `DataArray.dims`. To access a mapping from dimension names to lengths, please use `Dataset.sizes`.
+  num_target_steps = targets_template.dims["time"]
+I0723 02:19:11.120260 21990608644992 rollout.py:361] Chunk 0/42
+/home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/third_party/graphcast/graphcast/rollout.py:435: FutureWarning: The return type of `Dataset.dims` will be changed to return a set of dimension names in future, in order to be more consistent with `DataArray.dims`. To access a mapping from dimension names to lengths, please use `Dataset.sizes`.
+  num_inputs = prev_inputs.dims["time"]
+/home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/third_party/graphcast/graphcast/rollout.py:437: FutureWarning: In a future version of xarray the default value for compat will change from compat='equals' to compat='override'. This change will result in the following ValueError: Cannot specify both data_vars='different' and compat='override'. The recommendation is to set compat explicitly for this case.
+  xarray.concat(
+  [w1 0p25] p90_20240802: member 14/24  step 1/42
+I0723 02:19:39.164316 21990608644992 rollout.py:361] Chunk 1/42
+  [w1 0p25] p90_20240802: member 14/24  step 2/42
+I0723 02:20:07.169812 21990608644992 rollout.py:361] Chunk 2/42
+  [w1 0p25] p90_20240802: member 14/24  step 3/42
+I0723 02:20:35.193695 21990608644992 rollout.py:361] Chunk 3/42
+  [w1 0p25] p90_20240802: member 14/24  step 4/42
+I0723 02:21:03.195372 21990608644992 rollout.py:361] Chunk 4/42
+  [w1 0p25] p90_20240802: member 14/24  step 5/42
+I0723 02:21:31.198013 21990608644992 rollout.py:361] Chunk 5/42
+  [w1 0p25] p90_20240802: member 14/24  step 6/42
+I0723 02:21:59.207077 21990608644992 rollout.py:361] Chunk 6/42
+  [w1 0p25] p90_20240802: member 14/24  step 7/42
+I0723 02:22:27.206344 21990608644992 rollout.py:361] Chunk 7/42
+  [w1 0p25] p90_20240802: member 14/24  step 8/42
+I0723 02:22:55.207154 21990608644992 rollout.py:361] Chunk 8/42
+  [w1 0p25] p90_20240802: member 14/24  step 9/42
+I0723 02:23:23.240234 21990608644992 rollout.py:361] Chunk 9/42
+  [w1 0p25] p90_20240802: member 14/24  step 10/42
+I0723 02:23:51.251540 21990608644992 rollout.py:361] Chunk 10/42
+  [w1 0p25] p90_20240802: member 14/24  step 11/42
+I0723 02:24:19.277551 21990608644992 rollout.py:361] Chunk 11/42
+  [w1 0p25] p90_20240802: member 14/24  step 12/42
+I0723 02:24:47.283804 21990608644992 rollout.py:361] Chunk 12/42
+  [w1 0p25] p90_20240802: member 14/24  step 13/42
+I0723 02:25:15.300166 21990608644992 rollout.py:361] Chunk 13/42
+  [w1 0p25] p90_20240802: member 14/24  step 14/42
+I0723 02:25:43.296339 21990608644992 rollout.py:361] Chunk 14/42
+  [w1 0p25] p90_20240802: member 14/24  step 15/42
+I0723 02:26:11.298189 21990608644992 rollout.py:361] Chunk 15/42
+  [w1 0p25] p90_20240802: member 14/24  step 16/42
+I0723 02:26:39.293037 21990608644992 rollout.py:361] Chunk 16/42
+  [w1 0p25] p90_20240802: member 14/24  step 17/42
+I0723 02:27:07.298122 21990608644992 rollout.py:361] Chunk 17/42
+  [w1 0p25] p90_20240802: member 14/24  step 18/42
+I0723 02:27:35.305171 21990608644992 rollout.py:361] Chunk 18/42
+  [w1 0p25] p90_20240802: member 14/24  step 19/42
+I0723 02:28:03.310636 21990608644992 rollout.py:361] Chunk 19/42
+  [w1 0p25] p90_20240802: member 14/24  step 20/42
+I0723 02:28:31.308172 21990608644992 rollout.py:361] Chunk 20/42
+  [w1 0p25] p90_20240802: member 14/24  step 21/42
+I0723 02:28:59.317322 21990608644992 rollout.py:361] Chunk 21/42
+  [w1 0p25] p90_20240802: member 14/24  step 22/42
+I0723 02:29:27.337502 21990608644992 rollout.py:361] Chunk 22/42
+  [w1 0p25] p90_20240802: member 14/24  step 23/42
+I0723 02:29:55.346529 21990608644992 rollout.py:361] Chunk 23/42
+  [w1 0p25] p90_20240802: member 14/24  step 24/42
+I0723 02:30:23.369333 21990608644992 rollout.py:361] Chunk 24/42
+  [w1 0p25] p90_20240802: member 14/24  step 25/42
+I0723 02:30:51.368626 21990608644992 rollout.py:361] Chunk 25/42
+  [w1 0p25] p90_20240802: member 14/24  step 26/42
+I0723 02:31:19.399445 21990608644992 rollout.py:361] Chunk 26/42
+  [w1 0p25] p90_20240802: member 14/24  step 27/42
+I0723 02:31:47.395603 21990608644992 rollout.py:361] Chunk 27/42
+  [w1 0p25] p90_20240802: member 14/24  step 28/42
+I0723 02:32:15.398864 21990608644992 rollout.py:361] Chunk 28/42
+  [w1 0p25] p90_20240802: member 14/24  step 29/42
+I0723 02:32:43.392675 21990608644992 rollout.py:361] Chunk 29/42
+  [w1 0p25] p90_20240802: member 14/24  step 30/42
+I0723 02:33:11.397758 21990608644992 rollout.py:361] Chunk 30/42
+  [w1 0p25] p90_20240802: member 14/24  step 31/42
+I0723 02:33:39.392633 21990608644992 rollout.py:361] Chunk 31/42
+  [w1 0p25] p90_20240802: member 14/24  step 32/42
+I0723 02:34:07.400638 21990608644992 rollout.py:361] Chunk 32/42
+  [w1 0p25] p90_20240802: member 14/24  step 33/42
+I0723 02:34:35.400459 21990608644992 rollout.py:361] Chunk 33/42
+  [w1 0p25] p90_20240802: member 14/24  step 34/42
+I0723 02:35:03.445089 21990608644992 rollout.py:361] Chunk 34/42
+  [w1 0p25] p90_20240802: member 14/24  step 35/42
+I0723 02:35:31.448404 21990608644992 rollout.py:361] Chunk 35/42
+  [w1 0p25] p90_20240802: member 14/24  step 36/42
+I0723 02:35:59.499630 21990608644992 rollout.py:361] Chunk 36/42
+  [w1 0p25] p90_20240802: member 14/24  step 37/42
+I0723 02:36:27.494024 21990608644992 rollout.py:361] Chunk 37/42
+  [w1 0p25] p90_20240802: member 14/24  step 38/42
+I0723 02:36:55.496417 21990608644992 rollout.py:361] Chunk 38/42
+  [w1 0p25] p90_20240802: member 14/24  step 39/42
+I0723 02:37:23.491972 21990608644992 rollout.py:361] Chunk 39/42
+  [w1 0p25] p90_20240802: member 14/24  step 40/42
+I0723 02:37:51.500103 21990608644992 rollout.py:361] Chunk 40/42
+  [w1 0p25] p90_20240802: member 14/24  step 41/42
+I0723 02:38:19.490226 21990608644992 rollout.py:361] Chunk 41/42
+  [w1 0p25] p90_20240802: member 14/24  step 42/42
+  [w1 0p25] p90_20240802: member 14/24 saved
+I0723 02:38:55.743331 21990608644992 rollout.py:205] Sample 0/1
+/home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/third_party/graphcast/graphcast/rollout.py:328: FutureWarning: The return type of `Dataset.dims` will be changed to return a set of dimension names in future, in order to be more consistent with `DataArray.dims`. To access a mapping from dimension names to lengths, please use `Dataset.sizes`.
+  num_target_steps = targets_template.dims["time"]
+I0723 02:38:55.744854 21990608644992 rollout.py:361] Chunk 0/42
+/home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/third_party/graphcast/graphcast/rollout.py:435: FutureWarning: The return type of `Dataset.dims` will be changed to return a set of dimension names in future, in order to be more consistent with `DataArray.dims`. To access a mapping from dimension names to lengths, please use `Dataset.sizes`.
+  num_inputs = prev_inputs.dims["time"]
+/home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/third_party/graphcast/graphcast/rollout.py:437: FutureWarning: In a future version of xarray the default value for compat will change from compat='equals' to compat='override'. This change will result in the following ValueError: Cannot specify both data_vars='different' and compat='override'. The recommendation is to set compat explicitly for this case.
+  xarray.concat(
+  [w1 0p25] p90_20240802: member 22/24  step 1/42
+I0723 02:39:23.793147 21990608644992 rollout.py:361] Chunk 1/42
+  [w1 0p25] p90_20240802: member 22/24  step 2/42
+I0723 02:39:51.785321 21990608644992 rollout.py:361] Chunk 2/42
+  [w1 0p25] p90_20240802: member 22/24  step 3/42
+I0723 02:40:19.801556 21990608644992 rollout.py:361] Chunk 3/42

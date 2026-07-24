@@ -1,5 +1,5 @@
 #!/bin/bash
-#SBATCH --job-name=p90_fcn3_pool
+#SBATCH --job-name=Vayuh-s2s
 #SBATCH --partition=a3mega
 #SBATCH --nodes=1
 #SBATCH --gres=gpu:8

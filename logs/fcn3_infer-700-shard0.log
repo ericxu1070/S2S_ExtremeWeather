@@ -1,0 +1,5 @@
+[check] torch-harmonics DISCO CUDA extension: PRESENT -> FCN3 runs bf16
+[infer] host=nucla3m-a3meganodeset-1 shard=0/8: members 0..2 (3 of 24) over 6 event(s)
+[infer] device=cuda; torch 2.11.0+cu128 (cuda build 12.8)
+[infer] GPU: NVIDIA H100 80GB HBM3  85 GB
+[infer] loading FCN3 checkpoint ...

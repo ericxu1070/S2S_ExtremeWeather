@@ -1,0 +1,94 @@
+[model] checkpoint (0p25): GenCast 0p25deg <2019.npz
+[model] checkpoint (1p0): GenCast 1p0deg <2019.npz
+[model] stats: diffs_stddev_by_level.nc
+[model] stats: mean_by_level.nc
+[model] stats: stddev_by_level.nc
+[model] stats: min_by_level.nc
+[model] statics (orography + land-sea mask)
+[model] statics cached: statics.nc
+[clim] cached: clim_1990_2019_t2m_conus.nc
+[model] done
+[prep] subprocess event=p90_20231107
+[era5-truth] p90_20231107 [t2m_anom]: mean=+0.213 max=+6.16 -> p90_20231107_verif_t2m_anom.nc
+[hrrr-truth] HRRR archive not found at /glade/derecho/scratch/mdarman/hrrr_work/hrrr_nc_v3; skipping HRRR
+   (using ARCO-ERA5: past WB2 coverage)
+[inputs 0p25 week3] p90_20231107: init=peak-21d -> p90_20231107_inputs.nc
+Traceback (most recent call last):
+  File "/home/ubuntu/miniconda3/envs/moe/lib/python3.12/weakref.py", line 666, in _exitfunc
+    f()
+  File "/home/ubuntu/miniconda3/envs/moe/lib/python3.12/weakref.py", line 590, in __call__
+    return info.func(*info.args, **(info.kwargs or {}))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ubuntu/miniconda3/envs/moe/lib/python3.12/site-packages/gcsfs/core.py", line 406, in close_session
+    asyn.sync(asyn.loop[0], session.close, timeout=0.1)
+  File "/home/ubuntu/miniconda3/envs/moe/lib/python3.12/site-packages/fsspec/asyn.py", line 103, in sync
+    raise return_result
+  File "/home/ubuntu/miniconda3/envs/moe/lib/python3.12/site-packages/fsspec/asyn.py", line 56, in _runner
+    result[0] = await coro
+                ^^^^^^^^^^
+  File "/home/ubuntu/miniconda3/envs/moe/lib/python3.12/asyncio/tasks.py", line 520, in wait_for
+    return await fut
+           ^^^^^^^^^
+  File "/home/ubuntu/miniconda3/envs/moe/lib/python3.12/site-packages/aiohttp/client.py", line 1349, in close
+    await self._connector.close()
+  File "/home/ubuntu/miniconda3/envs/moe/lib/python3.12/site-packages/aiohttp/connector.py", line 1074, in close
+    await super().close(abort_ssl=abort_ssl or self._ssl_shutdown_timeout == 0)
+RuntimeError: Task <Task pending name='Task-1806' coro=<_runner() running at /home/ubuntu/miniconda3/envs/moe/lib/python3.12/site-packages/fsspec/asyn.py:56> cb=[_chain_future.<locals>._call_set_state() at /home/ubuntu/miniconda3/envs/moe/lib/python3.12/asyncio/futures.py:396]> got Future <Task pending name='Task-1807' coro=<_wait_for_close() running at /home/ubuntu/miniconda3/envs/moe/lib/python3.12/site-packages/aiohttp/connector.py:138> wait_for=<_GatheringFuture pending cb=[Task.task_wakeup()]>> attached to a different loop
+Task was destroyed but it is pending!
+task: <Task pending name='Task-1807' coro=<_wait_for_close() done, defined at /home/ubuntu/miniconda3/envs/moe/lib/python3.12/site-packages/aiohttp/connector.py:136> wait_for=<_GatheringFuture pending cb=[Task.task_wakeup()]>>
+[prep] subprocess event=p90_20240802
+[era5-truth] p90_20240802 [t2m_anom]: mean=+1.12 max=+6.47 -> p90_20240802_verif_t2m_anom.nc
+[hrrr-truth] HRRR archive not found at /glade/derecho/scratch/mdarman/hrrr_work/hrrr_nc_v3; skipping HRRR
+   (using ARCO-ERA5: past WB2 coverage)
+[inputs 0p25 week3] p90_20240802: init=peak-21d -> p90_20240802_inputs.nc
+Traceback (most recent call last):
+  File "/home/ubuntu/miniconda3/envs/moe/lib/python3.12/weakref.py", line 666, in _exitfunc
+    f()
+  File "/home/ubuntu/miniconda3/envs/moe/lib/python3.12/weakref.py", line 590, in __call__
+    return info.func(*info.args, **(info.kwargs or {}))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ubuntu/miniconda3/envs/moe/lib/python3.12/site-packages/gcsfs/core.py", line 406, in close_session
+    asyn.sync(asyn.loop[0], session.close, timeout=0.1)
+  File "/home/ubuntu/miniconda3/envs/moe/lib/python3.12/site-packages/fsspec/asyn.py", line 103, in sync
+    raise return_result
+  File "/home/ubuntu/miniconda3/envs/moe/lib/python3.12/site-packages/fsspec/asyn.py", line 56, in _runner
+    result[0] = await coro
+                ^^^^^^^^^^
+  File "/home/ubuntu/miniconda3/envs/moe/lib/python3.12/asyncio/tasks.py", line 520, in wait_for
+    return await fut
+           ^^^^^^^^^
+  File "/home/ubuntu/miniconda3/envs/moe/lib/python3.12/site-packages/aiohttp/client.py", line 1349, in close
+    await self._connector.close()
+  File "/home/ubuntu/miniconda3/envs/moe/lib/python3.12/site-packages/aiohttp/connector.py", line 1074, in close
+    await super().close(abort_ssl=abort_ssl or self._ssl_shutdown_timeout == 0)
+RuntimeError: Task <Task pending name='Task-1806' coro=<_runner() running at /home/ubuntu/miniconda3/envs/moe/lib/python3.12/site-packages/fsspec/asyn.py:56> cb=[_chain_future.<locals>._call_set_state() at /home/ubuntu/miniconda3/envs/moe/lib/python3.12/asyncio/futures.py:396]> got Future <Task pending name='Task-1807' coro=<_wait_for_close() running at /home/ubuntu/miniconda3/envs/moe/lib/python3.12/site-packages/aiohttp/connector.py:138> wait_for=<_GatheringFuture pending cb=[Task.task_wakeup()]>> attached to a different loop
+Task was destroyed but it is pending!
+task: <Task pending name='Task-1807' coro=<_wait_for_close() done, defined at /home/ubuntu/miniconda3/envs/moe/lib/python3.12/site-packages/aiohttp/connector.py:136> wait_for=<_GatheringFuture pending cb=[Task.task_wakeup()]>>
+[prep] subprocess event=p90_20251224
+[era5-truth] p90_20251224 [t2m_anom]: mean=+3.22 max=+14.2 -> p90_20251224_verif_t2m_anom.nc
+[hrrr-truth] HRRR archive not found at /glade/derecho/scratch/mdarman/hrrr_work/hrrr_nc_v3; skipping HRRR
+   (using ARCO-ERA5: past WB2 coverage)
+[inputs 0p25 week3] p90_20251224: init=peak-21d -> p90_20251224_inputs.nc
+Traceback (most recent call last):
+  File "/home/ubuntu/miniconda3/envs/moe/lib/python3.12/weakref.py", line 666, in _exitfunc
+    f()
+  File "/home/ubuntu/miniconda3/envs/moe/lib/python3.12/weakref.py", line 590, in __call__
+    return info.func(*info.args, **(info.kwargs or {}))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ubuntu/miniconda3/envs/moe/lib/python3.12/site-packages/gcsfs/core.py", line 406, in close_session
+    asyn.sync(asyn.loop[0], session.close, timeout=0.1)
+  File "/home/ubuntu/miniconda3/envs/moe/lib/python3.12/site-packages/fsspec/asyn.py", line 103, in sync
+    raise return_result
+  File "/home/ubuntu/miniconda3/envs/moe/lib/python3.12/site-packages/fsspec/asyn.py", line 56, in _runner
+    result[0] = await coro
+                ^^^^^^^^^^
+  File "/home/ubuntu/miniconda3/envs/moe/lib/python3.12/asyncio/tasks.py", line 520, in wait_for
+    return await fut
+           ^^^^^^^^^
+  File "/home/ubuntu/miniconda3/envs/moe/lib/python3.12/site-packages/aiohttp/client.py", line 1349, in close
+    await self._connector.close()
+  File "/home/ubuntu/miniconda3/envs/moe/lib/python3.12/site-packages/aiohttp/connector.py", line 1074, in close
+    await super().close(abort_ssl=abort_ssl or self._ssl_shutdown_timeout == 0)
+RuntimeError: Task <Task pending name='Task-1806' coro=<_runner() running at /home/ubuntu/miniconda3/envs/moe/lib/python3.12/site-packages/fsspec/asyn.py:56> cb=[_chain_future.<locals>._call_set_state() at /home/ubuntu/miniconda3/envs/moe/lib/python3.12/asyncio/futures.py:396]> got Future <Task pending name='Task-1807' coro=<_wait_for_close() running at /home/ubuntu/miniconda3/envs/moe/lib/python3.12/site-packages/aiohttp/connector.py:138> wait_for=<_GatheringFuture pending cb=[Task.task_wakeup()]>> attached to a different loop
+Task was destroyed but it is pending!
+task: <Task pending name='Task-1807' coro=<_wait_for_close() done, defined at /home/ubuntu/miniconda3/envs/moe/lib/python3.12/site-packages/aiohttp/connector.py:136> wait_for=<_GatheringFuture pending cb=[Task.task_wakeup()]>>

@@ -1,0 +1,3 @@
+cases=90  expect truth=180 (verif+persist)  ic=90
+
+[truth] 0/180 present - building (MOE env)
