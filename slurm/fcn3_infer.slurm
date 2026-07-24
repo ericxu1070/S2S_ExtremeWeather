@@ -56,17 +56,20 @@ BATCH=${FCN3_BATCH:-1}
 export FCN3_WEEKS=${FCN3_WEEKS:-3}
 
 # --- shard count and CPU threads -------------------------------------------------- #
-# FCN3 model CONSTRUCTION (torch-harmonics precomputing the DISCO convolution tensors)
-# is a heavy CPU job that happens once per process, before the GPU is touched at all.
-# Incident 2026-07-23 (job 700): 8 shards were launched with OMP_NUM_THREADS unset, so
-# each process spawned ~208 OpenMP threads -> ~1856 threads fighting over 208 cores
-# (~9x oversubscription, load average 763). All 8 H100s sat at 0% utilisation for 80+
-# minutes and not one rollout started.
+# FCN3 model CONSTRUCTION (torch-harmonics precomputing the DISCO convolution tensors) is
+# a heavy CPU job that runs before the GPU is touched. Two incidents on 2026-07-23:
+#   - job 700: 8 shards, OMP_NUM_THREADS unset -> ~1856 threads on 208 cores (load 763),
+#     8 H100s idle 80+ min, no rollout.
+#   - job 723: 4 shards x 52 pinned threads fixed the oversubscription (load ~204), but
+#     4 model builds running CONCURRENTLY still contended (memory bandwidth): 17+ min in,
+#     no shard had finished building, GPUs still idle.
 #
-# Fix: run FEWER shards per node and give each an explicit, disjoint slice of the cores.
-# 4 shards x 52 threads keeps construction efficient; the rollout itself is short
-# (~1.5 min/member), so using 4 of the 8 GPUs costs far less than the thrash did.
-NSHARDS=${FCN3_NSHARDS:-4}
+# Real fix (run_fcn3.py::_get_model): the model is built AT MOST ONCE per node under a
+# lock and pickled to NFS; every other shard -- and every later job -- loads that file in
+# seconds. So concurrent builds no longer happen and all 8 GPUs can be used for the
+# rollout. Threads are still pinned to a disjoint per-shard slice as cheap insurance
+# (matters only for the lone builder + any brief load overlap).
+NSHARDS=${FCN3_NSHARDS:-8}
 CORES=$(nproc)
 THREADS=${FCN3_THREADS:-$(( CORES / NSHARDS ))}
 [ "$THREADS" -lt 1 ] && THREADS=1
