@@ -215,8 +215,8 @@ def _assemble_cube(name: str, row: pd.Series, members: int, seed: int):
     init = np.datetime64(pd.Timestamp(row["init"]))
     lead = t2m["lead_time"].values                     # timedelta64
     valid = init + lead                                # absolute valid times
-    t2m = t2m.isel(time=0)                             # single init time
-    t2m = t2m.rename({"ensemble": "member", "lead_time": "time"})
+    t2m = t2m.isel(time=0, drop=True)                  # single init time; drop the scalar
+    t2m = t2m.rename({"ensemble": "member", "lead_time": "time"})  # coord or rename conflicts
     t2m = t2m.assign_coords(time=("time", valid), member=("member", np.arange(members)))
     # FCN3 lat is descending (90..-90) -> select the CONUS box then sort ascending.
     t2m = t2m.sel(lat=slice(50.0, 24.0), lon=slice(235.0, 294.0))
