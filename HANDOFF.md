@@ -8,6 +8,25 @@ of the cost to generate a 24-member ensemble.
 
 Everything runs on **this box** (a3mega Slurm / H100). Derecho is not involved.
 
+## Live jobs
+
+- **Slurm 899** (`slurm/p90_fcn3_pool.slurm`, submitted 2026-07-26): the 90-case p90
+  FCN3 pool, resubmitted after the fix below; 3 cubes salvaged from 877, 87 to roll
+  (~95 min/case/GPU ⇒ ~17 h). Running on nucla3m-a3meganodeset-5. Monitor:
+  `squeue -u $USER -n Vayuh-s2s`, `grep -c "wrote cube" logs/p90_fcn3_899_w*.log`;
+  done when `ls runs/p90_t2m/fcn3/cache/*_cube.nc | wc -l` reaches 90.
+- **Post-mortem, job 877 (2026-07-26, cancelled at 3h19m, 0/90 cubes):** every case
+  rolled fine (~95 min, 52.9 GB peak) then died in `_assemble_cube` —
+  `isel(time=0)` left a scalar `time` coord that collided with the
+  `lead_time`→`time` rename (`ValueError: the new name 'time' conflicts`). Fixed
+  with `isel(time=0, drop=True)` in `p90/run_p90.py`. Job 725 never reached
+  assembly (cancelled at 15 min), so the path was unexercised. Secondary lesson:
+  failed cases release their claims, so live workers re-claimed them, deleting and
+  re-rolling completed zarrs — 16 completed rollouts collapsed to only 3 salvageable
+  (events 01/02/05, assembled offline + timing JSONs reconstructed from worker logs;
+  8 partial zarrs deleted). If a systemic per-case failure ever shows up again,
+  cancel the pool IMMEDIATELY — the thrash destroys finished work.
+
 ---
 
 ## The six events (`fcn3/fevents.py` — single source of truth)
