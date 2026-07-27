@@ -1,0 +1,5 @@
+[prep-truth] 1 cases (P90_KIND=-)
+[prep-truth] 1/1 control_45_20221217: peak=2022-12-17T00:00:00 init=2022-11-26T00:00:00
+[prep-truth]   wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/p90_t2m/truth/control_45_20221217_verif_t2m_anom.nc
+[prep-truth]   wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/p90_t2m/truth/control_45_20221217_persist_t2m_anom.nc
+[prep-truth] DONE: wrote 2 file(s) for 1 case(s)

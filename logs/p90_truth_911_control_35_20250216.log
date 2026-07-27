@@ -1,0 +1,28 @@
+[prep-truth] 1 cases (P90_KIND=-)
+[prep-truth] 1/1 control_35_20250216: peak=2025-02-16T00:00:00 init=2025-01-26T00:00:00
+[prep-truth]   wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/p90_t2m/truth/control_35_20250216_verif_t2m_anom.nc
+[prep-truth]   wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/p90_t2m/truth/control_35_20250216_persist_t2m_anom.nc
+[prep-truth] DONE: wrote 2 file(s) for 1 case(s)
+Traceback (most recent call last):
+  File "/home/ubuntu/miniconda3/envs/moe/lib/python3.12/weakref.py", line 666, in _exitfunc
+    f()
+  File "/home/ubuntu/miniconda3/envs/moe/lib/python3.12/weakref.py", line 590, in __call__
+    return info.func(*info.args, **(info.kwargs or {}))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ubuntu/miniconda3/envs/moe/lib/python3.12/site-packages/gcsfs/core.py", line 406, in close_session
+    asyn.sync(asyn.loop[0], session.close, timeout=0.1)
+  File "/home/ubuntu/miniconda3/envs/moe/lib/python3.12/site-packages/fsspec/asyn.py", line 103, in sync
+    raise return_result
+  File "/home/ubuntu/miniconda3/envs/moe/lib/python3.12/site-packages/fsspec/asyn.py", line 56, in _runner
+    result[0] = await coro
+                ^^^^^^^^^^
+  File "/home/ubuntu/miniconda3/envs/moe/lib/python3.12/asyncio/tasks.py", line 520, in wait_for
+    return await fut
+           ^^^^^^^^^
+  File "/home/ubuntu/miniconda3/envs/moe/lib/python3.12/site-packages/aiohttp/client.py", line 1349, in close
+    await self._connector.close()
+  File "/home/ubuntu/miniconda3/envs/moe/lib/python3.12/site-packages/aiohttp/connector.py", line 1074, in close
+    await super().close(abort_ssl=abort_ssl or self._ssl_shutdown_timeout == 0)
+RuntimeError: Task <Task pending name='Task-1412' coro=<_runner() running at /home/ubuntu/miniconda3/envs/moe/lib/python3.12/site-packages/fsspec/asyn.py:56> cb=[_chain_future.<locals>._call_set_state() at /home/ubuntu/miniconda3/envs/moe/lib/python3.12/asyncio/futures.py:396]> got Future <Task pending name='Task-1413' coro=<_wait_for_close() running at /home/ubuntu/miniconda3/envs/moe/lib/python3.12/site-packages/aiohttp/connector.py:138> wait_for=<_GatheringFuture pending cb=[Task.task_wakeup()]>> attached to a different loop
+Task was destroyed but it is pending!
+task: <Task pending name='Task-1413' coro=<_wait_for_close() done, defined at /home/ubuntu/miniconda3/envs/moe/lib/python3.12/site-packages/aiohttp/connector.py:136> wait_for=<_GatheringFuture pending cb=[Task.task_wakeup()]>>

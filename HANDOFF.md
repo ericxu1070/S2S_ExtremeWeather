@@ -10,11 +10,25 @@ Everything runs on **this box** (a3mega Slurm / H100). Derecho is not involved.
 
 ## Live jobs
 
-- **Slurm 899** (`slurm/p90_fcn3_pool.slurm`, submitted 2026-07-26): the 90-case p90
-  FCN3 pool, resubmitted after the fix below; 3 cubes salvaged from 877, 87 to roll
-  (~95 min/case/GPU ⇒ ~17 h). Running on nucla3m-a3meganodeset-5. Monitor:
-  `squeue -u $USER -n Vayuh-s2s`, `grep -c "wrote cube" logs/p90_fcn3_899_w*.log`;
-  done when `ls runs/p90_t2m/fcn3/cache/*_cube.nc | wc -l` reaches 90.
+None. The 90-case p90 FCN3 experiment is **COMPLETE end-to-end** (2026-07-27):
+
+- **Slurm 899** (`slurm/p90_fcn3_pool.slurm`): finished in ~19.5 h with zero failures —
+  90/90 cubes in `runs/p90_t2m/fcn3/cache/` (3 salvaged from 877, 87 rolled fresh).
+- **Slurm 911** (`slurm/p90_truth_cpu.slurm`, NEW script): CPU-only truth backfill for the
+  20 controls the original prep-truth run never reached (it died at case 71/90 —
+  the first compare silently scored a biased 45-event/25-control subset). Ran the
+  missing cases as parallel isolated processes on an idle GPU node's CPUs
+  (per-case `P90_CASES_SEL`, cache-aware, job name `Vayuh-s2s`). Result: 90/90
+  verif + persist truths in `runs/p90_t2m/truth/`, failed=0. Reusable for any
+  future truth gaps. (Known wart it works around: `run_p90.py --case` does NOT
+  filter `stage_prep-truth`; only `P90_CASES_SEL` does.)
+- **Final compare** (`p90/bash/03_compare.sh`, full 45/45 design): mean CRPS 1.4158 K;
+  CRPSS>0 vs clim 0.978 / vs persistence 0.956; Brier 0.2385, **BSS +0.0460**
+  (reliability 0.0543 < resolution 0.0673); ROC AUC 0.6793; spread/error 1.117;
+  bias +0.2352 K; ACC 0.3990; P(event) contrast obs1−obs0 = +0.143 (0.480 vs 0.337).
+  The 70-case preliminary numbers (BSS −0.1633, AUC 0.6360) were an artifact of the
+  missing controls — with all 45 in, the probabilities beat climatology. Figures in
+  `figures/p90_t2m/fcn3/`, report at `runs/p90_t2m/fcn3/scores/summary.md`.
 - **Post-mortem, job 877 (2026-07-26, cancelled at 3h19m, 0/90 cubes):** every case
   rolled fine (~95 min, 52.9 GB peak) then died in `_assemble_cube` —
   `isel(time=0)` left a scalar `time` coord that collided with the
