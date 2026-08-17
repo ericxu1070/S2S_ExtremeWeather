@@ -1,0 +1,342 @@
+# AI+RES with GenCast walkers and FCN3 scoring
+
+## Context
+
+Lancelin et al., *AI-Boosted Rare Event Sampling to Characterize Extreme Weather*
+(arXiv:2510.27066v3, PRL 2026) introduce **AI+RES**: a Diffusion Monte Carlo (DMC)
+importance-splitting algorithm where a physics GCM (PlaSim) propagates N=400 "walkers"
+and a cheap AI emulator supplies the **score function** - at each resampling time each
+walker is scored by the ensemble mean of an M=100-member emulator forecast of the target
+observable. Walkers with high scores are cloned, low-score walkers are killed, and a
+weight bookkeeping scheme keeps probability estimates unbiased. They report accurate
+return periods out to 50,000 years with only 400 walkers - a ~100x speedup - and validate
+against direct sampling (DS) with N=50,000.
+
+We want the same machinery with **GenCast as the walker** and **FourCastNet3 as the
+scorer**, applied to the CONUS extreme events this repo already studies at week-3 lead.
+
+Two things make this a genuine contribution rather than a port:
+
+1. **GenCast is stochastic.** The paper's walker (PlaSim) is deterministic, so cloned
+   walkers are identical and must be split apart by hand-tuned perturbations to the
+   spherical harmonics of log surface pressure (amplitude 3e-3). GenCast clones diverge
+   naturally from fresh diffusion noise. The paper's own Discussion names a probabilistic
+   emulator as the key next step and cites GenCast (ref. [30]) as the example.
+2. **The paper's Discussion explicitly names S2S forecast tails** as a target
+   application: *"The framework could also be well suited to characterize the tails of
+   distributions in subseasonal to seasonal ensemble forecasts, where large ensembles are
+   needed."* That is exactly this repo's problem.
+
+**Honest statement of what changes by making the walker an AI model.** In the paper the
+walker is the high-fidelity reference and the AI is the cheap helper. Inverting that means
+the sampled distribution is GenCast's attractor, not the atmosphere's - the paper's own
+AI-DS baseline showed AI emulators have biased tails. So the claim this experiment can
+support is: *RES efficiently reaches the extreme tail of the GenCast forecast
+distribution, recovering observed extremes that a 24-member ensemble misses.* It cannot
+support an unbiasedness claim without a large same-model DS reference, which was
+deliberately descoped (see "Descoped, with cost, if you change your mind").
+
+## Agreed configuration
+
+| Decision | Value |
+|---|---|
+| Machine | a3mega Slurm H100 (FCN3 needs ~50 GiB; Derecho A100-40GB OOMs - confirmed, job 6857923) |
+| Walker | GenCast 0.25° `<2019` checkpoint, 12 h step, `XRES_SERIAL_INFER=1`, bf16 |
+| Scorer | FourCastNet3 0.25°, 6 h step, via `earth2studio.run.ensemble` + `Zero()` perturbation |
+| Observable | 7-day-mean T2m anomaly, cos-lat-weighted, over an **event-centered box** (CONUS mean stored as a free secondary) |
+| N walkers | 64 |
+| M score members | 6 |
+| K resampling steps | 5, tau = 3 days |
+| C_k schedule | (0, 1.0, 1.4, 1.8, 2.0) - tunable, first step free-running |
+| Pilot event | `PNW_HeatDome_2021` (peak 2021-06-28, init 2021-06-07, 21-day lead) |
+| Baselines | existing 24-member GenCast + FCN3 ensembles, ERA5 observed value |
+| Stage B | seasonal-scale return periods, gated on a GenCast drift diagnostic |
+
+### Pilot timeline (PNW_HeatDome_2021)
+
+```
+init 2021-06-07 00Z  (+ history frame 2021-06-06 12Z; GenCast needs 2 frames 12 h apart)
+horizon 42 x 12 h steps -> 2021-06-28 00Z
+t_f  = lead 15 d = 2021-06-22 00Z ;  L = 7 d  -> A_L window = leads 15..21 d
+t_k  = leads 3, 6, 9, 12, 15 d  (GenCast steps 6, 12, 18, 24, 30)
+score forecast at t_k runs FCN3 from lead t_k to lead 21 d: 72, 60, 48, 36, 24 six-hour steps
+```
+
+Because `C_1 = 0`, no score forecasts are needed at k=1 - the weights stay uniform and
+nothing is resampled. Scoring cost is therefore `64 x 6 x (60+48+36+24) = 64,512` FCN3
+steps ~ 25 H100-h, plus 21 H100-h of walker segments: **~46 H100-h/event, ~6 h wall on one
+8xH100 node.**
+
+## The GenCast -> FCN3 adapter (the piece you were unsure about)
+
+Resolved by inspecting `earth2studio/models/px/fcn3.py::VARIABLES`. FCN3 takes **72
+channels and exactly one time frame** - the 12 h vs 6 h timestep mismatch is a non-issue,
+and `total_precipitation_12hr` / `sea_surface_temperature` are GenCast outputs FCN3 never
+consumes.
+
+**65 + 4 channels map 1:1 from GenCast's target state:**
+
+| FCN3 | GenCast | note |
+|---|---|---|
+| `u{50..1000}`, `v{...}`, `z{...}`, `t{...}`, `q{...}` | `u_component_of_wind`, `v_component_of_wind`, `geopotential`, `temperature`, `specific_humidity` | identical 13 WeatherBench levels (`config.P13`) - direct rename |
+| `t2m`, `msl`, `u10m`, `v10m` | `2m_temperature`, `mean_sea_level_pressure`, `10m_u/v_component_of_wind` | exact |
+
+**Only 3 channels must be derived** - FCN3 uses `q` (not relative humidity) and `msl`
+(not surface pressure), both of which GenCast carries:
+
+- **`u100m`, `v100m`**: log-law extrapolation from `u10m/v10m` and the 1000/925 hPa wind,
+  using `geopotential` to get the level height, with a per-gridpoint calibration fitted
+  once against true ERA5 `u100m/v100m` over a month of samples.
+- **`tcwv`**: `(1/g)` * pressure-trapezoid of `q` over the 13 levels, times a fitted
+  per-gridpoint scale factor absorbing the missing sub-1000 hPa layer.
+
+Grid handling: flip latitude to `linspace(90,-90,721)`, keep `lon = linspace(0,360,1440,
+endpoint=False)`. **No regridding at all**, since both models run at 0.25° - this is why
+the 0.25° walker was chosen over a 1.0° one.
+
+Injection point needs **no change to the FCN3 driver**: `fcn3/run_fcn3.py::LocalIC` is
+already a duck-typed `earth2studio` `DataSource` (`__call__(time, variable) -> DataArray`).
+The adapter emits the same object from a GenCast state instead of a cached NetCDF.
+
+## Blocking constraints found during exploration
+
+1. **Two conda envs.** GenCast is JAX (`moe` on a3mega / `my-env` on Derecho), FCN3 is
+   PyTorch/earth2studio (`fcn3`). They cannot share a process, so walker and scorer
+   workers must hand off through disk. Reuse the two-env orchestration idiom already in
+   `fcn3/run_test.sh`.
+2. **Cached GenCast cubes are CONUS-cropped** (`xres/xinference.py`, `.sel(lat=C.LAT,
+   lon=C.LON)` before host transfer). You cannot restart a walker or build an FCN3 IC from
+   them. AI+RES must write **global** 2-frame checkpoints. Design that avoids the original
+   OOM the crop was protecting against: stream global predictions, keep only a rolling
+   2-frame buffer in RAM, write the CONUS crop per step to a diagnostics cube, and write
+   the global 2-frame state to disk **only at resampling times**.
+3. **Storage**: a global 2-frame 0.25° state is ~690 MB float32 (83 fields x 2 frames x
+   1.04M points). 64 walkers x 5 steps = **~230 GB/event** if all steps are retained for
+   resumability. Halve it with float16 for archived (non-restart) states, or retain only
+   the two most recent steps.
+4. **Host RAM**: one serial 0.25° GenCast process peaks at ~237 GiB. 8 concurrent walker
+   workers would need ~1.9 TB. The a3mega 8-worker pool scripts (`slurm/xres_pool_0p25_
+   week*.slurm`) already do this, so it is presumably fine there - **confirm before scaling**,
+   otherwise run 4 walker workers + 4 FCN3 workers.
+5. **`C_k` tuning is empirical** in the paper. Tune it with the cheap persistence score
+   before spending FCN3 hours (see Phase 2 gate).
+
+## Working agreement
+
+- New branch **`aires`**, cut from `fcn3-6event-week3`. That branch's experiment (FCN3 vs
+  GenCast, 6 events, week-3) is already complete on the a3mega H100 cluster, so it stays
+  closed; all AI+RES work lands on `aires`.
+- **One phase per session.** Each phase below is a stopping point - nothing from Phase N+1
+  starts until Phase N is verified. Phase 0 is the whole of the current step.
+
+## Plan
+
+### Phase 0 - Move the a3mega FCN3 week-3 results to Derecho (~1 h, mostly transfer)
+
+Flow: write the sync script here on Derecho, commit and push to `aires`, then pull it on
+a3mega and run it there (rsync outbound over SSH from the H100 box, the established
+route). Destination host is parameterized (`DEST_HOST`) since only the a3mega side knows
+which Derecho hostname it can reach.
+
+Nothing here is Derecho-resident today: `runs/fcn3/week3/cache/` is empty, only 1 of 6 ICs
+exists, and the 3 p90 events have no GenCast cubes or truth. The 16 comparison figures and
+all logs *are* committed (`runs/` is gitignored, `figures/`+`logs/` are not).
+
+Write `scripts/sync_a3mega_to_derecho.sh`, **to be run from an a3mega login node** (the
+usual route: rsync outbound while SSHed into the H100 box), with an explicit manifest and
+post-transfer file-count assertions:
+
+| Path | Expect |
+|---|---|
+| `runs/fcn3/week3/cache/*_cube.nc` | 6 files (24 x 85 x 105 x 237) |
+| `runs/fcn3/week3/ic/*_ic.nc` | 6 files, ~300 MB each |
+| `runs/fcn3/week3/{scores,timing}/` | incl. `fcn3_vs_gencast_scores.csv` |
+| `runs/xres/0p25/week3/cache/p90_*_cube.nc` | 3 files, ~5.8 GB each |
+| `runs/observations/p90_*` | truth for the 3 p90 events |
+| `runs/p90_t2m/fcn3/**` | optional, the separate 90-case experiment |
+
+~20-25 GB total. Then run `python fcn3/compare_fcn3_gencast.py` on Derecho to confirm the
+figures reproduce from transferred cubes, and fix the stale machine framing in
+`HANDOFF.md` / `CLAUDE.md` (both currently describe Derecho as unreachable, read from a
+Derecho checkout).
+
+### Phase 1 - Adapter + three validation gates (~1 day, ~4 H100-h)
+
+Create `aires/` as a new stack that imports from `gencast_s2s`, `xres`, and `fcn3` without
+modifying them (mirroring how `xres/` builds on `gencast_s2s/`).
+
+`aires/adapter.py` - the GenCast-state -> FCN3 72-channel `DataSource` described above,
+plus `aires/calibrate.py` to fit the `u100m/v100m/tcwv` corrections from ERA5 via
+`gencast_s2s/data.py::arco_read`.
+
+Three gates, each with a numeric pass criterion. **Do not build the DMC loop until gate 3
+passes.**
+
+- **Gate 1, channel fidelity.** Derive the 3 channels from ERA5's GenCast-variable subset
+  and compare against true ERA5. Pass: `u100m` RMSE < 1.0 m/s and |bias| < 0.2 m/s;
+  `tcwv` relative RMSE < 5%, |bias| < 2%.
+- **Gate 2, forecast equivalence.** Run FCN3 M=6 with matched seeds from (a) the existing
+  native IC `runs/fcn3/week3/ic/PNW_HeatDome_2021_ic.nc` and (b) an adapter-built IC from
+  the same ERA5 fields. Pass: `|delta mean A_L| < 0.25 K` and paired-member rank
+  correlation > 0.95.
+- **Gate 3, score skill - the real go/no-go.** Roll 8-16 GenCast 0.25° members *with global
+  2-frame checkpoints* at leads 3/6/9/12/15 d (~3-5 H100-h), score each with FCN3, and
+  correlate `theta(t_k)` against the realized `A_L(t_f)`. Pass: Spearman rho >= 0.5 at
+  t_k = 9 d and 12 d. If it only passes at 12 d, shift the `C_k` schedule later. If it
+  fails everywhere, fall back to GenCast-as-its-own-scorer (the paper's PFS+RES upper
+  bound) and report the FCN3 scoring failure as a finding.
+
+Gate 3's global-checkpoint members are not throwaway - they are the first real exercise of
+`aires/walker.py` and seed the DS baseline.
+
+### Phase 2 - RES core and the C_k tuning pass (~1-2 days, ~2 H100-h)
+
+`aires/dmc.py` - the model-agnostic DMC core, structured after the paper's own reusable
+module (`AI-RES-public/RES/resampling/`, which the authors state is model-agnostic):
+
+- score standardization across the walker population at each `t_k`
+- splitting function `V_k = C_k * theta_hat(X_k)`
+- weight update `w_k^i = wbar_{k-1} * exp(V_k(X_k^i) - V_{k-1}(Xhat_{k-1}^i))`
+- **pivotal sampling** (Deville-Tille) for the clone/kill counts, `sum N_k^i = N`,
+  `E[N_k^i] = w_k^i / wbar_k`
+- genealogy bookkeeping (parent id per walker per step)
+- the unbiased estimator (paper Eq. 2) reducing to `P(A_L > a)` and exceedance curves
+
+Score backends behind one interface: `fcn3` (production), `persistence` (current index
+value - the paper's Standard-RES), `gencast` (PFS-style fallback).
+
+Then a **cheap tuning pass**: replay the DMC loop with the `persistence` backend at N=64
+over the Gate-3 trajectories to sanity-check that `C_k = (0, 1.0, 1.4, 1.8, 2.0)` gives an
+effective sample size that does not collapse (target: ESS > N/4 after the final step) and
+that clone multiplicities stay bounded. Costs almost nothing and protects the ~46 H100-h
+production run from a mis-tuned schedule.
+
+### Phase 3 - Walker/score workers and the Slurm driver (~2 days)
+
+- `aires/aconfig.py` - RES hyperparameters, per-event boxes, `runs/aires/<event>/...` layout.
+  Reuse the event registry in `fcn3/fevents.py` (already has the 6 events, inits, metrics).
+  Add one `box` field per event.
+- `aires/walker.py` - roll one walker segment from a global 2-frame state. Built on
+  `gencast_s2s/model.py::load_gencast` (`bundle["forward"]`), a generalized
+  `gencast_s2s/inference.py::build_example_batch` that accepts an arbitrary 2-frame state
+  instead of ERA5, `graphcast/data_utils.extract_inputs_targets_forcings`, and
+  `rollout.chunked_prediction_generator` with `num_steps_per_chunk=1`. Forcings for
+  arbitrary future timestamps come free from `data_utils.add_derived_vars` (GenCast's
+  forcings are just year/day-progress sin/cos - no TISR). Fresh rng per cloned branch is
+  the clone-perturbation mechanism. Adopt the build-once model cache pattern from
+  `fcn3/model_cache.py`.
+- `aires/score.py` - M FCN3 forecasts from an adapted IC out to lead 21 d, reduced to
+  `theta`. Reuse `earth2studio.run.ensemble` with `Zero()` perturbation and
+  `model.set_rng`, exactly as `fcn3/run_fcn3.py::stage_infer` does, with `output_coords`
+  trimmed to the needed variables.
+- `aires/aindex.py` - the scalar observable. Reuse `xres/xmetrics.py`'s `t2m_anom` field
+  definition and the cos-lat-weighted area mean at `xres/xcombined.py:91`, restricted to
+  the event box; emit the CONUS mean alongside.
+- `aires/run_aires.py --stage {prep,walk,score,res,ds,compare}` - cache-aware per
+  (walker, step), matching the repo's existing stage idiom so a killed job resumes.
+- `slurm/aires_res.slurm` - one a3mega node, `#SBATCH --job-name=Vayuh-s2s`. The DMC loop
+  is a barrier at each `t_k`, so: a rank-0 coordinator plus two worker pools (GenCast env,
+  FCN3 env) draining a file-based work queue - reuse the `cache/claims/` work-stealing
+  pattern from `xres/xinference.py`. The coordinator advances `k` only when all N walker
+  segments and all N x M score artifacts for step `k` exist on disk. Checkpoint at every
+  `t_k` so the run survives the walltime limit.
+
+### Phase 4 - Run the pilot and produce figures (~1 day, ~46 H100-h)
+
+`aires/aplots.py`, reusing `xres/xplotting.py`'s cartopy helpers:
+
+1. **Exceedance / return-period curve** for `A_L`: AI+RES N=64 vs the existing 24-member
+   GenCast DS vs the 24-member FCN3 DS, with the ERA5 observed value marked. Headline
+   question: does the RES tail contain the observed heat dome when the 24-member DS does not?
+2. **Genealogy tree** - walker ancestry over the 5 resampling steps, coloured by `A_L`.
+3. **Score-skill scatter** - `theta(t_k)` vs realized `A_L(t_f)` per resampling time, the
+   quantitative version of Gate 3 on production data.
+4. **ESS and weight diagnostics** per step - the honest report on whether N=64 held up.
+5. **Composite maps** of the RES-selected extreme members (Z500 and T2m anomaly at
+   lags -3 d, 0 d), the paper's Fig. 4 analogue.
+6. **Clone-divergence diagnostic** - pairwise separation of sibling walkers vs lead, to
+   confirm diffusion noise alone splits clones. If separation is too slow, add the paper's
+   3e-3 log-ps spherical-harmonic perturbation.
+
+### Phase 5 - Stage B, seasonal return periods (gated, exploratory)
+
+Both framings were requested, staged. Stage B is where the paper's actual claim (return
+periods in *years*) lives, and it depends on GenCast running stably far past its training
+horizon.
+
+**Gate first, cheaply.** Roll 8 GenCast 0.25° members 40 days from a climatological
+2021-07-01 IC and compare the walker climatology at leads 20/30/40 d against ERA5
+June-August climatology. Abort criteria: CONUS-mean T2m drift > 1 K, or a >20% loss of
+Z500 eddy variance (spectral blurring). ~4 H100-h.
+
+If it passes, run AI+RES with `t_f` set to the climatological peak of the seasonal index
+and estimate return periods across several years' July-1 ICs. If it fails, report the
+drift diagnostic as the reason the climatological framing needs a stable climate emulator
+(ACE2/cBottle) as the walker instead of GenCast - a legitimate negative result, and the
+same conclusion the paper reaches when it chose PlaSim over an emulator for the walker.
+
+## Verification
+
+Per-phase, all runnable:
+
+```bash
+# Phase 0 (from a3mega)
+bash scripts/sync_a3mega_to_derecho.sh --dry-run     # manifest + counts, no transfer
+bash scripts/sync_a3mega_to_derecho.sh               # then assert counts on arrival
+python fcn3/compare_fcn3_gencast.py                  # figures reproduce from transferred cubes
+
+# Phase 1 gates (a3mega; gate 1 is CPU-only, login node)
+python -m aires.calibrate --fit                      # fit u100m/v100m/tcwv corrections
+pytest aires/tests/                                  # gate 1 assertions as unit tests
+sbatch --job-name=Vayuh-s2s slurm/aires_gate2.slurm  # forecast equivalence
+sbatch --job-name=Vayuh-s2s slurm/aires_gate3.slurm  # score skill - the go/no-go
+
+# Phase 2 (CPU only, no GPU)
+pytest aires/tests/test_dmc.py                       # pivotal sampling + estimator unit tests
+python -m aires.run_aires --stage res --score persistence --dry-run   # C_k tuning replay
+
+# Phase 4
+python -m aires.run_aires --stage prep --event PNW_HeatDome_2021      # login node, cache verify
+sbatch --job-name=Vayuh-s2s slurm/aires_res.slurm
+squeue -u $USER -n Vayuh-s2s
+python -m aires.run_aires --stage compare --event PNW_HeatDome_2021
+```
+
+Unit tests worth writing (`aires/tests/`, following `p90/tests/test_pmetrics.py`'s style
+of pinning against a reference implementation):
+
+- **pivotal sampling**: `sum N_k^i == N` exactly, and `E[N_k^i] -> w_k^i / wbar_k` over
+  many draws.
+- **estimator unbiasedness on a toy system**: run the DMC core on a 1-D Ornstein-Uhlenbeck
+  walker where the exceedance probability is analytic; assert the RES estimate matches
+  brute force within Monte Carlo error. This is the single most valuable test - it
+  validates `aires/dmc.py` with zero GPU time.
+- **adapter round trip**: GenCast state -> FCN3 channels -> assert all 72 present, correct
+  order, correct grid orientation, physical ranges.
+- **`C_k = 0` no-op**: with all `C_k = 0` the algorithm must reduce exactly to direct
+  sampling (uniform weights, no resampling) - a strong end-to-end invariant.
+
+Prep discipline per `CLAUDE.md`: run `--stage prep` on the **login node** and confirm the
+caches exist before any `sbatch`, so GPU jobs are pure cache-hit-then-compute.
+
+## Descoped, with cost, if you change your mind
+
+Only the existing-24-member + ERA5 baseline was selected. Two cheap additions would
+upgrade the claim from "RES reaches further into the tail" to "RES is statistically
+unbiased", which is the paper's central result:
+
+- **Extend the DS reference.** GenCast member seeds are `fold_in(PRNGKey(0), i)`, so the
+  existing 24-member cube extends by simply rolling members 24..N - no re-run of what
+  exists. N=96 costs ~24 H100-h/event and lets the RES exceedance curve be checked against
+  DS where they overlap.
+- **Standard-RES with the persistence score** is ~10 lines once the score backend is
+  pluggable, and needs no FCN3 hours. It is the paper's headline comparison and the entire
+  justification for using an AI scorer.
+
+## References
+
+- Paper: arXiv:2510.27066v3, *Phys. Rev. Lett.* (2026), DOI 10.1103/b1gc-9c2q
+- Reference implementation: https://github.com/amaurylancelin/AI-RES-public
+  (`RES/resampling/` is the model-agnostic DMC core; `RES/pseudocode.md` is the algorithm spec)
+- Paper's RES hyperparameters (Table I): N=400, M=100, K=6, tau=5 d,
+  C_k=(0,0,0,1.6,1.8,2.0), L=7 d
