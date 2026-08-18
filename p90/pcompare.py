@@ -524,7 +524,98 @@ def _fig_timing(model: str, figdir: Path) -> None:
 
 
 # --------------------------------------------------------------------------- #
-# Figure 8 / report: summary.md
+# Figure 8: probabilistic skill + amplitude damping vs anomaly magnitude
+# --------------------------------------------------------------------------- #
+def _fig_prob_vs_anom(model: str, df: pd.DataFrame, figdir: Path) -> None:
+    have_p = {"p_event", "peak_anom_K"}.issubset(df.columns)
+    have_amp = {"ens_conus_anom", "obs_conus_anom"}.issubset(df.columns)
+    if not (have_p or have_amp):
+        print(f"{TAG} missing p_event/peak_anom_K and ens/obs_conus_anom columns; "
+              f"skipping prob_vs_anom.png")
+        return
+    fig, axes = plt.subplots(1, 2, figsize=(11, 4.8), squeeze=False)
+    ax0, ax1 = axes.ravel()
+
+    if have_p:
+        for kind, st in KIND_STYLE.items():
+            sub = df[df["kind"] == kind]
+            if len(sub):
+                ax0.scatter(sub["peak_anom_K"], sub["p_event"], s=28, alpha=0.75,
+                            color=st["color"], marker=st["marker"], label=st["label"])
+        ax0.axvline(P.THR_K, color="k", lw=1, ls=":",
+                    label=f"p90 threshold {P.THR_K:+.2f} K")
+        if "obs_event" in df.columns:
+            base = float(df["obs_event"].mean())
+            ax0.axhline(base, color=COL_REF_CLIM, lw=1.2, ls="--",
+                        label=f"observed base rate {base:.2f}")
+        x = df["peak_anom_K"].to_numpy(float)
+        y = df["p_event"].to_numpy(float)
+        m = np.isfinite(x) & np.isfinite(y)
+        if m.sum() >= 8:
+            try:
+                from scipy.optimize import curve_fit
+
+                def _logistic(v, a, b):
+                    return 1.0 / (1.0 + np.exp(-(a + b * v)))
+
+                (a, b), _ = curve_fit(_logistic, x[m], y[m], p0=(0.0, 1.0),
+                                      maxfev=10000)
+                xs = np.linspace(x[m].min(), x[m].max(), 200)
+                ax0.plot(xs, _logistic(xs, a, b), color=COL_MODEL, lw=1.8,
+                         label=f"logistic fit ({b:.2f}/K at midpoint)")
+            except Exception as e:     # noqa: BLE001 - fit is decoration, not data
+                print(f"{TAG} logistic fit failed ({type(e).__name__}: {e}); "
+                      f"scatter only")
+        ax0.set_ylim(-0.02, 1.02)
+        _grid(ax0)
+        ax0.set_xlabel("observed peak T2m anomaly (K)")
+        ax0.set_ylabel("forecast P(extreme week)")
+        ax0.set_title("event probability vs observed magnitude", fontsize=10)
+        ax0.legend(fontsize=7, loc="upper left")
+    else:
+        ax0.axis("off")
+
+    if have_amp:
+        for kind, st in KIND_STYLE.items():
+            sub = df[df["kind"] == kind]
+            if len(sub):
+                ax1.scatter(sub["obs_conus_anom"], sub["ens_conus_anom"], s=28,
+                            alpha=0.75, color=st["color"], marker=st["marker"],
+                            label=st["label"])
+        x = df["obs_conus_anom"].to_numpy(float)
+        y = df["ens_conus_anom"].to_numpy(float)
+        m = np.isfinite(x) & np.isfinite(y)
+        both = np.concatenate([x[m], y[m]])
+        pad = 0.05 * (both.max() - both.min())
+        lo, hi = float(both.min() - pad), float(both.max() + pad)
+        ax1.plot([lo, hi], [lo, hi], color="k", lw=1, ls=":",
+                 label="1:1 (perfect amplitude)")
+        if m.sum() >= 3:
+            slope, icpt = np.polyfit(x[m], y[m], 1)
+            r = float(np.corrcoef(x[m], y[m])[0, 1])
+            xs = np.array([lo, hi])
+            ax1.plot(xs, icpt + slope * xs, color=COL_MODEL, lw=1.8,
+                     label=f"fit: slope {slope:.2f}, r {r:.2f}")
+        ax1.set_xlim(lo, hi)
+        ax1.set_ylim(lo, hi)
+        ax1.set_aspect("equal")
+        _grid(ax1)
+        ax1.set_xlabel("observed CONUS week-mean anomaly (K)")
+        ax1.set_ylabel("ensemble-mean forecast anomaly (K)")
+        ax1.set_title("forecast amplitude vs observed (slope<1 = damped)",
+                      fontsize=10)
+        ax1.legend(fontsize=7, loc="upper left")
+    else:
+        ax1.axis("off")
+
+    fig.suptitle(f"{model}: skill vs anomaly magnitude, 3-week lead",
+                 y=1.0, fontsize=12)
+    fig.tight_layout()
+    _save(fig, figdir, "prob_vs_anom.png")
+
+
+# --------------------------------------------------------------------------- #
+# Report: summary.md
 # --------------------------------------------------------------------------- #
 def _fig_list(figdir: Path) -> list[str]:
     return [f.name for f in sorted(figdir.glob("*.png"))]
@@ -650,6 +741,7 @@ def make_all(model: str) -> None:
         ("rank_hist",       lambda: _fig_rank_hist(model, pooled_npz, figdir)),
         ("spread_error",    lambda: _fig_spread_error(model, df, figdir)),
         ("ensmean_skill",   lambda: _fig_ensmean_skill(model, df, figdir)),
+        ("prob_vs_anom",    lambda: _fig_prob_vs_anom(model, df, figdir)),
         ("timing_summary",  lambda: _fig_timing(model, figdir)),
     ]
     for name, fn in steps:
