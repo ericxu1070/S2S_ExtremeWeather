@@ -1,0 +1,24 @@
+Host: nucla3m-a3meganodeset-4
+Start: Tue Aug 18 22:57:35 UTC 2026
+GPU 0: NVIDIA H100 80GB HBM3 (UUID: GPU-8deaf399-5257-44be-de29-dbab5cab2837)
+GPU 1: NVIDIA H100 80GB HBM3 (UUID: GPU-08ce4409-9463-80ec-57ba-eca08d003482)
+GPU 2: NVIDIA H100 80GB HBM3 (UUID: GPU-8d511a9b-a471-736e-637d-a997e0a57717)
+GPU 3: NVIDIA H100 80GB HBM3 (UUID: GPU-ab33084f-509e-82b2-8949-d8815d024cb0)
+GPU 4: NVIDIA H100 80GB HBM3 (UUID: GPU-67dcae5f-2cfd-b933-fa3a-05a8184dccf0)
+GPU 5: NVIDIA H100 80GB HBM3 (UUID: GPU-6f4c5b9e-2690-3130-7cd6-0ff15eee4c02)
+GPU 6: NVIDIA H100 80GB HBM3 (UUID: GPU-5544fb35-a86b-e04c-5eea-201f7515a48a)
+GPU 7: NVIDIA H100 80GB HBM3 (UUID: GPU-5d02916b-f04f-56da-a539-ff7cf9f27b6f)
+Gate 2: event=PNW_HeatDome_2021 members=24 nshards=8 batch=1 weeks=3
+CPU: 208 cores / 8 shards -> OMP_NUM_THREADS=26 per shard
+  launched shard 0 on GPU 0 (pid 2186244)
+  launched shard 1 on GPU 1 (pid 2186245)
+  launched shard 2 on GPU 2 (pid 2186246)
+  launched shard 3 on GPU 3 (pid 2186247)
+  launched shard 4 on GPU 4 (pid 2186248)
+  launched shard 5 on GPU 5 (pid 2186249)
+  launched shard 6 on GPU 6 (pid 2186250)
+  launched shard 7 on GPU 7 (pid 2186251)
+Merging shard cubes ...
+[assemble] PNW_HeatDome_2021: wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/aires/gate2/cache/PNW_HeatDome_2021_adapter_cube.nc {'member': 24, 'time': 85, 'lat': 105, 'lon': 237}
+End: Tue Aug 18 23:09:20 UTC 2026
+Now score on the login node in moe:  PYTHONPATH=. python -m aires.gate2 --stage score --event PNW_HeatDome_2021
