@@ -34,8 +34,9 @@ This checkout lives on the **a3mega Slurm GPU cluster** (GCP; hostnames start wi
 GPUs live on 8 whole-node `a3mega` nodes (H100s) plus small CPU `debug` nodes, reachable
 **only via `sbatch`**. The conda env here is **`moe`**. Derecho — where the GenCast
 experiments ran — is a **different machine** (NCAR, PBS Pro,
-`/glade/derecho/scratch/exu/S2S_ExtremeWeather`, env `my-env`) and is **not reachable from
-this box**.
+`/glade/derecho/scratch/exu/S2S_ExtremeWeather`, env `my-env`). It **is reachable over SSH
+from this box** — what blocks an agent is not routing but **interactive Duo 2FA**, which
+cannot be answered unattended. See "Reaching Derecho from a3mega" below.
 
 Traps this split sets:
 
@@ -56,6 +57,75 @@ Traps this split sets:
   figures (`figures/xres/`). Derecho is no longer required for xres analysis.
 - The **downscaler and xres analysis are the live projects on this machine**; only new
   Derecho PBS runs (or HRRR truth rebuilds) need a Derecho session.
+
+## Reaching Derecho from a3mega
+
+Derecho **is** reachable from this box: DNS resolves `derecho.hpc.ucar.edu`, port 22 is
+open, and `rsync` over SSH sustains ~47 MB/s. The blocker is authentication, not routing —
+the server offers only `publickey,keyboard-interactive`, no local key is authorized, and
+NCAR's `keyboard-interactive` is **Duo 2FA**. A human must clear it; an agent cannot.
+
+The workaround is SSH connection multiplexing — authenticate **once**, then every later
+non-interactive command rides the same socket:
+
+```bash
+# One-time, in a REAL terminal on nucla3m-login-001 as `ubuntu`:
+ssh -fN derecho          # Duo prompt -> backgrounds, no shell; master persists 8 h
+
+ssh -O check derecho     # is the master up?
+ssh -O exit  derecho     # tear it down early
+```
+
+`~/.ssh/config` carries the `Host derecho` block (User `exu`, `ControlMaster auto`,
+`ControlPath ~/.ssh/cm-%r@%h:%p`, `ControlPersist 8h`). It also forces
+`PreferredAuthentications keyboard-interactive` on purpose: this box has ~8 SSH keys, none
+authorized on Derecho, and offering them all exhausts the server's `MaxAuthTries` **before**
+the Duo prompt is ever reached.
+
+Traps:
+
+- **`!`-prefixed commands in Claude Code cannot do Duo** — they run without a TTY
+  (`Pseudo-terminal will not be allocated`). It must be a real terminal.
+- The master socket is a **file**, so it is per-machine: it must be created on
+  **`nucla3m-login-001`** as **`ubuntu`** for a session on this box to reuse it.
+
+### Moving data there
+
+`scripts/sync_a3mega_to_derecho.sh` is the manifest-driven push (run it **on a3mega**;
+`--census-only` is read-only and safe on either box). It never deletes — there is no
+`--delete` anywhere in it. `--with-p90` and `--with-shards` add optional groups.
+
+**Its post-transfer verification compares file COUNTS only.** That is not sufficient, and it
+has already missed a real defect (below). After any sync, compare **bytes**, not counts:
+
+```bash
+# per-directory file count + byte total; run both sides and diff
+for d in $(find runs figures -maxdepth 5 -type d | sort); do
+  n=$(find "$d" -maxdepth 1 -type f | wc -l)
+  b=$(find "$d" -maxdepth 1 -type f -printf '%s\n' | awk '{s+=$1} END{print s+0}')
+  [ "$n" -gt 0 ] && printf '%s\t%s\t%s\n' "$d" "$n" "$b"
+done
+```
+
+### The climatology trap (bit this once, 2026-08-17)
+
+`runs/models/clim_1990_2019_t2m_conus.nc` existed on **both** boxes with the **same name and
+different grids**: 105x237 (0.25°, 145.7 MB) here, 14x30 (~2°, 2.5 MB) on Derecho. Cubes are
+`lat=105, lon=237`, `fcn3/run_fcn3.py` crops "to match the climatology grid exactly", and the
+compare subtracts a climatology sampled on that grid — so the stale file would have made
+`compare_fcn3_gencast.py` either hard-fail on shape mismatch or emit **silently wrong
+anomalies**. Count-based verification reported `ok` throughout.
+
+The correct 0.25° file is now on Derecho; the old one is kept as
+`clim_1990_2019_t2m_conus.nc.bak-2deg`. **Verify the grid, not the filename**, before
+trusting any cross-machine anomaly figure:
+
+```bash
+ncdump -h runs/models/clim_1990_2019_t2m_conus.nc | sed -n '2,8p'   # expect lat=105 lon=237
+```
+
+Never sync `runs/models/jax_cache_0p25` (machine-specific JAX compile cache) or the
+`cache/claims/` directories (work-stealing locks).
 
 ## GPU nodes are for GPU compute ONLY (STRICT)
 
@@ -102,7 +172,7 @@ which one you are working on before touching anything:
 |---|---|---|
 | Dirs | `gencast_s2s/`, `xres/`, `pbs/`, `runs/` | `downscaler/` (self-contained) |
 | Framework | JAX / GraphCast | PyTorch (DDP) |
-| Runs on | **Derecho** (PBS, `my-env`) — not reachable from here | **this cluster** (a3mega Slurm, `moe` env) |
+| Runs on | **Derecho** (PBS, `my-env`) — SSH-reachable, Duo-gated | **this cluster** (a3mega Slurm, `moe` env) |
 | Does | ensemble forecasts at 1.0° & 0.25°, weeks 2–4 lead | super-resolves 1° → 3 km |
 | Docs | this file + `HANDOFF.md` | `downscaler/README.md` + `downscaler/bash/README.md` |
 
