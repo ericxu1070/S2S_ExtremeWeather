@@ -90,6 +90,12 @@ better). G2c says the adapter's perturbation is **strictly smaller than FCN3's o
 stochasticity at every lead** - 22% of it at day 1.5, 51% at day 9, converging to 99% only
 at day-21 saturation. It never exceeds it.
 
+**The seed matching is verified by the data, not assumed.** If adapter member i had
+drawn a different noise stream than native member i, `d_paired` would equal `d_internal`
+from the very first step. It does not: it is 22% of it at day 1.5 and grows from there,
+which is only possible if the two members share an internal-noise stream and differ solely
+through the IC.
+
 **G2b as written cannot discriminate and should be amended.** It evaluates paired-member
 rank correlation at 21 d, where any IC difference whatsoever - the adapter's or a re-seed's
 - has been amplified to the internal-noise level and shuffles the members into an unrelated
