@@ -302,9 +302,13 @@ def roll_segment(bundle: dict, state: xr.Dataset, n_steps: int, key, *,
     cube = None
     if crop:
         cube = xr.concat(diag, dim="time", coords="minimal", compat="override")
+        # Relative to THIS SEGMENT's start, not the event init - a walker is a chain of
+        # segments and each one restarts the count. `time` is absolute and is what
+        # anything spanning segments should join on.
         cube = cube.assign_coords(
             lead_h=("time", ((pd.DatetimeIndex(cube["time"].values) - init)
                              / pd.Timedelta(hours=1)).values.astype("int32")))
+        cube["lead_h"].attrs["long_name"] = "hours since this segment's initial frame"
     return nxt, cube
 
 
