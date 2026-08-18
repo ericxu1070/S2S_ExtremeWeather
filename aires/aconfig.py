@@ -93,12 +93,96 @@ GATE1 = {
 }
 
 
+# --------------------------------------------------------------------------- #
+# Walker configuration and the per-event run tree.
+#
+# A walker is a GenCast trajectory that can be STOPPED, checkpointed and restarted, so
+# unlike the xres cubes its checkpoint must be GLOBAL: FCN3 consumes the whole sphere, and
+# a CONUS-cropped state cannot initialise it (xres/xinference.py crops before the host
+# transfer, which is why those cached cubes are useless here).
+#
+#     runs/aires/<event>/walkers/w<ii>/step<k>/state.nc   global 2-frame restart state
+#                                             /diag.nc    CONUS-cropped, every step
+#                       /scores/                          FCN3 scores theta(t_k)
+#                       /gate3/                           Gate 3 artifacts
+# --------------------------------------------------------------------------- #
+WALKER_RES = os.environ.get("AIRES_RES", "0p25")   # GenCast checkpoint resolution
+WALKER_STEP_H = 12                                 # GenCast native step
+WALKER_WEEKS = int(os.environ.get("AIRES_WEEKS", 3))  # lead of the pilot init (21 d)
+
+# Base seed for walker segment RNGs. A segment's key is fold_in(fold_in(base, step),
+# walker), so a cloned walker gets a stream no sibling has ever used -- which IS the
+# clone-perturbation mechanism (the paper has to hand-tune spherical-harmonic noise
+# because its walker, PlaSim, is deterministic; GenCast's diffusion noise does it for us).
+WALKER_BASE_SEED = int(os.environ.get("AIRES_BASE_SEED", 20260101))
+
+# Global state grid, asserted on every read/write. Same numbers as FCN3's, deliberately:
+# the walker state feeds the adapter directly.
+STATE_NLAT, STATE_NLON = FCN3_NLAT, FCN3_NLON
+
+# The 12 time-varying variables GenCast predicts, plus the 2 statics. A restart state must
+# carry all 14: the prognostics are what the rollout advances, the statics are what
+# data_utils needs to rebuild the input batch.
+STATE_PROGNOSTIC = (
+    "10m_u_component_of_wind", "10m_v_component_of_wind", "2m_temperature",
+    "geopotential", "mean_sea_level_pressure", "sea_surface_temperature",
+    "specific_humidity", "temperature", "total_precipitation_12hr",
+    "u_component_of_wind", "v_component_of_wind", "vertical_velocity",
+)
+STATE_STATIC = ("geopotential_at_surface", "land_sea_mask")
+
+# Gate 3 (aires.md): free-running walkers checkpointed at these leads, each scored by FCN3;
+# the score must rank the eventual outcome.
+GATE3_LEAD_DAYS = (3, 6, 9, 12, 15)
+GATE3 = {
+    "spearman_min": 0.5,          # required at t_k = 9 d AND 12 d
+    "required_leads": (9, 12),
+}
+
+
 def fig_dir() -> Path:
     return ROOT / "figures" / "aires"
 
 
-def ensure_dirs() -> None:
-    for d in (AIRES_ROOT, CALIB_PATH.parent, fig_dir()):
+def event_dir(event: str) -> Path:
+    return AIRES_ROOT / event
+
+
+def walker_dir(event: str, walker: int) -> Path:
+    return event_dir(event) / "walkers" / f"w{walker:02d}"
+
+
+def segment_dir(event: str, walker: int, step: int) -> Path:
+    return walker_dir(event, walker) / f"step{step:02d}"
+
+
+def state_path(event: str, walker: int, step: int) -> Path:
+    """Global 2-frame restart state at the END of segment ``step``."""
+    return segment_dir(event, walker, step) / "state.nc"
+
+
+def diag_path(event: str, walker: int, step: int) -> Path:
+    """CONUS-cropped every-step diagnostics for segment ``step``."""
+    return segment_dir(event, walker, step) / "diag.nc"
+
+
+def gencast_inputs_path(event: str, res: str | None = None, weeks: int | None = None) -> Path:
+    """The event's ERA5 init frames, in GenCast schema -- a walker's step-0 state.
+
+    Built by the xres pipeline; global and 2-frame already, which is exactly the walker
+    checkpoint format, so step 0 needs no conversion.
+    """
+    res = res or WALKER_RES
+    weeks = WALKER_WEEKS if weeks is None else weeks
+    return RUNS / "xres" / res / f"week{weeks}" / "inputs" / f"{event}_inputs.nc"
+
+
+def ensure_dirs(event: str | None = None) -> None:
+    dirs = [AIRES_ROOT, CALIB_PATH.parent, fig_dir()]
+    if event:
+        dirs += [event_dir(event), event_dir(event) / "walkers",
+                 event_dir(event) / "scores", event_dir(event) / "gate3"]
+    for d in dirs:
         d.mkdir(parents=True, exist_ok=True)
 
 
