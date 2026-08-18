@@ -6,7 +6,9 @@ combined verification-week PDFs (FCN3 vs GenCast vs ERA5 truth), (2) per-event s
 ensemble-mean RMSE, bias, ACC, spread-error), (3) a **hardware-matched runtime comparison**
 of the cost to generate a 24-member ensemble.
 
-Everything runs on **this box** (a3mega Slurm / H100). Derecho is not involved.
+Everything **runs** on **this box** (a3mega Slurm / H100). Derecho runs none of it, but as
+of 2026-08-17 it holds a **full copy of the results** for offline analysis — see "Artifact
+sync to Derecho" below.
 
 ---
 
@@ -113,11 +115,16 @@ a labelled cross-machine reference bar.
 
 ## Derecho smoke test (validate the FCN3 path before spending an 8xH100 node)
 
-**Why:** as of 2026-07-23 FCN3 has **never completed a model build or a single forecast
-step** anywhere. Three attempts died for unrelated reasons (697 cancelled: no CUDA kernel;
-700: CPU thread thrash, GPUs idle 80+ min; 707: cancelled while queued). Everything about
-the driver below is therefore *unproven at runtime*, and a3mega nodes are scarce. One
-A100 smoke on Derecho de-risks the machine-independent half cheaply.
+> **SUPERSEDED (2026-08-17).** This section is kept for history. FCN3 has since
+> **completed the full 6-event week-3 run on a3mega** — 6 cubes in
+> `runs/fcn3/week3/cache/`, per-event timing, and `fcn3_vs_gencast_scores.csv`. The
+> de-risking smoke below is no longer a prerequisite for anything.
+
+**Why (as written 2026-07-23):** at that time FCN3 had **never completed a model build or a
+single forecast step** anywhere. Three attempts died for unrelated reasons (697 cancelled:
+no CUDA kernel; 700: CPU thread thrash, GPUs idle 80+ min; 707: cancelled while queued).
+Everything about the driver below was therefore *unproven at runtime*, and a3mega nodes are
+scarce. One A100 smoke on Derecho de-risked the machine-independent half cheaply.
 
 **What a Derecho smoke DOES prove** (all machine-independent, none of it ever executed):
 the event registry and init arithmetic, that FCN3 constructs at all with the pinned
@@ -244,6 +251,46 @@ figures/fcn3/week3/fcn3_vs_gencast_runtime.png
 `compare_fcn3_gencast.py` is incremental: events whose cube or truth is missing are skipped
 with a warning and their panel reads "not built yet", so it is useful before everything is
 finished.
+
+---
+
+## Artifact sync to Derecho (2026-08-17)
+
+Derecho now holds a **complete copy of the finished experiment data** so the analysis can be
+re-run there. It computed none of it; a3mega remains where the work happens. Access, the
+`ControlMaster`/Duo recipe, and the byte-verification snippet are documented under "Reaching
+Derecho from a3mega" in `CLAUDE.md`.
+
+Moved with `scripts/sync_a3mega_to_derecho.sh` (manifest-driven, never deletes) plus a
+second pass for what the manifest did not cover. **~89.5 GB total.** After both passes,
+**93 directories are byte-identical (348.20 GB)**.
+
+| Pass | Contents | Size |
+|---|---|---|
+| 1 (manifest) | 6 FCN3 cubes, 6 ICs, 7 timing JSONs, scores CSV, 3 GenCast 0.25° p90 cubes, 3 p90 init frames, 3 ERA5 p90 truth | 22.95 GB / 29 files |
+| 2 (gap fill) | `runs/p90_t2m/**` (90 cubes, 90 ICs, 180 truth, 90 timing, 90 maps, 3 scores), the 0.25° climatology, 3 p90 verif members, `figures/p90_t2m/`, `runs/xres/figures/` | 66.51 GB |
+
+**Deliberately NOT synced** (and should stay that way):
+
+| Path | Why |
+|---|---|
+| `runs/models/jax_cache_0p25` | machine-specific JAX compile cache — copying it is harmful |
+| `runs/fcn3/.cache/model` (4.18 GB) | FCN3 weights, re-downloadable |
+| `runs/fcn3/week3/shards` (1.63 GB) | regenerable zarr intermediates (`--with-shards`) |
+| `*/cache/claims/` | work-stealing lock files, 0 bytes |
+
+**Two gotchas this exposed**, both worth remembering before trusting a cross-machine figure:
+
+1. **The sync script verifies file COUNTS, not bytes.** It reported `ok` on every group
+   while Derecho still held a wrong-resolution climatology. Diff byte totals after any sync.
+2. **`runs/models/clim_1990_2019_t2m_conus.nc` was same-name/different-grid** — 105x237
+   (0.25°) here vs 14x30 (~2°) there. Since cubes are `lat=105, lon=237` and anomalies are
+   formed against this file, the stale copy would have crashed or silently corrupted every
+   anomaly on Derecho. Fixed; the old file is kept as `...nc.bak-2deg`. Check the grid with
+   `ncdump -h` rather than assuming the filename means the same thing on both boxes.
+
+Note `figures/p90_t2m/` is **untracked in git** — it reached Derecho only via this sync, not
+via the branch.
 
 ---
 
