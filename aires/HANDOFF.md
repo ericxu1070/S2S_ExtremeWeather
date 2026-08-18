@@ -17,7 +17,7 @@ https://claude.ai/code/artifact/081bd2f9-7725-4e46-8af8-ec57f54ee2df
 | 0 - move a3mega FCN3 week-3 results to Derecho | **done**, verified: figures regenerate pixel-identical from the transferred cubes |
 | 1 - adapter + calibration + Gate 1 | **done on Derecho AND on a3mega** - identical numbers on both |
 | 1 - Gate 2 (forecast equivalence) | **run on a3mega** (Slurm job 1153). G2a PASS, G2c PASS, **G2b FAIL as written** - see below; the gate's purpose is met but the G2b criterion needs amending |
-| 1 - Gate 3 (score skill, the go/no-go) | **not started**; `aires/walker.py` (its prerequisite) is **written and CPU-verified**, not yet rolled on a GPU |
+| 1 - Gate 3 (score skill, the go/no-go) | **not started**; `aires/walker.py` (its prerequisite) is **written, tested and rolled on an H100** (job 1154) - the walker -> adapter -> FCN3 round trip works end to end |
 | 2-5 | not started |
 
 Current machine: **a3mega**. Everything Phase 1 needs is now here - calibration rebuilt,
@@ -116,7 +116,7 @@ threshold. A perfect adapter would have failed G2a about half the time at M=6. A
 paired s.e. is 0.149 K, so G2a resolves differences down to ~0.30 K and no finer; that is
 now stated in the score output rather than left implicit.
 
-## `aires/walker.py` - written, CPU-verified, not yet rolled
+## `aires/walker.py` - written, tested, and rolled on a GPU
 
 Gate 3 needs a walker that can be stopped, checkpointed and restarted, and whose checkpoint
 is **global** (`xres/xinference.py` crops to CONUS before the host transfer, so its cached
@@ -141,6 +141,39 @@ cubes cannot restart anything or initialise FCN3). That module now exists:
   at a parent's state file, and the differing index gives it a noise stream no sibling has
   used.
 
+**First GPU exercise: job 1154** (`slurm/aires_walker_smoke.slurm`, 2 steps, one H100,
+6.5 min wall of which ~5 min was the one-time XLA compile; the two steps themselves took
+~30 s). It rolled from the event init, wrote a state and a diagnostics cube, and then
+proved the state is **both** things it has to be:
+
+```
+[verify] state state.nc: valid 2021-06-08 00:00:00, 721x1440 global, 2 frames
+[verify] advanced 24 h from the event init
+[verify] restarts cleanly: a further 2-step batch builds from 2021-06-08 00:00:00
+[verify] adapter -> FCN3 IC: 72 channels, all finite; global mean t2m 281.47 K, tcwv 18.50 kg m-2
+[verify] OK - walker state is both a restart point and an FCN3 IC
+```
+
+That is the whole walker -> scorer handoff, end to end, on real model output rather than
+on ERA5. Nothing in Gate 3 now rests on an untested code path.
+
+**Measured storage** (aires.md's estimates were made from first principles; these are the
+real numbers, and both come in under them):
+
+| artifact | measured | per event at N=64, K=5 |
+|---|---|---|
+| `state.nc` (global, 2 frames, float32 + zlib) | **477 MB** (0.70 GB raw) | ~153 GB if every step is retained |
+| `diag.nc` (CONUS crop, all 12 vars) | **6 MB per 12 h step** | ~16 GB (42 steps per walker) |
+
+aires.md budgeted ~230 GB/event for the states; zlib on float32 gets that to ~153 GB
+without the float16 hazard below. Retaining only the two most recent steps, as the plan
+also suggests, would drop it to ~61 GB.
+
+**Also measured: the 0.25 degree checkpoint occupies ~64 GB of an H100's 80 GB.** That is
+the direct confirmation of why Derecho's A100-40GB OOMs on it, and it leaves no room for a
+second concurrent member per GPU - the serial path is not a workaround, it is the only
+option at this resolution.
+
 Two facts found while writing it, both worth keeping:
 
 - **`total_precipitation_12hr` is a GenCast target but NOT an input.** A restart state does
@@ -152,11 +185,17 @@ Two facts found while writing it, both worth keeping:
 
 ## Open problems
 
-1. **Gate 3 is the remaining Phase 1 work.** `aires/walker.py` exists and its CPU-checkable
-   parts pass, but it has never rolled a step on a GPU. The first GPU exercise should be a
-   single short segment (`--steps 2`) before the 8-16 member Gate 3 run, because a
-   0.25 degree serial rollout costs ~28 s/step on an H100 and a full free-running walker to
-   21 d is ~20 min.
+1. **Gate 3 is the remaining Phase 1 work, and it is now unblocked.** Still to write:
+   `aires/score.py` (M FCN3 forecasts from a walker state out to lead 21 d, reduced to
+   theta), `aires/aindex.py` (the scalar observable; `aires/gate2.py::_AL` is the CONUS
+   version of it and should be factored out rather than reimplemented), and a driver +
+   Slurm script. The run itself is 8-16 free-running walkers checkpointed at leads
+   3/6/9/12/15 d, then N x 5 x M FCN3 score forecasts. At the measured ~15 s/step a
+   42-step walker is ~11 min, so 16 walkers over 8 GPUs is ~25 min; scoring adds
+   16 x 6 x 240 = 23,040 FCN3 steps, ~7 GPU-h, under an hour on a node.
+   **aires.md's per-event box is still undefined** - it says to add one `box` field per
+   event in Phase 3, and Gate 3's observable needs it (or must explicitly use the CONUS
+   mean, as Gate 2 did).
 2. **Gate 2's G2b criterion needs amending in `aires.md`** - see "What Gate 2 established".
    Nothing is blocked on it; the decision is whether to record Gate 2 as PASS under
    amended criteria or leave it as a documented partial.
