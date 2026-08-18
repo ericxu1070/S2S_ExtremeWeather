@@ -13,6 +13,11 @@
 #   bash scripts/sync_a3mega_to_derecho.sh               # transfer, then verify counts
 #   bash scripts/sync_a3mega_to_derecho.sh --with-p90    # also the 90-case p90_t2m experiment
 #   bash scripts/sync_a3mega_to_derecho.sh --with-shards # also the per-shard zarr intermediates
+#   bash scripts/sync_a3mega_to_derecho.sh --with-walkers # also the AI+RES walker states (~0.5 GB each)
+#
+# The AI+RES Gate 2 artifacts are in the DEFAULT manifest (~530 MB): the adapter
+# ensemble cube cannot be rebuilt on Derecho (no GPU that fits FCN3), so without
+# it a Derecho session can read the Gate 2 verdict but cannot re-derive it.
 #
 # Overridable:
 #   DEST_HOST   ssh target for Derecho          (default: derecho.hpc.ucar.edu)
@@ -33,13 +38,15 @@ DRY_RUN=0
 CENSUS_ONLY=0
 WITH_P90=0
 WITH_SHARDS=0
+WITH_WALKERS=0
 for arg in "$@"; do
     case "$arg" in
         --dry-run)     DRY_RUN=1 ;;
         --census-only) CENSUS_ONLY=1 ;;
         --with-p90)    WITH_P90=1 ;;
         --with-shards) WITH_SHARDS=1 ;;
-        -h|--help)     sed -n '2,27p' "${BASH_SOURCE[0]}"; exit 0 ;;
+        --with-walkers) WITH_WALKERS=1 ;;
+        -h|--help)     sed -n '2,33p' "${BASH_SOURCE[0]}"; exit 0 ;;
         *)             echo "unknown flag: $arg (see --help)"; exit 2 ;;
     esac
 done
@@ -76,9 +83,22 @@ MANIFEST=(
     "runs/xres/0p25/week3/cache/p90_*_cube.nc|3|GenCast 0.25 deg week-3 cubes, p90 events"
     "runs/xres/0p25/week3/inputs/p90_*_inputs.nc|3|GenCast init frames, p90 events"
     "runs/observations/p90_*|0|ERA5 truth/persistence, p90 events"
+    # --- AI+RES (branch `aires`) ---------------------------------------------
+    # The adapter ensemble is the one artifact here that Derecho CANNOT rebuild:
+    # it takes FCN3, which does not fit an A100-40GB. Everything else in this
+    # group is reproducible there on CPU and is carried only for convenience.
+    "runs/aires/gate2/cache/*_adapter_cube.nc|0|Gate 2 adapter-IC FCN3 ensemble (NOT rebuildable on Derecho)"
+    "runs/aires/gate2/ic/*_adapter_ic.nc|0|Gate 2 adapter initial conditions"
+    "runs/aires/gate2/scores/*|0|Gate 2 verdict JSON + per-member CSV"
+    "runs/aires/calib/*.nc|0|derived-channel calibration (also rebuildable in ~2 min)"
 )
 if [ "$WITH_SHARDS" = 1 ]; then
     MANIFEST+=( "runs/fcn3/week3/shards|0|per-shard zarr intermediates (large, regenerable)" )
+fi
+if [ "$WITH_WALKERS" = 1 ]; then
+    # Global 2-frame walker states, ~477 MB each. Only worth moving if Derecho is
+    # going to restart walkers, which it cannot score -- normally leave these here.
+    MANIFEST+=( "runs/aires/*/walkers|0|AI+RES walker states + diagnostics (large)" )
 fi
 if [ "$WITH_P90" = 1 ]; then
     MANIFEST+=(
