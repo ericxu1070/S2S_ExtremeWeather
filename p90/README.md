@@ -80,6 +80,37 @@ these cubes (e.g. GenCast members regridded/renamed) gets the full compare stack
 - **PDFs** (pooled members vs ERA5 truth, xres `PDF_histogram` convention, log-y) per event.
 - **Runtime**: per-case timing JSONs -> total GPU-hours + per-case distribution.
 
+## Maps (`pmaps.py` -> `figures/p90_t2m/<model>/maps/`)
+
+The spatial fields behind those scores, events only, in the `allbestmaps.png` /
+`xres.xmapgrid` style. Three ensemble collapses per case: **pooled mean** (ensemble mean),
+**p80 extreme member** (the member at the `--extreme-q` percentile of cos-lat-weighted
+CONUS-mean anomaly - the nearest-rank quantile member, rank 40/50 at the default q=0.80,
+*not* `xres`'s argmax "extreme"), and **best member** (lowest cos-lat-weighted RMSE vs
+ERA5, the `xres.xcombined` criterion). The tail is the warm side for every case by
+construction, so there is no cold-event sign flip. Note the member quantile is unrelated to
+the "p90" in the experiment name: **p90 = the event population** (90th-percentile CONUS
+heat days), **`--extreme-q` = which member within a case's ensemble**.
+
+Both member columns badge their **cold->warm heat rank** (`rk N/50`) on the same scale: the
+extreme member's is fixed at 40/50 by construction, the best member's says where the
+truth-closest realization actually sat in the ensemble's temperature spread (its RMSE rank
+would be 1 by definition and carries no information). The composite badges the 45-event
+mean of that rank.
+
+Outputs `p90_maps_composite_q80.png` (45-event average of each field + error maps) and
+`p90_maps_events_q80_p{1..5}.png` (9 events per page). Reduced `(lat, lon)` fields are
+cached to `runs/p90_t2m/<model>/maps/<case>_mapfields_q80.nc` so re-plotting never re-reads
+the 418 MB cubes. Cache and figure names carry the quantile tag, so runs at different q
+coexist instead of overwriting each other (the original q=0.90 set is on disk as `*_q90.*`).
+
+```bash
+python -m p90.pmaps                     # composite + all 5 per-event pages (~4 min cold)
+python -m p90.pmaps --only composite    # cache is warm -> seconds
+python -m p90.pmaps --extreme-q 0.90    # the older 90th-percentile member (rank 45/50)
+python -m p90.pmaps --force             # re-derive the fields from the cubes
+```
+
 ## Knobs (env)
 
 `P90_N_MEMBERS` (50), `P90_FCN3_BATCH` (4; raise on H100-80GB if memory allows),
