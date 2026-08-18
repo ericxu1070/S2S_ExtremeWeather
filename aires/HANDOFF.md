@@ -7,6 +7,9 @@ here** - doc claims rot, `ls` does not.
 Branch: `aires`. Machine split: Derecho for CPU work, a3mega H100 for anything touching
 FCN3 or GenCast inference.
 
+Visual summary of the plan, the adapter and Gate 1 (design, derivations, open problems):
+https://claude.ai/code/artifact/081bd2f9-7725-4e46-8af8-ec57f54ee2df
+
 ## Where things stand
 
 | Phase | State |
