@@ -1,0 +1,25 @@
+Host: nucla3m-a3meganodeset-4
+Start: Tue Aug 18 23:17:36 UTC 2026
+GPU 0: NVIDIA H100 80GB HBM3 (UUID: GPU-8deaf399-5257-44be-de29-dbab5cab2837)
+GPU 1: NVIDIA H100 80GB HBM3 (UUID: GPU-08ce4409-9463-80ec-57ba-eca08d003482)
+GPU 2: NVIDIA H100 80GB HBM3 (UUID: GPU-8d511a9b-a471-736e-637d-a997e0a57717)
+GPU 3: NVIDIA H100 80GB HBM3 (UUID: GPU-ab33084f-509e-82b2-8949-d8815d024cb0)
+GPU 4: NVIDIA H100 80GB HBM3 (UUID: GPU-67dcae5f-2cfd-b933-fa3a-05a8184dccf0)
+GPU 5: NVIDIA H100 80GB HBM3 (UUID: GPU-6f4c5b9e-2690-3130-7cd6-0ff15eee4c02)
+GPU 6: NVIDIA H100 80GB HBM3 (UUID: GPU-5544fb35-a86b-e04c-5eea-201f7515a48a)
+GPU 7: NVIDIA H100 80GB HBM3 (UUID: GPU-5d02916b-f04f-56da-a539-ff7cf9f27b6f)
+Walker smoke: event=PNW_HeatDome_2021 walker=0 steps=2 (2x12 h)
+  [walker] w00 step1: 2 x 12 h from 2021-06-07 00:00:00
+[model] ensemble 1 not a multiple of 8 devices -> using 8 members
+[model] serial infer on 8 device(s); ensemble=8 (8 sample(s), one at a time). task pressure levels: 13
+  [walker] grid-node channels: inputs 176 + targets 168 + forcings 8; 2 step(s) from 2021-06-07 00:00:00
+  [walker w00 s1] step 1/2  valid 2021-06-07 12:00:00
+  [walker w00 s1] step 2/2  valid 2021-06-08 00:00:00
+  [walker] wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/aires/PNW_HeatDome_2021/walkers/w00/step01/state.nc (499 MB), valid 2021-06-08 00:00:00
+  [walker] wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/aires/PNW_HeatDome_2021/walkers/w00/step01/diag.nc (12 MB, 2 steps)
+[verify] state state.nc: valid 2021-06-08 00:00:00, 721x1440 global, 2 frames
+[verify] advanced 24 h from the event init
+[verify] restarts cleanly: a further 2-step batch builds from 2021-06-08 00:00:00
+[verify] adapter -> FCN3 IC: 72 channels, all finite; global mean t2m 281.47 K, tcwv 18.50 kg m-2
+[verify] OK - walker state is both a restart point and an FCN3 IC
+End: Tue Aug 18 23:23:59 UTC 2026
