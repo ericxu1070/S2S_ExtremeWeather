@@ -312,16 +312,7 @@ def stage_walk(ev: F.Event, walkers: int, shard: int, nshards: int, *,
     for w, k, _lead, _detail in stale:
         prune_stale(ev, w, k)
 
-    from gencast_s2s import model as M
-    bundle: dict = {}
-
-    def get_bundle():
-        if not bundle:
-            t0 = time.perf_counter()
-            bundle.update(M.load_gencast(
-                n_members=1, res=0.25 if A.WALKER_RES == "0p25" else 1.0))
-            print(f"[walk] model loaded in {time.perf_counter() - t0:.0f} s", flush=True)
-        return bundle
+    get_bundle = W.lazy_bundle()
 
     t_start = time.perf_counter()
     rolled = 0

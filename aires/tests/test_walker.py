@@ -270,3 +270,43 @@ def test_walker_and_xres_request_the_same_checkpoint():
 
     for res in ("0p25", "1p0"):
         assert A.walker_model_kwargs(res)["params_file"] == X.res_spec(res)["params"]
+
+
+def test_only_one_place_in_aires_loads_a_gencast_checkpoint():
+    """Two loaders is how the checkpoint bug survived its own fix.
+
+    ``aires/walker.py::main`` and ``aires/gate3.py::stage_walk`` each built their own
+    ``load_gencast`` call. Fixing one left the other on the 1.0 degree Mini model, and
+    job 1156 spent a second 8-GPU allocation demonstrating it. There is now exactly one
+    call site, in ``walker.load_bundle``, and everything else goes through
+    ``walker.lazy_bundle``.
+    """
+    import ast
+    from pathlib import Path
+
+    # AST, not grep: aconfig's docstring quotes the WRONG call on purpose, as the
+    # explanation of the bug, and a textual search would count it.
+    root = Path(__file__).resolve().parents[1]
+    calls = []
+    for f in sorted(root.glob("*.py")):
+        tree = ast.parse(f.read_text(), filename=str(f))
+        for node in ast.walk(tree):
+            if not isinstance(node, ast.Call):
+                continue
+            fn = node.func
+            name = fn.attr if isinstance(fn, ast.Attribute) else getattr(fn, "id", None)
+            if name == "load_gencast":
+                calls.append((f.name, node.lineno,
+                              {kw.arg for kw in node.keywords}))
+    assert len(calls) == 1, f"expected exactly one load_gencast call in aires/, got {calls}"
+    name, lineno, kwargs = calls[0]
+    assert name == "walker.py", f"the loader moved to {name}:{lineno}"
+    # `**A.walker_model_kwargs(res)` shows up as a keyword with arg=None (a **-unpack).
+    assert None in kwargs, (
+        f"{name}:{lineno} must unpack aconfig.walker_model_kwargs(), got keywords {kwargs}")
+
+
+def test_lazy_bundle_does_not_load_until_called():
+    """A worker whose segments are all cached must not pay the load plus XLA compile."""
+    get_bundle = W.lazy_bundle()          # must not touch the checkpoint
+    assert callable(get_bundle)
