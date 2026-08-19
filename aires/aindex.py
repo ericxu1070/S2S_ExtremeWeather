@@ -101,6 +101,22 @@ def box_for(event: str) -> Box:
     return EVENT_BOXES.get(event, CONUS)
 
 
+def tail_sign(event: str) -> float:
+    """``+1`` if the event's extreme is the HIGH tail of ``A_L``, ``-1`` if the low one.
+
+    Resampling always clones the walkers with the largest score, so the sign has to be
+    applied before the score reaches ``aires.dmc`` - not afterwards. Winter Storm Uri is
+    a cold event whose extreme is a large NEGATIVE T2m anomaly; scoring it unsigned would
+    build an importance-splitting run that spends its whole GPU budget cloning the
+    warmest members of a freeze. The heat, hurricane (wind speed) and p90 events are all
+    high-tail. This is the only place the convention is stated.
+    """
+    from fcn3 import fevents as F
+
+    ev = F.EVENTS.get(event)
+    return -1.0 if (ev is not None and ev.cold) else +1.0
+
+
 def boxes_for(event: str) -> dict[str, Box]:
     """Both indices, primary first. ``{'box': ..., 'conus': CONUS}``."""
     return {"box": box_for(event), "conus": CONUS}

@@ -317,15 +317,24 @@ def roll_segment(bundle: dict, state: xr.Dataset, n_steps: int, key, *,
 # --------------------------------------------------------------------------- #
 def run_segment(get_bundle, event: str, walker: int, step: int, n_steps: int, *,
                 parent_state: Path | None = None, base_seed: int = A.WALKER_BASE_SEED,
-                step_h: int = STEP_H, save_diag: bool = True) -> dict:
+                step_h: int = STEP_H, save_diag: bool = True,
+                state_path: Path | None = None, diag_path: Path | None = None) -> dict:
     """Roll one segment, cached on disk. Re-running a finished segment is a no-op.
 
     ``parent_state`` is the state this segment continues; ``None`` means step 0, the
     event's ERA5 init. A CLONE is expressed by pointing a new walker index at a parent's
     state file - the differing walker index gives it its own noise stream.
+
+    ``state_path``/``diag_path`` override where the segment lands. They default to Gate
+    3's flat tree; the AI+RES driver passes its own run tree (``aconfig.res_state_path``)
+    because under resampling a walker slot is not a lineage, so writing a resampled
+    population into the gate's paths would overwrite artifacts that are supposed to be
+    free-running. The RNG is NOT affected: ``segment_key(walker, step)`` is what makes a
+    clone diverge from its sibling, and it depends on the slot, never on the path.
     """
     A.ensure_dirs(event)
-    sp, dp = A.state_path(event, walker, step), A.diag_path(event, walker, step)
+    sp = Path(state_path) if state_path else A.state_path(event, walker, step)
+    dp = Path(diag_path) if diag_path else A.diag_path(event, walker, step)
     if sp.exists() and (dp.exists() or not save_diag):
         print(f"  [walker] w{walker:02d} step{step}: cached, skip")
         return dict(state=sp, diag=dp if dp.exists() else None, rolled=False)

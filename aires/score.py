@@ -68,40 +68,56 @@ os.environ.setdefault("HF_HOME", str(F.FCN3_CACHE / "hf"))
 # --------------------------------------------------------------------------- #
 @dataclass(frozen=True)
 class Task:
+    """One score forecast. ``tag`` picks the tree it reads and writes.
+
+    ``tag=None`` is Gate 3's flat layout. Any other value is an AI+RES run tree
+    (``runs/aires/<event>/res/<tag>/``), which is separate because a resampled walker slot
+    is not a lineage - see ``aconfig``'s run-tree comment. The segment a lead corresponds
+    to is the same arithmetic either way (segments are 3 d), so nothing else changes.
+    """
     event: str
     walker: int
     lead_days: float
+    tag: str | None = None
 
     @property
     def step(self) -> int:
-        return A.gate3_step_for_lead(self.lead_days)
+        return A.segment_for_lead(self.lead_days)
 
     @property
     def state_path(self) -> Path:
-        return A.state_path(self.event, self.walker, self.step)
+        if self.tag is None:
+            return A.state_path(self.event, self.walker, self.step)
+        return A.res_state_path(self.event, self.walker, self.step, self.tag)
 
     @property
     def cube_path(self) -> Path:
-        return A.score_cube_path(self.event, self.walker, self.lead_days)
+        if self.tag is None:
+            return A.score_cube_path(self.event, self.walker, self.lead_days)
+        return A.res_score_cube_path(self.event, self.walker, self.lead_days, self.tag)
 
     @property
     def zarr_path(self) -> Path:
-        return A.score_zarr_path(self.event, self.walker, self.lead_days)
+        if self.tag is None:
+            return A.score_zarr_path(self.event, self.walker, self.lead_days)
+        return A.res_score_zarr_path(self.event, self.walker, self.lead_days, self.tag)
 
     def __str__(self) -> str:
         return f"w{self.walker:02d}@{self.lead_days:g}d"
 
 
-def tasks(event: str, walkers: int, leads=None) -> list[Task]:
+def tasks(event: str, walkers: int, leads=None, tag: str | None = None) -> list[Task]:
     """Every (walker, checkpoint) pair, walker-major.
 
     Walker-major ordering plus ``i % nshards`` sharding balances the work by construction
     when ``len(leads)`` and ``nshards`` are coprime (5 and 8 here): each shard then draws
     each lead - i.e. each rollout length - the same number of times, so no GPU is left
-    holding all the long forecasts.
+    holding all the long forecasts. AI+RES scores ONE lead per pool launch (the DMC loop
+    is a barrier), where every task is the same rollout length and the balance is exact
+    for any shard count.
     """
     leads = A.GATE3_LEAD_DAYS if leads is None else leads
-    return [Task(event, w, float(l)) for w in range(walkers) for l in leads]
+    return [Task(event, w, float(l), tag) for w in range(walkers) for l in leads]
 
 
 def shard_of(all_tasks: list[Task], nshards: int, shard: int) -> list[Task]:
@@ -170,6 +186,7 @@ def assemble_cube(ev: F.Event, task: Task, zarr_path: Path, out_path: Path, *,
         peak=ev.peak, members=int(members), step_h=F.STEP_H,
         nsteps=int(cube.sizes["time"]), seed=int(seed), batch_size=int(batch_size),
         walker_state=str(task.state_path), resolution=F.RES,
+        run_tag=task.tag or "gate3",
     )
     out_path.parent.mkdir(parents=True, exist_ok=True)
     tmp = out_path.with_suffix(".nc.tmp")
@@ -235,17 +252,20 @@ def run_task(model, ev: F.Event, task: Task, *, members: int, batch_size: int,
 
 
 def stage_infer(ev: F.Event, *, walkers: int, leads, members: int, shard: int,
-                nshards: int, batch_size: int, keep_zarr: bool) -> int:
+                nshards: int, batch_size: int, keep_zarr: bool,
+                tag: str | None = None) -> int:
     import torch
 
     from aires import adapter as AD
     from fcn3.run_fcn3 import _get_model, check_disco_kernel
 
     A.ensure_dirs(ev.name)
+    if tag is not None:
+        A.res_ensure_dirs(ev.name, tag)
     check_disco_kernel(strict=os.environ.get("FCN3_ALLOW_FP32") != "1")
     A.verify_against_package()
 
-    mine = shard_of(tasks(ev.name, walkers, leads), nshards, shard)
+    mine = shard_of(tasks(ev.name, walkers, leads, tag), nshards, shard)
     todo = [t for t in mine if not t.cube_path.exists()]
     print(f"[score] host={socket.gethostname()} shard {shard}/{nshards}: "
           f"{len(mine)} task(s), {len(mine) - len(todo)} cached, {len(todo)} to run")
@@ -254,10 +274,11 @@ def stage_infer(ev: F.Event, *, walkers: int, leads, members: int, shard: int,
 
     missing = [t for t in todo if not t.state_path.exists()]
     if missing:
+        where = ("PYTHONPATH=. python -m aires.gate3 --stage walk" if tag is None else
+                 f"PYTHONPATH=. python -m aires.run_aires --stage walk --tag {tag}")
         print(f"[score] ERROR: {len(missing)} walker state(s) do not exist, e.g. "
               f"{missing[0].state_path}\n"
-              f"        Run the walk phase first: "
-              f"PYTHONPATH=. python -m aires.gate3 --stage walk", file=sys.stderr)
+              f"        Run the walk phase first: {where}", file=sys.stderr)
         return 1
 
     _omp = os.environ.get("OMP_NUM_THREADS")
@@ -303,6 +324,8 @@ def main(argv=None) -> int:
     ap.add_argument("--nshards", type=int, default=int(os.environ.get("FCN3_NSHARDS", 8)))
     ap.add_argument("--batch-size", type=int, default=int(os.environ.get("FCN3_BATCH", 1)))
     ap.add_argument("--keep-zarr", action="store_true")
+    ap.add_argument("--tag", default=None,
+                    help="AI+RES run tag; omit for Gate 3's flat tree")
     ap.add_argument("--list", action="store_true", help="print this shard's tasks and exit")
     a = ap.parse_args(argv)
 
@@ -312,14 +335,14 @@ def main(argv=None) -> int:
     leads = [float(x) for x in a.leads.split(",") if x.strip()]
 
     if a.list:
-        for t in shard_of(tasks(ev.name, a.walkers, leads), a.nshards, a.shard):
+        for t in shard_of(tasks(ev.name, a.walkers, leads, a.tag), a.nshards, a.shard):
             print(f"{t}  state={'OK ' if t.state_path.exists() else 'MISSING'}  "
                   f"cube={'cached' if t.cube_path.exists() else 'todo'}")
         return 0
 
     return stage_infer(ev, walkers=a.walkers, leads=leads, members=a.members,
                        shard=a.shard, nshards=a.nshards, batch_size=a.batch_size,
-                       keep_zarr=a.keep_zarr)
+                       keep_zarr=a.keep_zarr, tag=a.tag)
 
 
 if __name__ == "__main__":

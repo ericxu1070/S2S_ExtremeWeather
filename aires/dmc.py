@@ -223,6 +223,25 @@ class Resampling:
     def killed(self) -> int:
         return int((self.counts == 0).sum())
 
+    def to_dict(self) -> dict:
+        return dict(step=self.step, C=self.C, R=self.R, ess=self.ess,
+                    theta=np.asarray(self.theta).tolist(),
+                    z=np.asarray(self.z).tolist(), V=np.asarray(self.V).tolist(),
+                    log_W=np.asarray(self.log_W).tolist(),
+                    counts=np.asarray(self.counts).astype(int).tolist(),
+                    parents=np.asarray(self.parents).astype(int).tolist())
+
+    @classmethod
+    def from_dict(cls, d: dict) -> "Resampling":
+        return cls(step=int(d["step"]), C=float(d["C"]), R=float(d["R"]),
+                   ess=float(d["ess"]),
+                   theta=np.asarray(d["theta"], dtype="float64"),
+                   z=np.asarray(d["z"], dtype="float64"),
+                   V=np.asarray(d["V"], dtype="float64"),
+                   log_W=np.asarray(d["log_W"], dtype="float64"),
+                   counts=np.asarray(d["counts"], dtype="int64"),
+                   parents=np.asarray(d["parents"], dtype="int64"))
+
 
 @dataclass
 class DMCResult:
@@ -289,6 +308,37 @@ class DMCResult:
     def n_founders(self) -> int:
         """How many of the original walkers still have descendants."""
         return int(np.unique(self.ancestry()).size)
+
+    # -- serialization ------------------------------------------------------ #
+    #
+    # The production driver runs the loop across two conda envs and a Slurm walltime, so
+    # the bookkeeping has to survive as a file: `--stage res` produces it and `--stage
+    # compare` (and every figure) consumes it, with no GPU in between. `states` is NOT
+    # serialized - in production it is a handle to a directory tree, and the population's
+    # actual values are re-derived from the walker diagnostics on disk.
+    def to_dict(self) -> dict:
+        return dict(
+            n_walkers=int(self.n_walkers), C=list(self.C), log_Z=float(self.log_Z),
+            steps=[s.to_dict() for s in self.steps],
+            final_V=None if self.final_V is None else np.asarray(self.final_V).tolist(),
+            genealogy=None if self.genealogy is None
+            else np.asarray(self.genealogy).astype(int).tolist(),
+            final_parents=None if self.final_parents is None
+            else np.asarray(self.final_parents).astype(int).tolist(),
+        )
+
+    @classmethod
+    def from_dict(cls, d: dict) -> "DMCResult":
+        return cls(
+            n_walkers=int(d["n_walkers"]), C=tuple(d["C"]), log_Z=float(d["log_Z"]),
+            steps=[Resampling.from_dict(s) for s in d["steps"]],
+            final_V=None if d.get("final_V") is None
+            else np.asarray(d["final_V"], dtype="float64"),
+            genealogy=None if d.get("genealogy") is None
+            else np.asarray(d["genealogy"], dtype="int64"),
+            final_parents=None if d.get("final_parents") is None
+            else np.asarray(d["final_parents"], dtype="int64"),
+        )
 
     def summary(self) -> str:
         rows = [f"  {'step':>4} {'C_k':>5} {'R_k':>8} {'ESS':>7} {'ESS/N':>6} "
