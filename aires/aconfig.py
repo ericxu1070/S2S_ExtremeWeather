@@ -19,6 +19,7 @@ which is why GenCast's 12 h step versus FCN3's 6 h step is not an issue.
 from __future__ import annotations
 
 import os
+from dataclasses import dataclass
 from pathlib import Path
 
 from gencast_s2s import config as C
@@ -198,6 +199,173 @@ def gate3_step_for_lead(lead_days: float) -> int:
         raise ValueError(f"lead {lead_days} d is not a walker checkpoint "
                          f"(segments are {GATE3_SEG_DAYS} d)")
     return int(round(k))
+
+
+# --------------------------------------------------------------------------- #
+# The production AI+RES run (Phase 3+).
+#
+# Settled by Phase 2 and NOT to be re-litigated (aires/ctune.py replayed the schedule on
+# the measured Gate 3 skill curve): C_k = (0, 1.0, 1.4, 1.8, 2.0) at t_k = 3/6/9/12/15 d,
+# N = 64, M = 6.
+#
+# The run tree is DISJOINT from Gate 3's on purpose:
+#
+#     runs/aires/<event>/walkers/w03/step03/     Gate 3: 16 walkers, free-running
+#     runs/aires/<event>/res/<tag>/walkers/...   AI+RES: N slots, RESAMPLED
+#
+# Both index walkers by slot, but only Gate 3's slots are lineages. Under resampling a
+# slot is a container that different ancestries pass through - w03 at segment 3 may be a
+# clone of w41 - so writing an AI+RES population into the Gate 3 paths would overwrite the
+# gate's artifacts with something that is not a free-running walker, and
+# `gate3 --stage reduce` (the Phase 1 regression test) would silently start reporting a
+# tilted population. The genealogy that says which slot held which ancestry lives in
+# `steps/leg<kk>/walk.json`, and nothing may be read from the tree without it.
+# --------------------------------------------------------------------------- #
+RES_TAG = os.environ.get("AIRES_RES_TAG", "pilot")
+RES_N_WALKERS = int(os.environ.get("AIRES_N_WALKERS", 64))
+RES_M_MEMBERS = int(os.environ.get("AIRES_M_MEMBERS", 6))
+RES_C = tuple(float(x) for x in
+              os.environ.get("AIRES_C", "0,1.0,1.4,1.8,2.0").split(","))
+RES_LEAD_DAYS = tuple(float(x) for x in
+                      os.environ.get("AIRES_RES_LEADS", "3,6,9,12,15").split(","))
+RES_HORIZON_DAYS = float(os.environ.get("AIRES_HORIZON_DAYS", GATE3_HORIZON_DAYS))
+# 21 d - the event peak. Overridable only so a smoke run can stop short; a production
+# run whose horizon is not the peak cannot compute A_L at all (the verification window
+# is the 7 days ENDING at the peak), and --stage compare will say so.
+RES_SEG_STEPS = GATE3_SEG_STEPS                # 6 x 12 h = 3 d, one XLA compile per worker
+
+# The DMC draw (pivotal sampling) is seeded once and replayed. A resumed coordinator
+# re-runs the whole loop; every score it reads is already on disk, so the same seed plus
+# the same artifacts reproduce the same clone/kill decisions exactly. That is what makes
+# "resubmit the job" a no-op for finished work rather than a different experiment.
+RES_DMC_SEED = int(os.environ.get("AIRES_DMC_SEED", 20260819))
+
+# How many trailing segments of walker states to keep on disk. Each is 477 MB and there
+# are N of them per segment, so N=64 x 7 segments is 213 GB - against ~600 GB free on a
+# 95%-full shared NFS (measured 2026-08-19). Rolling segment s needs only segment s-1, so
+# 2 is sufficient and costs 61 GB; <= 0 keeps everything. Diagnostics cubes are NEVER
+# pruned - they are 6 MB each and every observable in the experiment is derived from them.
+RES_KEEP_STATES = int(os.environ.get("AIRES_KEEP_STATES", 2))
+
+if len(RES_C) != len(RES_LEAD_DAYS):
+    raise ValueError(f"AIRES_C has {len(RES_C)} coefficients but there are "
+                     f"{len(RES_LEAD_DAYS)} resampling times {RES_LEAD_DAYS}")
+
+
+@dataclass(frozen=True)
+class Leg:
+    """One propagation leg: what the walkers do between two resampling times.
+
+    ``dmc.run`` calls ``propagate`` once per leg and there is ALWAYS one more leg than
+    there are resampling times - the last one carries the survivors of the final
+    resampling from ``t_K`` to the verification horizon ``t_f``, and it is not optional
+    (see ``aires/dmc.py``). ``C`` is ``None`` on exactly that leg.
+
+    A leg holds one or more 3-day SEGMENTS. Segments, not legs, are the unit on disk and
+    the unit GenCast is compiled for: every segment is ``RES_SEG_STEPS`` steps so a worker
+    pays one XLA compile rather than one per distinct leg length. The 15 -> 21 d carry is
+    therefore two segments, not a 12-step leg.
+    """
+    k: int
+    segments: tuple[int, ...]
+    lead_start_days: float
+    lead_end_days: float
+    C: float | None
+
+    @property
+    def resampling(self) -> bool:
+        return self.C is not None
+
+    @property
+    def first_segment(self) -> int:
+        return self.segments[0]
+
+    @property
+    def last_segment(self) -> int:
+        return self.segments[-1]
+
+    def lead_at(self, segment: int) -> float:
+        """Lead in days at the END of ``segment`` (segments are RES_SEG_DAYS apart)."""
+        return segment * GATE3_SEG_DAYS
+
+
+def res_legs(leads=None, horizon_days: float | None = None, C=None) -> list[Leg]:
+    """The full leg schedule, resampling legs first and the carry leg last."""
+    leads = tuple(float(x) for x in (RES_LEAD_DAYS if leads is None else leads))
+    C = tuple(float(x) for x in (RES_C if C is None else C))
+    horizon = RES_HORIZON_DAYS if horizon_days is None else float(horizon_days)
+    if len(C) != len(leads):
+        raise ValueError(f"{len(C)} coefficients for {len(leads)} resampling times")
+    if list(leads) != sorted(leads) or len(set(leads)) != len(leads):
+        raise ValueError(f"resampling times must be strictly increasing: {leads}")
+    if leads and leads[-1] >= horizon:
+        raise ValueError(f"the last resampling time {leads[-1]} d must precede the "
+                         f"horizon {horizon} d; a run whose last resampling sits ON the "
+                         f"horizon has no leg left to carry the survivors")
+    bounds = [0.0, *leads, horizon]
+    out = []
+    for k in range(1, len(bounds)):
+        lo, hi = bounds[k - 1], bounds[k]
+        s0, s1 = gate3_step_for_lead(lo) + 1 if lo else 1, gate3_step_for_lead(hi)
+        out.append(Leg(k=k, segments=tuple(range(s0, s1 + 1)),
+                       lead_start_days=lo, lead_end_days=hi,
+                       C=C[k - 1] if k - 1 < len(C) else None))
+    return out
+
+
+# --------------------------------------------------------------------------- #
+# The run tree
+# --------------------------------------------------------------------------- #
+def res_dir(event: str, tag: str | None = None) -> Path:
+    return event_dir(event) / "res" / (tag or RES_TAG)
+
+
+def res_walker_dir(event: str, walker: int, tag: str | None = None) -> Path:
+    return res_dir(event, tag) / "walkers" / f"w{walker:02d}"
+
+
+def res_segment_dir(event: str, walker: int, segment: int, tag: str | None = None) -> Path:
+    return res_walker_dir(event, walker, tag) / f"step{segment:02d}"
+
+
+def res_state_path(event: str, walker: int, segment: int, tag: str | None = None) -> Path:
+    return res_segment_dir(event, walker, segment, tag) / "state.nc"
+
+
+def res_diag_path(event: str, walker: int, segment: int, tag: str | None = None) -> Path:
+    return res_segment_dir(event, walker, segment, tag) / "diag.nc"
+
+
+def res_score_cube_path(event: str, walker: int, lead_days: float,
+                        tag: str | None = None) -> Path:
+    return res_dir(event, tag) / "scores" / f"w{walker:02d}_lead{int(lead_days):02d}_cube.nc"
+
+
+def res_score_zarr_path(event: str, walker: int, lead_days: float,
+                        tag: str | None = None) -> Path:
+    return res_dir(event, tag) / "scores" / f"w{walker:02d}_lead{int(lead_days):02d}.zarr"
+
+
+def res_leg_dir(event: str, leg: int, tag: str | None = None) -> Path:
+    return res_dir(event, tag) / "steps" / f"leg{leg:02d}"
+
+
+def res_log_dir(event: str, tag: str | None = None) -> Path:
+    return res_dir(event, tag) / "logs"
+
+
+def res_ensure_dirs(event: str, tag: str | None = None) -> None:
+    ensure_dirs(event)
+    for d in (res_dir(event, tag), res_dir(event, tag) / "walkers",
+              res_dir(event, tag) / "scores", res_dir(event, tag) / "steps",
+              res_log_dir(event, tag)):
+        d.mkdir(parents=True, exist_ok=True)
+
+
+# The segment index is a pure function of the lead (segments are all RES_SEG_DAYS long),
+# so Gate 3 and AI+RES agree on it by construction. The neutral name is what non-gate code
+# should use.
+segment_for_lead = gate3_step_for_lead
 
 
 def score_cube_path(event: str, walker: int, lead_days: float) -> Path:

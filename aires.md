@@ -354,16 +354,99 @@ a speedup claim.
   from here. Also carries the running index and the persistence score.
 - `aires/run_aires.py --stage {prep,walk,score,res,ds,compare}` - cache-aware per
   (walker, step), matching the repo's existing stage idiom so a killed job resumes.
-- `slurm/aires_res.slurm` - one a3mega node, `#SBATCH --job-name=Vayuh-s2s`. The DMC loop
-  is a barrier at each `t_k`, so: a rank-0 coordinator plus two worker pools (GenCast env,
-  FCN3 env) draining a file-based work queue - reuse the `cache/claims/` work-stealing
-  pattern from `xres/xinference.py`. The coordinator advances `k` only when all N walker
-  segments and all N x M score artifacts for step `k` exist on disk. Checkpoint at every
-  `t_k` so the run survives the walltime limit.
+- `slurm/aires_res.slurm` - one a3mega node, `#SBATCH --job-name=Vayuh-s2s`.
 
-### Phase 4 - Run the pilot and produce figures (~1 day, ~46 H100-h)
+**Done (2026-08-19), and smoke-tested on the hardware** (job 1161, N=8, one resampling,
+30.7 min on one node: it rolled clones, resampled on real FCN3 scores, pruned states, and
+replayed bit-identically in 2 s on the login node afterwards). `aires/run_aires.py` and
+`slurm/aires_res.slurm` exist, plus `slurm/aires_env.sh`, which is the one place either
+conda environment is activated. Four things came out differently from the sketch above,
+all for reasons that were measured rather than assumed:
 
-`aires/aplots.py`, reusing `xres/xplotting.py`'s cartopy helpers:
+- **The two worker pools alternate; there is no work queue.** They cannot coexist: the
+  0.25 deg GenCast checkpoint holds ~64 GB of an 80 GB H100 and FCN3 needs most of a card
+  too, so a resident walker pool leaves no room for a resident scorer on the same GPU.
+  And the queue would buy nothing anyway - the DMC loop is a barrier, so one pool launch
+  handles exactly one leg, where every task is the same size and static `w % nshards`
+  sharding is already exactly balanced. (`cache/claims/` work-stealing exists in `xres`
+  because its events differ in cost. These do not.) The coordinator launches a pool, waits
+  for it to exit, and launches the other.
+- **Resumption is replay, not a checkpoint.** The coordinator keeps no mutable state. It
+  re-runs the whole loop on every invocation and every finished leg returns in seconds,
+  which is exact because the loop is a deterministic function of (the pivotal-sampling
+  seed, the score cubes on disk). Verified: a second pass reproduced `log Z`, `final_V`
+  and every parent map bit-identically in 2 s with no GPU. The parents are re-derived and
+  compared against each leg's `walk.json` on every pass, so a rewritten cube or an edited
+  schedule is an error rather than a silent fork.
+- **The run tree is disjoint from Gate 3's** (`runs/aires/<event>/res/<tag>/`). Both index
+  walkers by slot, but only Gate 3's slots are lineages; under resampling a slot is a
+  container that different ancestries pass through, so writing this population into the
+  gate's paths would overwrite artifacts that are supposed to be free-running. That also
+  makes a cached segment impossible to validate on its timestamp alone - two ancestries
+  produce states at the same valid time - so every cached segment is checked against the
+  `parent` its state records, not just its clock.
+- **The horizon leg is split into two standard 3 d segments**, not run as one 12-step leg,
+  so a worker still pays exactly one XLA compile.
+
+Two savings worth naming, both checked rather than assumed:
+
+- **Legs 1 and 2 are free.** A segment is a deterministic function of (event, base seed,
+  slot, segment) and its parent, so Gate 3's 16 free-running walkers ARE this run's first
+  two segments - segment 1 trivially, segment 2 because `C_1 = 0` makes the first
+  resampling the exact identity (confirmed on the hardware: `R = 1.0000`, ESS 8/8,
+  `max_mult = 1`). `--stage prep` hardlinks them after validating valid time, parent
+  lineage, checkpoint and base seed. ~1.5 H100-h.
+- **No score is bought where `C_k = 0`.** `V_k = C_k * z` is identically zero there, so
+  the score cannot move a single clone or kill; buying it would cost the longest score
+  forecast in the run (~7.7 H100-h at N=64) for a diagnostic Gate 3 already measured
+  (rho_s = -0.044 at 3 d - which is *why* `C_1` is zero). The free persistence index is
+  recorded in its place. `--score-null` buys it anyway.
+
+**Two score backends, behind one interface**: `fcn3` (production) and `persistence`
+(the paper's Standard-RES - the walker's current index value, free from its own
+diagnostics cube). Running the pilot twice, once per backend, is the control experiment
+for "the AI scorer earns its GPU hours" on production data rather than on Gate 3's 16
+walkers. The `gencast` PFS backend is **not** implemented: it would need a nested GenCast
+ensemble per walker per resampling time, which is the cost of the entire experiment again.
+
+**Disk is a binding constraint, not a footnote.** Retaining every state is 213 GB per
+event at N=64 against ~600 GB free on a 95%-full shared NFS, so `--keep-states` (default
+2) prunes states more than two segments back; rolling a segment needs only its parent, and
+the diagnostics cubes every observable is derived from are never pruned. Peak is 92 GB.
+Verified by deleting every state of the smoke run: it still replays, because `walk.done`
+plus the diagnostics are sufficient.
+
+**A cold event must be scored on the low tail.** Resampling clones the largest score, so
+`aindex.tail_sign` negates `A_L` for Uri; without it an importance-splitting run on a
+freeze would spend its whole budget cloning the warmest members.
+
+**Measured rates, replacing the estimates this plan was written with.** GenCast 0.25 deg
+serial is 27-28 s/step (Gate 3, job 1160) and FCN3 is **1.40 s per member-step** (job
+1161: 8.41 s for a 6-member lead step), not the 1 s/step `slurm/aires_gate3.slurm`
+budgeted - which is why that gate's score phase overran its predicted 50 min by 35. At
+N=64 the pilot is **~44 H100-h** (19.4 walk + 25.1 score), ~5.6 h on one 8-GPU node plus
+one model load per pool launch; `--stage prep` prints the number for the actual cache
+state. That is within the ~46 H100-h this plan budgeted.
+
+### Phase 4 - Run the pilot and produce figures (~1 day, ~44 H100-h)
+
+The run itself is `sbatch slurm/aires_res.slurm` (Phase 3); what Phase 4 adds is
+`aires/aplots.py`, reusing `xres/xplotting.py`'s cartopy helpers. The direct-sampling
+baseline the first figure needs is already built and costs no GPU -
+`--stage ds` reduces Gate 3's 16 free-running walkers, the cached 24-member xres
+GenCast ensemble and the 24-member FCN3 ensemble through one code path:
+
+| direct sample | n | mean A_L | sd | max | reaching the observed +7.72 K |
+|---|---|---|---|---|---|
+| GenCast walkers (Gate 3) | 16 | +2.54 | 3.02 | +7.49 | **0** |
+| GenCast 24-member (xres) | 24 | +2.46 | 2.66 | +7.08 | **0** |
+| FCN3 24-member | 24 | +2.29 | 3.10 | +7.87 | 1 |
+
+So 40 direct GenCast samples do not reach the observed heat dome and stop 0.23 K
+short. That is the gap the pilot asks RES to close. (The FCN3 ensemble does reach
+it once, which is worth reporting but is a different model, not a baseline for a
+GenCast walker.)
+
 
 1. **Exceedance / return-period curve** for `A_L`: AI+RES N=64 vs the existing 24-member
    GenCast DS vs the 24-member FCN3 DS, with the ERA5 observed value marked. Headline
