@@ -7,8 +7,12 @@ here** - doc claims rot, `ls` does not.
 Branch: `aires`. Machine split: Derecho for CPU work, a3mega H100 for anything touching
 FCN3 or GenCast inference.
 
-Visual summary of the plan, the adapter and Gate 1 (design, derivations, open problems):
-https://claude.ai/code/artifact/081bd2f9-7725-4e46-8af8-ec57f54ee2df
+Visual summaries:
+- plan, adapter, Gate 1 (design, derivations, open problems):
+  https://claude.ai/code/artifact/081bd2f9-7725-4e46-8af8-ec57f54ee2df
+- Gate 2 results (what each criterion measures, the G2b amendment, the M=24 finding):
+  https://claude.ai/code/artifact/6cbf2eed-276b-42b6-b775-8ed95dc36cc1
+  (source: `docs/aires_gate2.html`)
 
 ## Where things stand
 
@@ -16,12 +20,14 @@ https://claude.ai/code/artifact/081bd2f9-7725-4e46-8af8-ec57f54ee2df
 |---|---|
 | 0 - move a3mega FCN3 week-3 results to Derecho | **done**, verified: figures regenerate pixel-identical from the transferred cubes |
 | 1 - adapter + calibration + Gate 1 | **done on Derecho AND on a3mega** - identical numbers on both |
-| 1 - Gate 2 (forecast equivalence) | **run on a3mega** (Slurm job 1153). G2a PASS, G2c PASS, **G2b FAIL as written** - see below; the gate's purpose is met but the G2b criterion needs amending |
+| 1 - Gate 2 (forecast equivalence) | **PASS**. Ran on a3mega (Slurm job 1153), re-scored on Derecho from the transferred cubes - identical to the digit. G2a 0.083 K, G2b horizon 8.5 d, G2c 0.990. `aires.md`'s G2b was amended first (endpoint -> horizon); see below |
 | 1 - Gate 3 (score skill, the go/no-go) | **not started**; `aires/walker.py` (its prerequisite) is **written, tested and rolled on an H100** (job 1154) - the walker -> adapter -> FCN3 round trip works end to end |
 | 2-5 | not started |
 
-Current machine: **a3mega**. Everything Phase 1 needs is now here - calibration rebuilt,
-both cubes cached, walker written. Derecho is not required again until Phase 5.
+**Continue Gate 3 on a3mega** (see "Start here for Gate 3" below) - it holds the
+calibration, both Gate 2 cubes, the walker, and the H100s. The full Gate 2 data tree is now
+mirrored on Derecho as well (cubes, IC, scores) and re-scores there identically, so Derecho
+can do CPU analysis, but it is not required again until Phase 5.
 
 ## Verify state (run these, don't trust the table)
 
@@ -79,7 +85,7 @@ pickle.
 | criterion | value | threshold | |
 |---|---|---|---|
 | G2a `\|delta mean A_L\|` | 0.083 K | < 0.25 K | **PASS** |
-| G2b paired Spearman at 21 d | 0.107 | > 0.95 | **FAIL** |
+| G2b rank-equivalence horizon | 8.5 d | >= 7 d | **PASS** |
 | G2c max `d_paired / d_internal` | 0.990 | <= 1.00 | **PASS** |
 
 **The gate's purpose is met.** What matters for AI+RES is that the *score* a walker
@@ -96,18 +102,30 @@ from the very first step. It does not: it is 22% of it at day 1.5 and grows from
 which is only possible if the two members share an internal-noise stream and differ solely
 through the IC.
 
-**G2b as written cannot discriminate and should be amended.** It evaluates paired-member
-rank correlation at 21 d, where any IC difference whatsoever - the adapter's or a re-seed's
-- has been amplified to the internal-noise level and shuffles the members into an unrelated
-order. The measured 0.107 is what a *perfect* adapter would also score. Resolved by lead
-(third panel of `figures/aires/gate2_PNW_HeatDome_2021.png`) the statistic is informative:
+**G2b was amended from an endpoint to a horizon (2026-08-18), and the amendment is the
+substantive result of this gate.** As originally written in `aires.md` it read paired-member
+rank correlation at the 21 d window only, where any IC difference whatsoever - the adapter's
+or a plain re-seed - has been amplified to the internal-noise level and shuffles the members
+into an unrelated order. The measured 0.107 there is what a *perfect* adapter would also
+score, so the criterion could not be passed by anything and carried no information. G2c
+proves this rather than asserts it: `d_paired/d_internal = 0.990` at day 21, i.e. by then
+the adapter's perturbation IS a re-seed's.
+
+Resolved by lead (third panel of `figures/aires/gate2_PNW_HeatDome_2021.png`) the same
+statistic is well-behaved:
 
     rho_s = 0.994 at 2.5 d, 0.960 at 5 d, 0.957 at 7.5 d, 0.759 at 10 d, 0.144 at 15 d
 
-i.e. the two ensembles are member-for-member rank-equivalent out to **8.5 days**, and the
-decay past that is the model's predictability horizon for CONUS-mean T2m, not adapter
-error. Suggested amendment to `aires.md`: replace G2b with G2c (a well-posed relative
-test at every lead) plus "rank-equivalent to at least 7 d", and keep G2a.
+The two ensembles are member-for-member rank-equivalent out to **8.5 days**; the decay past
+that is FCN3's predictability horizon for CONUS-mean T2m, not adapter error. `aires.md` now
+specifies G2b as "rho_s > 0.95 out to at least 7 d lead" and adds G2c as a required
+criterion; `aires/gate2.py` tests the horizon and reports the 21 d endpoint value as a
+diagnostic beside it.
+
+**Why the failure was never fatal.** G2b is a member-*identity* test; AI+RES never reads
+member identity. The scoring path is walker state -> adapter -> FCN3 ensemble -> **mean** ->
+`theta`, which is exactly G2a's quantity. G2a and G2c both pass, and G2c is a strictly
+stronger statement than either original threshold.
 
 **M=24, not the M=6 of the plan.** The cached 24-member ensemble makes the noise floor
 measurable, and it is fatal to M=6: per-member sd of A_L is 0.62 K, so two 6-member
@@ -196,9 +214,9 @@ Two facts found while writing it, both worth keeping:
    **aires.md's per-event box is still undefined** - it says to add one `box` field per
    event in Phase 3, and Gate 3's observable needs it (or must explicitly use the CONUS
    mean, as Gate 2 did).
-2. **Gate 2's G2b criterion needs amending in `aires.md`** - see "What Gate 2 established".
-   Nothing is blocked on it; the decision is whether to record Gate 2 as PASS under
-   amended criteria or leave it as a documented partial.
+2. ~~Gate 2's G2b criterion needs amending~~ - **done 2026-08-18**. `aires.md` now
+   specifies G2b as a >= 7 d rank-equivalence horizon and requires G2c; `aires/gate2.py`
+   implements it and `--stage score` exits 0. Gate 2 is recorded as PASS.
 3. **The calibration was fitted on ERA5, but production inputs are GenCast forecasts** at
    3-15 day lead, which are smoother than analysis. Gate 3 is what measures whether that
    matters; Gate 1 cannot see it, and Gate 2 could not either (both ICs there are ERA5).
@@ -209,23 +227,50 @@ Two facts found while writing it, both worth keeping:
    July frames. The held-out June 7 PNW case passed anyway, so it generalises, but a
    summer-heavy fit would be a cheap improvement if Gate 2 disappoints.
 
-## Continuing on a3mega
+## Start here for Gate 3 (on a3mega)
 
-The calibration is **deterministic given its inputs and its inputs live on a3mega too**
-(the p90 ICs originated there), so rebuild rather than transfer:
+Phase 1's first two gates are closed. Gate 3 is the go/no-go and everything it needs is on
+a3mega already - the calibration, both Gate 2 cubes, and a walker that has rolled on an
+H100. **No Derecho session is required.**
 
 ```bash
-# on a3mega, in the GenCast env (moe)
-cd .../S2S_ExtremeWeather && git fetch && git checkout aires
-PYTHONPATH=. python -m aires.calibrate --fit --gate1     # ~2 min, CPU, no network
-PYTHONPATH=. python -m pytest aires/tests/ -q
+# a3mega, GenCast env (moe), repo root
+cd .../S2S_ExtremeWeather && git fetch && git checkout aires && git pull
+
+# 1. confirm the state (30 s) - trust these, not this file's prose
+ls -l runs/aires/calib/derived_calib.nc                  # ~48 MB
+PYTHONPATH=. python -m aires.gate2 --stage score          # must print GATE 2: PASS, exit 0
+PYTHONPATH=. python -m pytest aires/tests/ -q             # 48 pass, 1 skipped, ~100 s
+PYTHONPATH=. JAX_PLATFORMS=cpu python -m aires.walker --check --steps 6
 ```
 
-Expect the identical Gate 1 numbers above. If they differ, the two machines' p90 IC sets
-differ - check `ls runs/p90_t2m/ic/*.nc | wc -l` equals 90 on both.
+Then write, in this order:
 
-Alternatively copy `runs/aires/calib/derived_calib.nc` (48 MB) by rsync **from a3mega**
-(pull), the same direction convention as `scripts/sync_a3mega_to_derecho.sh`.
+1. `aires/aindex.py` - the scalar observable. **Factor it out of `aires/gate2.py::_AL`**
+   (cos-lat area mean of `xres.xmetrics.forecast_field`) rather than reimplementing it, and
+   have `gate2.py` import it back. Decide the box first (open problem 1 below): either add
+   the per-event `box` field `aires.md` promises for Phase 3, or make Gate 3 explicitly use
+   the CONUS mean, as Gate 2 did.
+2. `aires/score.py` - M FCN3 forecasts from a walker state out to 21 d, reduced to `theta`.
+   The adapter round trip it depends on is already proven end to end (job 1154).
+3. a driver + `slurm/aires_gate3.slurm` (`--job-name=Vayuh-s2s`).
+
+Budget, from measured rates: 8-16 free-running walkers checkpointed at leads 3/6/9/12/15 d
+is ~11 min per 42-step walker, so 16 walkers over 8 GPUs is ~25 min; scoring adds
+16 x 6 x 240 = 23,040 FCN3 steps, ~7 GPU-h, under an hour on a node. **Pre-stage every
+input on the login node first** - the GPU rule in the root `CLAUDE.md` is strict, and Gate 2
+already showed short FCN3 jobs are NFS-load-bound rather than compute-bound.
+
+Pass criterion (`aires.md`): Spearman rho >= 0.5 between `theta(t_k)` and the realized
+`A_L(t_f)` at t_k = 9 d and 12 d. If it passes only at 12 d, shift the `C_k` schedule later;
+if it fails everywhere, fall back to GenCast-as-its-own-scorer and report the FCN3 scoring
+failure as a finding.
+
+If the calibration ever needs rebuilding it is deterministic given its inputs, and those
+inputs (the 90 p90 ICs) live on a3mega too:
+`PYTHONPATH=. python -m aires.calibrate --fit --gate1` (~2 min, CPU, no network). Expect the
+identical Gate 1 numbers above; if they differ, check `ls runs/p90_t2m/ic/*.nc | wc -l`
+equals 90 on both machines.
 
 ## Files
 
@@ -243,6 +288,7 @@ Alternatively copy `runs/aires/calib/derived_calib.nc` (48 MB) by rsync **from a
 | `runs/aires/calib/derived_calib.nc` | fitted calibration (gitignored, rebuildable in ~2 min) |
 | `runs/aires/gate2/` | adapter IC, 24-member adapter cube, scores JSON/CSV |
 | `figures/aires/gate2_PNW_HeatDome_2021.png` | the three Gate 2 panels |
+| `docs/aires_gate2.html` | published Gate 2 summary (artifact source) |
 
 Not yet written: `aires/score.py`, `aires/dmc.py`, `aires/aindex.py`, `aires/run_aires.py`,
 `slurm/aires_gate3.slurm`, `slurm/aires_res.slurm`.

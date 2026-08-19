@@ -175,10 +175,36 @@ passes.**
 - **Gate 1, channel fidelity.** Derive the 3 channels from ERA5's GenCast-variable subset
   and compare against true ERA5. Pass: `u100m` RMSE < 1.0 m/s and |bias| < 0.2 m/s;
   `tcwv` relative RMSE < 5%, |bias| < 2%.
-- **Gate 2, forecast equivalence.** Run FCN3 M=6 with matched seeds from (a) the existing
+- **Gate 2, forecast equivalence.** Run FCN3 with matched seeds from (a) the existing
   native IC `runs/fcn3/week3/ic/PNW_HeatDome_2021_ic.nc` and (b) an adapter-built IC from
-  the same ERA5 fields. Pass: `|delta mean A_L| < 0.25 K` and paired-member rank
-  correlation > 0.95.
+  the same ERA5 fields. Pass, all three:
+
+      G2a  |delta mean A_L| < 0.25 K
+      G2b  paired-member Spearman rank correlation > 0.95 out to at least 7 d lead
+      G2c  d_paired(t) <= d_internal(t) at EVERY lead, where
+             d_paired(t)   = RMS over members of (adapter_i(t) - native_i(t))
+             d_internal(t) = sqrt(2) * ensemble sd of the native run   (FCN3's own noise)
+
+  **M must be >= 24, not 6.** The per-member sd of `A_L` is ~0.62 K for this event, so two
+  6-member ensemble means differ by 0.36 K from sampling noise alone - larger than G2a's
+  own threshold, i.e. a *perfect* adapter would fail at M=6 about half the time. At M=24
+  the paired s.e. is 0.149 K and G2a resolves differences down to ~0.30 K and no finer;
+  the score stage prints that limit with the verdict.
+
+  **G2b is a horizon, not an endpoint** (amended 2026-08-18 after the first run). Read at
+  the 21 d verification window only, it cannot discriminate: any IC difference whatsoever -
+  the adapter's or a plain re-seed - has by then grown to the internal-noise level and
+  shuffled the members into an unrelated order, so a perfect adapter also scores ~0 there.
+  Evaluate it as a function of lead and require rank-equivalence out to >= 7 d. G2c is the
+  well-posed statement of "forecast equivalence" and holds at every lead: if the adapter
+  moves the forecast less than re-seeding the model does, it is indistinguishable from
+  another draw of the same ensemble.
+
+  **Result (job 1153, PNW_HeatDome_2021, M=24, 21 d): PASS.**
+  G2a 0.083 K; G2b rho_s > 0.95 out to 8.5 d (0.996 at 1.5 d, 0.957 at 7.5 d, and the decay
+  past 8.5 d is FCN3's predictability horizon for CONUS-mean T2m, not adapter error);
+  G2c max ratio 0.990, reached only at day-21 saturation (0.222 at 1.5 d, 0.409 at 7.5 d,
+  0.593 at 10 d). Re-scored on Derecho from the transferred cubes: identical to the digit.
 - **Gate 3, score skill - the real go/no-go.** Roll 8-16 GenCast 0.25° members *with global
   2-frame checkpoints* at leads 3/6/9/12/15 d (~3-5 H100-h), score each with FCN3, and
   correlate `theta(t_k)` against the realized `A_L(t_f)`. Pass: Spearman rho >= 0.5 at

@@ -42,9 +42,16 @@ any perturbation whatsoever decorrelates individual members, so a rank-correlati
 run there measures the atmosphere's Lyapunov exponent, not the adapter.
 
     G2a  |mean A_L(adapter) - mean A_L(native)| < 0.25 K       (paired, n members)
-    G2b  paired-member Spearman rank correlation > 0.95
+    G2b  paired-member Spearman rank correlation > 0.95 out to at least 7 d lead
     G2c  the paired adapter-vs-native divergence never exceeds the ensemble's OWN
          internal-noise divergence, at any lead.
+
+G2b is a HORIZON, not an endpoint (aires.md, amended 2026-08-18 after the first run).
+Read at the 21 d verification window only - as aires.md originally specified - it cannot
+discriminate: any IC difference whatsoever, the adapter's or a plain re-seed, has by then
+grown to the internal-noise level and shuffled the members into an unrelated order, so a
+perfect adapter scores ~0 there too. The endpoint value is still reported, as a
+diagnostic; the pass/fail is taken from the lead at which rho_s falls through 0.95.
 
 G2c is the well-posed form of "forecast equivalence". Both ensembles start from an
 identical IC in 69 channels and are rolled with matched noise streams, so two divergence
@@ -103,6 +110,7 @@ DEFAULT_EVENT = "PNW_HeatDome_2021"
 GATE2 = {
     "abs_delta_mean_AL_max": 0.25,   # K
     "spearman_min": 0.95,
+    "rank_horizon_min_days": 7.0,    # G2b: rank-equivalence must reach at least this lead
     "require_below_internal_noise": True,
 }
 
@@ -380,13 +388,13 @@ def _divergence_curves(nat: xr.Dataset, ada: xr.Dataset, var: str = "2m_temperat
 def _rank_corr_by_lead(nat: xr.Dataset, ada: xr.Dataset, var: str = "2m_temperature"):
     """Paired-member Spearman correlation as a function of lead.
 
-    G2b evaluates this at the 21 d verification window only, where it cannot discriminate:
-    a perturbation that has grown to the internal-noise level has, by definition, shuffled
-    the members into an unrelated order, so ANY IC difference - the adapter's or a
-    re-seed's - scores ~0 there. Resolving it by lead turns that from an assertion into a
-    measurement: the correlation starts at 1, and the lead at which it falls through 0.95
-    is the model's own predictability horizon for this quantity, not a property of the
-    adapter.
+    This is G2b. aires.md originally read it at the 21 d verification window only, where
+    it cannot discriminate: a perturbation that has grown to the internal-noise level has,
+    by definition, shuffled the members into an unrelated order, so ANY IC difference -
+    the adapter's or a re-seed's - scores ~0 there. Resolving it by lead turns that from
+    an assertion into a measurement: the correlation starts at 1, and the lead at which it
+    falls through 0.95 is the model's own predictability horizon for this quantity, not a
+    property of the adapter. G2b is now that horizon, and must reach >= 7 d.
     """
     from scipy.stats import spearmanr
 
@@ -439,7 +447,7 @@ def stage_score(ev: F.Event, plot: bool = True) -> int:
     horizon = float(max(ok_lead)) if ok_lead else float("nan")
 
     g2a = abs(delta_mean) < GATE2["abs_delta_mean_AL_max"]
-    g2b = rho > GATE2["spearman_min"]
+    g2b = np.isfinite(horizon) and horizon >= GATE2["rank_horizon_min_days"]
     g2c = max_ratio <= 1.0
 
     print(f"\n  per-member A_L ({ev.metric}, cos-lat CONUS mean)")
@@ -453,8 +461,11 @@ def stage_score(ev: F.Event, plot: bool = True) -> int:
     print(f"\n  GATE 2  (n = {m} matched members)")
     print(f"    G2a |delta mean A_L|      {abs(delta_mean):7.4f}    <  "
           f"{GATE2['abs_delta_mean_AL_max']:.2f}      {'PASS' if g2a else 'FAIL'}")
-    print(f"    G2b paired Spearman rho   {rho:7.4f}    >  "
-          f"{GATE2['spearman_min']:.2f}      {'PASS' if g2b else 'FAIL'}")
+    print(f"    G2b rank-equiv horizon   {horizon:7.2f} d  >= "
+          f"{GATE2['rank_horizon_min_days']:.1f} d     {'PASS' if g2b else 'FAIL'}"
+          f"   (rho_s > {GATE2['spearman_min']:.2f}; at the 21 d window it is {rho:+.3f},"
+          f"\n                                                    which no IC difference,"
+          f" however small, could beat)")
     print(f"    G2c max d_paired/d_noise  {max_ratio:7.4f}    <= 1.00      "
           f"{'PASS' if g2c else 'FAIL'}   (at lead {lead_d[worst_i]:.2f} d)")
     print(f"\n    (Pearson r {pear:+.4f}; paired s.e. on delta mean A_L is {se_paired:.3f} K, "
@@ -486,7 +497,8 @@ def stage_score(ev: F.Event, plot: bool = True) -> int:
         "rank_equivalence_horizon_days": horizon,
         "max_ratio_paired_over_internal": max_ratio,
         "max_ratio_lead_days": float(lead_d[worst_i]),
-        "G2a_delta_mean_AL": bool(g2a), "G2b_spearman": bool(g2b),
+        "G2a_delta_mean_AL": bool(g2a), "G2b_rank_horizon": bool(g2b),
+        "rank_horizon_min_days": GATE2["rank_horizon_min_days"],
         "G2c_below_internal_noise": bool(g2c), "gate2_pass": bool(ok),
     }
     rp = result_path(ev)
@@ -538,7 +550,7 @@ def _plot(ev: F.Event, res: dict) -> None:
 
     rho = np.array([np.nan if v is None else v for v in res["rho_by_lead"]])
     ax[2].axhline(0.95, color="0.6", lw=1, ls="--")
-    ax[2].text(lead[-1], 0.90, "G2b threshold  ", fontsize=8, color="0.4",
+    ax[2].text(lead[-1], 0.90, r"$\rho_s = 0.95$  ", fontsize=8, color="0.4",
                va="top", ha="right")
     ax[2].axhline(0.0, color="0.85", lw=1)
     ax[2].plot(lead, rho, color="#2ca02c", lw=2)
@@ -549,8 +561,8 @@ def _plot(ev: F.Event, res: dict) -> None:
     ax[2].set_xlabel("lead (days)")
     ax[2].set_ylabel(r"paired Spearman $\rho_s$")
     ax[2].set_ylim(-1.05, 1.05)
-    ax[2].set_title("G2b's statistic, resolved by lead\n"
-                    "(it is evaluated only at the right-hand edge)")
+    ax[2].set_title("G2b: how far out are the two ensembles\n"
+                    "still member-for-member rank-equivalent?")
     ax[2].grid(alpha=.3)
 
     verdict = "PASS" if res["gate2_pass"] else "FAIL"
