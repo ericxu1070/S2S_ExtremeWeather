@@ -107,6 +107,31 @@ GATE1 = {
 #                       /gate3/                           Gate 3 artifacts
 # --------------------------------------------------------------------------- #
 WALKER_RES = os.environ.get("AIRES_RES", "0p25")   # GenCast checkpoint resolution
+
+
+def walker_model_kwargs(res: str | None = None) -> dict:
+    """The checkpoint arguments for the walker's GenCast. **Never build these by hand.**
+
+    ``gencast_s2s.config.model_cfg`` uses its ``res`` argument ONLY for the ERA5
+    coarsening stride. The checkpoint it loads is ``params_file or GENCAST_PARAMS``, and
+    ``GENCAST_PARAMS`` is the **1.0 degree Mini** model. So
+
+        M.load_gencast(n_members=1, res=0.25)          # WRONG - silently loads Mini
+
+    loads Mini and rolls it on 0.25 degree fields. It does not raise: GraphCast builds its
+    mesh from whatever grid the inputs carry, so the run looks healthy and the output is
+    physically wrong - in the first Gate 3 attempt (job 1155) the CONUS-mean T2m lost its
+    diurnal cycle within one 3-day segment and drifted 26 K cold over 21 days, and the
+    only reason it was caught is that the realized A_L came out at -22 K.
+
+    ``xres`` gets this right by passing ``params_file=rs["params"]`` from its resolution
+    registry (``xres/xconfig.py::RES_SPECS``). This function reads the SAME registry, so
+    the walker and the xres cubes it is compared against cannot diverge.
+    """
+    from xres import xconfig as X
+
+    spec = X.res_spec(res or WALKER_RES)
+    return dict(params_file=spec["params"], res=spec["res"])
 WALKER_STEP_H = 12                                 # GenCast native step
 WALKER_WEEKS = int(os.environ.get("AIRES_WEEKS", 3))  # lead of the pilot init (21 d)
 

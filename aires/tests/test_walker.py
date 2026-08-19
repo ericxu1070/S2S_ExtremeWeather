@@ -237,3 +237,36 @@ def test_run_tree_layout():
     assert sp.parent.parent.name == "w07"
     assert A.diag_path("EV", 7, 3).parent == sp.parent
     assert A.state_path("EV", 0, 1) != A.state_path("EV", 1, 1)
+
+
+# --------------------------------------------------------------------------- #
+# Checkpoint selection
+# --------------------------------------------------------------------------- #
+def test_walker_loads_the_full_resolution_checkpoint_not_mini():
+    """The bug that cost Gate 3's first run (job 1155).
+
+    ``gencast_s2s.config.model_cfg`` takes a ``res`` argument, but uses it ONLY for the
+    ERA5 coarsening stride - the checkpoint is ``params_file or GENCAST_PARAMS``, and
+    GENCAST_PARAMS is the 1.0 degree **Mini** model. So ``load_gencast(res=0.25)`` loads
+    Mini and rolls it on 0.25 degree fields, and nothing raises: GraphCast builds its mesh
+    from the input grid, so the run looks healthy. 112 segments (57 GB, 38 min on 8 H100s)
+    came out physically wrong - CONUS-mean T2m lost its diurnal cycle inside one 3-day
+    segment and drifted 26 K cold over 21 days.
+    """
+    from gencast_s2s import config as C
+
+    kw = A.walker_model_kwargs("0p25")
+    assert kw["params_file"] == "GenCast 0p25deg <2019.npz"
+    assert kw["res"] == 0.25
+    assert kw["params_file"] != C.GENCAST_PARAMS, (
+        "the walker is about to roll the 1.0 degree Mini checkpoint on 0.25 degree data")
+    assert C.model_cfg("gencast", **kw)["params_file"] == kw["params_file"]
+
+
+def test_walker_and_xres_request_the_same_checkpoint():
+    """The walker's cubes are compared against the xres cubes, so they must be the same
+    model. Both read xres/xconfig.py::RES_SPECS; this pins that they stay joined."""
+    from xres import xconfig as X
+
+    for res in ("0p25", "1p0"):
+        assert A.walker_model_kwargs(res)["params_file"] == X.res_spec(res)["params"]
