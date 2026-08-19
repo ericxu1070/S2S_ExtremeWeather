@@ -139,6 +139,54 @@ GATE3 = {
     "required_leads": (9, 12),
 }
 
+# Walker segmentation for Gate 3. Every segment is the SAME number of steps on purpose:
+# GenCast's single-step function is jitted once per process, and keeping the segment shape
+# constant guarantees one XLA compile (~5 min) per worker rather than one per distinct
+# segment length. 6 steps x 12 h = 3 d, so the checkpoint leads are 3, 6, ... and
+# GATE3_LEAD_DAYS is a subset of them; the extra states at 18 d and 21 d are free.
+GATE3_SEG_STEPS = 6
+GATE3_HORIZON_DAYS = WALKER_WEEKS * 7                 # 21 d - the event peak
+GATE3_SEG_DAYS = GATE3_SEG_STEPS * WALKER_STEP_H / 24  # 3.0
+
+GATE3_N_WALKERS = int(os.environ.get("AIRES_GATE3_WALKERS", 16))
+GATE3_M_MEMBERS = int(os.environ.get("AIRES_GATE3_MEMBERS", 6))
+
+
+def gate3_segments(horizon_days: int | None = None) -> list[tuple[int, float, int]]:
+    """``[(step, lead_days at the END of the segment, n_steps), ...]`` for one walker.
+
+    Step numbering starts at 1 and matches ``segment_dir``/``state_path``, so
+    ``state_path(ev, w, k)`` is the walker's state at lead ``k * GATE3_SEG_DAYS``.
+    """
+    horizon = GATE3_HORIZON_DAYS if horizon_days is None else horizon_days
+    n = int(round(horizon / GATE3_SEG_DAYS))
+    if abs(n * GATE3_SEG_DAYS - horizon) > 1e-9:
+        raise ValueError(f"horizon {horizon} d is not a whole number of "
+                         f"{GATE3_SEG_DAYS} d segments")
+    return [(k, k * GATE3_SEG_DAYS, GATE3_SEG_STEPS) for k in range(1, n + 1)]
+
+
+def gate3_step_for_lead(lead_days: float) -> int:
+    """Which segment index ends at ``lead_days``. Raises if the lead is not a checkpoint."""
+    k = lead_days / GATE3_SEG_DAYS
+    if abs(k - round(k)) > 1e-9 or round(k) < 1:
+        raise ValueError(f"lead {lead_days} d is not a walker checkpoint "
+                         f"(segments are {GATE3_SEG_DAYS} d)")
+    return int(round(k))
+
+
+def score_cube_path(event: str, walker: int, lead_days: float) -> Path:
+    """The FCN3 score forecast launched from walker ``walker``'s state at ``lead_days``."""
+    return event_dir(event) / "scores" / f"w{walker:02d}_lead{int(lead_days):02d}_cube.nc"
+
+
+def score_zarr_path(event: str, walker: int, lead_days: float) -> Path:
+    return event_dir(event) / "scores" / f"w{walker:02d}_lead{int(lead_days):02d}.zarr"
+
+
+def gate3_dir(event: str) -> Path:
+    return event_dir(event) / "gate3"
+
 
 def fig_dir() -> Path:
     return ROOT / "figures" / "aires"

@@ -359,13 +359,29 @@ def stage_assemble(ev: F.Event, members: int, nshards: int) -> int:
 # score - the three criteria (CPU, moe env)
 # --------------------------------------------------------------------------- #
 def _area_mean(da: xr.DataArray) -> xr.DataArray:
-    return da.weighted(np.cos(np.deg2rad(da["lat"]))).mean(("lat", "lon"))
+    """Unboxed cos-lat area mean over the cube's full (CONUS) extent.
+
+    Delegates to ``aires.aindex`` so the divergence curves below and the observable are
+    reduced by one implementation. ``box=None`` is the CONUS reduction Gate 2 was scored
+    with before the per-event boxes existed; see ``_AL``.
+    """
+    from aires import aindex as AI
+    return AI.area_mean(da, box=None)
 
 
 def _AL(cube: xr.Dataset, ev: F.Event) -> np.ndarray:
-    """The scalar observable: cos-lat-weighted CONUS mean of the metric field, per member."""
-    from xres import xmetrics as XM
-    return _area_mean(XM.forecast_field(cube, ev.peak, ev.metric)).values
+    """The scalar observable, per member: cos-lat-weighted CONUS mean of the metric field.
+
+    Gate 2 is scored on the **CONUS** mean, not on the per-event box that
+    ``aires/aindex.py`` now defines and that Gate 3 onwards uses. That is deliberate and
+    not laziness: the published Gate 2 numbers (G2a 0.083 K, horizon 8.5 d, G2c 0.990)
+    were measured this way, and Gate 2 asks whether the adapter perturbs the forecast at
+    all - a question about the whole field, for which the widest average is the right
+    reduction. The box would only make the same test noisier.
+    """
+    from aires import aindex as AI
+    return AI.a_index(cube, ev.peak, ev.metric, box=None,
+                      where=f"gate2 cube {ev.name}").values
 
 
 def _divergence_curves(nat: xr.Dataset, ada: xr.Dataset, var: str = "2m_temperature"):
