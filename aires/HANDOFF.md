@@ -21,13 +21,15 @@ Visual summaries:
 | 0 - move a3mega FCN3 week-3 results to Derecho | **done**, verified: figures regenerate pixel-identical from the transferred cubes |
 | 1 - adapter + calibration + Gate 1 | **done on Derecho AND on a3mega** - identical numbers on both |
 | 1 - Gate 2 (forecast equivalence) | **PASS**. Ran on a3mega (Slurm job 1153), re-scored on Derecho from the transferred cubes - identical to the digit. G2a 0.083 K, G2b horizon 8.5 d, G2c 0.990. `aires.md`'s G2b was amended first (endpoint -> horizon); see below |
-| 1 - Gate 3 (score skill, the go/no-go) | **written and running** - `aires/aindex.py`, `aires/score.py`, `aires/gate3.py`, `slurm/aires_gate3.slurm`. a3mega job **1155** (walk + score on one node). See "Gate 3" below |
-| 2-5 | not started |
+| 1 - Gate 3 (score skill, the go/no-go) | **PASS**, a3mega job **1160** (2 h 08 m, one node). rho_s = 0.797 at t_k = 9 d and 0.959 at 12 d, against a 0.5 threshold; persistence scores 0.062 and 0.129 at the same leads. See "What Gate 3 established" |
+| 2 - RES core + C_k tuning | **not started, and now unblocked** - Phase 1 is closed |
+| 3-5 | not started |
 
-**Gate 3 is in flight** (job 1155). Continue on a3mega (see "Start here for Gate 3" below) - it holds the
-calibration, both Gate 2 cubes, the walker, and the H100s. The full Gate 2 data tree is now
-mirrored on Derecho as well (cubes, IC, scores) and re-scores there identically, so Derecho
-can do CPU analysis, but it is not required again until Phase 5.
+**Phase 1 is complete: all three gates pass.** Continue with Phase 2 on a3mega (see
+"Start here for Phase 2" below) - it holds the calibration, the Gate 2 cubes, the 16 walker
+trajectories and the H100s. The full Gate 2 data tree is mirrored on Derecho as well and
+re-scores there identically, so Derecho can do CPU analysis, but it is not required again
+until Phase 5.
 
 ## Verify state (run these, don't trust the table)
 
@@ -36,7 +38,7 @@ can do CPU analysis, but it is not required again until Phase 5.
 # Derecho: module load conda && conda activate my-env; cd /glade/derecho/scratch/exu/...
 
 ls -l runs/aires/calib/derived_calib.nc              # calibration built? (~48 MB)
-PYTHONPATH=. python -m pytest aires/tests/ -q        # 77 pass, 1 skipped (~110 s)
+PYTHONPATH=. python -m pytest aires/tests/ -q        # 81 pass, 1 skipped (~70 s)
 PYTHONPATH=. python -m aires.calibrate --gate1       # re-scores Gate 1 on the held-out ICs
 PYTHONPATH=. python -m aires.gate2 --stage score     # re-scores Gate 2 from cached cubes
 ls runs/aires/gate2/cache/*_adapter_cube.nc          # Gate 2 adapter ensemble (24 members)
@@ -136,6 +138,132 @@ threshold. A perfect adapter would have failed G2a about half the time at M=6. A
 paired s.e. is 0.149 K, so G2a resolves differences down to ~0.30 K and no finer; that is
 now stated in the score output rather than left implicit.
 
+## What Gate 3 established
+
+**PASS, and by a wide margin at the leads that matter.** 16 free-running GenCast walkers
+from the event init to the peak, a global restart state every 3 d, each checkpoint adapted
+into an FCN3 IC and scored by M=6 FCN3 members run to the peak. The statistic is the
+Spearman correlation, across walkers, between `theta(t_k)` and the walker's OWN realized
+`A_L` - the score does not have to be right about the atmosphere, only about the walker.
+
+| t_k | rho_s | 95% CI | p | noise ceiling | persistence |
+|---|---|---|---|---|---|
+| 3 d | -0.044 | [-0.60, +0.49] | 0.87 | 0.663 | -0.382 |
+| 6 d | +0.606 | [+0.15, +0.87] | 0.013 | 0.783 | +0.391 |
+| **9 d** | **+0.797** | [+0.51, +0.92] | 0.0002 | 0.952 | +0.062 |
+| **12 d** | **+0.959** | [+0.81, +0.99] | <1e-4 | 0.990 | +0.129 |
+| 15 d | +0.988 | [+0.91, +1.00] | <1e-4 | 0.998 | +0.556 |
+
+Threshold is `rho_s >= 0.5` at 9 d and 12 d. Both clear it with p <= 2e-4, and the CIs
+exclude the threshold at both leads.
+
+**The AI scorer earns its GPU hours - this is the substantive result.** Lancelin et al.'s
+Standard-RES scores a walker by the observable's current value, which costs nothing. At the
+two gate leads that baseline has **no skill at all** (0.062 and 0.129, both inside the
+noise), while FCN3 reaches 0.797 and 0.959. Persistence only becomes useful at 15 d
+(0.556), by which point the verification window has already begun. Whatever FCN3 is doing,
+it is not reading off the current state.
+
+**Skill switches on between 3 d and 6 d.** At t_k = 3 d the score is worthless
+(rho_s = -0.044): FCN3 is being asked for an 18-day forecast, well past its horizon. It
+crosses the gate threshold at ~5.5 d and is near-perfect by 12 d. `aires.md`'s `C_k`
+schedule already sets `C_1 = 0`, so no score forecast is bought at the first resampling
+time - that choice is now measured rather than assumed, and the schedule should not be
+shifted earlier.
+
+**M=6 is not the binding constraint where it counts.** The noise ceiling - the largest
+correlation `theta` could reach with any target given its own M=6 sampling error - is 0.952
+at 9 d and 0.990 at 12 d, so FCN3 is running at 84% and 97% of its own ceiling. It IS
+binding at 3-6 d (ceiling 0.66/0.78), but the score has no skill there for unrelated
+reasons. Raising M would buy almost nothing at the leads AI+RES actually resamples at.
+
+**The direct-sampling baseline for Phase 4, and the gap AI+RES has to close.**
+
+| index | mean | sd | range | ERA5 observed | walkers reaching it |
+|---|---|---|---|---|---|
+| PNW box | +2.54 K | 3.02 | [-3.16, +7.49] | **+7.72 K** | **0 / 16** |
+| CONUS | +0.97 K | 0.44 | [-0.14, +1.67] | +0.64 K | 13 / 16 |
+
+16 direct samples get to +7.49 K and stop just short of the observed +7.72 K. That is
+exactly the headline Phase 4 is set up to answer: does resampling reach a tail that direct
+sampling misses? It also settles the box question empirically - on the CONUS mean the
+"extreme" is unremarkable (13 of 16 walkers already exceed it), so a CONUS-mean experiment
+would have had no tail to find.
+
+Artifacts: `runs/aires/PNW_HeatDome_2021/gate3/*.json|csv`,
+`figures/aires/gate3_PNW_HeatDome_2021.png`, 16 walker trajectories (57 GB) and 80 score
+cubes under `runs/aires/PNW_HeatDome_2021/`.
+
+## The checkpoint bug that cost two runs (read before touching the walker)
+
+Gate 3's first two attempts produced physically wrong walkers, and the reason is a trap
+that is still live for anything else building on `gencast_s2s`:
+
+**`gencast_s2s.config.model_cfg` takes a `res` argument but does NOT use it to choose the
+checkpoint.** `res` sets the ERA5 coarsening stride; the checkpoint is
+`params_file or GENCAST_PARAMS`, and `GENCAST_PARAMS` is the 1.0 degree **Mini** model. So
+
+```python
+M.load_gencast(n_members=1, res=0.25)      # silently loads Mini, runs it on 0.25 deg data
+```
+
+Nothing raises - GraphCast builds its mesh from whatever grid the inputs carry - so the run
+looks healthy. The output is not: CONUS-mean T2m lost its diurnal cycle inside the first
+3-day segment (00Z equal to 12Z to 0.03 K), drifted 26 K cold over 21 days, z500 ended
+1780 m2 s-2 low, and realized `A_L` came out at **-22 K** against an observed +7.7 K.
+`xres` is unaffected because it passes `params_file=rs["params"]` explicitly from
+`xres/xconfig.py::RES_SPECS`.
+
+This also means **job 1154's smoke test never verified the walker's physics.** Its
+`250 < t2m < 300` assertion passed on a global mean of 281.47 K that was already ~6 K cold.
+The round trip it proved is real; the physics was not checked.
+
+Three things now prevent a recurrence, in order of how much each would have helped:
+
+1. **One loader.** `aires/walker.py::load_bundle` is the only place in `aires/` that
+   chooses a checkpoint, and it reads `xres/xconfig.py::RES_SPECS` through
+   `aconfig.walker_model_kwargs()` - the same registry xres uses, so the walker and the
+   cubes it is compared against cannot name different models. The first fix patched
+   `walker.py` and missed the duplicate loader in `gate3.stage_walk`, which is the code the
+   walk phase actually runs; that cost the second run.
+   `tests/test_walker.py::test_only_one_place_in_aires_loads_a_gencast_checkpoint` parses
+   `aires/*.py` with `ast` and pins that there is exactly one call site.
+2. **A physical check after the FIRST segment.** `gate3.check_against_reference` compares a
+   freshly rolled segment's CONUS-mean T2m against the cached xres ensemble at the same
+   valid time - same checkpoint, same init, so a walker must sit inside its spread.
+   Measured 298.56 +- 0.162 K at 3 d lead. The broken walkers were **71 sd** out; the
+   correct ones came in at 0.2-3.8 sd. This is what turns a 38-minute 8-GPU run plus a
+   score phase into a 3-minute failure.
+3. **Provenance.** Every state now records the `params_file` it was rolled with. Nothing on
+   disk from the first two runs said which model made it.
+
+The rollout itself was never at fault, and that was worth establishing rather than assuming
+- a one-GPU controlled comparison (init 2021-06-07, 6 steps, against cached xres member 0):
+
+```
+                    step1   step2   step3   step4   step5   step6
+xres cube m0       292.424 298.672 292.751 298.554 292.386 298.733
+xres 21-day batch  292.422 298.672 292.753 298.550 292.382 298.744
+walker 6-step batch 292.420 298.673 292.750 298.554 292.373 298.724
+```
+
+Agreement to ~0.01 K, including with the exact `segment_key(1,1)` the walk pool uses. The
+walker's batch construction, forcings, ring buffer, restart handoff and RNG are all correct.
+
+## GPU contention: the node is not reliably ours, even with `--exclusive`
+
+Job 1155's score phase died with `CUDA out of memory ... Process 2214660 has 78.05 GiB
+memory in use`. That process was a vLLM server from an unrelated project
+(`/home/ubuntu/continuum/inklingA/ink_bk_ceiling.sh`), launched **outside Slurm** on the
+node Slurm had allocated `--exclusive`, holding ~76 GB on all 8 H100s. It also stalled the
+walk phase's XLA compile for ~10 min earlier in the same job.
+
+`slurm/aires_gate3.slurm` now retries each pool up to `AIRES_POOL_ATTEMPTS` (3) times with
+a wait. Both stages are cache-aware per artifact, so a retry costs seconds for everything
+already on disk and only redoes what is missing; a real bug still fails every attempt. If a
+long sweep is running on the cluster this is a workaround, not a fix - check for foreign
+processes before blaming the code.
+
 ## `aires/walker.py` - written, tested, and rolled on a GPU
 
 Gate 3 needs a walker that can be stopped, checkpointed and restarted, and whose checkpoint
@@ -205,17 +333,12 @@ Two facts found while writing it, both worth keeping:
 
 ## Open problems
 
-1. **Gate 3 is the remaining Phase 1 work, and it is now unblocked.** Still to write:
-   `aires/score.py` (M FCN3 forecasts from a walker state out to lead 21 d, reduced to
-   theta), `aires/aindex.py` (the scalar observable; `aires/gate2.py::_AL` is the CONUS
-   version of it and should be factored out rather than reimplemented), and a driver +
-   Slurm script. The run itself is 8-16 free-running walkers checkpointed at leads
-   3/6/9/12/15 d, then N x 5 x M FCN3 score forecasts. At the measured ~15 s/step a
-   42-step walker is ~11 min, so 16 walkers over 8 GPUs is ~25 min; scoring adds
-   16 x 6 x 240 = 23,040 FCN3 steps, ~7 GPU-h, under an hour on a node.
-   **aires.md's per-event box is still undefined** - it says to add one `box` field per
-   event in Phase 3, and Gate 3's observable needs it (or must explicitly use the CONUS
-   mean, as Gate 2 did).
+1. ~~Gate 3 is the remaining Phase 1 work~~ - **done 2026-08-19, PASS** (job 1160).
+   `aires/aindex.py`, `aires/score.py`, `aires/gate3.py` and `slurm/aires_gate3.slurm`
+   exist; the per-event boxes `aires.md` deferred to Phase 3 are defined in
+   `aires/aindex.py::EVENT_BOXES`. **Phase 2 is the next work.** Measured cost for the
+   whole gate on one 8xH100 node: **2 h 08 m** (walk 38 min incl. a ~15 min XLA compile
+   with 8 concurrent workers, score ~85 min), 57 GB of walker states + 80 score cubes.
 2. ~~Gate 2's G2b criterion needs amending~~ - **done 2026-08-18**. `aires.md` now
    specifies G2b as a >= 7 d rank-equivalence horizon and requires G2c; `aires/gate2.py`
    implements it and `--stage score` exits 0. Gate 2 is recorded as PASS.
@@ -229,50 +352,50 @@ Two facts found while writing it, both worth keeping:
    July frames. The held-out June 7 PNW case passed anyway, so it generalises, but a
    summer-heavy fit would be a cheap improvement if Gate 2 disappoints.
 
-## Start here for Gate 3 (on a3mega)
+## Start here for Phase 2 (on a3mega)
 
-Phase 1's first two gates are closed. Gate 3 is the go/no-go and everything it needs is on
-a3mega already - the calibration, both Gate 2 cubes, and a walker that has rolled on an
-H100. **No Derecho session is required.**
+Phase 1 is closed: the adapter is exact where it can be, an adapter IC forecasts like a
+native one, and the FCN3 score ranks walkers with rho_s = 0.80 at 9 d and 0.96 at 12 d.
+Nothing about the DMC loop is built yet.
 
 ```bash
 # a3mega, GenCast env (moe), repo root
 cd .../S2S_ExtremeWeather && git fetch && git checkout aires && git pull
 
-# 1. confirm the state (30 s) - trust these, not this file's prose
-ls -l runs/aires/calib/derived_calib.nc                  # ~48 MB
-PYTHONPATH=. python -m aires.gate2 --stage score          # must print GATE 2: PASS, exit 0
-PYTHONPATH=. python -m pytest aires/tests/ -q             # 77 pass, 1 skipped, ~110 s
-PYTHONPATH=. JAX_PLATFORMS=cpu python -m aires.walker --check --steps 6
+# confirm Phase 1 still stands (all CPU, ~4 min total)
+PYTHONPATH=. python -m pytest aires/tests/ -q            # 81 pass, 1 skipped
+PYTHONPATH=. python -m aires.gate2 --stage score         # GATE 2: PASS, exit 0
+PYTHONPATH=. python -m aires.gate3 --stage reduce        # GATE 3: PASS, exit 0
 ```
 
-Then write, in this order:
+`--stage reduce` re-derives everything from the cached trajectories and score cubes, so it
+is the cheap regression test for the whole gate.
 
-1. `aires/aindex.py` - the scalar observable. **Factor it out of `aires/gate2.py::_AL`**
-   (cos-lat area mean of `xres.xmetrics.forecast_field`) rather than reimplementing it, and
-   have `gate2.py` import it back. Decide the box first (open problem 1 below): either add
-   the per-event `box` field `aires.md` promises for Phase 3, or make Gate 3 explicitly use
-   the CONUS mean, as Gate 2 did.
-2. `aires/score.py` - M FCN3 forecasts from a walker state out to 21 d, reduced to `theta`.
-   The adapter round trip it depends on is already proven end to end (job 1154).
-3. a driver + `slurm/aires_gate3.slurm` (`--job-name=Vayuh-s2s`).
+Then Phase 2 (`aires.md`), in order:
 
-Budget, from measured rates: 8-16 free-running walkers checkpointed at leads 3/6/9/12/15 d
-is ~11 min per 42-step walker, so 16 walkers over 8 GPUs is ~25 min; scoring adds
-16 x 6 x 240 = 23,040 FCN3 steps, ~7 GPU-h, under an hour on a node. **Pre-stage every
-input on the login node first** - the GPU rule in the root `CLAUDE.md` is strict, and Gate 2
-already showed short FCN3 jobs are NFS-load-bound rather than compute-bound.
+1. `aires/dmc.py` - the model-agnostic DMC core: score standardization, the splitting
+   function `V_k = C_k * theta_hat`, the weight update, **pivotal sampling**
+   (Deville-Tille) for clone/kill counts, genealogy bookkeeping, and the unbiased
+   estimator. CPU only. The two tests worth writing before any GPU time are in `aires.md`:
+   `sum N_k^i == N` exactly with `E[N_k^i] = w_k^i / wbar_k`, and the OU-process
+   unbiasedness check against brute force.
+2. The **C_k tuning replay**. This is now cheap in a way the plan did not anticipate: the
+   16 Gate 3 trajectories and all 80 score cubes are on disk, so the DMC loop can be
+   replayed over real `theta(t_k)` values - not just the persistence proxy `aires.md`
+   suggested - to check that `C_k = (0, 1.0, 1.4, 1.8, 2.0)` keeps ESS above N/4 and clone
+   multiplicities bounded. No GPU at all.
 
-Pass criterion (`aires.md`): Spearman rho >= 0.5 between `theta(t_k)` and the realized
-`A_L(t_f)` at t_k = 9 d and 12 d. If it passes only at 12 d, shift the `C_k` schedule later;
-if it fails everywhere, fall back to GenCast-as-its-own-scorer and report the FCN3 scoring
-failure as a finding.
+Two Gate 3 findings that should shape Phase 2:
 
-If the calibration ever needs rebuilding it is deterministic given its inputs, and those
-inputs (the 90 p90 ICs) live on a3mega too:
-`PYTHONPATH=. python -m aires.calibrate --fit --gate1` (~2 min, CPU, no network). Expect the
-identical Gate 1 numbers above; if they differ, check `ls runs/p90_t2m/ic/*.nc | wc -l`
-equals 90 on both machines.
+- **Do not shift `C_k` earlier.** The score has no skill at t_k = 3 d (rho_s = -0.044) and
+  only crosses the gate threshold at ~5.5 d. `C_1 = 0` is correct; if anything the case for
+  `C_2 = 0` is worth testing in the replay.
+- **Do not raise M above 6.** FCN3 already runs at 84% (9 d) and 97% (12 d) of the
+  correlation ceiling its own M=6 sampling error imposes, so extra members buy almost
+  nothing where resampling actually happens.
+
+When Phase 3 needs GPUs again, `slurm/aires_gate3.slurm` is the working two-env,
+two-phase-on-one-allocation pattern to copy, retries included.
 
 ## Files
 
@@ -283,17 +406,23 @@ equals 90 on both machines.
 | `aires/adapter.py` | GenCast state -> FCN3 IC; `GenCastICSource` is the earth2studio DataSource |
 | `aires/calibrate.py` | fits + scores the 3 derived channels; `--fit`, `--gate1` |
 | `aires/gate2.py` | Gate 2: `--stage {prep,infer,assemble,score}` across the two envs |
-| `aires/walker.py` | one GenCast walker segment from a global 2-frame state; `--check` is CPU-only |
+| `aires/walker.py` | one GenCast walker segment from a global 2-frame state; `load_bundle` is the ONLY checkpoint chooser; `--check` is CPU-only |
+| `aires/aindex.py` | the observable `A_L`, the per-event boxes, the running index and the persistence score |
+| `aires/score.py` | the FCN3 score function: M forecasts from a walker checkpoint to the peak |
+| `aires/gate3.py` | Gate 3: `--stage {plan,walk,reduce}`, plus the physical check against the xres ensemble |
 | `aires/tests/test_adapter.py` | 25 tests incl. the 69-channel bit-exactness check |
 | `aires/tests/test_walker.py` | 24 tests: state contract, batch-from-arbitrary-state, cloning RNG |
 | `slurm/aires_gate2.slurm` | Gate 2 infer, 8 shards on one a3mega node, `--job-name=Vayuh-s2s` |
+| `slurm/aires_gate3.slurm` | Gate 3 walk (moe) + score (fcn3) on ONE allocation, 8 GPUs, retried |
 | `runs/aires/calib/derived_calib.nc` | fitted calibration (gitignored, rebuildable in ~2 min) |
 | `runs/aires/gate2/` | adapter IC, 24-member adapter cube, scores JSON/CSV |
 | `figures/aires/gate2_PNW_HeatDome_2021.png` | the three Gate 2 panels |
+| `figures/aires/gate3_PNW_HeatDome_2021.png` | the four Gate 3 panels |
+| `runs/aires/<event>/walkers/`, `/scores/`, `/gate3/` | 16 trajectories, 80 score cubes, the verdict |
 | `docs/aires_gate2.html` | published Gate 2 summary (artifact source) |
 
-Not yet written: `aires/score.py`, `aires/dmc.py`, `aires/aindex.py`, `aires/run_aires.py`,
-`slurm/aires_gate3.slurm`, `slurm/aires_res.slurm`.
+Not yet written: `aires/dmc.py`, `aires/aplots.py`, `aires/run_aires.py`,
+`slurm/aires_res.slurm`.
 
 ## Notes
 

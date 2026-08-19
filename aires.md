@@ -244,6 +244,28 @@ passes.**
   internal noise common removes it as a source of ranking error - the same argument as
   Gate 2's matched seeds, and what production scoring should do too.
 
+  **Result (job 1160, PNW_HeatDome_2021, N=16 walkers, M=6, PNW box): PASS.**
+  rho_s = **0.797 at t_k = 9 d** (p = 2e-4, 95% CI [0.51, 0.92]) and **0.959 at 12 d**
+  (p < 1e-4, CI [0.81, 0.99]); also 0.606 at 6 d and 0.988 at 15 d. Three findings that
+  change later phases:
+
+  * **The AI scorer is the reason this works.** The persistence baseline - Standard-RES,
+    the observable's current value - scores 0.062 at 9 d and 0.129 at 12 d, i.e. nothing.
+    FCN3 is not reading off the current state.
+  * **Skill switches on between 3 d and 6 d** (rho_s = -0.044 at 3 d, crossing 0.5 at
+    ~5.5 d). `C_1 = 0` is therefore correct and the schedule must not be shifted earlier;
+    `C_2 = 0` is worth testing in the Phase 2 replay.
+  * **M = 6 is enough.** The correlation ceiling imposed by M=6 sampling error is 0.952 at
+    9 d and 0.990 at 12 d, so FCN3 runs at 84% and 97% of its own ceiling. Extra members
+    buy almost nothing where resampling happens. (It IS binding at 3-6 d, where the score
+    has no skill anyway.)
+
+  The 16 walkers are also the **direct-sampling baseline**: realized `A_L` over the PNW box
+  is +2.54 +- 3.02 K, range [-3.16, +7.49], against an observed **+7.72 K** that **0 of 16
+  reach**. That is the gap Phase 4 asks RES to close. On the CONUS mean the same event is
+  unremarkable (13 of 16 walkers exceed the observed +0.64 K), which is the empirical
+  argument for the box.
+
 Gate 3's global-checkpoint members are not throwaway - they are the first real exercise of
 `aires/walker.py` and seed the DS baseline.
 
