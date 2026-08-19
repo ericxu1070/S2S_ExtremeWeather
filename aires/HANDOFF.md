@@ -16,6 +16,9 @@ Visual summaries:
 - Gate 3 results (score skill vs the persistence baseline, the DS gap, the checkpoint bug):
   https://claude.ai/code/artifact/faac92dd-c753-4cd3-8209-3117e7d998f4
   (source: `docs/aires_gate3.html`)
+- Adapter skill vs truth (does the adapter cost skill? the noise floor, the dome miss):
+  https://claude.ai/code/artifact/853f6f70-7026-40c0-945f-b84711a2bdae
+  (source: `docs/aires_adapter_skill.html`)
 
 ## Where things stand
 
@@ -26,6 +29,7 @@ Visual summaries:
 | 1 - Gate 2 (forecast equivalence) | **PASS**. Ran on a3mega (Slurm job 1153), re-scored on Derecho from the transferred cubes - identical to the digit. G2a 0.083 K, G2b horizon 8.5 d, G2c 0.990. `aires.md`'s G2b was amended first (endpoint -> horizon); see below |
 | 1 - Gate 3 (score skill, the go/no-go) | **PASS**, a3mega job **1160** (2 h 08 m, one node). rho_s = 0.797 at t_k = 9 d and 0.959 at 12 d, against a 0.5 threshold; persistence scores 0.062 and 0.129 at the same leads. See "What Gate 3 established" |
 | 2 - RES core + C_k tuning | **done**, CPU only. `aires/dmc.py` validated against an analytic Ornstein-Uhlenbeck problem; `aires/ctune.py` replays the schedule on the measured Gate 3 skill curve. `aires.md`'s C_k is **validated as-is**. See "What Phase 2 established" |
+| follow-up - adapter skill vs truth, 6 events (branch `adapter-test`) | **code written and CPU-verified; GPU half not run.** `aires/adaptest.py` + `slurm/aires_adaptest.slurm` + `scripts/adaptest_prep.sh`. 1 of 6 adapter cubes exists; 5 need ~75 node-min on a3mega. See "The adapter test" below |
 | 3-5 | not started |
 
 **Phases 1 and 2 are complete.** All three gates pass and the RES core is written and
@@ -34,6 +38,98 @@ validated without a GPU. Phase 3 (the workers and the Slurm driver) is next; see
 walker trajectories and the H100s. The full Gate 2 data tree is mirrored on Derecho as well and
 re-scores there identically, so Derecho can do CPU analysis, but it is not required again
 until Phase 5.
+
+## The adapter test (branch `adapter-test`) - the open question and how to close it
+
+Gate 2 established that an adapter IC forecasts *like* a native one. Scoring both ensembles
+against **observed truth** afterwards (`runs/aires/gate2/skill/`, artifact above) left a
+residue that one event cannot settle:
+
+- On most ensemble-mean scores the adapter run is the marginally **worse** of the two:
+  CONUS ens-mean RMSE 1.739 vs 1.640 K, PNW box 6.312 vs 5.523 K, PNW CRPS 4.733 vs 3.684 K.
+  The sign holds against HRRR truth as well as ERA5.
+- **But nothing is resolved.** Every paired-bootstrap CI crosses zero; the strongest case
+  (PNW CRPS) still flips sign in 10% of resamples, i.e. two-sided p ~ 0.2. And the two
+  tightest reductions **disagree in sign**: seed-matched per-member RMSE over CONUS makes
+  the adapter marginally *better* (-0.050 +- 0.154 K), as does its CONUS A_L bias.
+- **A tally across metrics is not evidence.** The single-event analysis leaned "adapter
+  worse" on ten of fourteen signed comparisons, but all fourteen come from the same 24
+  member pairs at one init, so the tally carries roughly one event's worth of information.
+- **Direction was never a coin flip.** The adapter IC carries real added error (Gate 1:
+  0.63 m/s on u100m/v100m, 4.6% on tcwv) and adding IC error cannot help in expectation, so
+  a small degradation is the **prior**, not a finding. What is worth reporting is its size
+  and its upper bound.
+- **What Gate 2's data does establish** is a ceiling: below ~0.3 K of CONUS RMSE and ~1.4 K
+  over the event box (2 paired s.e.), under the ensemble's own sampling noise and under the
+  0.83 K by which ERA5 and HRRR disagree about what happened. For AI+RES that bound is the
+  thing that matters - the walker score is an ensemble mean, and a bias smaller than the
+  sampling noise cannot reorder walkers.
+
+**The fix is more events, not more members.** Pushing the per-event s.e. below the effect
+would need ~M = 100 on one event and would still be one draw of one atmosphere. Across
+*independent* events each sign is a fair coin under the null, so six events is a real test.
+All six already have native FCN3 cubes from the FCN3-vs-GenCast experiment, so only the
+adapter halves cost GPU time.
+
+| | metric | adapter IC | adapter cube |
+|---|---|---|---|
+| `PNW_HeatDome_2021` | t2m_anom | built | **built** (Gate 2) |
+| `HurricaneIan_2022` | u850_speed | needs prep | needs infer |
+| `WinterStorm_Uri_2021` | t2m_anom | **built** (Derecho, 2026-08-19) | needs infer |
+| `p90_20231107` | t2m_anom | needs prep | needs infer |
+| `p90_20240802` | t2m_anom | needs prep | needs infer |
+| `p90_20251224` | t2m_anom | needs prep | needs infer |
+
+### Run it
+
+```bash
+# 1. LOGIN NODE (either box; env moe on a3mega, my-env on Derecho). CPU only.
+bash scripts/adaptest_prep.sh --check          # readiness matrix, writes nothing
+bash scripts/adaptest_prep.sh                  # builds the 5 missing adapter ICs (~300 MB each)
+
+# 2. a3mega ONLY - FCN3 needs ~64 GB of VRAM, so an 80 GB H100. A Derecho A100-40GB OOMs.
+sbatch slurm/aires_adaptest.slurm              # array 0-5%2; built cubes exit early
+squeue -u $USER -n Vayuh-s2s
+
+# 3. LOGIN NODE again, GenCast env.
+PYTHONPATH=. python -m aires.adaptest --stage score
+PYTHONPATH=. python -m aires.adaptest --stage report
+```
+
+Cost: **~15 min of one 8xH100 node per event, ~75 node-min for the five** - and ~9 min of
+each 15 is eight processes reading the shared 4.18 GB model pickle off NFS, not compute.
+
+### What the code does and does not do
+
+- `aires/adaptest.py` adds the six-event **analysis**, not a second pipeline: the adapter-IC
+  builder and the FCN3 driver are `aires/gate2.py`'s, called through it. There is exactly one
+  of each in this repo and that stays true.
+- Three statistics, in increasing order of what they can say: a **paired bootstrap** over the
+  24 matched member pairs (resampling a *common* index set - break the pairing and the s.e.
+  roughly doubles, which `tests/test_adaptest.py` pins as an inequality); an **exact binomial
+  sign test** across events, which is the test with real power; and an **inverse-variance
+  pooled** relative effect `(adapter - native) / native`, dimensionless so a wind event and a
+  temperature event can pool, with an I^2 heterogeneity check.
+- Each event is scored on **its own metric**, so Ian is `u850_speed`. That metric has no
+  zero-skill reference (a zero wind field is not a climatology), so no skill score is reported
+  for it - only raw RMSE/CRPS and the relative delta, which is what pools anyway.
+- Cold events need no sign handling: RMSE and CRPS are sign-blind and the A_L comparison uses
+  `|A_L - observed|`, so Uri's negative tail is automatic. Stated because
+  `xres.xmetrics.extreme_sign` exists and it is tempting to reach for.
+
+### Ceilings to know before reading the output
+
+- **Six events cannot beat p = 0.031.** That is the exact two-sided binomial p when all six
+  agree. `test_six_events_cannot_reach_p_below_0p03` pins it so a unanimous result is not
+  over-read.
+- At the PNW event's precision, six events give a detection limit of roughly **+-11%** of the
+  native score (it was +-27% at one event). If the true effect is a few percent, this design
+  will bound it, not measure it - and that is still the useful answer.
+- The array index -> event mapping is duplicated in the Slurm script so a shell can pick an
+  event without importing Python. A silent reordering would pair one event's adapter cube with
+  another's native cube and produce finite, wrong numbers. Two guards: the job re-checks
+  against `fcn3.fevents.ORDER` at run time, and
+  `test_event_order_matches_the_slurm_array` parses the script before submission.
 
 ## Verify state (run these, don't trust the table)
 
