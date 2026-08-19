@@ -1,0 +1,45 @@
+Host: nucla3m-a3meganodeset-4
+Start: Wed Aug 19 01:17:27 UTC 2026
+GPU 0: NVIDIA H100 80GB HBM3 (UUID: GPU-8deaf399-5257-44be-de29-dbab5cab2837)
+GPU 1: NVIDIA H100 80GB HBM3 (UUID: GPU-08ce4409-9463-80ec-57ba-eca08d003482)
+GPU 2: NVIDIA H100 80GB HBM3 (UUID: GPU-8d511a9b-a471-736e-637d-a997e0a57717)
+GPU 3: NVIDIA H100 80GB HBM3 (UUID: GPU-ab33084f-509e-82b2-8949-d8815d024cb0)
+GPU 4: NVIDIA H100 80GB HBM3 (UUID: GPU-67dcae5f-2cfd-b933-fa3a-05a8184dccf0)
+GPU 5: NVIDIA H100 80GB HBM3 (UUID: GPU-6f4c5b9e-2690-3130-7cd6-0ff15eee4c02)
+GPU 6: NVIDIA H100 80GB HBM3 (UUID: GPU-5544fb35-a86b-e04c-5eea-201f7515a48a)
+GPU 7: NVIDIA H100 80GB HBM3 (UUID: GPU-5d02916b-f04f-56da-a539-ff7cf9f27b6f)
+Gate 3: event=PNW_HeatDome_2021 walkers=16 members=6 gpus=8 phase=all
+Gate 3 - PNW_HeatDome_2021  (init 2021-06-07, peak 2021-06-28, 21 d lead, metric t2m_anom)
+PNW_HeatDome_2021: primary box PNW (44-50N, 124W-118W)
+    Oregon + Washington, the dome core. The observed maximum reached ~52 N into British Columbia, which is outside the 50 N CONUS crop, so this box sees the southern two thirds of the event.
+  secondary: CONUS (24-50N, 125W-66W)
+
+  walkers          16
+  segments/walker  7 x 6 x 12 h = 42 GenCast steps to the peak
+  checkpoints      3 d, 6 d, 9 d, 12 d, 15 d
+  score members    M = 6
+
+  prerequisites
+    walker init frames  OK   /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/xres/0p25/week3/inputs/PNW_HeatDome_2021_inputs.nc
+    derived calibration OK   /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/aires/calib/derived_calib.nc
+    ERA5 truth          OK   /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/observations/PNW_HeatDome_2021_verif_t2m_anom.nc   (context only, not required)
+
+  walker segments   0 cached, 112 to roll, 0 STALE, 0 partial
+
+  score forecasts   0 cached, 80 to run (80 total = 16 walkers x 5 leads)
+                    23,040 FCN3 steps x 6 members already included; ~6.4 GPU-h at 1 s/step, ~48 min over 8 GPUs
+  walker rollout    672 GenCast steps; ~5.2 GPU-h at 28 s/step, ~39 min over 8 GPUs
+
+  disk              states 53.4 GB new (477 MB each), diag 4.03 GB, score cubes ~0.80 GB
+
+  READY: yes
+--- walk phase: Wed Aug 19 01:17:37 UTC 2026 ---
+  walk: attempt 1/3
+  launched walk shard 0 on GPU 0 (pid 2218791)
+  launched walk shard 1 on GPU 1 (pid 2218792)
+  launched walk shard 2 on GPU 2 (pid 2218793)
+  launched walk shard 3 on GPU 3 (pid 2218794)
+  launched walk shard 4 on GPU 4 (pid 2218795)
+  launched walk shard 5 on GPU 5 (pid 2218796)
+  launched walk shard 6 on GPU 6 (pid 2218797)
+  launched walk shard 7 on GPU 7 (pid 2218798)
