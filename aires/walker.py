@@ -361,6 +361,41 @@ def run_segment(get_bundle, event: str, walker: int, step: int, n_steps: int, *,
 
 
 # --------------------------------------------------------------------------- #
+# Model loading - the ONE place a walker's checkpoint is chosen.
+#
+# There used to be two: this module's ``main`` and ``gate3.stage_walk`` each built their
+# own ``load_gencast`` call. Fixing the checkpoint bug in one of them left the other
+# loading the 1.0 degree Mini model, and job 1156 burned another 8-GPU allocation proving
+# it. Any caller that needs a walker bundle goes through here.
+# --------------------------------------------------------------------------- #
+def load_bundle(n_members: int = 1, res: str | None = None) -> dict:
+    """Load the walker's GenCast with the checkpoint the resolution registry names."""
+    from gencast_s2s import model as M
+
+    kw = A.walker_model_kwargs(res)
+    print(f"  [walker] loading {kw['params_file']!r} ({kw['res']} deg)", flush=True)
+    return M.load_gencast(n_members=n_members, **kw)
+
+
+def lazy_bundle(n_members: int = 1, res: str | None = None):
+    """A ``get_bundle()`` closure that loads on first use and caches thereafter.
+
+    Lazy on purpose: a worker whose segments are all cached must not spend ~15 min on the
+    load plus the XLA compile just to discover it has nothing to do.
+    """
+    box: dict = {}
+
+    def get_bundle() -> dict:
+        if not box:
+            import time as _t
+            t0 = _t.perf_counter()
+            box["b"] = load_bundle(n_members, res)
+            print(f"  [walker] model loaded in {_t.perf_counter() - t0:.0f} s", flush=True)
+        return box["b"]
+
+    return get_bundle
+
+
 def _task_config_only(res: str = A.WALKER_RES):
     """Just the checkpoint's task config - enough for --check, and no GPU/model build."""
     from graphcast import checkpoint, gencast
@@ -398,14 +433,7 @@ def main(argv=None) -> int:
               f"targets/forcings span exactly {a.steps} step(s).")
         return 0
 
-    from gencast_s2s import model as M
-
-    bundle = {}
-
-    def get_bundle():
-        if not bundle:
-            bundle.update(M.load_gencast(n_members=1, **A.walker_model_kwargs()))
-        return bundle
+    get_bundle = lazy_bundle()
 
     run_segment(get_bundle, a.event, a.walker, a.step, a.steps,
                 parent_state=a.parent, base_seed=a.base_seed, save_diag=not a.no_diag)
