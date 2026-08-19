@@ -174,15 +174,19 @@ def stage_plan(ev: F.Event, walkers: int, members: int, leads, nshards: int) -> 
         for (k, lead, _n) in segs:
             st, detail = segment_status(ev, w, k, lead)
             counts[st] += 1
-            if st in ("stale", "partial"):
+            if st == "stale":
                 stale.append((w, k, lead, detail))
     print(f"\n  walker segments   {counts['ok']} cached, {counts['missing']} to roll, "
           f"{counts['stale']} STALE, {counts['partial']} partial")
     for w, k, lead, detail in stale:
         print(f"    !! w{w:02d} step{k} (lead {lead:g} d): {detail}")
-    if stale:
-        print("    -> `--stage walk --prune-stale` removes and rebuilds these; without it "
-              "the walk stage refuses to run.")
+    if counts["partial"]:
+        print("    -> partial segments (state.nc but no diag.nc) are a crashed write and "
+              "are re-rolled automatically.")
+    if counts["stale"]:
+        print("    -> STALE segments sit at a lead this schedule does not use, so they may "
+              "belong to another run; `--stage walk --prune-stale` removes and rebuilds "
+              "them, and without it the walk stage refuses to start.")
 
     # score tasks
     all_tasks = S.tasks(ev.name, walkers, leads)
@@ -202,7 +206,7 @@ def stage_plan(ev: F.Event, walkers: int, members: int, leads, nshards: int) -> 
     print(f"\n  disk              states {counts['missing'] * 0.477:.1f} GB new "
           f"(477 MB each), diag {counts['missing'] * 0.036:.2f} GB, "
           f"score cubes ~{(len(all_tasks) - have) * 0.01:.2f} GB")
-    ready = init_ok and calib_ok and not stale
+    ready = init_ok and calib_ok and counts["stale"] == 0
     print(f"\n  READY: {'yes' if ready else 'NO - fix the items marked above'}")
     return 0 if ready else 1
 
@@ -223,20 +227,31 @@ def stage_walk(ev: F.Event, walkers: int, shard: int, nshards: int, *,
 
     # Validate every cached segment BEFORE loading the model, so a stale cache costs a
     # second rather than a GPU allocation plus a five-minute XLA compile.
-    bad = []
+    # "partial" and "stale" are not the same failure and must not be treated alike.
+    # A partial segment (state.nc written, diag.nc not) is a crashed write - the state
+    # alone cannot serve the reduce stage and re-rolling is the only repair, so it is
+    # removed automatically; a walk killed by a walltime or an OOM must not need a flag
+    # to resume. A stale one sits at a lead this schedule does not use, which means it may
+    # belong to a different run (the 2-step smoke job's w00/step01 did), so it takes a
+    # human decision.
+    stale, partial = [], []
     for w in mine:
         for (k, lead, _n) in segs:
             st, detail = segment_status(ev, w, k, lead)
-            if st in ("stale", "partial"):
-                bad.append((w, k, lead, detail))
-    if bad and not prune_stale_states:
-        for w, k, lead, detail in bad:
+            (stale if st == "stale" else partial if st == "partial" else []).append(
+                (w, k, lead, detail))
+    for w, k, lead, detail in partial:
+        print(f"[walk] incomplete w{w:02d} step{k} (lead {lead:g} d): {detail} - re-rolling")
+        prune_stale(ev, w, k)
+    if stale and not prune_stale_states:
+        for w, k, lead, detail in stale:
             print(f"[walk] STALE w{w:02d} step{k} (lead {lead:g} d): {detail}",
                   file=sys.stderr)
-        print("[walk] ERROR: cached segments do not match Gate 3's schedule. Re-run with "
-              "--prune-stale to delete and rebuild them.", file=sys.stderr)
+        print("[walk] ERROR: cached segments sit at a lead Gate 3's schedule does not use, "
+              "so they may belong to another run. Re-run with --prune-stale to delete and "
+              "rebuild them.", file=sys.stderr)
         return 1
-    for w, k, _lead, _detail in bad:
+    for w, k, _lead, _detail in stale:
         prune_stale(ev, w, k)
 
     from gencast_s2s import model as M
@@ -574,14 +589,20 @@ def _plot(ev: F.Event, res: dict) -> None:
         s = res["stats"]["box"][str(l)]
         a.errorbar(th, realized, xerr=se, fmt="o", ms=6, color="#1f77b4",
                    ecolor="0.7", elinewidth=1, capsize=2, zorder=3)
-        lo = min(th.min() - se.max(), realized.min())
-        hi = max(th.max() + se.max(), realized.max())
+        obs = res.get("observed", {}).get("box")
+        # The observed value is kept inside the axes on purpose: whether the walker
+        # ensemble reaches it at all is the question Phase 4 exists to answer, and a
+        # panel that crops it out hides the answer.
+        ends = [th.min() - se.max(), th.max() + se.max(), realized.min(), realized.max()]
+        if obs is not None:
+            ends.append(obs)
+        lo, hi = min(ends), max(ends)
         pad = 0.08 * (hi - lo)
         a.plot([lo - pad, hi + pad], [lo - pad, hi + pad], color="0.6", lw=1, zorder=1)
-        if res.get("observed", {}).get("box") is not None:
-            a.axhline(res["observed"]["box"], color="#d62728", lw=1.2, ls="--")
-            a.text(lo - pad, res["observed"]["box"], " ERA5 observed", fontsize=8,
-                   color="#d62728", va="bottom")
+        if obs is not None:
+            a.axhline(obs, color="#d62728", lw=1.2, ls="--")
+            a.text(hi + pad, obs, "ERA5 observed  ", fontsize=8, color="#d62728",
+                   va="bottom", ha="right")
         a.set_xlim(lo - pad, hi + pad); a.set_ylim(lo - pad, hi + pad)
         a.set_xlabel(rf"FCN3 score $\theta$ at $t_k$ = {l:g} d   (K)")
         a.set_ylabel(r"walker's realized $A_L$   (K)")
@@ -630,8 +651,9 @@ def _plot(ev: F.Event, res: dict) -> None:
     for i in range(ser.shape[0]):
         a.plot(lead_d, ser[i], lw=1.1, color=cmap(norm(realized[i])), alpha=.85)
     a.axvspan(res["segments"][-1][1] - 6, res["segments"][-1][1], color="0.9", zorder=0)
-    a.text(res["segments"][-1][1] - 6, a.get_ylim()[1], r"  $A_L$ window ",
-           fontsize=8, color="0.35", va="top")
+    a.annotate(r"$A_L$ window", xy=(res["segments"][-1][1] - 3, 0.97),
+               xycoords=("data", "axes fraction"), fontsize=8, color="0.35",
+               ha="center", va="top")
     for l in leads:
         a.axvline(l, color="0.75", lw=0.8, ls=":")
     if res.get("observed", {}).get("box") is not None:
