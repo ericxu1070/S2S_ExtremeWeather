@@ -13,6 +13,9 @@ Visual summaries:
 - Gate 2 results (what each criterion measures, the G2b amendment, the M=24 finding):
   https://claude.ai/code/artifact/6cbf2eed-276b-42b6-b775-8ed95dc36cc1
   (source: `docs/aires_gate2.html`)
+- Gate 3 results (score skill vs the persistence baseline, the DS gap, the checkpoint bug):
+  https://claude.ai/code/artifact/faac92dd-c753-4cd3-8209-3117e7d998f4
+  (source: `docs/aires_gate3.html`)
 
 ## Where things stand
 
@@ -420,6 +423,7 @@ two-phase-on-one-allocation pattern to copy, retries included.
 | `figures/aires/gate3_PNW_HeatDome_2021.png` | the four Gate 3 panels |
 | `runs/aires/<event>/walkers/`, `/scores/`, `/gate3/` | 16 trajectories, 80 score cubes, the verdict |
 | `docs/aires_gate2.html` | published Gate 2 summary (artifact source) |
+| `docs/aires_gate3.html` | published Gate 3 summary (artifact source) |
 
 Not yet written: `aires/dmc.py`, `aires/aplots.py`, `aires/run_aires.py`,
 `slurm/aires_res.slurm`.
