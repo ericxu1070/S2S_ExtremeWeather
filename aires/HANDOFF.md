@@ -21,10 +21,10 @@ Visual summaries:
 | 0 - move a3mega FCN3 week-3 results to Derecho | **done**, verified: figures regenerate pixel-identical from the transferred cubes |
 | 1 - adapter + calibration + Gate 1 | **done on Derecho AND on a3mega** - identical numbers on both |
 | 1 - Gate 2 (forecast equivalence) | **PASS**. Ran on a3mega (Slurm job 1153), re-scored on Derecho from the transferred cubes - identical to the digit. G2a 0.083 K, G2b horizon 8.5 d, G2c 0.990. `aires.md`'s G2b was amended first (endpoint -> horizon); see below |
-| 1 - Gate 3 (score skill, the go/no-go) | **not started**; `aires/walker.py` (its prerequisite) is **written, tested and rolled on an H100** (job 1154) - the walker -> adapter -> FCN3 round trip works end to end |
+| 1 - Gate 3 (score skill, the go/no-go) | **written and running** - `aires/aindex.py`, `aires/score.py`, `aires/gate3.py`, `slurm/aires_gate3.slurm`. a3mega job **1155** (walk + score on one node). See "Gate 3" below |
 | 2-5 | not started |
 
-**Continue Gate 3 on a3mega** (see "Start here for Gate 3" below) - it holds the
+**Gate 3 is in flight** (job 1155). Continue on a3mega (see "Start here for Gate 3" below) - it holds the
 calibration, both Gate 2 cubes, the walker, and the H100s. The full Gate 2 data tree is now
 mirrored on Derecho as well (cubes, IC, scores) and re-scores there identically, so Derecho
 can do CPU analysis, but it is not required again until Phase 5.
@@ -36,11 +36,13 @@ can do CPU analysis, but it is not required again until Phase 5.
 # Derecho: module load conda && conda activate my-env; cd /glade/derecho/scratch/exu/...
 
 ls -l runs/aires/calib/derived_calib.nc              # calibration built? (~48 MB)
-PYTHONPATH=. python -m pytest aires/tests/ -q        # 48 pass, 1 skipped (~100 s)
+PYTHONPATH=. python -m pytest aires/tests/ -q        # 77 pass, 1 skipped (~110 s)
 PYTHONPATH=. python -m aires.calibrate --gate1       # re-scores Gate 1 on the held-out ICs
 PYTHONPATH=. python -m aires.gate2 --stage score     # re-scores Gate 2 from cached cubes
 ls runs/aires/gate2/cache/*_adapter_cube.nc          # Gate 2 adapter ensemble (24 members)
 PYTHONPATH=. JAX_PLATFORMS=cpu python -m aires.walker --check --steps 6   # walker, no GPU
+PYTHONPATH=. python -m aires.gate3 --stage plan            # Gate 3 readiness + budget
+PYTHONPATH=. python -m aires.gate3 --stage reduce          # Gate 3 verdict, once it has run
 ```
 
 The test suite is CPU-only and needs no GPU; it takes ~100 s because the batch-shape tests
@@ -240,7 +242,7 @@ cd .../S2S_ExtremeWeather && git fetch && git checkout aires && git pull
 # 1. confirm the state (30 s) - trust these, not this file's prose
 ls -l runs/aires/calib/derived_calib.nc                  # ~48 MB
 PYTHONPATH=. python -m aires.gate2 --stage score          # must print GATE 2: PASS, exit 0
-PYTHONPATH=. python -m pytest aires/tests/ -q             # 48 pass, 1 skipped, ~100 s
+PYTHONPATH=. python -m pytest aires/tests/ -q             # 77 pass, 1 skipped, ~110 s
 PYTHONPATH=. JAX_PLATFORMS=cpu python -m aires.walker --check --steps 6
 ```
 

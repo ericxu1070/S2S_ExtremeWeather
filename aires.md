@@ -212,6 +212,38 @@ passes.**
   fails everywhere, fall back to GenCast-as-its-own-scorer (the paper's PFS+RES upper
   bound) and report the FCN3 scoring failure as a finding.
 
+  **The ground truth is the walker's own outcome, not ERA5.** The score does not have to
+  be right about the atmosphere; it has to be right about the walker. That is all
+  resampling reads, and it is the only thing a score function can fairly be held to.
+
+  **The observable is the per-event box, not the CONUS mean** (amended 2026-08-19, when
+  Gate 3 forced the Phase 3 box decision - see below). For the pilot the difference is
+  not cosmetic: the observed 7-day anomaly is **+7.72 K over the PNW box and +0.64 K over
+  CONUS**, so a CONUS-mean gate would be scoring a signal the event barely has. The CONUS
+  index is computed and stored as the secondary, which is also what keeps Gate 2's
+  published numbers comparable.
+
+  **Three things are reported beside the correlation**, because it cannot be interpreted
+  without them and Gate 2 already taught this lesson once:
+
+    * the **persistence baseline** - the paper's Standard-RES score, the observable's
+      current value. It is free (the walkers' own diagnostics cubes hold it) and it is
+      the bar FCN3 has to clear to be worth its GPU hours. If persistence ranks as well,
+      that is a finding, not a failure;
+    * the **noise ceiling** - `theta` is a mean of M members, so its own sampling error
+      caps the correlation it can reach with any target at `sqrt(1 - var_noise/var_theta)`,
+      no matter how skilful the score is. This is the M=6 lesson from Gate 2 applied to a
+      correlation instead of a difference;
+    * the **bootstrap CI on rho** - at N=16 walkers the 5% one-sided significance level is
+      rho ~ 0.43, so the 0.5 threshold means "significantly better than chance" and little
+      more. Everything is cache-aware per (walker, segment) and per (walker, t_k), so N is
+      raised by rerunning with a larger `--walkers`; nothing already computed is redone.
+
+  Score members use **common random numbers across walkers** at a given `t_k` (the seed is
+  a function of event and lead, not of the walker). Gate 3 measures ranking, so making the
+  internal noise common removes it as a source of ranking error - the same argument as
+  Gate 2's matched seeds, and what production scoring should do too.
+
 Gate 3's global-checkpoint members are not throwaway - they are the first real exercise of
 `aires/walker.py` and seed the DS baseline.
 
@@ -239,9 +271,15 @@ production run from a mis-tuned schedule.
 
 ### Phase 3 - Walker/score workers and the Slurm driver (~2 days)
 
-- `aires/aconfig.py` - RES hyperparameters, per-event boxes, `runs/aires/<event>/...` layout.
-  Reuse the event registry in `fcn3/fevents.py` (already has the 6 events, inits, metrics).
-  Add one `box` field per event.
+- `aires/aconfig.py` - RES hyperparameters, `runs/aires/<event>/...` layout. Reuses the
+  event registry in `fcn3/fevents.py` (already has the 6 events, inits, metrics).
+  **The per-event boxes are done** (moved forward into Phase 1 because Gate 3's observable
+  needs them): they live in `aires/aindex.py::EVENT_BOXES` rather than in the event
+  registry, so `fcn3/fevents.py` stays dependency-light and the box travels with the
+  reduction that uses it. PNW 44-50N/124-118W, Uri 26-37N/106-94W, Ian 24-30N/84-76W; the
+  p90 cases stay on CONUS because `p90/cases_meta.json` DEFINES them as exceedances of the
+  cos-lat CONUS mean, so any smaller box would score a different event than the one
+  selected.
 - `aires/walker.py` - roll one walker segment from a global 2-frame state. Built on
   `gencast_s2s/model.py::load_gencast` (`bundle["forward"]`), a generalized
   `gencast_s2s/inference.py::build_example_batch` that accepts an arbitrary 2-frame state
@@ -251,13 +289,16 @@ production run from a mis-tuned schedule.
   forcings are just year/day-progress sin/cos - no TISR). Fresh rng per cloned branch is
   the clone-perturbation mechanism. Adopt the build-once model cache pattern from
   `fcn3/model_cache.py`.
-- `aires/score.py` - M FCN3 forecasts from an adapted IC out to lead 21 d, reduced to
-  `theta`. Reuse `earth2studio.run.ensemble` with `Zero()` perturbation and
+- `aires/score.py` - M FCN3 forecasts from an adapted IC out to lead 21 d. **Written in
+  Phase 1 for Gate 3.** Reuses `earth2studio.run.ensemble` with `Zero()` perturbation and
   `model.set_rng`, exactly as `fcn3/run_fcn3.py::stage_infer` does, with `output_coords`
-  trimmed to the needed variables.
-- `aires/aindex.py` - the scalar observable. Reuse `xres/xmetrics.py`'s `t2m_anom` field
-  definition and the cos-lat-weighted area mean at `xres/xcombined.py:91`, restricted to
-  the event box; emit the CONUS mean alongside.
+  trimmed to the needed variables. It stops at the cube; the reduction to `theta` needs
+  the climatology and so happens on the GenCast side of the two-env handoff.
+- `aires/aindex.py` - the scalar observable. **Written in Phase 1 for Gate 3.** Reuses
+  `xres/xmetrics.py::forecast_field` (so a walker trajectory, an FCN3 score cube and ERA5
+  truth are reduced by identical code) with a cos-lat-weighted area mean over the event
+  box, and emits the CONUS mean alongside. `aires/gate2.py` imports its reduction back
+  from here. Also carries the running index and the persistence score.
 - `aires/run_aires.py --stage {prep,walk,score,res,ds,compare}` - cache-aware per
   (walker, step), matching the repo's existing stage idiom so a killed job resumes.
 - `slurm/aires_res.slurm` - one a3mega node, `#SBATCH --job-name=Vayuh-s2s`. The DMC loop
