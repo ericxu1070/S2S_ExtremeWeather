@@ -21,6 +21,9 @@
 #   score  fcn3 : M FCN3 forecasts from every checkpoint to the peak. 8 workers, one per
 #                 GPU, tasks round-robined so each GPU draws each rollout length equally.
 #
+# Each pool is retried up to AIRES_POOL_ATTEMPTS (3) times. Both stages are cache-aware
+# per artifact, so a retry only redoes what is missing -- see run_pool.
+#
 # Cost at the defaults (N=16 walkers, M=6 members, checkpoints 3/6/9/12/15 d):
 #   walk   672 GenCast steps @ ~28 s  = ~5.2 GPU-h -> ~40 min over 8 GPUs (+ ~5 min compile)
 #   score  23,040 FCN3 steps  @ ~1 s  = ~6.4 GPU-h -> ~50 min over 8 GPUs (+ model load)
@@ -63,22 +66,49 @@ echo "Host: $(hostname)"; echo "Start: $(date)"
 nvidia-smi -L || true
 echo "Gate 3: event=$EVENT walkers=$WALKERS members=$MEMBERS gpus=$NGPU phase=$PHASE"
 
-run_pool() {                       # run_pool <label> <shard-command-template>
-  local label=$1; shift
+run_pool_once() {                  # run_pool_once <label> <attempt> <cmd...>
+  local label=$1 attempt=$2; shift 2
   local pids=() fail=0
   for ((s = 0; s < NGPU; s++)); do
     CUDA_VISIBLE_DEVICES=$s "$@" --shard "$s" --nshards "$NGPU" \
-      > "logs/${TAG}-${label}-shard${s}.log" 2>&1 &
+      > "logs/${TAG}-${label}-try${attempt}-shard${s}.log" 2>&1 &
     pids+=($!)
     echo "  launched $label shard $s on GPU $s (pid ${pids[-1]})"
   done
   for i in "${!pids[@]}"; do
     if ! wait "${pids[$i]}"; then
-      echo "ERROR: $label shard $i failed -- see logs/${TAG}-${label}-shard${i}.log" >&2
+      echo "ERROR: $label shard $i failed -- see logs/${TAG}-${label}-try${attempt}-shard${i}.log" >&2
       fail=1
     fi
   done
   return $fail
+}
+
+# Retry the whole pool, not the failed shards: both stages are cache-aware per artifact,
+# so a repeat pass costs seconds for everything already on disk and only redoes what is
+# missing. This exists because the GPUs on this cluster are NOT reliably ours even under
+# `--exclusive` -- job 1155's score phase died with "GPU 0 ... Process 2214660 has
+# 78.05 GiB memory in use" when an unrelated vLLM sweep, launched outside Slurm, took
+# every card on the node. That contention is transient; a retry rides it out, and a real
+# bug still fails all ATTEMPTS passes and stops the job.
+ATTEMPTS=${AIRES_POOL_ATTEMPTS:-3}
+RETRY_WAIT=${AIRES_RETRY_WAIT:-300}
+
+run_pool() {
+  local label=$1; shift
+  for ((a = 1; a <= ATTEMPTS; a++)); do
+    echo "  $label: attempt $a/$ATTEMPTS"
+    if run_pool_once "$label" "$a" "$@"; then
+      return 0
+    fi
+    if (( a < ATTEMPTS )); then
+      echo "  $label: attempt $a failed; waiting ${RETRY_WAIT}s before retrying "
+      echo "  (cached work is skipped, so a retry only redoes what is missing)"
+      sleep "$RETRY_WAIT"
+    fi
+  done
+  echo "ERROR: $label failed $ATTEMPTS time(s)" >&2
+  return 1
 }
 
 # --------------------------------------------------------------------------- #

@@ -133,6 +133,64 @@ def segment_status(ev: F.Event, walker: int, step: int, lead_days: float) -> tup
     return "ok", str(got)
 
 
+# --------------------------------------------------------------------------- #
+# Physical sanity check.
+#
+# The structural checks (state contract, batch shape, schedule) all passed on job 1155's
+# walkers and every one of them was physically wrong: the run had loaded the 1.0 degree
+# MINI checkpoint and rolled it on 0.25 degree fields (see aconfig.walker_model_kwargs).
+# Nothing in the code could see it, because a GraphCast mesh is built from whatever grid
+# the inputs carry, so the only evidence was in the numbers - and it took 38 min of 8xH100
+# plus a whole score phase to reach them.
+#
+# The check below reaches those numbers after the FIRST segment instead. A walker is a
+# member of the same distribution as the cached xres ensemble - same checkpoint, same
+# init, same event - so at 3 d lead its CONUS-mean T2m must sit inside that ensemble's
+# spread. Measured: 298.56 +- 0.162 K over 24 members. The wrong-checkpoint walker gave
+# 287.21 K, seventy standard deviations out.
+# --------------------------------------------------------------------------- #
+REFERENCE_TOL_SD = 10.0     # generous: the failure it guards against was 70 sd
+REFERENCE_TOL_K = 2.0       # floor, so a tight ensemble cannot make the test hair-trigger
+
+
+def check_against_reference(ev: F.Event, walker: int, step: int) -> None:
+    """Assert a freshly rolled segment is in the same distribution as the xres ensemble.
+
+    Silently skipped when the event has no cached xres cube (the p90 events do not), since
+    this is a cross-check against existing data, not a requirement.
+    """
+    from aires import aindex as AI
+
+    ref = F.gencast_cube_path(ev)
+    if not ref.exists():
+        print(f"[walk] no xres reference cube at {ref}; skipping the physical check")
+        return
+    dp = A.diag_path(ev.name, walker, step)
+    with xr.open_dataset(dp) as d, xr.open_dataset(ref) as x:
+        t = pd.DatetimeIndex(d["time"].values)[-1]
+        xt = pd.DatetimeIndex(x["time"].values)
+        if t not in set(xt):
+            return
+        got = float(AI.area_mean(d["2m_temperature"].isel(batch=0, time=-1)))
+        ens = AI.area_mean(x["2m_temperature"].isel(time=list(xt).index(t))).values
+        mu, sd = float(ens.mean()), float(ens.std(ddof=1))
+    tol = max(REFERENCE_TOL_K, REFERENCE_TOL_SD * sd)
+    off = abs(got - mu)
+    print(f"[walk] physical check w{walker:02d} step{step} @ {t}: CONUS-mean T2m "
+          f"{got:.2f} K vs xres {mu:.2f} +- {sd:.3f} K over {ens.size} members "
+          f"({off / sd if sd else float('nan'):.1f} sd)")
+    if off > tol:
+        raise RuntimeError(
+            f"w{walker:02d} step{step}: CONUS-mean T2m is {got:.2f} K at {t}, but the "
+            f"cached xres ensemble from the SAME checkpoint and init gives "
+            f"{mu:.2f} +- {sd:.3f} K ({off:.2f} K = {off / sd if sd else float('nan'):.0f} "
+            f"sd away, tolerance {tol:.2f} K).\n"
+            f"The walker is not sampling the same distribution as the reference ensemble. "
+            f"The first thing to check is which checkpoint was loaded: "
+            f"{A.walker_model_kwargs()['params_file']!r} was requested "
+            f"(gencast_s2s.config.model_cfg ignores `res` when choosing it).")
+
+
 def prune_stale(ev: F.Event, walker: int, step: int) -> None:
     import shutil
     d = A.segment_dir(ev.name, walker, step)
@@ -288,6 +346,9 @@ def stage_walk(ev: F.Event, walkers: int, shard: int, nshards: int, *,
                 print(f"[walk] ERROR: w{w:02d} step{k} did not land on lead {lead:g} d "
                       f"({got})", file=sys.stderr)
                 return 1
+            if rolled == 1:
+                # First segment this worker produces - fail here, not 38 minutes later.
+                check_against_reference(ev, w, k)
         print(f"[walk] w{w:02d}: complete to lead {A.GATE3_HORIZON_DAYS} d "
               f"({time.perf_counter() - t_start:.0f} s elapsed on this shard)", flush=True)
     print(f"[walk] shard {shard}: {rolled} segment(s) rolled, "

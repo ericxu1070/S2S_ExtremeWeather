@@ -341,7 +341,11 @@ def run_segment(get_bundle, event: str, walker: int, step: int, n_steps: int, *,
     nxt.attrs.update(event=event, walker=int(walker), step=int(step),
                      n_steps=int(n_steps), step_h=int(step_h), base_seed=int(base_seed),
                      parent=str(parent_state) if parent_state else "init",
-                     valid_time=str(valid_time(nxt)))
+                     valid_time=str(valid_time(nxt)),
+                     # Provenance: job 1155 rolled 112 segments with the wrong checkpoint
+                     # and nothing on disk said so. Now every state names its model.
+                     params_file=A.walker_model_kwargs()["params_file"],
+                     resolution=A.WALKER_RES)
     sp.parent.mkdir(parents=True, exist_ok=True)
     write_state(nxt, sp)
     print(f"  [walker] wrote {sp} ({sp.stat().st_size/1e6:.0f} MB), valid {valid_time(nxt)}")
@@ -363,7 +367,7 @@ def _task_config_only(res: str = A.WALKER_RES):
     from gencast_s2s import config as C
     from gencast_s2s.model import _open_local_or_gcs
 
-    cfg = C.model_cfg("gencast", res=0.25 if res == "0p25" else 1.0)
+    cfg = C.model_cfg("gencast", **A.walker_model_kwargs(res))
     with _open_local_or_gcs(C.PARAMS_DIR / cfg["params_file"],
                             C.PARAMS_DIR_GCS + cfg["params_file"]) as f:
         return checkpoint.load(f, gencast.CheckPoint).task_config
@@ -400,8 +404,7 @@ def main(argv=None) -> int:
 
     def get_bundle():
         if not bundle:
-            bundle.update(M.load_gencast(
-                n_members=1, res=0.25 if A.WALKER_RES == "0p25" else 1.0))
+            bundle.update(M.load_gencast(n_members=1, **A.walker_model_kwargs()))
         return bundle
 
     run_segment(get_bundle, a.event, a.walker, a.step, a.steps,
