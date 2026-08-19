@@ -285,11 +285,42 @@ module (`AI-RES-public/RES/resampling/`, which the authors state is model-agnost
 Score backends behind one interface: `fcn3` (production), `persistence` (current index
 value - the paper's Standard-RES), `gencast` (PFS-style fallback).
 
-Then a **cheap tuning pass**: replay the DMC loop with the `persistence` backend at N=64
-over the Gate-3 trajectories to sanity-check that `C_k = (0, 1.0, 1.4, 1.8, 2.0)` gives an
-effective sample size that does not collapse (target: ESS > N/4 after the final step) and
-that clone multiplicities stay bounded. Costs almost nothing and protects the ~46 H100-h
-production run from a mis-tuned schedule.
+Then a **cheap tuning pass**: replay the DMC loop at N=64 to sanity-check that
+`C_k = (0, 1.0, 1.4, 1.8, 2.0)` gives an effective sample size that does not collapse
+(target: ESS > N/4 after the final step) and that clone multiplicities stay bounded. Costs
+almost nothing and protects the ~46 H100-h production run from a mis-tuned schedule.
+
+**Done (2026-08-19, `aires/ctune.py`), and the schedule is validated as written.** The
+replay does better than the persistence proxy this plan assumed: Gate 3 left real FCN3
+scores for 16 walkers at all five leads plus each walker's realized outcome, so the
+surrogate is calibrated to the **measured** skill curve
+`rho_k = (0.00, 0.61, 0.82, 0.95, 1.00)` rather than to a stand-in. (The five scores are
+five forecasts of the same outcome, not five steps of a random walk, so the model is
+signal-plus-noise with a martingale signal; it predicts the cross-lead correlations it was
+not fitted to with a mean error of 0.061 against a sampling error of 0.28.)
+
+| schedule | final ESS/N | p10 | max clone mult | spread/P at 4 sigma |
+|---|---|---|---|---|
+| **(0, 1.0, 1.4, 1.8, 2.0)** | **0.59** | 0.41 | 8.5 | **5.3** |
+| (0, 0, 1.4, 1.8, 2.0) | 0.57 | 0.38 | 11.6 | 14.3 |
+| (0, 0.5, 0.8, 1.1, 1.4) | 0.77 | 0.68 | 3.8 | 5.8 |
+| (0, 1.5, 2.0, 2.5, 3.0) | 0.28 | 0.10 | 15.4 | 5.6 |
+| direct sampling | 1.00 | 1.00 | 1 | 24.6 |
+
+Keep the schedule as written. Two things it settles:
+
+- **`C_2 = 0` is a mistake**, even though Gate 3 found no score skill at 3 d: `C_1` is the
+  3 d coefficient and is already zero, while `C_2` acts at **6 d** where the score does
+  work (rho = 0.61). Switching it off makes the 4 sigma estimate 2.7x noisier.
+- **The schedule cannot be pushed harder.** `(0, 1.5, 2.0, 2.5, 3.0)` is the only candidate
+  that fails the ESS target, and it buys nothing in the tail.
+
+**What the pilot can honestly claim.** At N=64, K=5 the variance reduction over direct
+sampling is 1.4x at 2 sigma, 2.3x at 3 sigma and 4.6x at 4 sigma - real, growing with depth
+as importance splitting should, and nothing like the paper's ~100x, which comes from N=400,
+K=6 and a far deeper target. That is consistent with the claim already scoped above ("RES
+efficiently reaches the extreme tail of the GenCast forecast distribution"), and it is not
+a speedup claim.
 
 ### Phase 3 - Walker/score workers and the Slurm driver (~2 days)
 

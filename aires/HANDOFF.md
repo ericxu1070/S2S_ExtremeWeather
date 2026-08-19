@@ -25,12 +25,13 @@ Visual summaries:
 | 1 - adapter + calibration + Gate 1 | **done on Derecho AND on a3mega** - identical numbers on both |
 | 1 - Gate 2 (forecast equivalence) | **PASS**. Ran on a3mega (Slurm job 1153), re-scored on Derecho from the transferred cubes - identical to the digit. G2a 0.083 K, G2b horizon 8.5 d, G2c 0.990. `aires.md`'s G2b was amended first (endpoint -> horizon); see below |
 | 1 - Gate 3 (score skill, the go/no-go) | **PASS**, a3mega job **1160** (2 h 08 m, one node). rho_s = 0.797 at t_k = 9 d and 0.959 at 12 d, against a 0.5 threshold; persistence scores 0.062 and 0.129 at the same leads. See "What Gate 3 established" |
-| 2 - RES core + C_k tuning | **not started, and now unblocked** - Phase 1 is closed |
+| 2 - RES core + C_k tuning | **done**, CPU only. `aires/dmc.py` validated against an analytic Ornstein-Uhlenbeck problem; `aires/ctune.py` replays the schedule on the measured Gate 3 skill curve. `aires.md`'s C_k is **validated as-is**. See "What Phase 2 established" |
 | 3-5 | not started |
 
-**Phase 1 is complete: all three gates pass.** Continue with Phase 2 on a3mega (see
-"Start here for Phase 2" below) - it holds the calibration, the Gate 2 cubes, the 16 walker
-trajectories and the H100s. The full Gate 2 data tree is mirrored on Derecho as well and
+**Phases 1 and 2 are complete.** All three gates pass and the RES core is written and
+validated without a GPU. Phase 3 (the workers and the Slurm driver) is next; see
+"Start here for Phase 3" below. a3mega holds the calibration, the Gate 2 cubes, the 16
+walker trajectories and the H100s. The full Gate 2 data tree is mirrored on Derecho as well and
 re-scores there identically, so Derecho can do CPU analysis, but it is not required again
 until Phase 5.
 
@@ -41,7 +42,7 @@ until Phase 5.
 # Derecho: module load conda && conda activate my-env; cd /glade/derecho/scratch/exu/...
 
 ls -l runs/aires/calib/derived_calib.nc              # calibration built? (~48 MB)
-PYTHONPATH=. python -m pytest aires/tests/ -q        # 81 pass, 1 skipped (~70 s)
+PYTHONPATH=. python -m pytest aires/tests/ -q        # 110 pass, 1 skipped (~2 min)
 PYTHONPATH=. python -m aires.calibrate --gate1       # re-scores Gate 1 on the held-out ICs
 PYTHONPATH=. python -m aires.gate2 --stage score     # re-scores Gate 2 from cached cubes
 ls runs/aires/gate2/cache/*_adapter_cube.nc          # Gate 2 adapter ensemble (24 members)
@@ -196,6 +197,89 @@ would have had no tail to find.
 Artifacts: `runs/aires/PNW_HeatDome_2021/gate3/*.json|csv`,
 `figures/aires/gate3_PNW_HeatDome_2021.png`, 16 walker trajectories (57 GB) and 80 score
 cubes under `runs/aires/PNW_HeatDome_2021/`.
+
+## What Phase 2 established
+
+**`aires.md`'s C_k schedule is validated as written, and one of my own follow-up
+hypotheses is refuted.** No GPU was used.
+
+`aires/dmc.py` is the DMC core - standardization, the splitting function, pivotal
+sampling, genealogy, and the estimator `E_P[phi] = Z * mean(phi * exp(-V_K))`. It is
+model-agnostic, so the thing that will cost ~46 H100-h per event was validated in eight
+seconds of CPU against an Ornstein-Uhlenbeck walker whose exceedance probabilities are
+analytic: unbiased at 2 and 3 sigma within Monte Carlo error, and at N=256 it estimates
+P(X > 3 sigma) with 3x less spread than direct sampling.
+
+**Two bugs the tests found that the code review did not:**
+
+- **Pivotal sampling had the wrong branch probability** in Deville-Tille's first case
+  (`p_j/(p_i+p_j)` where it must be `p_i/(p_i+p_j)`). It kept the total exactly right and
+  returned the correct *multiset* of marginals while attaching them to the **wrong units**,
+  so the population was cloned toward the wrong walkers and the estimator came out ~10x
+  high. Sum-is-exact and marginals-are-right-on-average both passed.
+- **`run()` returned the pre-resampling population while the weights described the
+  post-resampling one.** `propagate()` is now called once past the last resampling to carry
+  survivors to the horizon, so `states`, `final_V` and `weights` always describe one
+  population.
+
+### The tuning replay
+
+`aires/ctune.py` replays the loop on a surrogate whose only input is measured: the Gate 3
+skill curve `rho_k = (0.00, 0.61, 0.82, 0.95, 1.00)` at leads 3/6/9/12/15 d. The five
+scores of a walker are five forecasts of the *same* outcome, not five steps of a random
+walk - a Markov chain predicts `corr(z_6d, z_15d) = 0.28` where the data says 0.61 - so the
+model is signal-plus-noise with a martingale signal. It predicts `corr(theta_j, theta_k) =
+rho_j`, which it was **not** fitted to, with a mean error of 0.061 against a sampling error
+of 0.28 at N=16.
+
+At N=64, 2000 repeats (ESS/N per resampling time; target is > 0.25 at the last one):
+
+| schedule | 3 d | 6 d | 9 d | 12 d | 15 d | final p10 | max clone mult (mean/p90) |
+|---|---|---|---|---|---|---|---|
+| **aires.md** (0,1.0,1.4,1.8,2.0) | 1.00 | 0.43 | 0.36 | 0.38 | **0.59** | 0.41 | 8.5 / 13 |
+| skip 6d (0,0,1.4,1.8,2.0) | 1.00 | 1.00 | 0.25 | 0.38 | 0.57 | 0.38 | 11.6 / 19 |
+| paper-like (0,0,1.6,1.8,2.0) | 1.00 | 1.00 | 0.20 | 0.37 | 0.56 | 0.36 | 14.2 / 24 |
+| gentle (0,0.5,0.8,1.1,1.4) | 1.00 | 0.79 | 0.68 | 0.67 | 0.77 | 0.68 | 3.8 / 5 |
+| strong (0,1.5,2.0,2.5,3.0) | 1.00 | 0.22 | 0.19 | 0.20 | **0.28** | **0.10** | 15.4 / 26 |
+
+Tail estimate, spread divided by the true probability (lower is better; the surrogate's
+answer is analytic):
+
+| schedule | 2 sigma | 3 sigma | 3.5 sigma | 4 sigma |
+|---|---|---|---|---|
+| **aires.md** | 0.60 | **1.51** | **2.90** | **5.33** |
+| skip 6d | 0.66 | 2.15 | 5.14 | 14.30 |
+| paper-like | 0.65 | 2.09 | 5.12 | 15.34 |
+| gentle | 0.61 | 1.88 | 3.47 | 5.82 |
+| strong | 0.84 | 1.47 | 2.68 | 5.63 |
+| direct sampling | 0.82 | 3.43 | 8.03 | 24.64 |
+
+**Three findings:**
+
+1. **Keep `C_k = (0, 1.0, 1.4, 1.8, 2.0)`.** It clears the ESS target with room (0.59 final,
+   0.41 at the 10th percentile), keeps clone multiplicities bounded (8.5 mean, 13 at p90),
+   stays unbiased, and has the best deep-tail spread of every candidate tried.
+2. **`C_2 = 0` is refuted** - and this HANDOFF proposed it after Gate 3, so the note is a
+   correction. The reasoning was that Gate 3 found no score skill at 3 d; but `C_1` is
+   *already* the 3 d coefficient and it is already zero. `C_2` acts at **6 d**, where the
+   score does have skill (rho = 0.61), and switching it off makes the 4 sigma estimate
+   **2.7x noisier** (5.33 -> 14.30). Turning off a resampling time where the score works
+   costs real accuracy.
+3. **The schedule cannot be pushed much harder.** `strong` is the only candidate that fails
+   the ESS target (0.28 mean, 0.10 at p10, up to 26 children from one walker) while buying
+   nothing in the tail.
+
+**What the pilot can honestly claim.** The variance reduction over direct sampling at
+N=64, K=5 is 1.4x at 2 sigma, 2.3x at 3 sigma, 2.8x at 3.5 sigma and 4.6x at 4 sigma - real,
+growing with depth exactly as importance splitting should, and nothing like the ~100x the
+paper reports. That speedup comes from N=400, K=6 and a target far deeper in the tail. The
+claim this experiment supports is "RES reaches a tail that direct sampling misses", which
+is what `aires.md` already scoped, not a large-factor speedup.
+
+**Caveat, stated plainly.** The surrogate is a Gaussian caricature calibrated to one
+event's skill curve, and that curve came from 16 walkers, so each `rho_k` carries a
+standard error of roughly 0.1-0.25. The ESS and multiplicity columns are what it is for;
+the exceedance column is a schedule comparison, not a prediction of the pilot's answer.
 
 ## The checkpoint bug that cost two runs (read before touching the walker)
 
@@ -355,50 +439,47 @@ Two facts found while writing it, both worth keeping:
    July frames. The held-out June 7 PNW case passed anyway, so it generalises, but a
    summer-heavy fit would be a cheap improvement if Gate 2 disappoints.
 
-## Start here for Phase 2 (on a3mega)
+## Start here for Phase 3 (on a3mega)
 
-Phase 1 is closed: the adapter is exact where it can be, an adapter IC forecasts like a
-native one, and the FCN3 score ranks walkers with rho_s = 0.80 at 9 d and 0.96 at 12 d.
-Nothing about the DMC loop is built yet.
+Phases 1 and 2 are closed. The adapter is exact where it can be, an adapter IC forecasts
+like a native one, the FCN3 score ranks walkers (rho_s 0.80 at 9 d, 0.96 at 12 d), and the
+DMC core is written and validated against an analytic problem. What does not exist yet is
+the machinery to run the loop on real walkers.
 
 ```bash
 # a3mega, GenCast env (moe), repo root
 cd .../S2S_ExtremeWeather && git fetch && git checkout aires && git pull
 
-# confirm Phase 1 still stands (all CPU, ~4 min total)
-PYTHONPATH=. python -m pytest aires/tests/ -q            # 81 pass, 1 skipped
+# confirm Phases 1-2 still stand (all CPU, ~4 min)
+PYTHONPATH=. python -m pytest aires/tests/ -q            # 110 pass, 1 skipped
 PYTHONPATH=. python -m aires.gate2 --stage score         # GATE 2: PASS, exit 0
 PYTHONPATH=. python -m aires.gate3 --stage reduce        # GATE 3: PASS, exit 0
+PYTHONPATH=. python -m aires.ctune --check               # the surrogate's fit to Gate 3
 ```
 
-`--stage reduce` re-derives everything from the cached trajectories and score cubes, so it
-is the cheap regression test for the whole gate.
+`gate3 --stage reduce` re-derives the whole gate from cached trajectories and score cubes,
+so it is the cheap regression test for Phase 1; the pytest run covers Phase 2 entirely.
 
-Then Phase 2 (`aires.md`), in order:
+Then Phase 3 (`aires.md`), which is plumbing rather than new science:
 
-1. `aires/dmc.py` - the model-agnostic DMC core: score standardization, the splitting
-   function `V_k = C_k * theta_hat`, the weight update, **pivotal sampling**
-   (Deville-Tille) for clone/kill counts, genealogy bookkeeping, and the unbiased
-   estimator. CPU only. The two tests worth writing before any GPU time are in `aires.md`:
-   `sum N_k^i == N` exactly with `E[N_k^i] = w_k^i / wbar_k`, and the OU-process
-   unbiasedness check against brute force.
-2. The **C_k tuning replay**. This is now cheap in a way the plan did not anticipate: the
-   16 Gate 3 trajectories and all 80 score cubes are on disk, so the DMC loop can be
-   replayed over real `theta(t_k)` values - not just the persistence proxy `aires.md`
-   suggested - to check that `C_k = (0, 1.0, 1.4, 1.8, 2.0)` keeps ESS above N/4 and clone
-   multiplicities bounded. No GPU at all.
+1. `aires/run_aires.py --stage {prep,walk,score,res,ds,compare}`, cache-aware per
+   (walker, step), matching the stage idiom the rest of the repo uses.
+2. `slurm/aires_res.slurm`. **Copy `slurm/aires_gate3.slurm`** - it is the working
+   pattern: two conda envs and two GPU phases on ONE allocation, 8 shards per phase,
+   retries, and a plan check that refuses to start on a bad cache.
+3. The one genuinely new piece: the DMC loop is a **barrier** at each `t_k`, so the walk
+   and score phases have to interleave per step rather than run to completion. A rank-0
+   coordinator advancing `k` only when all N walker segments and all N x M score artifacts
+   for step `k` exist on disk is what `aires.md` specifies; the `cache/claims/`
+   work-stealing pattern in `xres/xinference.py` is the model for the workers.
 
-Two Gate 3 findings that should shape Phase 2:
+`aires/dmc.py` is driven by exactly two callables, `propagate(step, parents, states)` and
+`score(step, states)`, so Phase 3's job is to make those two read and write the run tree -
+nothing about the algorithm needs to change. Note that `propagate` is called once past the
+last resampling, to carry survivors from `t_K` to `t_f`.
 
-- **Do not shift `C_k` earlier.** The score has no skill at t_k = 3 d (rho_s = -0.044) and
-  only crosses the gate threshold at ~5.5 d. `C_1 = 0` is correct; if anything the case for
-  `C_2 = 0` is worth testing in the replay.
-- **Do not raise M above 6.** FCN3 already runs at 84% (9 d) and 97% (12 d) of the
-  correlation ceiling its own M=6 sampling error imposes, so extra members buy almost
-  nothing where resampling actually happens.
-
-When Phase 3 needs GPUs again, `slurm/aires_gate3.slurm` is the working two-env,
-two-phase-on-one-allocation pattern to copy, retries included.
+Settled by Phase 2, do not re-litigate: `C_k = (0, 1.0, 1.4, 1.8, 2.0)` as written, M = 6,
+N = 64.
 
 ## Files
 
@@ -413,20 +494,24 @@ two-phase-on-one-allocation pattern to copy, retries included.
 | `aires/aindex.py` | the observable `A_L`, the per-event boxes, the running index and the persistence score |
 | `aires/score.py` | the FCN3 score function: M forecasts from a walker checkpoint to the peak |
 | `aires/gate3.py` | Gate 3: `--stage {plan,walk,reduce}`, plus the physical check against the xres ensemble |
+| `aires/dmc.py` | the RES core: splitting, pivotal sampling, genealogy, the unbiased estimator |
+| `aires/ctune.py` | replays the C_k schedule on a surrogate calibrated to the Gate 3 skill curve |
 | `aires/tests/test_adapter.py` | 25 tests incl. the 69-channel bit-exactness check |
-| `aires/tests/test_walker.py` | 24 tests: state contract, batch-from-arbitrary-state, cloning RNG |
+| `aires/tests/test_walker.py` | state contract, batch-from-arbitrary-state, cloning RNG, checkpoint choice |
+| `aires/tests/test_dmc.py` | pivotal sampling, the C=0 identity, OU unbiasedness and variance reduction |
+| `aires/tests/test_ctune.py` | the surrogate reproduces the skill curve and the correlations it was not given |
 | `slurm/aires_gate2.slurm` | Gate 2 infer, 8 shards on one a3mega node, `--job-name=Vayuh-s2s` |
 | `slurm/aires_gate3.slurm` | Gate 3 walk (moe) + score (fcn3) on ONE allocation, 8 GPUs, retried |
 | `runs/aires/calib/derived_calib.nc` | fitted calibration (gitignored, rebuildable in ~2 min) |
 | `runs/aires/gate2/` | adapter IC, 24-member adapter cube, scores JSON/CSV |
 | `figures/aires/gate2_PNW_HeatDome_2021.png` | the three Gate 2 panels |
 | `figures/aires/gate3_PNW_HeatDome_2021.png` | the four Gate 3 panels |
+| `figures/aires/ctune_PNW_HeatDome_2021.png` | the C_k schedule replay |
 | `runs/aires/<event>/walkers/`, `/scores/`, `/gate3/` | 16 trajectories, 80 score cubes, the verdict |
 | `docs/aires_gate2.html` | published Gate 2 summary (artifact source) |
 | `docs/aires_gate3.html` | published Gate 3 summary (artifact source) |
 
-Not yet written: `aires/dmc.py`, `aires/aplots.py`, `aires/run_aires.py`,
-`slurm/aires_res.slurm`.
+Not yet written: `aires/aplots.py`, `aires/run_aires.py`, `slurm/aires_res.slurm`.
 
 ## Notes
 
