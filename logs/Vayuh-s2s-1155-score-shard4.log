@@ -1,0 +1,99 @@
+[check] torch-harmonics DISCO CUDA extension: PRESENT -> FCN3 runs bf16
+[score] host=nucla3m-a3meganodeset-4 shard 4/8: 10 task(s), 0 cached, 10 to run
+[score] calibration = aires.calibrate fit on 90 ERA5 frames
+[model] loaded cache fcn3_model_2.11.0+cu128_th0.8.1_a305be3ecd79.pt in 22.1 s
+[score] w00@15d: 6 member(s) x 24 x 6 h from 2021-06-22 00:00:00 -> peak 2021-06-28  (seed 822177626, vars ['t2m'])
+[32m2026-08-19 01:06:57.497[0m | [1mINFO    [0m | [36mearth2studio.run[0m:[36mensemble[0m:[36m400[0m - [1mRunning ensemble inference![0m
+[32m2026-08-19 01:06:57.497[0m | [1mINFO    [0m | [36mearth2studio.run[0m:[36mensemble[0m:[36m407[0m - [1mInference device: cuda[0m
+Traceback (most recent call last):
+  File "/home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/aires/score.py", line 279, in stage_infer
+    run_task(model, ev, t, members=members, batch_size=batch_size, calib=calib,
+  File "/home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/aires/score.py", line 222, in run_task
+    io = ensemble([pd.Timestamp(valid).strftime("%Y-%m-%dT%H:%M:%S")], n, members,
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ubuntu/miniconda3/envs/fcn3/lib/python3.11/site-packages/earth2studio/run.py", line 408, in ensemble
+    prognostic = prognostic.to(device)
+                 ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ubuntu/miniconda3/envs/fcn3/lib/python3.11/site-packages/torch/nn/modules/module.py", line 1384, in to
+    return self._apply(convert)
+           ^^^^^^^^^^^^^^^^^^^^
+  File "/home/ubuntu/miniconda3/envs/fcn3/lib/python3.11/site-packages/torch/nn/modules/module.py", line 934, in _apply
+    module._apply(fn)
+  File "/home/ubuntu/miniconda3/envs/fcn3/lib/python3.11/site-packages/torch/nn/modules/module.py", line 934, in _apply
+    module._apply(fn)
+  File "/home/ubuntu/miniconda3/envs/fcn3/lib/python3.11/site-packages/torch/nn/modules/module.py", line 934, in _apply
+    module._apply(fn)
+  [Previous line repeated 2 more times]
+  File "/home/ubuntu/miniconda3/envs/fcn3/lib/python3.11/site-packages/torch/nn/modules/module.py", line 1035, in _apply
+    self._buffers[key] = fn(buf)
+                         ^^^^^^^
+  File "/home/ubuntu/miniconda3/envs/fcn3/lib/python3.11/site-packages/torch/nn/modules/module.py", line 1370, in convert
+    return t.to(
+           ^^^^^
+torch.OutOfMemoryError: CUDA out of memory. Tried to allocate 718.00 MiB. GPU 0 has a total capacity of 79.18 GiB of which 624.44 MiB is free. Process 2214664 has 78.05 GiB memory in use. Including non-PyTorch memory, this process has 518.00 MiB memory in use. Of the allocated memory 0 bytes is allocated by PyTorch, and 0 bytes is reserved by PyTorch but unallocated. If reserved but unallocated memory is large try setting PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True to avoid fragmentation.  See documentation for Memory Management  (https://docs.pytorch.org/docs/stable/notes/cuda.html#optimizing-memory-usage-with-pytorch-cuda-alloc-conf)
+[score] FAILED w00@15d: OutOfMemoryError: CUDA out of memory. Tried to allocate 718.00 MiB. GPU 0 has a total capacity of 79.18 GiB of which 624.44 MiB is free. Process 2214664 has 78.05 GiB memory in use. Including non-PyTorch memory, this process has 518.00 MiB memory in use. Of the allocated memory 0 bytes is allocated by PyTorch, and 0 bytes is reserved by PyTorch but unallocated. If reserved but unallocated memory is large try setting PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True to avoid fragmentation.  See documentation for Memory Management  (https://docs.pytorch.org/docs/stable/notes/cuda.html#optimizing-memory-usage-with-pytorch-cuda-alloc-conf)
+[score] w02@9d: 6 member(s) x 48 x 6 h from 2021-06-16 00:00:00 -> peak 2021-06-28  (seed 188187930, vars ['t2m'])
+[32m2026-08-19 01:07:15.229[0m | [1mINFO    [0m | [36mearth2studio.run[0m:[36mensemble[0m:[36m400[0m - [1mRunning ensemble inference![0m
+[32m2026-08-19 01:07:15.230[0m | [1mINFO    [0m | [36mearth2studio.run[0m:[36mensemble[0m:[36m407[0m - [1mInference device: cuda[0m
+Traceback (most recent call last):
+  File "/home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/aires/score.py", line 279, in stage_infer
+    run_task(model, ev, t, members=members, batch_size=batch_size, calib=calib,
+  File "/home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/aires/score.py", line 222, in run_task
+    io = ensemble([pd.Timestamp(valid).strftime("%Y-%m-%dT%H:%M:%S")], n, members,
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ubuntu/miniconda3/envs/fcn3/lib/python3.11/site-packages/earth2studio/run.py", line 408, in ensemble
+    prognostic = prognostic.to(device)
+                 ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ubuntu/miniconda3/envs/fcn3/lib/python3.11/site-packages/torch/nn/modules/module.py", line 1384, in to
+    return self._apply(convert)
+           ^^^^^^^^^^^^^^^^^^^^
+  File "/home/ubuntu/miniconda3/envs/fcn3/lib/python3.11/site-packages/torch/nn/modules/module.py", line 934, in _apply
+    module._apply(fn)
+  File "/home/ubuntu/miniconda3/envs/fcn3/lib/python3.11/site-packages/torch/nn/modules/module.py", line 934, in _apply
+    module._apply(fn)
+  File "/home/ubuntu/miniconda3/envs/fcn3/lib/python3.11/site-packages/torch/nn/modules/module.py", line 934, in _apply
+    module._apply(fn)
+  [Previous line repeated 2 more times]
+  File "/home/ubuntu/miniconda3/envs/fcn3/lib/python3.11/site-packages/torch/nn/modules/module.py", line 1035, in _apply
+    self._buffers[key] = fn(buf)
+                         ^^^^^^^
+  File "/home/ubuntu/miniconda3/envs/fcn3/lib/python3.11/site-packages/torch/nn/modules/module.py", line 1370, in convert
+    return t.to(
+           ^^^^^
+torch.OutOfMemoryError: CUDA out of memory. Tried to allocate 718.00 MiB. GPU 0 has a total capacity of 79.18 GiB of which 624.44 MiB is free. Process 2214664 has 78.05 GiB memory in use. Including non-PyTorch memory, this process has 518.00 MiB memory in use. Of the allocated memory 0 bytes is allocated by PyTorch, and 0 bytes is reserved by PyTorch but unallocated. If reserved but unallocated memory is large try setting PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True to avoid fragmentation.  See documentation for Memory Management  (https://docs.pytorch.org/docs/stable/notes/cuda.html#optimizing-memory-usage-with-pytorch-cuda-alloc-conf)
+[score] FAILED w02@9d: OutOfMemoryError: CUDA out of memory. Tried to allocate 718.00 MiB. GPU 0 has a total capacity of 79.18 GiB of which 624.44 MiB is free. Process 2214664 has 78.05 GiB memory in use. Including non-PyTorch memory, this process has 518.00 MiB memory in use. Of the allocated memory 0 bytes is allocated by PyTorch, and 0 bytes is reserved by PyTorch but unallocated. If reserved but unallocated memory is large try setting PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True to avoid fragmentation.  See documentation for Memory Management  (https://docs.pytorch.org/docs/stable/notes/cuda.html#optimizing-memory-usage-with-pytorch-cuda-alloc-conf)
+[score] w04@3d: 6 member(s) x 72 x 6 h from 2021-06-10 00:00:00 -> peak 2021-06-28  (seed 1810000901, vars ['t2m'])
+[32m2026-08-19 01:07:29.697[0m | [1mINFO    [0m | [36mearth2studio.run[0m:[36mensemble[0m:[36m400[0m - [1mRunning ensemble inference![0m
+[32m2026-08-19 01:07:29.698[0m | [1mINFO    [0m | [36mearth2studio.run[0m:[36mensemble[0m:[36m407[0m - [1mInference device: cuda[0m
+Traceback (most recent call last):
+  File "/home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/aires/score.py", line 279, in stage_infer
+    run_task(model, ev, t, members=members, batch_size=batch_size, calib=calib,
+  File "/home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/aires/score.py", line 222, in run_task
+    io = ensemble([pd.Timestamp(valid).strftime("%Y-%m-%dT%H:%M:%S")], n, members,
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ubuntu/miniconda3/envs/fcn3/lib/python3.11/site-packages/earth2studio/run.py", line 408, in ensemble
+    prognostic = prognostic.to(device)
+                 ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ubuntu/miniconda3/envs/fcn3/lib/python3.11/site-packages/torch/nn/modules/module.py", line 1384, in to
+    return self._apply(convert)
+           ^^^^^^^^^^^^^^^^^^^^
+  File "/home/ubuntu/miniconda3/envs/fcn3/lib/python3.11/site-packages/torch/nn/modules/module.py", line 934, in _apply
+    module._apply(fn)
+  File "/home/ubuntu/miniconda3/envs/fcn3/lib/python3.11/site-packages/torch/nn/modules/module.py", line 934, in _apply
+    module._apply(fn)
+  File "/home/ubuntu/miniconda3/envs/fcn3/lib/python3.11/site-packages/torch/nn/modules/module.py", line 934, in _apply
+    module._apply(fn)
+  [Previous line repeated 2 more times]
+  File "/home/ubuntu/miniconda3/envs/fcn3/lib/python3.11/site-packages/torch/nn/modules/module.py", line 1035, in _apply
+    self._buffers[key] = fn(buf)
+                         ^^^^^^^
+  File "/home/ubuntu/miniconda3/envs/fcn3/lib/python3.11/site-packages/torch/nn/modules/module.py", line 1370, in convert
+    return t.to(
+           ^^^^^
+torch.OutOfMemoryError: CUDA out of memory. Tried to allocate 718.00 MiB. GPU 0 has a total capacity of 79.18 GiB of which 624.44 MiB is free. Process 2214664 has 78.05 GiB memory in use. Including non-PyTorch memory, this process has 518.00 MiB memory in use. Of the allocated memory 0 bytes is allocated by PyTorch, and 0 bytes is reserved by PyTorch but unallocated. If reserved but unallocated memory is large try setting PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True to avoid fragmentation.  See documentation for Memory Management  (https://docs.pytorch.org/docs/stable/notes/cuda.html#optimizing-memory-usage-with-pytorch-cuda-alloc-conf)
+[score] FAILED w04@3d: OutOfMemoryError: CUDA out of memory. Tried to allocate 718.00 MiB. GPU 0 has a total capacity of 79.18 GiB of which 624.44 MiB is free. Process 2214664 has 78.05 GiB memory in use. Including non-PyTorch memory, this process has 518.00 MiB memory in use. Of the allocated memory 0 bytes is allocated by PyTorch, and 0 bytes is reserved by PyTorch but unallocated. If reserved but unallocated memory is large try setting PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True to avoid fragmentation.  See documentation for Memory Management  (https://docs.pytorch.org/docs/stable/notes/cuda.html#optimizing-memory-usage-with-pytorch-cuda-alloc-conf)
+[score] w05@12d: 6 member(s) x 36 x 6 h from 2021-06-19 00:00:00 -> peak 2021-06-28  (seed 795212538, vars ['t2m'])
+[32m2026-08-19 01:07:43.229[0m | [1mINFO    [0m | [36mearth2studio.run[0m:[36mensemble[0m:[36m400[0m - [1mRunning ensemble inference![0m
+[32m2026-08-19 01:07:43.229[0m | [1mINFO    [0m | [36mearth2studio.run[0m:[36mensemble[0m:[36m407[0m - [1mInference device: cuda[0m
+[32m2026-08-19 01:07:49.838[0m | [32m[1mSUCCESS [0m | [36mearth2studio.run[0m:[36mensemble[0m:[36m428[0m - [32m[1mFetched data from GenCastICSource[0m
+[32m2026-08-19 01:07:50.121[0m | [1mINFO    [0m | [36mearth2studio.run[0m:[36mensemble[0m:[36m472[0m - [1mStarting 6 Member Ensemble Inference with             6 number of batches.[0m
