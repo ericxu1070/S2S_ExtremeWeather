@@ -98,6 +98,12 @@ ENV_SH = REPO / "slurm" / "aires_env.sh"
 DEFAULT_EVENT = "PNW_HeatDome_2021"
 SCORE_BACKENDS = ("fcn3", "persistence")
 SECONDS_PER_FCN3_STEP = 1.40      # measured, a3mega H100, job 1161
+# Measured on the pilot (job 1172, leg 3 shard 0: 48 steps in 41.4 min with the model
+# already resident). NOT the ~16 s/step of Gate 3's pure rollout: a production leg writes
+# a 473 MB compressed restart state per SEGMENT, and with 8 shards doing it at once the
+# zlib pass plus the NFS write costs about as much as the rollout itself. Budget the leg,
+# not the rollout.
+SECONDS_PER_GENCAST_STEP = 52.0
 
 
 # --------------------------------------------------------------------------- #
@@ -783,11 +789,9 @@ def stage_prep(ctx: Ctx, *, seed: bool = True, force: bool = False) -> int:
                                                 ctx.tag).cube_path.exists()))
                  * ctx.members * S.nsteps_for(ctx.ev, ctx.valid_at(l.lead_end_days))
                  for l in scored_legs)
-    # Both rates are MEASURED on this cluster's H100s, not assumed. GenCast 0.25 deg
-    # serial: 27 s/step (Gate 3, job 1160 - 672 steps over 8 shards in 38 min). FCN3:
-    # 1.40 s per member-step (job 1161 - 8.41 s for a 6-member lead step). Gate 3's script
-    # budgeted FCN3 at 1 s/step and its score phase overran 50 min of prediction by 35.
-    walk_h, score_h = gsteps * 28 / 3600, fsteps * SECONDS_PER_FCN3_STEP / 3600
+    # Both rates are MEASURED on this cluster's H100s, not assumed - see the constants.
+    walk_h = gsteps * SECONDS_PER_GENCAST_STEP / 3600
+    score_h = fsteps * SECONDS_PER_FCN3_STEP / 3600
     print(f"\n  budget            walk {gsteps:,} GenCast steps ~{walk_h:.1f} GPU-h "
           f"(~{walk_h / ctx.nshards * 60:.0f} min over {ctx.nshards} GPUs)")
     print(f"                    score {fsteps:,} FCN3 steps ~{score_h:.1f} GPU-h "

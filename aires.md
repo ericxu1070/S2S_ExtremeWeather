@@ -420,15 +420,24 @@ plus the diagnostics are sufficient.
 `aindex.tail_sign` negates `A_L` for Uri; without it an importance-splitting run on a
 freeze would spend its whole budget cloning the warmest members.
 
-**Measured rates, replacing the estimates this plan was written with.** GenCast 0.25 deg
-serial is 27-28 s/step (Gate 3, job 1160) and FCN3 is **1.40 s per member-step** (job
-1161: 8.41 s for a 6-member lead step), not the 1 s/step `slurm/aires_gate3.slurm`
-budgeted - which is why that gate's score phase overran its predicted 50 min by 35. At
-N=64 the pilot is **~44 H100-h** (19.4 walk + 25.1 score), ~5.6 h on one 8-GPU node plus
-one model load per pool launch; `--stage prep` prints the number for the actual cache
-state. That is within the ~46 H100-h this plan budgeted.
+**Measured rates, replacing the estimates this plan was written with.** Both were wrong
+in the same direction, and both are now constants in `run_aires.py` rather than folklore:
 
-### Phase 4 - Run the pilot and produce figures (~1 day, ~44 H100-h)
+- **FCN3: 1.40 s per member-step** (job 1161 - 8.41 s for a 6-member lead step), not the
+  1 s/step `slurm/aires_gate3.slurm` budgeted, which is why that gate's score phase
+  overran its predicted 50 min by 35.
+- **GenCast 0.25 deg: ~52 s/step in a production leg** (job 1172, leg 3: 48 steps per
+  shard in 41.4 min with the model already resident) - roughly 3x Gate 3's ~16 s/step of
+  pure rollout. The difference is not the model. A production leg writes a **473 MB
+  compressed restart state per segment**, and with 8 shards doing that at once the zlib
+  pass plus the NFS write costs about as much as the rollout. Budget the leg, not the
+  rollout; this is the price of a walker that can be stopped and cloned.
+
+At N=64 the pilot is therefore **~61 H100-h** (36 walk + 25 score), ~7.6 h on one 8-GPU
+node, against the ~46 this plan assumed. `--stage prep` prints the number for the actual
+cache state. The Standard-RES control is **~36 H100-h**, all of it walkers.
+
+### Phase 4 - Run the pilot and produce figures (~1 day, ~61 H100-h)
 
 The run itself is `sbatch slurm/aires_res.slurm` (Phase 3); what Phase 4 adds is
 `aires/aplots.py`, reusing `xres/xplotting.py`'s cartopy helpers. The direct-sampling
