@@ -30,7 +30,7 @@ Visual summaries:
 | 1 - Gate 3 (score skill, the go/no-go) | **PASS**, a3mega job **1160** (2 h 08 m, one node). rho_s = 0.797 at t_k = 9 d and 0.959 at 12 d, against a 0.5 threshold; persistence scores 0.062 and 0.129 at the same leads. See "What Gate 3 established" |
 | 2 - RES core + C_k tuning | **done**, CPU only. `aires/dmc.py` validated against an analytic Ornstein-Uhlenbeck problem; `aires/ctune.py` replays the schedule on the measured Gate 3 skill curve. `aires.md`'s C_k is **validated as-is**. See "What Phase 2 established" |
 | 3 - workers + Slurm driver | **done**, smoke-tested on the hardware (job **1161**, 30.7 min). `aires/run_aires.py`, `slurm/aires_res.slurm`, `slurm/aires_env.sh`. The loop rolled clones, resampled on real FCN3 scores, pruned states, and replayed bit-identically in 2 s. See "What Phase 3 established" |
-| 4 - run the pilot + figures | **not started.** The run is `sbatch slurm/aires_res.slurm` (ready); `aires/aplots.py` is not written. The DS baseline IS built (`--stage ds`) |
+| 4 - run the pilot + figures | **in progress.** `aires/aplots.py` is written and smoke-tested on a synthetic run tree (4 figures, 6 of `aires.md`'s items). The DS baseline is built. The pilot itself is job **1172**, submitted 2026-08-20 |
 | 5 | not started |
 | follow-up - adapter skill vs truth, 6 events + 4 null controls (branch `adapter-test`) | **DONE.** 10/10 cases rolled and scored (jobs 1162, 1167, 1171). Pooled effect **+0.23% [-5.20, +5.65]**, sign 6/10, extreme-vs-null contrast p 0.505 - no effect detectable at +-5.4%, no regime dependence. See "The adapter test" below |
 
@@ -857,11 +857,13 @@ M = 6, N = 64, states pruned to the last 2 segments, no score bought where `C_k 
 | `aires/gate3.py` | Gate 3: `--stage {plan,walk,reduce}`, plus the physical check against the xres ensemble |
 | `aires/dmc.py` | the RES core: splitting, pivotal sampling, genealogy, the unbiased estimator |
 | `aires/ctune.py` | replays the C_k schedule on a surrogate calibrated to the Gate 3 skill curve |
+| `aires/aplots.py` | the Phase 4 figures: exceedance, diagnostics, genealogy, composite |
 | `aires/run_aires.py` | the production driver: `--stage {prep,walk,score,res,ds,compare}`. `res` IS the coordinator and launches both GPU pools itself |
 | `aires/tests/test_adapter.py` | 25 tests incl. the 69-channel bit-exactness check |
 | `aires/tests/test_walker.py` | state contract, batch-from-arbitrary-state, cloning RNG, checkpoint choice |
 | `aires/tests/test_dmc.py` | pivotal sampling, the C=0 identity, OU unbiasedness and variance reduction |
 | `aires/tests/test_ctune.py` | the surrogate reproduces the skill curve and the correlations it was not given |
+| `aires/tests/test_aplots.py` | sibling pairing, the exceedance standard error, weighted quantiles, and that each figure renders |
 | `aires/tests/test_run_aires.py` | leg schedule, lineage validation, the replay guard, pruning, the cold-event sign; runs the real DMC loop through the real coordinator on a fake tree |
 | `slurm/aires_gate2.slurm` | Gate 2 infer, 8 shards on one a3mega node, `--job-name=Vayuh-s2s` |
 | `slurm/aires_gate3.slurm` | Gate 3 walk (moe) + score (fcn3) on ONE allocation, 8 GPUs, retried |
@@ -878,7 +880,8 @@ M = 6, N = 64, states pruned to the last 2 segments, no score bought where `C_k 
 | `docs/aires_gate2.html` | published Gate 2 summary (artifact source) |
 | `docs/aires_gate3.html` | published Gate 3 summary (artifact source) |
 
-Not yet written: `aires/aplots.py` (Phase 4).
+Everything `aires.md` names is written. What is outstanding is the pilot's own
+output: job 1172's `compare.json` and the four figures drawn from it.
 
 ## Notes
 

@@ -1150,10 +1150,15 @@ def stage_compare(ctx: Ctx) -> int:
     ds = read_json(ds_path(ctx)) if ds_path(ctx).exists() else {}
     obs = ds.get("observed", {}).get("box")
 
-    # thresholds: the union of a regular grid over the RES population and the observed
-    # value, expressed in natural A_L units and evaluated on the signed index.
-    lo, hi = float(np.min(al)), float(np.max(al))
-    grid = list(np.linspace(lo, hi, 25))
+    # Thresholds span every method's population, not just the RES one: a grid that stopped
+    # at the RES range would leave the direct-sampling curves undefined exactly where they
+    # are being compared, and vice versa.
+    span = [al]
+    for key in ("gencast_walkers", "gencast_xres", "fcn3"):
+        if key in ds:
+            span.append(np.asarray(ds[key]["box"], dtype=float))
+    allv = np.concatenate(span)
+    grid = list(np.linspace(float(allv.min()), float(allv.max()), 40))
     if obs is not None:
         grid.append(float(obs))
     thresholds = sorted(set(round(float(x), 4) for x in grid), reverse=sign < 0)
@@ -1175,6 +1180,14 @@ def stage_compare(ctx: Ctx) -> int:
     print(f"\n  DMC diagnostics")
     print(result.summary())
     norm = result.normalization_check()
+    # Z * mean(exp(-V_K)) estimates E_P[1]. It is noisy - dmc.py records a sd of ~0.5 on
+    # the reference OU problem at N=256 - so this is a flag to read across runs, not a
+    # threshold. Far from 1 with a probability above 1 is a bookkeeping error, not noise.
+    if not (0.2 <= norm <= 5.0):
+        print(f"  WARNING: normalization check is {norm:.3g}, well away from 1. That is a "
+              f"statement about log Z or the final weights, and every probability below "
+              f"is scaled by the same factor. Read it against the other backend's run "
+              f"before trusting a number.", file=sys.stderr)
 
     print(f"\n  realized A_L over the {ctx.n_walkers} final walkers (weighted by "
           f"exp(-V_K), which is what makes the estimate unbiased)")
