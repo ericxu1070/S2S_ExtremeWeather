@@ -283,6 +283,15 @@ class DMCResult:
         dominated by its smallest term. On the reference OU problem at N = 256 a single
         run has a standard deviation of ~0.5 and ranges over roughly 0.6 to 3, so read it
         across runs, not from one.
+
+        **"Near 1" is the MEAN, not the typical reading.** At the pilot's size (N = 64,
+        K = 5, the aires.md schedule) the distribution over 2000 replays is strongly
+        right-skewed: mean 0.99 but median 0.73, sd 1.17, with 36% of runs below 0.6 and
+        5% below 0.28. The production run read 0.568, which is its 33rd percentile.
+        Judging a single run against 1.0 will therefore condemn a healthy one about a
+        third of the time; compare it against the replayed distribution for the schedule
+        actually used, and prefer the check that has teeth - whether the exceedance curve
+        agrees with direct sampling in the range where BOTH have members.
         """
         return self.expectation(np.ones(self.n_walkers))
 

@@ -437,25 +437,24 @@ At N=64 the pilot is therefore **~61 H100-h** (36 walk + 25 score), ~7.6 h on on
 node, against the ~46 this plan assumed. `--stage prep` prints the number for the actual
 cache state. The Standard-RES control is **~36 H100-h**, all of it walkers.
 
-### Phase 4 - Run the pilot and produce figures (~1 day, ~61 H100-h)
+### Phase 4 - Run the pilot and produce figures (~1 day, ~61 H100-h) - DONE
 
-The run itself is `sbatch slurm/aires_res.slurm` (Phase 3); what Phase 4 adds is
-`aires/aplots.py`, reusing `xres/xplotting.py`'s cartopy helpers. The direct-sampling
-baseline the first figure needs is already built and costs no GPU -
-`--stage ds` reduces Gate 3's 16 free-running walkers, the cached 24-member xres
-GenCast ensemble and the 24-member FCN3 ensemble through one code path:
+**Ran 2026-08-20, job 1172, 7 h 45 m on one 8xH100 node. The answer is yes.** 42 of 64
+resampled walkers reach or exceed the observed +7.72 K and the population extends to
++10.29 K, where 40 direct GenCast members stop at +7.49 K and reach it zero times;
+`P(A_L >= +7.72) = 0.054`, with the estimated curve running to 1 in 2600 at +10.29 K.
+The full result, the estimator's calibration against direct sampling, and the caveats are
+in `aires/HANDOFF.md`, "What Phase 4 established" - read that, not this.
+
+`aires/aplots.py` draws the six figures below as four PNGs
+(`figures/aires/aires_{exceedance,diagnostics,genealogy,composite}_<event>_<tag>.png`);
+`--stage ds` builds the direct-sampling baseline with no GPU at all:
 
 | direct sample | n | mean A_L | sd | max | reaching the observed +7.72 K |
 |---|---|---|---|---|---|
 | GenCast walkers (Gate 3) | 16 | +2.54 | 3.02 | +7.49 | **0** |
 | GenCast 24-member (xres) | 24 | +2.46 | 2.66 | +7.08 | **0** |
 | FCN3 24-member | 24 | +2.29 | 3.10 | +7.87 | 1 |
-
-So 40 direct GenCast samples do not reach the observed heat dome and stop 0.23 K
-short. That is the gap the pilot asks RES to close. (The FCN3 ensemble does reach
-it once, which is worth reporting but is a different model, not a baseline for a
-GenCast walker.)
-
 
 1. **Exceedance / return-period curve** for `A_L`: AI+RES N=64 vs the existing 24-member
    GenCast DS vs the 24-member FCN3 DS, with the ERA5 observed value marked. Headline
