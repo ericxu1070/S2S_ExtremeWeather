@@ -545,11 +545,22 @@ or an edited schedule is a hard error rather than a silent fork.
 them from the smoke tree: `walk.done` plus the diagnostics cubes are sufficient. That is
 what makes `--keep-states` safe.
 
-**Two rates, measured, and one of them was wrong in the docs.** FCN3 runs at **1.40 s per
-member-step** (job 1161: 8.41 s for a 6-member lead step), not the 1 s/step
-`slurm/aires_gate3.slurm` budgeted - which is exactly why Gate 3's score phase took 85 min
-against a predicted 50. GenCast 0.25 deg serial is 27-28 s/step. `--stage prep` now uses
-both. **The pilot is ~44 H100-h** (19.4 walk + 25.1 score), ~5.6 h on one 8-GPU node.
+**Two rates, measured, and both were wrong in the docs - in the same direction.**
+
+- FCN3 runs at **1.40 s per member-step** (job 1161: 8.41 s for a 6-member lead step), not
+  the 1 s/step `slurm/aires_gate3.slurm` budgeted - which is exactly why Gate 3's score
+  phase took 85 min against a predicted 50.
+- GenCast 0.25 deg runs at **~52 s/step in a production leg** (job 1172, leg 3: 48 steps
+  per shard in 41.4 min, model already resident), about 3x Gate 3's ~16 s/step of pure
+  rollout. **The extra is not the model, it is the checkpoint**: a leg writes a 473 MB
+  compressed restart state per segment, and 8 shards doing that at once make the zlib pass
+  plus the NFS write cost about as much as the rollout. That is the standing price of a
+  walker that can be stopped and cloned, and it should be budgeted per LEG, never from a
+  rollout benchmark.
+
+Both are constants at the top of `run_aires.py` and `--stage prep` uses them. **The pilot
+is ~61 H100-h** (36 walk + 25 score), ~7.6 h on one 8-GPU node; the Standard-RES control
+is ~36 H100-h, all walkers.
 
 **Two savings, both checked rather than assumed:**
 
@@ -634,6 +645,7 @@ because a mid-run diagnosis is the thing that gets lost once the figures exist.
 | 2 | walk (48 of 64) | 34.4 min | |
 | 2 | score, 64 x M=6 from 6 d | 71.8 min | theta +1.975 +- 1.859 K, range [-2.38, +7.38] |
 | 2 | resample, `C_2 = 1.0` | - | R = 1.7702, **ESS 17.7/64 = 0.277**, 28 killed, max mult 11 |
+| 3 | walk (64 of 64) | 41.4 min | the clean rate measurement: 48 steps/shard -> ~52 s/step |
 
 **`C_1 = 0` is the exact identity at N=64 too**, which is the empirical confirmation that
 `--stage prep`'s Gate 3 seeding of segment 2 is valid rather than merely argued.
