@@ -40,6 +40,12 @@ is not three samples of the same regime:
   p90_20251224  2025-12-24  +4.96 K  strong, 12-day event (winter 2025)
 
 All six are post-2019, so all are out of sample for GenCast's ``<2019`` checkpoints; FCN3
+
+Null controls
+-------------
+``CONTROLS`` adds four quiet days -- CONUS-mean T2m anomaly within +-0.2 K of
+climatology -- for the adapter test only. See the block above ``CONTROLS`` for why they
+are a separate dict and why they never enter ``selected()`` by default.
 is trained through 2017, so they are out of sample for it too.
 """
 from __future__ import annotations
@@ -81,10 +87,13 @@ class Event:
     name: str
     peak: str            # event peak (verification week = [peak-6d, peak])
     metric: str          # xres metric key: t2m_anom | u850_speed
-    family: str          # heat | cold | hurricane | p90
+    family: str          # heat | cold | hurricane | p90 | null
     label: str           # short human label for figure panels
-    source: str          # "xres"  -> GenCast cube already cached
-                         # "p90"   -> injected into xres via XRES_EXTRA_EVENTS, must be run
+    source: str          # "xres"   -> GenCast cube already cached
+                         # "p90"    -> injected into xres via XRES_EXTRA_EVENTS, must be run
+                         # "p90ctl" -> null control; injected the same way, but GenCast is
+                         #             never run for it (the adapter test needs the INIT
+                         #             frames, not a rollout)
     note: str = ""
 
     @property
@@ -135,22 +144,137 @@ P90_SOURCE_CASE = {
 }
 
 
+# --------------------------------------------------------------------------- #
+# Null controls -- the adapter test only.
+#
+# The six events above are all, by construction, atmospheric extremes. That makes them a
+# biased sample for the question "does the adapter cost skill?": every one of them is a
+# case where the forecast is hard, the ensemble spread is large, and a small IC
+# perturbation has an unusually good chance of growing. If the adapter penalty is a
+# generic property of the added IC error it must show up on quiet days too; if it only
+# appears on extremes, that is a different (and more interesting) finding. Neither can be
+# said without cases where nothing is happening.
+#
+# These are drawn from the 45 month-matched non-event days already frozen in
+# ``p90/cases.csv`` (kind == "control"), taking the four whose CONUS-mean daily T2m
+# anomaly is closest to zero subject to two constraints. "No anomaly" is meant literally:
+# every one is inside +-0.33 K of climatology on the peak day, against the +2.3662 K p90
+# threshold that defines an event in that set.
+#
+#   name           peak        CONUS-mean anom   season       p90 case
+#   null_20230324  2023-03-24   +0.129 K         spring       control_38_20230324
+#   null_20240329  2024-03-29   +0.033 K         spring       control_04_20240329
+#   null_20241121  2024-11-21   +0.323 K         autumn       control_16_20241121
+#   null_20250526  2025-05-26   +0.198 K         late spring  control_05_20250526
+#
+# CONSTRAINT 1 -- both the init and the verification week must fall after
+# ``gencast_s2s.data.WB2_END`` (2023-01-10). Before that date ERA5 is read from the
+# WeatherBench2 zarr, and a single ``.sel(time=t)`` on that store makes dask build a task
+# graph big enough to OOM this 15 GB login node (measured: 7.2 GB and still climbing on
+# ONE event, killed twice). After it the reader falls through to ``arco_read``, which is
+# plain numpy per frame and costs a few hundred MB -- the same path the three p90 cases
+# took when they were prepped on this machine. This is a property of where the data is
+# read from, not of the case, and it is why the flattest control in the whole set
+# (2022-11-23, +0.001 K) is NOT used: its init is 2022-11-02, three months the wrong side
+# of the cutoff. On a box with more RAM the pre-2023 controls are perfectly usable.
+#
+# CONSTRAINT 2 -- no two controls within 30 days of each other, so the four are four
+# independent draws for the sign test rather than two pairs. (control_06_20241122 has an
+# almost identical anomaly to control_16_20241121 and is the very next day; taking both
+# would have been double-counting one quiet week.)
+#
+# WHAT "NO ANOMALY" DOES AND DOES NOT MEAN. The p90 index is the cos(lat)-weighted CONUS
+# MEAN daily T2m anomaly, so a control is a day whose CONUS mean is near zero -- NOT a day
+# with no weather. null_20240329 is the clearest example: its CONUS mean is +0.033 K, but
+# the field is a strong dipole, about -8 K over the northern plains against widespread
+# warmth elsewhere (see figures/aires/adaptest_maps_null_20240329.png). That is the right
+# control for this test -- it is a day nobody would have selected as an extreme, initialised
+# and scored exactly like one -- but it is not a quiescent atmosphere, and the pooled
+# statistic must not be described as one.
+#
+# What this costs: there is no SUMMER control. Every summer non-event day in the frozen
+# p90 control set falls in 2022, before the cutoff. Two of the six extreme events are
+# warm-season (the PNW dome in June, p90_20240802 in August), so the extreme-vs-null
+# contrast is NOT season-matched and must not be read as one.
+#
+# They are a SEPARATE dict, not extra entries in EVENTS, because ``F.selected()`` is what
+# ``fcn3/run_fcn3.py`` and ``fcn3/compare_fcn3_gencast.py`` iterate over and the FCN3
+# vs GenCast comparison must keep meaning exactly what it meant: six extremes, each with a
+# GenCast cube to be compared against. A control has no GenCast cube and never needs one
+# (the adapter test reads GenCast INIT FRAMES, not rollouts), so putting it in EVENTS
+# would silently add a broken seventh panel to that experiment's figures.
+#
+# ``source = "p90ctl"`` marks them as needing the same additive XRES_EXTRA_EVENTS
+# injection the p90 events get, while keeping them out of the p90 GenCast launcher, which
+# selects on ``source == "p90"`` exactly.
+# --------------------------------------------------------------------------- #
+CONTROLS: dict[str, Event] = {
+    "null_20230324": Event(
+        "null_20230324", "2023-03-24", "t2m_anom", "null",
+        "null 2023-03-24 (+0.1 K)", "p90ctl",
+        "p90 control_38_20230324; CONUS-mean anomaly +0.129 K, spring"),
+    "null_20240329": Event(
+        "null_20240329", "2024-03-29", "t2m_anom", "null",
+        "null 2024-03-29 (+0.0 K)", "p90ctl",
+        "p90 control_04_20240329; CONUS-mean anomaly +0.033 K -- the flattest quiet day "
+        "available on the post-WB2 read path"),
+    "null_20241121": Event(
+        "null_20241121", "2024-11-21", "t2m_anom", "null",
+        "null 2024-11-21 (+0.3 K)", "p90ctl",
+        "p90 control_16_20241121; CONUS-mean anomaly +0.323 K, autumn"),
+    "null_20250526": Event(
+        "null_20250526", "2025-05-26", "t2m_anom", "null",
+        "null 2025-05-26 (+0.2 K)", "p90ctl",
+        "p90 control_05_20250526; CONUS-mean anomaly +0.198 K, late spring"),
+}
+
+CONTROL_ORDER = tuple(CONTROLS)
+
+# The p90 control case each null was taken from (provenance; p90/cases.csv is frozen).
+P90_CONTROL_CASE = {
+    "null_20230324": "control_38_20230324",
+    "null_20240329": "control_04_20240329",
+    "null_20241121": "control_16_20241121",
+    "null_20250526": "control_05_20250526",
+}
+
+# Everything the adapter test may score. Controls are APPENDED, never interleaved: seeds
+# are ``BASE_SEED + 1000 * ALL_ORDER.index(name)``, so inserting a control ahead of an
+# existing event would renumber it and stop its adapter members from pairing with the
+# native cube already on disk. Indices 0..5 are frozen.
+ALL_EVENTS: dict[str, Event] = {**EVENTS, **CONTROLS}
+ALL_ORDER = ORDER + CONTROL_ORDER
+
+
 def selected() -> list[Event]:
-    """Events for this run. ``FCN3_EVENTS`` (comma-separated names) subsets them."""
+    """Events for this run. ``FCN3_EVENTS`` (comma-separated names) subsets them.
+
+    The DEFAULT is the six head-to-head events and nothing else, because this is what the
+    FCN3-vs-GenCast experiment iterates over and a control has no GenCast cube to be
+    compared against. A control still has to be *reachable*, though -- the adapter test
+    rolls its native FCN3 ensemble with this same driver -- so an explicitly named control
+    in ``FCN3_EVENTS`` resolves. Naming one is opt-in; getting one by accident is not
+    possible.
+    """
     sel = os.environ.get("FCN3_EVENTS")
     if not sel:
         return [EVENTS[n] for n in ORDER]
     want = [s.strip() for s in sel.split(",") if s.strip()]
-    unknown = [w for w in want if w not in EVENTS]
+    unknown = [w for w in want if w not in ALL_EVENTS]
     if unknown:
         raise SystemExit(f"unknown event(s) in FCN3_EVENTS: {', '.join(unknown)}\n"
-                         f"known: {', '.join(ORDER)}")
-    return [EVENTS[w] for w in want]
+                         f"known: {', '.join(ALL_ORDER)}")
+    return [ALL_EVENTS[w] for w in want]
 
 
 def seed_for(ev: Event) -> int:
-    """Deterministic per-event base seed (offset by position in the frozen order)."""
-    return BASE_SEED + 1000 * ORDER.index(ev.name)
+    """Deterministic per-event base seed (offset by position in the frozen order).
+
+    Indexed over ``ALL_ORDER``, whose first six entries ARE ``ORDER`` -- so every seed the
+    six native cubes on disk were rolled with is unchanged, and the adapter ensembles keep
+    pairing with them member for member. Controls occupy indices 6+.
+    """
+    return BASE_SEED + 1000 * ALL_ORDER.index(ev.name)
 
 
 # --------------------------------------------------------------------------- #
@@ -319,10 +443,30 @@ def ensure_dirs() -> None:
 # before any filtering; the value is either a path to a JSON mapping or this inline form.
 # --------------------------------------------------------------------------- #
 def xres_extra_events_spec(events: list[Event] | None = None) -> str:
-    """Inline ``name=peak:metric`` spec for XRES_EXTRA_EVENTS (p90 events only -- the
-    xres-native events must NOT be re-declared, they already exist in XRES_EVENTS)."""
+    """Inline ``name=peak:metric`` spec for XRES_EXTRA_EVENTS.
+
+    Emits every event in ``events`` that xres does not already know about -- i.e. anything
+    whose source is not ``"xres"``. The xres-native events must NOT be re-declared, they
+    already exist in XRES_EVENTS.
+
+    The default is still the six head-to-head events, so ``python fcn3/fevents.py --spec``
+    prints exactly the three p90 entries it always printed and the frozen p90 GenCast
+    launcher is unaffected. Pass ``controls()`` to get the null controls' spec instead --
+    that is what ``scripts/adaptest_prep.sh`` does to teach the xres prep pipeline about
+    them.
+    """
     evs = events if events is not None else [EVENTS[n] for n in ORDER]
-    return ",".join(f"{e.name}={e.peak}:{e.metric}" for e in evs if e.source == "p90")
+    return ",".join(f"{e.name}={e.peak}:{e.metric}" for e in evs if e.source != "xres")
+
+
+def controls() -> list[Event]:
+    """The null controls, in registry order."""
+    return [CONTROLS[n] for n in CONTROL_ORDER]
+
+
+def all_events() -> list[Event]:
+    """Six extremes then the null controls -- everything the adapter test scores."""
+    return [ALL_EVENTS[n] for n in ALL_ORDER]
 
 
 def gencast_events_to_run(events: list[Event] | None = None) -> list[Event]:
@@ -340,6 +484,11 @@ def describe() -> str:
         gc_state = "cached" if gencast_cube_path(e).exists() else "MUST RUN"
         lines.append(f"  {e.name:22s} {e.family:9s} peak {e.peak}  init "
                      f"{e.init.date()}  {e.metric:10s}  GenCast: {gc_state}")
+    lines += ["", f"  null controls (adapter test only; no GenCast cube is needed):"]
+    for n in CONTROL_ORDER:
+        e = CONTROLS[n]
+        lines.append(f"  {e.name:22s} {e.family:9s} peak {e.peak}  init "
+                     f"{e.init.date()}  {e.metric:10s}  {e.note}")
     return "\n".join(lines)
 
 
@@ -347,5 +496,9 @@ if __name__ == "__main__":  # `python fcn3/fevents.py` prints the plan; --spec f
     import sys
     if "--spec" in sys.argv:
         print(xres_extra_events_spec())
+    elif "--controls-spec" in sys.argv:
+        print(xres_extra_events_spec(controls()))
+    elif "--controls" in sys.argv:
+        print(",".join(CONTROL_ORDER))
     else:
         print(describe())

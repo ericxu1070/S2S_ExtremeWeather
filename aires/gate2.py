@@ -148,9 +148,15 @@ def ensure_dirs() -> None:
 
 
 def _event(name: str) -> F.Event:
-    if name not in F.EVENTS:
-        raise SystemExit(f"unknown event {name!r}; known: {', '.join(F.ORDER)}")
-    return F.EVENTS[name]
+    """Resolve a case name over the SIX events plus the null controls.
+
+    ``F.ALL_EVENTS``, not ``F.EVENTS``: the adapter test rolls the controls through this
+    same driver, and looking them up in the six-event dict alone made every control shard
+    exit with "unknown event" after the GPU allocation had already started (job 1167).
+    """
+    if name not in F.ALL_EVENTS:
+        raise SystemExit(f"unknown event {name!r}; known: {', '.join(F.ALL_ORDER)}")
+    return F.ALL_EVENTS[name]
 
 
 # --------------------------------------------------------------------------- #

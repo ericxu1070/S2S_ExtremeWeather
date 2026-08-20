@@ -1,0 +1,59 @@
+[score] PNW_HeatDome_2021      t2m_anom    box RMSE   6.312 vs   5.523  delta  +0.789 +- 0.762 ( +14.3%)  -> PNW_HeatDome_2021_skill.json
+[score] HurricaneIan_2022      u850_speed  box RMSE   2.456 vs   2.458  delta  -0.002 +- 0.706 (  -0.1%)  -> HurricaneIan_2022_skill.json
+[score] WinterStorm_Uri_2021   t2m_anom    box RMSE   9.853 vs   9.472  delta  +0.381 +- 0.688 (  +4.0%)  -> WinterStorm_Uri_2021_skill.json
+[score] p90_20231107           t2m_anom    box RMSE   1.661 vs   1.933  delta  -0.272 +- 0.156 ( -14.1%)  -> p90_20231107_skill.json
+[score] p90_20240802           t2m_anom    box RMSE   1.288 vs   1.250  delta  +0.038 +- 0.091 (  +3.0%)  -> p90_20240802_skill.json
+[score] p90_20251224           t2m_anom    box RMSE   3.709 vs   3.357  delta  +0.352 +- 0.286 ( +10.5%)  -> p90_20251224_skill.json
+[score] null_20230324          t2m_anom    box RMSE   2.806 vs   2.651  delta  +0.155 +- 0.247 (  +5.8%)  -> null_20230324_skill.json
+[score] null_20240329          t2m_anom    box RMSE   2.402 vs   2.636  delta  -0.234 +- 0.240 (  -8.9%)  -> null_20240329_skill.json
+[score] null_20241121          t2m_anom    box RMSE   2.090 vs   2.052  delta  +0.037 +- 0.198 (  +1.8%)  -> null_20241121_skill.json
+[score] null_20250526          t2m_anom    box RMSE   3.078 vs   3.199  delta  -0.122 +- 0.212 (  -3.8%)  -> null_20250526_skill.json
+
+  ADAPTER TEST  (10 cases: 6 extreme event(s), 4 null control(s))
+
+  group    truth region stat            pooled delta_rel        95% CI            I2   sign test
+  extreme  era5  box    rmse_ens_mean    +1.86%  [ -5.38,  +9.09]  I2   15%   4/6 worse  p 0.688   not resolved (CI spans zero)
+  null     era5  box    rmse_ens_mean    -1.87%  [-10.08,  +6.34]  I2    0%   2/4 worse  p 1.000   not resolved (CI spans zero)
+  all      era5  box    rmse_ens_mean    +0.23%  [ -5.20,  +5.65]  I2    0%   6/10 worse  p 0.754   not resolved (CI spans zero)
+  contrast era5  box    rmse_ens_mean    +3.73%  extreme minus null,  z +0.67  p 0.505   no regime dependence
+  extreme  era5  box    crps             +1.28%  [ -6.61,  +9.17]  I2   44%   5/6 worse  p 0.219   not resolved (CI spans zero)
+  null     era5  box    crps             -2.63%  [-11.89,  +6.64]  I2    0%   1/4 worse  p 0.625   not resolved (CI spans zero)
+  all      era5  box    crps             -0.36%  [ -6.37,  +5.65]  I2   13%   6/10 worse  p 0.754   not resolved (CI spans zero)
+  contrast era5  box    crps             +3.91%  extreme minus null,  z +0.63  p 0.529   no regime dependence
+  extreme  era5  conus  rmse_ens_mean    +2.55%  [ -3.71,  +8.80]  I2   18%   5/6 worse  p 0.219   not resolved (CI spans zero)
+  null     era5  conus  rmse_ens_mean    -1.87%  [-10.08,  +6.34]  I2    0%   2/4 worse  p 1.000   not resolved (CI spans zero)
+  all      era5  conus  rmse_ens_mean    +0.92%  [ -4.05,  +5.90]  I2    0%   7/10 worse  p 0.344   not resolved (CI spans zero)
+  contrast era5  conus  rmse_ens_mean    +4.42%  extreme minus null,  z +0.84  p 0.402   no regime dependence
+  extreme  era5  conus  crps             +2.25%  [ -4.10,  +8.61]  I2   44%   5/6 worse  p 0.219   not resolved (CI spans zero)
+  null     era5  conus  crps             -2.63%  [-11.89,  +6.64]  I2    0%   1/4 worse  p 0.625   not resolved (CI spans zero)
+  all      era5  conus  crps             +0.69%  [ -4.55,  +5.93]  I2   15%   6/10 worse  p 0.754   not resolved (CI spans zero)
+  contrast era5  conus  crps             +4.88%  extreme minus null,  z +0.85  p 0.395   no regime dependence
+  extreme  hrrr  box    rmse_ens_mean    +5.68%  [ -6.40, +17.75]  I2    0%   2/3 worse  p 1.000   not resolved (CI spans zero)
+  all      hrrr  box    rmse_ens_mean    +5.68%  [ -6.40, +17.75]  I2    0%   2/3 worse  p 1.000   not resolved (CI spans zero)
+  extreme  hrrr  box    crps             +8.76%  [ -9.08, +26.59]  I2    0%   3/3 worse  p 0.250   not resolved (CI spans zero)
+  all      hrrr  box    crps             +8.76%  [ -9.08, +26.59]  I2    0%   3/3 worse  p 0.250   not resolved (CI spans zero)
+  extreme  hrrr  conus  rmse_ens_mean    +4.57%  [ -3.59, +12.73]  I2    0%   3/3 worse  p 0.250   not resolved (CI spans zero)
+  all      hrrr  conus  rmse_ens_mean    +4.57%  [ -3.59, +12.73]  I2    0%   3/3 worse  p 0.250   not resolved (CI spans zero)
+  extreme  hrrr  conus  crps             +4.31%  [ -4.31, +12.92]  I2    0%   2/3 worse  p 1.000   not resolved (CI spans zero)
+  all      hrrr  conus  crps             +4.31%  [ -4.31, +12.92]  I2    0%   2/3 worse  p 1.000   not resolved (CI spans zero)
+
+  HEADLINE  (ERA5 truth, event box, ensemble-mean RMSE, all 10 cases pooled)
+    pooled effect        +0.23%  [-5.20, +5.65]
+    sign test            6 of 10 events worse, p = 0.754
+    detection limit      +-5.43% (what this test could have seen)
+    verdict              NOT RESOLVED
+
+  wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/aires/adaptest/adaptest.json
+  wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/aires/adaptest/adaptest_events.csv
+  wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/figures/aires/adaptest_effect.png
+[maps] wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/figures/aires/adaptest_maps_PNW_HeatDome_2021.png
+[maps] wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/figures/aires/adaptest_maps_HurricaneIan_2022.png
+[maps] wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/figures/aires/adaptest_maps_WinterStorm_Uri_2021.png
+[maps] wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/figures/aires/adaptest_maps_p90_20231107.png
+[maps] wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/figures/aires/adaptest_maps_p90_20240802.png
+[maps] wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/figures/aires/adaptest_maps_p90_20251224.png
+[maps] wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/figures/aires/adaptest_maps_null_20230324.png
+[maps] wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/figures/aires/adaptest_maps_null_20240329.png
+[maps] wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/figures/aires/adaptest_maps_null_20241121.png
+[maps] wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/figures/aires/adaptest_maps_null_20250526.png
+[maps] wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/figures/aires/adaptest_diff_maps.png

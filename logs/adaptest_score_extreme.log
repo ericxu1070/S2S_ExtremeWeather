@@ -1,0 +1,6 @@
+[score] PNW_HeatDome_2021      t2m_anom    box RMSE   6.312 vs   5.523  delta  +0.789 +- 0.762 ( +14.3%)  -> PNW_HeatDome_2021_skill.json
+[score] HurricaneIan_2022      u850_speed  box RMSE   2.456 vs   2.458  delta  -0.002 +- 0.706 (  -0.1%)  -> HurricaneIan_2022_skill.json
+[score] WinterStorm_Uri_2021   t2m_anom    box RMSE   9.853 vs   9.472  delta  +0.381 +- 0.688 (  +4.0%)  -> WinterStorm_Uri_2021_skill.json
+[score] p90_20231107           t2m_anom    box RMSE   1.661 vs   1.933  delta  -0.272 +- 0.156 ( -14.1%)  -> p90_20231107_skill.json
+[score] p90_20240802           t2m_anom    box RMSE   1.288 vs   1.250  delta  +0.038 +- 0.091 (  +3.0%)  -> p90_20240802_skill.json
+[score] p90_20251224           t2m_anom    box RMSE   3.709 vs   3.357  delta  +0.352 +- 0.286 ( +10.5%)  -> p90_20251224_skill.json

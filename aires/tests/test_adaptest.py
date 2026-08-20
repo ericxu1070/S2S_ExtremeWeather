@@ -260,3 +260,162 @@ def test_pooled_stats_are_lower_is_better():
     test for that row, so the set is pinned.
     """
     assert AT.POOLED_STATS == ("rmse_ens_mean", "crps")
+
+
+# --------------------------------------------------------------------------- #
+# the null controls
+#
+# The controls exist to break a confound: all six original cases are extremes, which are
+# exactly the flows where a small IC error has the best chance of growing, so an effect
+# measured only on them cannot be told apart from an effect the extremes manufacture.
+# What has to be pinned is (a) that adding them did not disturb the six -- seeds and the
+# other experiment's event list both flow through fcn3.fevents -- and (b) that the
+# contrast between the two groups is a real two-sample test, not an overlap check.
+# --------------------------------------------------------------------------- #
+def test_controls_are_appended_so_the_six_events_keep_their_seeds():
+    """Seeds are BASE_SEED + 1000 * index over the merged order.
+
+    Inserting a control anywhere but the end would renumber an event's members, and the
+    adapter ensemble would stop pairing with the native cube already on disk -- silently,
+    since every downstream shape still matches. The paired bootstrap would then be
+    unpaired, roughly doubling its standard error and turning the whole design back into
+    the underpowered thing it was built to replace.
+    """
+    from fcn3 import fevents as F
+
+    assert F.ALL_ORDER[:len(F.ORDER)] == F.ORDER
+    assert set(F.CONTROL_ORDER).isdisjoint(F.ORDER)
+    for i, name in enumerate(F.ORDER):
+        assert F.seed_for(F.EVENTS[name]) == F.BASE_SEED + 1000 * i
+    seeds = [F.seed_for(e) for e in F.all_events()]
+    assert len(set(seeds)) == len(seeds), "two cases share a base seed"
+
+
+def test_controls_stay_out_of_the_fcn3_vs_gencast_experiment():
+    """``F.selected()`` is what run_fcn3.py and compare_fcn3_gencast.py iterate over.
+
+    A control has no GenCast cube and never needs one, so letting it into the default
+    selection would add a broken seventh panel to that experiment's figures. It must still
+    be reachable when named explicitly -- the adapter test rolls its native half with the
+    same driver.
+    """
+    import os
+    from fcn3 import fevents as F
+
+    assert [e.name for e in F.selected()] == list(F.ORDER)
+    old = os.environ.get("FCN3_EVENTS")
+    try:
+        os.environ["FCN3_EVENTS"] = F.CONTROL_ORDER[0]
+        assert [e.name for e in F.selected()] == [F.CONTROL_ORDER[0]]
+    finally:
+        os.environ.pop("FCN3_EVENTS", None)
+        if old is not None:
+            os.environ["FCN3_EVENTS"] = old
+
+
+def test_the_frozen_p90_gencast_spec_is_unchanged():
+    """``fcn3/fevents.py --spec`` feeds the p90 GenCast launcher, which is frozen.
+
+    The controls are injected into xres through the same additive hook, so the function
+    that builds that spec had to be generalised. Its DEFAULT output must not move.
+    """
+    from fcn3 import fevents as F
+
+    assert F.xres_extra_events_spec() == (
+        "p90_20231107=2023-11-07:t2m_anom,"
+        "p90_20240802=2024-08-02:t2m_anom,"
+        "p90_20251224=2025-12-24:t2m_anom")
+    ctl = F.xres_extra_events_spec(F.controls())
+    assert all(n in ctl for n in F.CONTROL_ORDER)
+    assert not any(n in ctl for n in F.ORDER)
+
+
+def test_controls_are_actually_quiet_days():
+    """"No anomaly" has to be literal, or the controls are just more events.
+
+    Each is pinned to its frozen p90 control case and checked against the +2.3662 K
+    threshold that defines an event in that set.
+    """
+    import pandas as pd
+    from fcn3 import fevents as F
+
+    cases = pd.read_csv(ROOT / "p90" / "cases.csv").set_index("case")
+    for name, case in F.P90_CONTROL_CASE.items():
+        row = cases.loc[case]
+        assert row["kind"] == "control", f"{case} is not a control in p90/cases.csv"
+        assert abs(row["peak_anom_K"]) < 0.4, f"{name} is not a quiet day"
+        assert pd.Timestamp(row["peak"]).date() == pd.Timestamp(
+            F.CONTROLS[name].peak).date()
+
+
+def test_event_groups_expand_in_the_events_selector():
+    ext = [e.name for e in AT._events("extreme")]
+    null = [e.name for e in AT._events("null")]
+    assert tuple(ext) == AT.GROUPS["extreme"]
+    assert tuple(null) == AT.GROUPS["null"]
+    assert all(AT.group_of(n) == "null" for n in null)
+    assert all(AT.group_of(n) == "extreme" for n in ext)
+    assert [e.name for e in AT._events(None)] == list(AT.EVENTS)
+
+
+def test_contrast_is_a_two_sample_test_not_an_overlap_check():
+    """Two CIs that both cross zero can still differ from each other.
+
+    Planted here: +3% +- 1% on extremes and -3% +- 1% on controls. Each group's own 95%
+    interval is [1.04, 4.96] and [-4.96, -1.04] -- but the CONTRAST is 6% +- 1.41%, which
+    is the finding. A reader eyeballing two overlapping-or-not intervals gets this wrong
+    in both directions, which is why it is computed rather than left to the eye.
+    """
+    ext = AT.pooled_effect([0.03] * 4, [0.02] * 4)      # se = 0.01
+    null = AT.pooled_effect([-0.03] * 4, [0.02] * 4)
+    c = AT.group_contrast(ext, null)
+    assert c["diff"] == pytest.approx(0.06)
+    assert c["se"] == pytest.approx(np.sqrt(2) * 0.01)
+    assert c["p_two_sided"] < 1e-4 and c["regime_dependent"]
+
+    # identical groups: no regime dependence, whatever each group's own CI says
+    same = AT.group_contrast(ext, AT.pooled_effect([0.03] * 4, [0.02] * 4))
+    assert same["diff"] == pytest.approx(0.0)
+    assert same["p_two_sided"] == pytest.approx(1.0)
+    assert not same["regime_dependent"]
+
+
+def test_contrast_degrades_gracefully_when_a_group_is_empty():
+    """Before the control cubes exist, the report still has to run."""
+    c = AT.group_contrast(AT.pooled_effect([0.03] * 4, [0.02] * 4),
+                          AT.pooled_effect([], []))
+    assert not np.isfinite(c["z"]) and not c["regime_dependent"]
+
+
+def test_ten_cases_can_reach_p_below_0p01():
+    """What the controls buy the sign test, stated as the reason they were worth the GPU.
+
+    Six unanimous cases bottom out at p = 0.031; ten reach 0.002. That is the difference
+    between "suggestive" and "significant at any conventional level".
+    """
+    assert AT.sign_test([1] * 10)["p_two_sided"] == pytest.approx(2 / 1024)
+    assert AT.sign_test([1] * 10)["p_two_sided"] < 0.01
+
+
+@pytest.mark.parametrize("shape", [(2, 1, 1), (3, 4, 4), (7, 3, 5), (24, 12, 20)])
+def test_crps_spread_matches_the_pairwise_definition(shape):
+    """The O(M log M) spread term must equal the O(M^2) one it replaced, exactly.
+
+    ``crps_spread`` uses the sorted-order identity for sum_ij |x_i - x_j| because the
+    pairwise form made the paired bootstrap a 4.2-hour job. An identity that is only
+    ALMOST right would shift every CRPS number in the paper by an amount no one would
+    notice, so it is checked against the brute-force definition it is standing in for.
+    """
+    rng = np.random.default_rng(shape[0] * 31 + shape[1])
+    x = rng.normal(0.0, 3.0, shape)
+    brute = np.abs(x[:, None] - x[None, :]).mean(axis=(0, 1)) / 2.0
+    np.testing.assert_allclose(AT.crps_spread(x), brute, rtol=1e-12, atol=1e-12)
+
+
+def test_crps_spread_is_zero_for_an_identical_ensemble_and_grows_with_spread():
+    same = np.ones((8, 3, 3))
+    assert np.allclose(AT.crps_spread(same), 0.0)
+    rng = np.random.default_rng(0)
+    tight = AT.crps_spread(rng.normal(0, 1, (16, 4, 4)))
+    wide = AT.crps_spread(rng.normal(0, 5, (16, 4, 4)))
+    assert wide.mean() > tight.mean()
