@@ -1,0 +1,150 @@
+host    nucla3m-login-001
+repo    /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather
+env     moe
+events  all ten cases
+
+climatology grid: lat=105 lon=237
+
+=== readiness before prep ===
+
+  READINESS  (runs/aires/adaptest)
+
+  idx case                   group    metric       gc-in  nat-ic  nat-cube  ada-ic  ada-cube  era5  hrrr
+    0 PNW_HeatDome_2021      extreme  t2m_anom       yes     yes       yes     yes       yes   yes   yes
+    1 HurricaneIan_2022      extreme  u850_speed     yes     yes       yes     yes       yes   yes   yes
+    2 WinterStorm_Uri_2021   extreme  t2m_anom       yes     yes       yes     yes       yes   yes   yes
+    3 p90_20231107           extreme  t2m_anom       yes     yes       yes     yes       yes   yes    --
+    4 p90_20240802           extreme  t2m_anom       yes     yes       yes     yes       yes   yes    --
+    5 p90_20251224           extreme  t2m_anom       yes     yes       yes     yes       yes   yes    --
+    6 null_20230324          null     t2m_anom       yes      --        --      --        --   yes    --
+    7 null_20240329          null     t2m_anom       yes     yes        --      --        --   yes    --
+    8 null_20241121          null     t2m_anom       yes      --        --      --        --   yes    --
+    9 null_20250526          null     t2m_anom       yes     yes        --      --        --   yes    --
+
+  BLOCKED (an input the adapter test cannot build itself): ['null_20230324', 'null_20241121']
+    login node:  bash scripts/adaptest_prep.sh
+  native (ERA5-IC) cube missing for 4: null_20230324, null_20240329, null_20241121, null_20250526
+    the Slurm job rolls it first, then the adapter half -- ~2x the cost
+  prep needed for 4 event(s): null_20230324, null_20240329, null_20241121, null_20250526
+    PYTHONPATH=. python -m aires.adaptest --stage prep     # login node, moe
+  infer needed for 4 event(s): null_20230324, null_20240329, null_20241121, null_20250526
+    sbatch --array=6,7,8,9%2 slurm/aires_adaptest.slurm     # a3mega
+    budget: ~15 min of one 8xH100 node per adapter-only case, ~30 min where the native half is missing too
+            (~9 min of each is the shared 4 GB model load, not compute)  ->  ~120 node-min total
+
+
+=== 1/3 xres init frames + ERA5 truth: all present ===
+
+=== 2/3 native FCN3 ICs for null_20230324,null_20241121 (CPU, internet, fcn3 env) ===
+Warp CUDA error 100: no CUDA-capable device is detected (in function init_cuda_driver, /builds/omniverse/warp/warp/native/cuda_util.cpp:319)
+[prep] 2 event(s), 72 FCN3 variables per IC, week3 (21 d lead)
+[prep] 1/2 null_20230324: fetching IC at 2023-03-03T00:00:00 (peak 2023-03-24)
+Fetching ARCO data:   0%|          | 0/12 [00:00<?, ?it/s]Fetching ARCO data:   8%|▊         | 1/12 [00:00<00:05,  2.11it/s]Fetching ARCO data:  17%|█▋        | 2/12 [00:00<00:04,  2.21it/s]Fetching ARCO data:  67%|██████▋   | 8/12 [00:02<00:01,  3.07it/s]Fetching ARCO data:  75%|███████▌  | 9/12 [00:03<00:00,  3.05it/s]Fetching ARCO data: 100%|██████████| 12/12 [00:03<00:00,  3.60it/s]Fetching ARCO data: 100%|██████████| 12/12 [00:03<00:00,  3.27it/s]
+[prep]   IC {'time': 1, 'variable': 72, 'lat': 721, 'lon': 1440} lat[90.0..-90.0] lon[0.0..359.75]
+[prep]   wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/fcn3/week3/ic/null_20230324_ic.nc
+[prep] 2/2 null_20241121: fetching IC at 2024-10-31T00:00:00 (peak 2024-11-21)
+Fetching ARCO data:   0%|          | 0/12 [00:00<?, ?it/s]Fetching ARCO data:   8%|▊         | 1/12 [00:00<00:01,  6.53it/s]Fetching ARCO data:  42%|████▏     | 5/12 [00:00<00:00, 14.57it/s]Fetching ARCO data:  67%|██████▋   | 8/12 [00:01<00:01,  3.66it/s]Fetching ARCO data:  75%|███████▌  | 9/12 [00:02<00:00,  3.51it/s]Fetching ARCO data:  83%|████████▎ | 10/12 [00:03<00:01,  1.73it/s]Fetching ARCO data: 100%|██████████| 12/12 [00:03<00:00,  3.09it/s]
+[prep]   IC {'time': 1, 'variable': 72, 'lat': 721, 'lon': 1440} lat[90.0..-90.0] lon[0.0..359.75]
+[prep]   wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/fcn3/week3/ic/null_20241121_ic.nc
+[prep] pre-downloading FCN3 checkpoint files (no model build) ...
+[prep]   cached config.json -> /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/fcn3/.cache/e2s/fcn3/config.json
+[prep]   cached metadata.json -> /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/fcn3/.cache/e2s/fcn3/metadata.json
+[prep]   cached orography.nc -> /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/fcn3/.cache/e2s/fcn3/orography.nc
+[prep]   cached land_mask.nc -> /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/fcn3/.cache/e2s/fcn3/land_mask.nc
+[prep]   cached global_means.npy -> /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/fcn3/.cache/e2s/fcn3/global_means.npy
+[prep]   cached global_stds.npy -> /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/fcn3/.cache/e2s/fcn3/global_stds.npy
+[prep]   cached mins.npy -> /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/fcn3/.cache/e2s/fcn3/mins.npy
+[prep]   cached maxs.npy -> /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/fcn3/.cache/e2s/fcn3/maxs.npy
+[prep]   cached weights -> /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/fcn3/.cache/e2s/fcn3/best_ckpt_mp0.tar (2.84 GB)
+[check] torch-harmonics DISCO CUDA extension: PRESENT -> FCN3 runs bf16
+[prep] DONE: wrote 2 IC(s); cache /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/fcn3/.cache/e2s
+
+=== 3/3 building adapter ICs (CPU, no network) ===
+
+[prep] ---- PNW_HeatDome_2021 (t2m_anom) ----
+[prep] PNW_HeatDome_2021: adapter IC cached -> /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/aires/gate2/ic/PNW_HeatDome_2021_adapter_ic.nc
+
+[prep] ---- HurricaneIan_2022 (u850_speed) ----
+[prep] HurricaneIan_2022: adapter IC cached -> /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/aires/gate2/ic/HurricaneIan_2022_adapter_ic.nc
+
+[prep] ---- WinterStorm_Uri_2021 (t2m_anom) ----
+[prep] WinterStorm_Uri_2021: adapter IC cached -> /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/aires/gate2/ic/WinterStorm_Uri_2021_adapter_ic.nc
+
+[prep] ---- p90_20231107 (t2m_anom) ----
+[prep] p90_20231107: adapter IC cached -> /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/aires/gate2/ic/p90_20231107_adapter_ic.nc
+
+[prep] ---- p90_20240802 (t2m_anom) ----
+[prep] p90_20240802: adapter IC cached -> /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/aires/gate2/ic/p90_20240802_adapter_ic.nc
+
+[prep] ---- p90_20251224 (t2m_anom) ----
+[prep] p90_20251224: adapter IC cached -> /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/aires/gate2/ic/p90_20251224_adapter_ic.nc
+
+[prep] ---- null_20230324 (t2m_anom) ----
+[prep] null_20230324: calibration = aires.calibrate fit on 90 ERA5 frames
+[prep] null_20230324: 69/72 channels bit-identical to the native IC
+[prep]   u100m  rmse 0.5542  bias -0.0294  absmax 6.096
+[prep]   v100m  rmse 0.5817  bias +0.0359  absmax 6.614
+[prep]   tcwv   rmse 0.9164  bias -0.0407  absmax 6.552
+[prep] wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/aires/gate2/ic/null_20230324_adapter_ic.nc (299 MB)
+[prep] wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/aires/gate2/scores/null_20230324_ic_diff.json
+
+[prep] ---- null_20240329 (t2m_anom) ----
+[prep] null_20240329: calibration = aires.calibrate fit on 90 ERA5 frames
+[prep] null_20240329: 69/72 channels bit-identical to the native IC
+[prep]   u100m  rmse 0.5524  bias +0.0010  absmax 6.561
+[prep]   v100m  rmse 0.5619  bias +0.0236  absmax 6.751
+[prep]   tcwv   rmse 0.9329  bias -0.0045  absmax 7.405
+[prep] wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/aires/gate2/ic/null_20240329_adapter_ic.nc (299 MB)
+[prep] wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/aires/gate2/scores/null_20240329_ic_diff.json
+
+[prep] ---- null_20241121 (t2m_anom) ----
+[prep] null_20241121: calibration = aires.calibrate fit on 90 ERA5 frames
+[prep] null_20241121: 69/72 channels bit-identical to the native IC
+[prep]   u100m  rmse 0.5227  bias -0.0127  absmax 5.995
+[prep]   v100m  rmse 0.5159  bias +0.0198  absmax 6.598
+[prep]   tcwv   rmse 0.8801  bias -0.0060  absmax 7.751
+[prep] wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/aires/gate2/ic/null_20241121_adapter_ic.nc (299 MB)
+[prep] wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/aires/gate2/scores/null_20241121_ic_diff.json
+
+[prep] ---- null_20250526 (t2m_anom) ----
+[prep] null_20250526: calibration = aires.calibrate fit on 90 ERA5 frames
+[prep] null_20250526: 69/72 channels bit-identical to the native IC
+[prep]   u100m  rmse 0.5692  bias -0.0498  absmax 6.119
+[prep]   v100m  rmse 0.5918  bias +0.0414  absmax 5.653
+[prep]   tcwv   rmse 0.8973  bias -0.0698  absmax 6.807
+[prep] wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/aires/gate2/ic/null_20250526_adapter_ic.nc (299 MB)
+[prep] wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/aires/gate2/scores/null_20250526_ic_diff.json
+
+=== readiness after prep ===
+
+  READINESS  (runs/aires/adaptest)
+
+  idx case                   group    metric       gc-in  nat-ic  nat-cube  ada-ic  ada-cube  era5  hrrr
+    0 PNW_HeatDome_2021      extreme  t2m_anom       yes     yes       yes     yes       yes   yes   yes
+    1 HurricaneIan_2022      extreme  u850_speed     yes     yes       yes     yes       yes   yes   yes
+    2 WinterStorm_Uri_2021   extreme  t2m_anom       yes     yes       yes     yes       yes   yes   yes
+    3 p90_20231107           extreme  t2m_anom       yes     yes       yes     yes       yes   yes    --
+    4 p90_20240802           extreme  t2m_anom       yes     yes       yes     yes       yes   yes    --
+    5 p90_20251224           extreme  t2m_anom       yes     yes       yes     yes       yes   yes    --
+    6 null_20230324          null     t2m_anom       yes     yes        --     yes        --   yes    --
+    7 null_20240329          null     t2m_anom       yes     yes        --     yes        --   yes    --
+    8 null_20241121          null     t2m_anom       yes     yes        --     yes        --   yes    --
+    9 null_20250526          null     t2m_anom       yes     yes        --     yes        --   yes    --
+
+  native (ERA5-IC) cube missing for 4: null_20230324, null_20240329, null_20241121, null_20250526
+    the Slurm job rolls it first, then the adapter half -- ~2x the cost
+  infer needed for 4 event(s): null_20230324, null_20240329, null_20241121, null_20250526
+    sbatch --array=6,7,8,9%2 slurm/aires_adaptest.slurm     # a3mega
+    budget: ~15 min of one 8xH100 node per adapter-only case, ~30 min where the native half is missing too
+            (~9 min of each is the shared 4 GB model load, not compute)  ->  ~120 node-min total
+
+
+Next, on a3mega (the FCN3 rollout needs an 80 GB H100):
+  sbatch slurm/aires_adaptest.slurm            # all ten; already-built cubes exit early
+  sbatch --array=6-9%2 slurm/aires_adaptest.slurm   # the null controls only
+  squeue -u $USER -n Vayuh-s2s
+
+Then back on a login node in the GenCast env:
+  PYTHONPATH=. python -m aires.adaptest --stage score
+  PYTHONPATH=. python -m aires.adaptest --stage report
+  PYTHONPATH=. python -m aires.adaptest --stage maps
