@@ -761,13 +761,20 @@ def stage_prep(ctx: Ctx, *, seed: bool = True, force: bool = False) -> int:
     have_diag = sum(1 for w in range(ctx.n_walkers) for s in ctx.segments
                     if ctx.diag_path(w, s).exists())
     total_seg = ctx.n_walkers * len(ctx.segments)
-    scored_legs = [l for l in ctx.legs if l.resampling
-                   and not (l.C == 0.0 and ctx.skip_null_scores)]
+    # Legs that will actually buy an FCN3 forecast. The persistence backend buys none at
+    # all - its score comes free from the walkers' own diagnostics - so reporting the
+    # FCN3 budget for it would overstate the control run by the entire score phase.
+    scored_legs = ([l for l in ctx.legs if l.resampling
+                    and not (l.C == 0.0 and ctx.skip_null_scores)]
+                   if ctx.backend == "fcn3" else [])
     have_cubes = sum(1 for l in scored_legs for w in range(ctx.n_walkers)
                      if S.Task(ctx.event, w, l.lead_end_days, ctx.tag).cube_path.exists())
     want_cubes = len(scored_legs) * ctx.n_walkers
-    print(f"\n  cached            {have_diag}/{total_seg} walker segments, "
-          f"{have_cubes}/{want_cubes} score cubes ({have_states} states resident)")
+    cubes = (f"{have_cubes}/{want_cubes} score cubes" if want_cubes else
+             f"no FCN3 forecasts (backend {ctx.backend!r} scores from the walkers "
+             f"themselves)")
+    print(f"\n  cached            {have_diag}/{total_seg} walker segments, {cubes} "
+          f"({have_states} states resident)")
 
     # budget
     gsteps = (total_seg - have_diag) * A.RES_SEG_STEPS
@@ -792,7 +799,7 @@ def stage_prep(ctx: Ctx, *, seed: bool = True, force: bool = False) -> int:
     live = max(ctx.keep_states, 2) + 1 if ctx.keep_states > 0 else len(ctx.segments)
     peak_gb = live * ctx.n_walkers * 0.477
     diag_gb = total_seg * 0.006
-    cube_gb = want_cubes * 0.010
+    cube_gb = want_cubes * 0.010          # 0 for a backend that buys no forecasts
     free_gb = shutil.disk_usage(A.AIRES_ROOT).free / 1e9
     need = peak_gb + diag_gb + cube_gb
     print(f"\n  disk              states {peak_gb:.0f} GB peak "
