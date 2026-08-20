@@ -16,6 +16,9 @@ Visual summaries:
 - Gate 3 results (score skill vs the persistence baseline, the DS gap, the checkpoint bug):
   https://claude.ai/code/artifact/faac92dd-c753-4cd3-8209-3117e7d998f4
   (source: `docs/aires_gate3.html`)
+- Adapter skill vs truth (does the adapter cost skill? the noise floor, the dome miss):
+  https://claude.ai/code/artifact/853f6f70-7026-40c0-945f-b84711a2bdae
+  (source: `docs/aires_adapter_skill.html`)
 
 ## Where things stand
 
@@ -29,6 +32,7 @@ Visual summaries:
 | 3 - workers + Slurm driver | **done**, smoke-tested on the hardware (job **1161**, 30.7 min). `aires/run_aires.py`, `slurm/aires_res.slurm`, `slurm/aires_env.sh`. The loop rolled clones, resampled on real FCN3 scores, pruned states, and replayed bit-identically in 2 s. See "What Phase 3 established" |
 | 4 - run the pilot + figures | **not started.** The run is `sbatch slurm/aires_res.slurm` (ready); `aires/aplots.py` is not written. The DS baseline IS built (`--stage ds`) |
 | 5 | not started |
+| follow-up - adapter skill vs truth, 6 events + 4 null controls (branch `adapter-test`) | **DONE.** 10/10 cases rolled and scored (jobs 1162, 1167, 1171). Pooled effect **+0.23% [-5.20, +5.65]**, sign 6/10, extreme-vs-null contrast p 0.505 - no effect detectable at +-5.4%, no regime dependence. See "The adapter test" below |
 
 **Phases 1, 2 and 3 are complete.** All three gates pass, the RES core is validated, and
 the driver that runs it on real walkers exists and has been exercised end to end on an
@@ -37,6 +41,227 @@ the driver that runs it on real walkers exists and has been exercised end to end
 walker trajectories and the H100s. The full Gate 2 data tree is mirrored on Derecho as well and
 re-scores there identically, so Derecho can do CPU analysis, but it is not required again
 until Phase 5.
+
+## The adapter test (branch `adapter-test`) - the open question and how to close it
+
+Gate 2 established that an adapter IC forecasts *like* a native one. Scoring both ensembles
+against **observed truth** afterwards (`runs/aires/gate2/skill/`, artifact above) left a
+residue that one event cannot settle:
+
+- On most ensemble-mean scores the adapter run is the marginally **worse** of the two:
+  CONUS ens-mean RMSE 1.739 vs 1.640 K, PNW box 6.312 vs 5.523 K, PNW CRPS 4.733 vs 3.684 K.
+  The sign holds against HRRR truth as well as ERA5.
+- **But nothing is resolved.** Every paired-bootstrap CI crosses zero; the strongest case
+  (PNW CRPS) still flips sign in 10% of resamples, i.e. two-sided p ~ 0.2. And the two
+  tightest reductions **disagree in sign**: seed-matched per-member RMSE over CONUS makes
+  the adapter marginally *better* (-0.050 +- 0.154 K), as does its CONUS A_L bias.
+- **A tally across metrics is not evidence.** The single-event analysis leaned "adapter
+  worse" on ten of fourteen signed comparisons, but all fourteen come from the same 24
+  member pairs at one init, so the tally carries roughly one event's worth of information.
+- **Direction was never a coin flip.** The adapter IC carries real added error (Gate 1:
+  0.63 m/s on u100m/v100m, 4.6% on tcwv) and adding IC error cannot help in expectation, so
+  a small degradation is the **prior**, not a finding. What is worth reporting is its size
+  and its upper bound.
+- **What Gate 2's data does establish** is a ceiling: below ~0.3 K of CONUS RMSE and ~1.4 K
+  over the event box (2 paired s.e.), under the ensemble's own sampling noise and under the
+  0.83 K by which ERA5 and HRRR disagree about what happened. For AI+RES that bound is the
+  thing that matters - the walker score is an ensemble mean, and a bias smaller than the
+  sampling noise cannot reorder walkers.
+
+**The fix is more cases, not more members.** Pushing the per-event s.e. below the effect
+would need ~M = 100 on one event and would still be one draw of one atmosphere. Across
+*independent* cases each sign is a fair coin under the null, so a case count is what buys
+power. Six unanimous cases bottom out at p = 0.031; ten reach p = 0.002.
+
+**And the six could not have answered it alone, because all six are extremes.** They are
+exactly the flows where a small IC perturbation has the best chance of growing, so an
+effect measured only on them cannot be told apart from an effect the extremes manufacture.
+Four **null controls** - quiet days, CONUS-mean T2m anomaly inside +-0.33 K - were added
+for that reason (`fcn3.fevents.CONTROLS`, drawn from the frozen `p90/cases.csv` control
+set). They give the sign test four more independent draws, tighten the pooled CI, and
+produce the **extreme-vs-null contrast**, the only statistic here that can say whether the
+effect is regime-dependent.
+
+| case | group | metric | native cube | adapter IC | adapter cube |
+|---|---|---|---|---|---|
+| `PNW_HeatDome_2021` | extreme | t2m_anom | had it | built | **built** (Gate 2) |
+| `HurricaneIan_2022` | extreme | u850_speed | had it | built | **built** (job 1162) |
+| `WinterStorm_Uri_2021` | extreme | t2m_anom | had it | built | **built** (job 1162) |
+| `p90_20231107` | extreme | t2m_anom | had it | built | **built** (job 1162) |
+| `p90_20240802` | extreme | t2m_anom | had it | built | **built** (job 1162) |
+| `p90_20251224` | extreme | t2m_anom | had it | built | **built** (job 1162) |
+| `null_20230324` | null | t2m_anom | **built** (job 1167) | built | **built** (job 1167) |
+| `null_20240329` | null | t2m_anom | **built** (job 1167) | built | **built** (job 1167) |
+| `null_20241121` | null | t2m_anom | **built** (job 1167) | built | **built** (job 1171) |
+| `null_20250526` | null | t2m_anom | **built** (job 1167) | built | **built** (job 1167) |
+
+A control costs **twice** an event: it has no native FCN3 cube from the earlier
+experiment, so `slurm/aires_adaptest.slurm` rolls both halves for it.
+
+### Run it
+
+```bash
+# 1. LOGIN NODE (either box; env moe on a3mega, my-env on Derecho). CPU only.
+bash scripts/adaptest_prep.sh --check          # readiness matrix, writes nothing
+bash scripts/adaptest_prep.sh                  # controls' xres frames + ERA5 truth,
+                                               # controls' native FCN3 ICs, then every
+                                               # adapter IC (~300 MB each)
+
+# 2. a3mega ONLY - FCN3 needs ~64 GB of VRAM, so an 80 GB H100. A Derecho A100-40GB OOMs.
+sbatch slurm/aires_adaptest.slurm              # array 0-9%2; built cubes exit early
+sbatch --array=6-9%2 slurm/aires_adaptest.slurm    # controls only
+squeue -u $USER -n Vayuh-s2s
+
+# 3. LOGIN NODE again, GenCast env.
+PYTHONPATH=. python -m aires.adaptest --stage score
+PYTHONPATH=. python -m aires.adaptest --stage report    # per-group pooling + contrast
+PYTHONPATH=. python -m aires.adaptest --stage maps      # the comparison, drawn
+```
+
+Cost: **~15 min of one 8xH100 node per event, ~30 min per control** (two rollouts), and
+~9 min of every rollout is eight processes reading the shared 4.18 GB model pickle off
+NFS, not compute.
+
+### Result (2026-08-20, all ten cases scored)
+
+**Not resolved, and now with a much tighter bound.** ERA5 truth, event box, ensemble-mean
+RMSE, all ten cases pooled:
+
+| group | pooled delta_rel | 95% CI | sign test | I2 |
+|---|---|---|---|---|
+| extreme (6) | **+1.86%** | [-5.38, +9.09] | 4/6 worse, p 0.688 | 15% |
+| null (4) | **-1.87%** | [-10.08, +6.34] | 2/4 worse, p 1.000 | 0% |
+| **all (10)** | **+0.23%** | **[-5.20, +5.65]** | 6/10 worse, p 0.754 | 0% |
+| contrast | +3.73% | z +0.67, p 0.505 | - | - |
+
+Read it as three separate statements:
+
+1. **No effect is detectable at ±5.4%.** The pooled estimate is +0.23% - an eighth of its
+   own error bar. Six events alone gave +1.86% with a ±7.2% detection limit; adding four
+   controls both moved the point estimate toward zero and tightened the limit by ~25%.
+2. **No regime dependence.** The extreme-vs-null contrast is +3.73% with z = 0.67
+   (p = 0.505). The controls do not behave differently from the extremes, which is the
+   specific confound they were added to rule out - and it means the six extremes were not,
+   in fact, a biased sample for this question. `figures/aires/adaptest_diff_maps.png` shows
+   the same thing by eye: the quiet days' adapter-minus-native fields have the same
+   character and the same magnitude (1.3-2.0 K) as the events' (1.4-3.6 K).
+3. **The per-case scatter is chaos, not adapter error.** Individual cases run from -14.1%
+   (p90_20231107) to +14.3% (PNW dome) with s.e. of the same size, and I2 is 0-15% - the
+   cases are consistent with ONE common effect plus sampling noise. At a 21 d lead, past the
+   ~8.5 d predictability horizon Gate 2 measured, a paired difference is dominated by which
+   member happened to land where.
+
+The direction was never a coin flip a priori (Gate 1: the adapter IC carries 0.55-0.63 m/s
+on u100m/v100m and ~1.0 kg/m2 on tcwv, and added IC error cannot help in expectation), so
+the finding worth quoting is the **upper bound, not the sign**: whatever the adapter costs
+in forecast skill at week 3, it is under ~5% of the native run's RMSE, on quiet days as
+much as on extremes. For AI+RES that is the number that matters - the walker score is an
+ensemble mean, and a bias this far under the ensemble's own sampling noise cannot reorder
+walkers.
+
+Caveats that belong with the number:
+
+- **"No anomaly" means no CONUS-MEAN anomaly, not no weather.** The p90 index is the
+  cos(lat)-weighted CONUS mean, so a control is a day that mean says nothing happened on.
+  `null_20240329` has a CONUS mean of +0.033 K and a strong regional dipole underneath it -
+  about -8 K over the northern plains (`figures/aires/adaptest_maps_null_20240329.png`).
+  That is still the right control - a day nobody would have picked as an extreme, initialised
+  and scored exactly like one - but the null group is not a quiescent atmosphere and should
+  not be described as one.
+- **No summer control.** Every summer non-event day in the frozen p90 control set predates
+  the WB2 cutoff (see the traps below), so the controls are spring/autumn/late-spring while
+  two of the six events are warm-season. The contrast is not season-matched.
+- **HRRR truth covers only the three xres events**, so its rows are 3 cases and its CIs are
+  correspondingly wide (+4.6% to +8.8%, all crossing zero). It leans the same way as ERA5.
+- **`u850_speed` (Ian) has no zero-skill reference**, so no skill score is reported for it -
+  only the raw scores and the relative delta, which is what pools.
+
+Artifacts: `runs/aires/adaptest/adaptest.json` (verdict + per-group pooling + contrast),
+`runs/aires/adaptest/adaptest_events.csv` (52 rows: case x truth x region x stat),
+`runs/aires/adaptest/scores/<case>_skill.json`, `figures/aires/adaptest_effect.png` (forest
+plot, extremes blue / controls orange), `figures/aires/adaptest_maps_<case>.png` (ten
+six-panel comparisons: observed / native / adapter, both error fields, and
+adapter-minus-native on its own scale), `figures/aires/adaptest_diff_maps.png` (all ten
+difference fields side by side).
+
+### Traps hit while wiring the controls up (2026-08-19/20)
+
+Four of these cost real time and all four are the kind that look like "it hung":
+
+- **The a3mega login node has 15 GB of RAM and the xres prep OOMs on it** for any case
+  BEFORE `gencast_s2s.data.WB2_END` (2023-01-10). Pre-cutoff ERA5 comes from the
+  WeatherBench2 zarr, and one `.sel(time=t)` on that store makes dask build a task graph
+  that reached 7.2 GB and was killed twice, with an EMPTY log both times. After the cutoff
+  the reader falls through to `arco_read` (plain numpy per frame, a few hundred MB) - which
+  is why the three p90 cases prepped here fine and why **all four controls were chosen
+  post-cutoff**. The debug partition is no escape: those nodes are 1 CPU / 7.5 GB.
+- **`XRES_PREP_SKIP_MODELS=1` silently disables per-event subprocess isolation** in
+  `run_xres.py` (`isolate and not skip_models`), so "skip the checkpoint download" also
+  means "build every event in one process". `scripts/adaptest_prep.sh` now loops one event
+  per process itself.
+- **`ncdump` is not in the `moe` env on a3mega.** The climatology-grid guard in
+  `adaptest_prep.sh` was an `ncdump | tr | grep | tr` pipeline; under `set -euo pipefail`
+  it exited non-zero with empty output and killed the script before it built anything. It
+  is now `scripts/check_clim_grid.py` (xarray), which still fails loudly on a wrong grid.
+- **conda's `activate.d` hooks are not `set -u` clean.** Activating `fcn3` under
+  `set -euo pipefail` dies on `NVCC_PREPEND_FLAGS: unbound variable`. `set +u` around every
+  activation.
+- **A foreign, out-of-Slurm process took a node's GPUs mid-job again** (job 1167_8,
+  2026-08-20). `/home/ubuntu/continuum/inkling/inkling_cued_eval.py` - same Unix user,
+  different project, not submitted through Slurm - held ~79 GiB on six of the eight H100s
+  on `nucla3m-a3meganodeset-4` while that node was allocated to this job, and every adapter
+  shard died with `torch.OutOfMemoryError`. Same shape as the Gate 3 job 1155 incident. The
+  fix is NOT to kill it (it is someone else's live run): cancel the affected array task and
+  resubmit it with `--exclude=<node>`. Nothing is lost - both halves are cache-aware, so the
+  native cube already on disk was skipped and only the adapter half re-ran. Check
+  `nvidia-smi --query-compute-apps=pid,used_memory --format=csv` on the node before blaming
+  the code, and `ps -o user,cmd -p <pid>` before blaming another Slurm job.
+- **`aires/gate2.py::_event` resolved names against `F.EVENTS`, not `F.ALL_EVENTS`**, so
+  every control shard exited "unknown event" *after* the GPU allocation started (job 1167,
+  attempt 1). Fixed; the job's own retry loop picked the fix up without a resubmit.
+  `aires/score.py` and `aires/gate3.py` still scope to the six on purpose - controls have
+  no walker trajectories.
+
+### One real speedup
+
+`ensemble_scores` built the full M x M pairwise-difference array for the CRPS spread term:
+a 57 MB temporary per call, 2 x 2000 calls per region per truth source, **4.2 hours for ten
+cases** (measured). `crps_spread` now uses the sorted-order identity
+`sum_{i<j}|x_i - x_j| = sum_k (2k - M + 1) x_(k)`, which is the same number to 6e-15 and
+11x faster - 24 min for the set. `test_crps_spread_matches_the_pairwise_definition` pins it
+against the brute-force form.
+
+### What the code does and does not do
+
+- `aires/adaptest.py` adds the six-event **analysis**, not a second pipeline: the adapter-IC
+  builder and the FCN3 driver are `aires/gate2.py`'s, called through it. There is exactly one
+  of each in this repo and that stays true.
+- Three statistics, in increasing order of what they can say: a **paired bootstrap** over the
+  24 matched member pairs (resampling a *common* index set - break the pairing and the s.e.
+  roughly doubles, which `tests/test_adaptest.py` pins as an inequality); an **exact binomial
+  sign test** across events, which is the test with real power; and an **inverse-variance
+  pooled** relative effect `(adapter - native) / native`, dimensionless so a wind event and a
+  temperature event can pool, with an I^2 heterogeneity check.
+- Each event is scored on **its own metric**, so Ian is `u850_speed`. That metric has no
+  zero-skill reference (a zero wind field is not a climatology), so no skill score is reported
+  for it - only raw RMSE/CRPS and the relative delta, which is what pools anyway.
+- Cold events need no sign handling: RMSE and CRPS are sign-blind and the A_L comparison uses
+  `|A_L - observed|`, so Uri's negative tail is automatic. Stated because
+  `xres.xmetrics.extreme_sign` exists and it is tempting to reach for.
+
+### Ceilings to know before reading the output
+
+- **Six events cannot beat p = 0.031.** That is the exact two-sided binomial p when all six
+  agree. `test_six_events_cannot_reach_p_below_0p03` pins it so a unanimous result is not
+  over-read.
+- At the PNW event's precision, six events give a detection limit of roughly **+-11%** of the
+  native score (it was +-27% at one event). If the true effect is a few percent, this design
+  will bound it, not measure it - and that is still the useful answer.
+- The array index -> event mapping is duplicated in the Slurm script so a shell can pick an
+  event without importing Python. A silent reordering would pair one event's adapter cube with
+  another's native cube and produce finite, wrong numbers. Two guards: the job re-checks
+  against `fcn3.fevents.ORDER` at run time, and
+  `test_event_order_matches_the_slurm_array` parses the script before submission.
 
 ## Verify state (run these, don't trust the table)
 
