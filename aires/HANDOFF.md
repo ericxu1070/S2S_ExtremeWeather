@@ -623,6 +623,43 @@ than on Gate 3's 16 walkers. The `gencast` PFS backend is **not** implemented - 
 nested GenCast ensemble per walker per resampling time, i.e. the cost of the whole
 experiment again.
 
+## Phase 4 in flight - job 1172 (pilot, N=64, fcn3 backend)
+
+Submitted 2026-08-20. Legs 1-2 walked, first real resampling done. Recorded as it happens
+because a mid-run diagnosis is the thing that gets lost once the figures exist.
+
+| leg | phase | wall | outcome |
+|---|---|---|---|
+| 1 | walk (48 of 64 rolled; 16 seeded from Gate 3) | 40.3 min | `C_1 = 0` -> R = 1.0000, ESS 64/64, 0 killed, max mult 1 |
+| 2 | walk (48 of 64) | 34.4 min | |
+| 2 | score, 64 x M=6 from 6 d | 71.8 min | theta +1.975 +- 1.859 K, range [-2.38, +7.38] |
+| 2 | resample, `C_2 = 1.0` | - | R = 1.7702, **ESS 17.7/64 = 0.277**, 28 killed, max mult 11 |
+
+**`C_1 = 0` is the exact identity at N=64 too**, which is the empirical confirmation that
+`--stage prep`'s Gate 3 seeding of segment 2 is valid rather than merely argued.
+
+**The step-2 ESS came in at the 5th percentile of Phase 2's replay, and that is sampling
+luck, not a mis-tuned schedule.** `ctune`'s replay at N=64 puts step 2 at ESS/N = 0.431 on
+average (p10 0.317, p90 0.529) and max multiplicity 6.8 (p90 10); the pilot drew 0.277 and
+11. Both sit at about the 5th percentile. Three things say this is not a problem:
+
+- **The score is not heavy-tailed.** Shapiro-Wilk on the 64 standardized scores gives
+  p = 0.51, skew +0.40, excess kurtosis +0.49 - consistent with the Gaussian the surrogate
+  assumes. The low ESS is two walkers at z = 2.68 and 2.91 taking most of the weight.
+- **Exactly-Gaussian scores at N=64 do the same thing this often.** Simulating the step
+  directly: ESS/N = 0.429 on average, 0.268 at the 5th percentile. The observed 0.276 is a
+  6th-percentile draw of a well-behaved distribution, so the shortfall is the sampling
+  error of an N=64 ESS, not a property of the schedule.
+- **A hard early step does not propagate.** Conditioning the replay on a step-2 ESS at or
+  below 0.277 (95 of 2000 runs), the FINAL ESS/N comes out at 0.656 on average with a p10
+  of 0.502, and **none** end below the N/4 target - an early consolidation onto good
+  ancestors leaves the later steps less degenerate, because the weights telescope.
+
+So the run continues. What to check at the end is the FINAL ESS against N/4, not this one.
+Read the caveat in "What Phase 2 established" alongside it: the surrogate is a Gaussian
+caricature calibrated to one event's skill curve, and here the Gaussian part is supported
+by the data rather than contradicted by it.
+
 ## The checkpoint bug that cost two runs (read before touching the walker)
 
 Gate 3's first two attempts produced physically wrong walkers, and the reason is a trap
