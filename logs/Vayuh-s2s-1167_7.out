@@ -1,0 +1,63 @@
+[check] array index 7 == null_20240329 (null, seed 7333) -- matches fcn3.fevents.ALL_ORDER
+Host: nucla3m-a3meganodeset-3
+Start: Thu Aug 20 00:12:48 UTC 2026
+GPU 0: NVIDIA H100 80GB HBM3 (UUID: GPU-3d728601-5a90-3332-b4f8-55a26b42a17b)
+GPU 1: NVIDIA H100 80GB HBM3 (UUID: GPU-b189949f-6b30-1a6a-bf9e-a1f13b566ce4)
+GPU 2: NVIDIA H100 80GB HBM3 (UUID: GPU-78950a76-0d22-aa22-2931-ff4e9e591bf6)
+GPU 3: NVIDIA H100 80GB HBM3 (UUID: GPU-f545a6c6-519b-ded3-1d46-a56618ba791c)
+GPU 4: NVIDIA H100 80GB HBM3 (UUID: GPU-5d3a37da-d139-e33f-6aa9-24142cd182f0)
+GPU 5: NVIDIA H100 80GB HBM3 (UUID: GPU-140f8c08-c442-2c67-bf38-d0f0e31ef4ea)
+GPU 6: NVIDIA H100 80GB HBM3 (UUID: GPU-6d85aa1f-f837-6673-e525-d8778183da70)
+GPU 7: NVIDIA H100 80GB HBM3 (UUID: GPU-59e0f36c-c2c3-2bc1-c010-a6e20c827c65)
+adaptest: event=null_20240329 (array 7) members=24 nshards=8 weeks=3
+CPU: 208 cores / 8 shards -> OMP_NUM_THREADS=26 per shard
+native cube absent -- this case needs BOTH halves rolled.
+=== [native] rolling 24 members of null_20240329 across 8 GPUs (Thu Aug 20 00:12:48 UTC 2026)
+--- [native] attempt 1/3 (Thu Aug 20 00:12:48 UTC 2026)
+  [native] launched shard 0 on GPU 0 (pid 3005352)
+  [native] launched shard 1 on GPU 1 (pid 3005353)
+  [native] launched shard 2 on GPU 2 (pid 3005354)
+  [native] launched shard 3 on GPU 3 (pid 3005355)
+  [native] launched shard 4 on GPU 4 (pid 3005356)
+  [native] launched shard 5 on GPU 5 (pid 3005357)
+  [native] launched shard 6 on GPU 6 (pid 3005358)
+  [native] launched shard 7 on GPU 7 (pid 3005359)
+  [native] all shards done; merging ...
+[assemble] null_20240329: wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/fcn3/week3/cache/null_20240329_cube.nc  {'member': 24, 'time': 85, 'lat': 105, 'lon': 237}
+[assemble] null_20240329: 6.03 min node wall (2894.75 GPU-s over 8 shards)
+-rw-rw-r-- 1 ubuntu ubuntu 203074170 Aug 20 00:22 runs/fcn3/week3/cache/null_20240329_cube.nc
+=== [adapter] rolling 24 members of null_20240329 across 8 GPUs (Thu Aug 20 00:22:21 UTC 2026)
+--- [adapter] attempt 1/3 (Thu Aug 20 00:22:21 UTC 2026)
+  [adapter] launched shard 0 on GPU 0 (pid 3006523)
+  [adapter] launched shard 1 on GPU 1 (pid 3006524)
+  [adapter] launched shard 2 on GPU 2 (pid 3006525)
+  [adapter] launched shard 3 on GPU 3 (pid 3006526)
+  [adapter] launched shard 4 on GPU 4 (pid 3006527)
+  [adapter] launched shard 5 on GPU 5 (pid 3006528)
+  [adapter] launched shard 6 on GPU 6 (pid 3006529)
+  [adapter] launched shard 7 on GPU 7 (pid 3006530)
+  [adapter] shard 0 failed -- see logs/Vayuh-s2s-1167_7-adapter-try1-shard0.log
+  [adapter] shard 1 failed -- see logs/Vayuh-s2s-1167_7-adapter-try1-shard1.log
+  [adapter] shard 2 failed -- see logs/Vayuh-s2s-1167_7-adapter-try1-shard2.log
+  [adapter] shard 3 failed -- see logs/Vayuh-s2s-1167_7-adapter-try1-shard3.log
+  [adapter] shard 4 failed -- see logs/Vayuh-s2s-1167_7-adapter-try1-shard4.log
+  [adapter] shard 5 failed -- see logs/Vayuh-s2s-1167_7-adapter-try1-shard5.log
+  [adapter] shard 6 failed -- see logs/Vayuh-s2s-1167_7-adapter-try1-shard6.log
+  [adapter] shard 7 failed -- see logs/Vayuh-s2s-1167_7-adapter-try1-shard7.log
+  [adapter] retrying in 120s
+--- [adapter] attempt 2/3 (Thu Aug 20 00:24:22 UTC 2026)
+  [adapter] launched shard 0 on GPU 0 (pid 3006835)
+  [adapter] launched shard 1 on GPU 1 (pid 3006836)
+  [adapter] launched shard 2 on GPU 2 (pid 3006837)
+  [adapter] launched shard 3 on GPU 3 (pid 3006838)
+  [adapter] launched shard 4 on GPU 4 (pid 3006839)
+  [adapter] launched shard 5 on GPU 5 (pid 3006840)
+  [adapter] launched shard 6 on GPU 6 (pid 3006841)
+  [adapter] launched shard 7 on GPU 7 (pid 3006842)
+  [adapter] all shards done; merging ...
+[assemble] null_20240329: wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/aires/gate2/cache/null_20240329_adapter_cube.nc {'member': 24, 'time': 85, 'lat': 105, 'lon': 237}
+-rw-rw-r-- 1 ubuntu ubuntu 203074170 Aug 20 00:33 runs/aires/gate2/cache/null_20240329_adapter_cube.nc
+End: Thu Aug 20 00:33:51 UTC 2026
+When every array task is done, on the login node in moe:
+  PYTHONPATH=. python -m aires.adaptest --stage score
+  PYTHONPATH=. python -m aires.adaptest --stage report

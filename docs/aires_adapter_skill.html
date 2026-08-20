@@ -1,0 +1,1004 @@
+<title>Does the Adapter Cost Skill?</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Condensed:wght@500;600;700&family=IBM+Plex+Serif:ital,wght@0,400;0,600;1,400&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+
+<style>
+:root {
+  color-scheme: light;
+  --ground:      #f8fafa;
+  --panel:       #f2f5f6;
+  --panel-2:     #e9eef0;
+  --rule:        #d5dee2;
+  --rule-soft:   #e2e9ec;
+  --ink:         #131a20;
+  --ink-2:       #33424c;
+  --muted:       #4d5f6a;
+  --faint:       #7d8f99;
+  --adapter:     #2a78d6;
+  --native:      #eb6834;
+  --gencast:     #1baf7a;
+  --truth:       #131a20;
+  --pass:        #008300;
+  --band:        #b3c3cb;
+  --shade:       #dde6e9;
+}
+@media (prefers-color-scheme: dark) {
+  :root:where(:not([data-theme="light"])) {
+    color-scheme: dark;
+    --ground:    #12171a;
+    --panel:     #1a2126;
+    --panel-2:   #202a30;
+    --rule:      #2c3841;
+    --rule-soft: #232d34;
+    --ink:       #eef2f3;
+    --ink-2:     #c9d5da;
+    --muted:     #95a7b0;
+    --faint:     #6f838d;
+    --adapter:   #3987e5;
+    --native:    #d95926;
+    --gencast:   #199e70;
+    --truth:     #eef2f3;
+    --pass:      #3fae3f;
+    --band:      #425560;
+    --shade:     #1f292f;
+  }
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --ground:    #12171a;
+  --panel:     #1a2126;
+  --panel-2:   #202a30;
+  --rule:      #2c3841;
+  --rule-soft: #232d34;
+  --ink:       #eef2f3;
+  --ink-2:     #c9d5da;
+  --muted:     #95a7b0;
+  --faint:     #6f838d;
+  --adapter:   #3987e5;
+  --native:    #d95926;
+  --gencast:   #199e70;
+  --truth:     #eef2f3;
+  --pass:      #3fae3f;
+  --band:      #425560;
+  --shade:     #1f292f;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: var(--ground);
+  color: var(--ink);
+  font-family: "IBM Plex Serif", Georgia, "Times New Roman", serif;
+  font-size: 16.5px;
+  line-height: 1.62;
+  -webkit-font-smoothing: antialiased;
+}
+
+.wrap { max-width: 74rem; margin: 0 auto; padding: 0 1.6rem 6rem; }
+.measure { max-width: 66ch; }
+
+/* ---------- masthead ---------- */
+.mast {
+  border-bottom: 1px solid var(--rule);
+  padding: 3.2rem 0 1.7rem;
+  display: flex; flex-direction: column; gap: 1.1rem;
+}
+.kicker {
+  font-family: "IBM Plex Mono", ui-monospace, monospace;
+  font-size: 0.7rem; font-weight: 500; letter-spacing: 0.16em;
+  text-transform: uppercase; color: var(--muted);
+  display: flex; flex-wrap: wrap; gap: 0.5rem 1rem; align-items: center;
+}
+.kicker .dot { color: var(--faint); }
+h1 {
+  font-family: "IBM Plex Sans Condensed", "Arial Narrow", Arial, sans-serif;
+  font-weight: 700; font-size: clamp(2.3rem, 6.2vw, 4rem);
+  line-height: 0.98; letter-spacing: -0.015em; margin: 0;
+  text-wrap: balance; max-width: 30ch;
+}
+.standfirst {
+  font-size: 1.16rem; color: var(--ink-2); margin: 0; max-width: 62ch;
+  line-height: 1.55;
+}
+.standfirst strong { font-weight: 600; color: var(--ink); }
+
+/* provenance strip */
+.prov {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(9.5rem, 1fr));
+  gap: 0 1.4rem; border-top: 1px solid var(--rule-soft);
+  padding-top: 1.1rem; margin-top: 0.3rem;
+}
+.prov div { display: flex; flex-direction: column; gap: 0.1rem; }
+.prov dt {
+  font-family: "IBM Plex Mono", monospace; font-size: 0.63rem;
+  letter-spacing: 0.14em; text-transform: uppercase; color: var(--faint);
+}
+.prov dd {
+  margin: 0; font-family: "IBM Plex Mono", monospace; font-size: 0.83rem;
+  color: var(--ink-2); font-variant-numeric: tabular-nums;
+}
+
+/* ---------- sections ---------- */
+section { padding-top: 3.4rem; }
+.eyebrow {
+  font-family: "IBM Plex Mono", monospace; font-size: 0.68rem;
+  font-weight: 500; letter-spacing: 0.17em; text-transform: uppercase;
+  color: var(--muted); margin: 0 0 0.55rem;
+  display: flex; align-items: baseline; gap: 0.6rem;
+}
+.eyebrow::before {
+  content: ""; width: 1.4rem; height: 1px; background: var(--native);
+  display: inline-block; transform: translateY(-0.28em);
+}
+h2 {
+  font-family: "IBM Plex Sans Condensed", "Arial Narrow", Arial, sans-serif;
+  font-weight: 600; font-size: clamp(1.55rem, 3.3vw, 2.15rem);
+  line-height: 1.08; letter-spacing: -0.01em; margin: 0 0 0.9rem;
+  text-wrap: balance; max-width: 34ch;
+}
+h3 {
+  font-family: "IBM Plex Sans Condensed", "Arial Narrow", Arial, sans-serif;
+  font-weight: 600; font-size: 1.06rem; letter-spacing: 0.005em;
+  margin: 1.9rem 0 0.5rem;
+}
+p { margin: 0 0 1rem; }
+.measure p:last-child { margin-bottom: 0; }
+em { font-style: italic; }
+code, .num {
+  font-family: "IBM Plex Mono", ui-monospace, monospace;
+  font-variant-numeric: tabular-nums;
+}
+code {
+  font-size: 0.86em; background: var(--panel); border: 1px solid var(--rule-soft);
+  border-radius: 3px; padding: 0.06em 0.32em;
+}
+
+/* ---------- verdict tiles ---------- */
+.tiles {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr));
+  gap: 1px; background: var(--rule); border: 1px solid var(--rule);
+  margin: 1.9rem 0 0;
+}
+.tile { background: var(--panel); padding: 1.35rem 1.4rem 1.45rem; display: flex; flex-direction: column; gap: 0.4rem; }
+.tile .lab {
+  font-family: "IBM Plex Mono", monospace; font-size: 0.65rem;
+  letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted);
+}
+.tile .big {
+  font-family: "IBM Plex Sans Condensed", Arial, sans-serif;
+  font-size: 2.5rem; line-height: 1; font-weight: 600;
+  font-variant-numeric: tabular-nums; letter-spacing: -0.02em;
+}
+.tile .sub { font-size: 0.88rem; color: var(--muted); line-height: 1.42; }
+.tile.accent-a .big { color: var(--adapter); }
+.tile.accent-n .big { color: var(--native); }
+.chip {
+  display: inline-flex; align-items: center; gap: 0.42rem; align-self: flex-start;
+  font-family: "IBM Plex Mono", monospace; font-size: 0.72rem; font-weight: 600;
+  letter-spacing: 0.09em; text-transform: uppercase;
+  border: 1px solid currentColor; border-radius: 2px; padding: 0.2rem 0.5rem;
+  color: var(--pass);
+}
+.chip.warn { color: var(--native); }
+.chip svg { width: 0.72em; height: 0.72em; flex: none; }
+
+/* ---------- tables ---------- */
+.tablewrap { overflow-x: auto; margin: 1.5rem 0 0.7rem; border: 1px solid var(--rule); }
+table { border-collapse: collapse; width: 100%; min-width: 40rem; background: var(--panel); }
+caption {
+  caption-side: top; text-align: left; padding: 0.85rem 1rem;
+  font-family: "IBM Plex Mono", monospace; font-size: 0.7rem;
+  letter-spacing: 0.13em; text-transform: uppercase; color: var(--muted);
+  background: var(--panel-2); border-bottom: 1px solid var(--rule);
+}
+th, td {
+  padding: 0.5rem 0.85rem; text-align: right; border-bottom: 1px solid var(--rule-soft);
+  font-family: "IBM Plex Mono", monospace; font-size: 0.83rem;
+  font-variant-numeric: tabular-nums; white-space: nowrap;
+}
+th {
+  font-weight: 500; font-size: 0.68rem; letter-spacing: 0.08em;
+  text-transform: uppercase; color: var(--muted); vertical-align: bottom;
+}
+th:first-child, td:first-child { text-align: left; }
+tbody tr:last-child td { border-bottom: none; }
+tr.sub-head th {
+  background: var(--panel-2); color: var(--ink-2); text-align: left;
+  letter-spacing: 0.13em; border-bottom: 1px solid var(--rule);
+}
+td.name { display: flex; align-items: center; gap: 0.5rem; }
+.swatch { width: 9px; height: 9px; flex: none; border-radius: 1px; }
+.swatch.a { background: var(--adapter); }
+.swatch.n { background: var(--native); }
+.swatch.g { background: var(--gencast); }
+.swatch.t { background: var(--truth); }
+.swatch.c { background: var(--faint); }
+td.hi { color: var(--ink); font-weight: 500; }
+.foot {
+  font-size: 0.82rem; color: var(--muted); margin: 0.55rem 0 0;
+  max-width: 70ch; line-height: 1.5;
+}
+
+/* ---------- figures ---------- */
+figure { margin: 1.8rem 0 0; border: 1px solid var(--rule); background: var(--panel); }
+.figtop { padding: 0.85rem 1rem; background: var(--panel-2); border-bottom: 1px solid var(--rule); }
+.figtop .t {
+  font-family: "IBM Plex Sans Condensed", Arial, sans-serif; font-weight: 600;
+  font-size: 1rem; letter-spacing: 0.005em;
+}
+.figtop .s { font-size: 0.83rem; color: var(--muted); line-height: 1.45; margin-top: 0.12rem; }
+.figbody { padding: 1.1rem 1rem 0.9rem; overflow-x: auto; }
+figcaption {
+  padding: 0 1rem 1rem; font-size: 0.85rem; color: var(--muted);
+  line-height: 1.5; max-width: 78ch;
+}
+svg { display: block; max-width: 100%; height: auto; }
+svg text {
+  font-family: "IBM Plex Mono", ui-monospace, monospace;
+  fill: var(--muted); font-size: 10.5px; font-variant-numeric: tabular-nums;
+}
+svg text.axis-title { font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; fill: var(--muted); }
+svg text.dlabel { font-size: 10.5px; font-weight: 500; fill: var(--ink); }
+svg text.rowname {
+  font-family: "IBM Plex Sans Condensed", Arial, sans-serif;
+  font-size: 12.5px; fill: var(--ink); font-weight: 600;
+}
+.gridline { stroke: var(--rule-soft); stroke-width: 1; }
+.axisline { stroke: var(--rule); stroke-width: 1; }
+.zeroline { stroke: var(--faint); stroke-width: 1; stroke-dasharray: 3 3; }
+
+.legend {
+  display: flex; flex-wrap: wrap; gap: 0.35rem 1.15rem; padding: 0 1rem 0.9rem;
+  font-family: "IBM Plex Mono", monospace; font-size: 0.74rem; color: var(--ink-2);
+}
+.legend span { display: inline-flex; align-items: center; gap: 0.42rem; }
+.legend i { width: 14px; height: 3px; border-radius: 2px; flex: none; }
+.legend i.dashed { height: 0; border-top: 2px dashed currentColor; background: none; }
+.legend i.dot { width: 9px; height: 9px; border-radius: 50%; }
+
+/* tooltip */
+.tip {
+  position: fixed; pointer-events: none; opacity: 0; transition: opacity .1s;
+  background: var(--ground); color: var(--ink);
+  border: 1px solid var(--rule); border-radius: 3px;
+  padding: 0.42rem 0.6rem; font-family: "IBM Plex Mono", monospace;
+  font-size: 0.74rem; line-height: 1.45; z-index: 40;
+  box-shadow: 0 4px 14px rgb(0 0 0 / 0.14); max-width: 17rem;
+  font-variant-numeric: tabular-nums;
+}
+.tip b { font-weight: 600; }
+.tip .k { color: var(--muted); }
+
+/* ---------- callout ---------- */
+.callout {
+  border-left: 3px solid var(--native); background: var(--panel);
+  padding: 1rem 1.2rem; margin: 1.6rem 0 0; max-width: 72ch;
+}
+.callout p { margin: 0; }
+.callout p + p { margin-top: 0.7rem; }
+.callout .h {
+  font-family: "IBM Plex Sans Condensed", Arial, sans-serif; font-weight: 600;
+  font-size: 0.95rem; letter-spacing: 0.02em; margin-bottom: 0.3rem;
+}
+
+ul.tight { margin: 0.7rem 0 0; padding-left: 1.15rem; max-width: 68ch; }
+ul.tight li { margin-bottom: 0.55rem; }
+ul.tight li::marker { color: var(--faint); }
+
+pre {
+  margin: 1.1rem 0 0; overflow-x: auto; background: var(--panel);
+  border: 1px solid var(--rule); padding: 0.85rem 1rem;
+  font-family: "IBM Plex Mono", monospace; font-size: 0.79rem; line-height: 1.65;
+  color: var(--ink-2);
+}
+pre .c { color: var(--faint); }
+
+footer {
+  margin-top: 4rem; border-top: 1px solid var(--rule); padding-top: 1.2rem;
+  font-family: "IBM Plex Mono", monospace; font-size: 0.74rem; color: var(--faint);
+  display: flex; flex-wrap: wrap; gap: 0.4rem 1.4rem;
+}
+
+:focus-visible { outline: 2px solid var(--adapter); outline-offset: 2px; }
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
+@media (max-width: 640px) {
+  body { font-size: 16px; }
+  .wrap { padding: 0 1.1rem 4rem; }
+  .tile .big { font-size: 2.1rem; }
+}
+</style>
+
+<div class="wrap">
+
+<header class="mast">
+  <div class="kicker">
+    <span>AI+RES &nbsp;·&nbsp; Gate 2 follow-up</span>
+    <span class="dot">/</span>
+    <span>FourCastNet 3 &nbsp;·&nbsp; 21 d lead</span>
+    <span class="dot">/</span>
+    <span>2026-08-19</span>
+  </div>
+  <h1>Does the adapter cost forecast skill?</h1>
+  <p class="standfirst">
+    Gate 2 showed that FCN3 rolled from an adapter-built initial condition lands in the
+    same place as FCN3 rolled from ERA5 directly. It never asked whether either forecast
+    was any <em>good</em>. Scoring both 24-member ensembles against observed truth:
+    <strong>the adapter changes skill by less than the ensemble's own sampling noise</strong>
+    - and <strong>neither ensemble forecasts the heat dome</strong>.
+  </p>
+  <dl class="prov">
+    <div><dt>Event</dt><dd>PNW Heat Dome</dd></div>
+    <div><dt>Init</dt><dd>2021-06-07 00Z</dd></div>
+    <div><dt>Verifies</dt><dd>Jun 22–28, 2021</dd></div>
+    <div><dt>Lead</dt><dd>21 d (week 3)</dd></div>
+    <div><dt>Members</dt><dd>24 + 24, seed-matched</dd></div>
+    <div><dt>Truth</dt><dd>ERA5 (HRRR checked)</dd></div>
+  </dl>
+</header>
+
+<!-- ============================ THE ANSWER ============================ -->
+<section id="answer">
+  <p class="eyebrow">The answer, in three numbers</p>
+  <h2>The effect is smaller than the noise it would have to beat</h2>
+  <div class="measure">
+    <p>
+      Both ensembles start from the same ERA5 analysis at the same time. They differ only
+      in how the 72 input channels were assembled: natively from ERA5, or through
+      <code>aires/adapter.py</code>. Each is verified against the observed 7-day-mean
+      T2m anomaly over the week ending at the event peak - the quantity AI+RES scores
+      walkers on.
+    </p>
+  </div>
+  <div class="tiles">
+    <div class="tile accent-a">
+      <span class="lab">Skill penalty, CONUS</span>
+      <span class="big">+0.10 K</span>
+      <span class="sub">Ensemble-mean RMSE rises from 1.64 K (native) to 1.74 K (adapter).</span>
+    </div>
+    <div class="tile">
+      <span class="lab">Noise floor, same metric</span>
+      <span class="big">0.23 K</span>
+      <span class="sub">Median RMSE gap between two random halves of the <em>native</em> ensemble alone. p90 is 0.57 K.</span>
+    </div>
+    <div class="tile">
+      <span class="lab">Paired member test</span>
+      <span class="big">−0.05 K</span>
+      <span class="sub">Seed-matched per-member RMSE difference, ±0.15 K s.e. (<span class="num">t</span> = −0.32). Indistinguishable from zero.</span>
+    </div>
+    <div class="tile">
+      <span class="lab">Verdict</span>
+      <span class="chip">
+        <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2 8.6l4 4 8-9.4" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        No detected cost
+      </span>
+      <span class="sub">Every adapter-minus-native difference is smaller than the difference between two halves of one ensemble. See the resolution limits below.</span>
+    </div>
+  </div>
+</section>
+
+<!-- ============================ SKILL TABLE ============================ -->
+<section id="skill">
+  <p class="eyebrow">Verification against observed truth</p>
+  <h2>How skillful is the forecast at all?</h2>
+  <div class="measure">
+    <p>
+      The reference is a climatology forecast - zero anomaly everywhere. Anything that
+      cannot beat it has no skill. GenCast at 0.25°, initialized from the same analysis
+      at the same lead, is included as an independent third forecast rather than as a
+      competitor: it brackets what this lead is worth.
+    </p>
+  </div>
+
+  <div class="tablewrap">
+    <table>
+      <caption>7-day-mean T2m anomaly, verified against ERA5 · area-weighted (cos lat) · 24 members</caption>
+      <thead>
+        <tr>
+          <th>Forecast</th>
+          <th>RMSE<br>(K)</th>
+          <th>RMSE<br>skill sc.</th>
+          <th>CRPS<br>(K)</th>
+          <th>CRPS<br>skill sc.</th>
+          <th>ACC<br>(centered)</th>
+          <th>Spread<br>÷ error</th>
+          <th>Index A<sub>L</sub><br>(K)</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr class="sub-head"><th colspan="8">CONUS · 24–50 N, 125–66 W · the reduction Gate 2 used</th></tr>
+        <tr>
+          <td class="name"><span class="swatch a"></span>FCN3, adapter IC</td>
+          <td class="hi">1.739</td><td>+0.135</td><td class="hi">0.866</td><td>+0.281</td><td>+0.426</td><td>1.02</td><td>+0.85 ± 0.45</td>
+        </tr>
+        <tr>
+          <td class="name"><span class="swatch n"></span>FCN3, native IC</td>
+          <td class="hi">1.640</td><td>+0.184</td><td class="hi">0.858</td><td>+0.288</td><td>+0.592</td><td>1.17</td><td>+0.94 ± 0.62</td>
+        </tr>
+        <tr>
+          <td class="name"><span class="swatch g"></span>GenCast 0.25°</td>
+          <td>1.723</td><td>+0.143</td><td>0.912</td><td>+0.243</td><td>+0.503</td><td>1.07</td><td>+1.14 ± 0.55</td>
+        </tr>
+        <tr>
+          <td class="name"><span class="swatch c"></span>Climatology</td>
+          <td>2.009</td><td>0</td><td>1.205</td><td>0</td><td>-</td><td>-</td><td>0</td>
+        </tr>
+        <tr>
+          <td class="name"><span class="swatch t"></span>Observed (ERA5)</td>
+          <td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td class="hi">+0.64</td>
+        </tr>
+        <tr class="sub-head"><th colspan="8">PNW event box · 44–50 N, 124–118 W · where the dome actually was</th></tr>
+        <tr>
+          <td class="name"><span class="swatch a"></span>FCN3, adapter IC</td>
+          <td class="hi">6.312</td><td>+0.196</td><td class="hi">4.733</td><td>+0.387</td><td>+0.768</td><td>0.46</td><td>+1.52 ± 2.73</td>
+        </tr>
+        <tr>
+          <td class="name"><span class="swatch n"></span>FCN3, native IC</td>
+          <td class="hi">5.523</td><td>+0.297</td><td class="hi">3.684</td><td>+0.523</td><td>+0.848</td><td>0.60</td><td>+2.29 ± 3.10</td>
+        </tr>
+        <tr>
+          <td class="name"><span class="swatch g"></span>GenCast 0.25°</td>
+          <td>5.419</td><td>+0.310</td><td>3.735</td><td>+0.516</td><td>+0.471</td><td>0.53</td><td>+2.46 ± 2.66</td>
+        </tr>
+        <tr>
+          <td class="name"><span class="swatch c"></span>Climatology</td>
+          <td>7.854</td><td>0</td><td>7.716</td><td>0</td><td>-</td><td>-</td><td>0</td>
+        </tr>
+        <tr>
+          <td class="name"><span class="swatch t"></span>Observed (ERA5)</td>
+          <td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td class="hi">+7.72</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <p class="foot">
+    Skill scores are <span class="num">1 − score ÷ climatology</span>; positive is better than climatology.
+    A<sub>L</sub> is the area-mean of the anomaly field - the scalar AI+RES sorts walkers by - quoted as
+    ensemble mean ± per-member s.d. Spread ÷ error near 1 is a calibrated ensemble; below 1 is over-confident.
+  </p>
+</section>
+
+<!-- ============================ FIG 1: EFFECT VS NOISE ============================ -->
+<section id="noise">
+  <p class="eyebrow">Is the difference real?</p>
+  <h2>Every difference lands inside one ensemble's own scatter</h2>
+  <div class="measure">
+    <p>
+      A 24-member ensemble mean is itself a random variable. To size that, the native
+      ensemble was split into two disjoint halves 2000 times and each half scored
+      separately: the gap between two halves of the <em>same</em> forecast is what "no
+      difference" looks like. The adapter-minus-native gap is plotted against it.
+    </p>
+  </div>
+
+  <figure>
+    <div class="figtop">
+      <div class="t">Adapter effect vs. sampling noise</div>
+      <div class="s">Observed |adapter − native| against the split-half distribution of the native ensemble alone.</div>
+    </div>
+    <div class="legend">
+      <span><i class="dot" style="background:var(--adapter)"></i>observed |Δ|</span>
+      <span><i style="background:var(--band);height:10px;border-radius:1px"></i>split-half range, median to p90</span>
+      <span><i style="background:var(--faint);width:2px;height:12px"></i>split-half median</span>
+    </div>
+    <div class="figbody"><div id="fig-noise"></div></div>
+    <figcaption>
+      All four differences sit at or below the median split-half gap. The comparison is
+      conservative in the adapter's favour on one count and against it on another: the
+      split-half statistic uses 12 members per side rather than 24, so it overstates
+      noise; but a real degradation smaller than the band would also be invisible here.
+    </figcaption>
+  </figure>
+
+  <div class="tablewrap">
+    <table>
+      <caption>Adapter − native, with the noise floor for each statistic</caption>
+      <thead>
+        <tr><th>Statistic</th><th>Adapter</th><th>Native</th><th>Δ</th><th>Paired s.e.</th><th>Split-half median</th><th>Split-half p90</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>CONUS ens-mean RMSE (K)</td><td>1.739</td><td>1.640</td><td class="hi">+0.099</td><td>0.154</td><td>0.231</td><td>0.572</td></tr>
+        <tr><td>CONUS A<sub>L</sub> (K)</td><td>+0.852</td><td>+0.935</td><td class="hi">−0.083</td><td>0.149</td><td>0.173</td><td>0.421</td></tr>
+        <tr><td>PNW ens-mean RMSE (K)</td><td>6.312</td><td>5.523</td><td class="hi">+0.789</td><td>0.703</td><td>0.861</td><td>2.121</td></tr>
+        <tr><td>PNW A<sub>L</sub> (K)</td><td>+1.521</td><td>+2.285</td><td class="hi">−0.764</td><td>0.764</td><td>0.859</td><td>2.107</td></tr>
+        <tr><td>CONUS CRPS (K)</td><td>0.866</td><td>0.858</td><td class="hi">+0.008</td><td>-</td><td>-</td><td>-</td></tr>
+        <tr><td>PNW CRPS (K)</td><td>4.733</td><td>3.684</td><td class="hi">+1.048</td><td>-</td><td>-</td><td>-</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p class="foot">
+    Paired s.e. is the standard error of the seed-matched per-member difference (n = 24) -
+    the tightest test available, because adapter member <span class="num">i</span> and native
+    member <span class="num">i</span> share an internal-noise stream. The PNW CRPS gap is the
+    largest single number here at 28% of its base; it is still under the split-half median for
+    that region, and the section on limits says what that does and does not license.
+  </p>
+</section>
+
+<!-- ============================ DIRECTION ============================ -->
+<section id="direction">
+  <p class="eyebrow">Which way does it lean?</p>
+  <h2>Probably slightly worse - by an amount this experiment cannot measure</h2>
+  <div class="measure">
+    <p>
+      "Inside the noise" is not the same as "zero", so it is worth saying which way the
+      point estimates point. On most ensemble-mean and probabilistic scores, under
+      <em>both</em> truth datasets, the adapter run is the marginally worse of the two.
+    </p>
+    <p>
+      The tight version of the test resamples the <strong>24 matched member pairs</strong>
+      with replacement - preserving the seed pairing, which the split-half floor above
+      throws away - and rescores both ensembles on each draw:
+    </p>
+  </div>
+
+  <div class="tablewrap">
+    <table>
+      <caption>Paired bootstrap over matched members · 2000 draws · positive Δ means the adapter scored worse</caption>
+      <thead><tr><th>Truth · region</th><th>Statistic</th><th>Δ</th><th>Paired s.e.</th><th>95% CI</th><th>Draws that flip the sign</th></tr></thead>
+      <tbody>
+        <tr><td>ERA5 · CONUS</td><td>RMSE</td><td class="hi">+0.099</td><td>0.205</td><td>−0.315 to +0.482</td><td>29%</td></tr>
+        <tr><td>ERA5 · CONUS</td><td>CRPS</td><td class="hi">+0.008</td><td>0.098</td><td>−0.191 to +0.194</td><td>45%</td></tr>
+        <tr><td>ERA5 · PNW</td><td>RMSE</td><td class="hi">+0.789</td><td>0.746</td><td>−0.687 to +2.227</td><td>14%</td></tr>
+        <tr><td>ERA5 · PNW</td><td>CRPS</td><td class="hi">+1.048</td><td>0.832</td><td>−0.652 to +2.586</td><td>10%</td></tr>
+        <tr><td>HRRR · CONUS</td><td>RMSE</td><td class="hi">+0.053</td><td>0.171</td><td>−0.304 to +0.373</td><td>38%</td></tr>
+        <tr><td>HRRR · PNW</td><td>RMSE</td><td class="hi">+0.726</td><td>0.688</td><td>−0.660 to +2.081</td><td>15%</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p class="foot">
+    Every interval crosses zero. The strongest case - PNW CRPS - still reverses its sign in
+    one resample out of ten, which is a two-sided <span class="num">p</span> of roughly 0.2.
+    Full output in <code>runs/aires/gate2/skill/PNW_HeatDome_2021_paired_bootstrap.json</code>.
+  </p>
+
+  <h3>Three reasons not to call it a measured degradation</h3>
+  <ul class="tight">
+    <li>
+      <strong>The two tightest tests disagree in sign.</strong> Seed-matched per-member RMSE
+      over CONUS makes the adapter marginally <em>better</em> (−0.050 ± 0.154 K), as does its
+      CONUS A<sub>L</sub> bias - the adapter mean sits 0.21 K from the observed +0.64 K where
+      native sits 0.29 K away. Meanwhile the ensemble-mean RMSE over the same region makes it
+      worse. When the sign depends on which noise-dominated reduction you pick, the effect is
+      not resolved.
+    </li>
+    <li>
+      <strong>The comparisons are not independent.</strong> Every row above comes from the
+      same 24 member pairs on the same event at the same init. A consistent lean across
+      twelve correlated statistics carries roughly one event's worth of evidence, not twelve.
+    </li>
+    <li>
+      <strong>Direction was never a coin flip, so consistency is weak evidence.</strong>
+      The adapter IC carries real added error against the native one - Gate 1 measured
+      0.63 m/s on <code>u100m</code>/<code>v100m</code> and 4.6% on <code>tcwv</code> - and
+      adding error to an initial condition cannot improve a forecast in expectation. A tiny
+      degradation is the <em>prior</em>, not a discovery. The data is consistent with it and
+      also consistent with zero.
+    </li>
+  </ul>
+
+  <div class="callout">
+    <p class="h">The defensible statement</p>
+    <p>
+      The adapter very likely costs a little skill, and this experiment bounds that cost
+      rather than measuring it: <strong>below ~0.3 K of CONUS RMSE and ~1.4 K over the event
+      box</strong> at 21-day lead - under the ensemble's own sampling noise, and far under
+      the 0.83 K by which ERA5 and HRRR disagree about what happened. For AI+RES that bound
+      is what matters, because the walker score is an ensemble mean and a bias smaller than
+      the sampling noise cannot reorder walkers.
+    </p>
+    <p>
+      <strong>To actually measure it</strong> would take more events, not more members.
+      Five other week-3 events already have native FCN3 cubes on disk
+      (<code>WinterStorm_Uri_2021</code>, <code>HurricaneIan_2022</code>, and three
+      <code>p90_*</code> cases); building their adapter counterparts is CPU prep plus roughly
+      an hour of one 8×H100 node - and it turns a lean across correlated statistics into a
+      sign test across six independent events.
+    </p>
+  </div>
+</section>
+
+<!-- ============================ FIG 2: DIVERGENCE ============================ -->
+<section id="divergence">
+  <p class="eyebrow">Why a null result was the only possible outcome</p>
+  <h2>By day 21 the adapter is arithmetically a re-seed</h2>
+  <div class="measure">
+    <p>
+      Two divergence curves can be compared directly, because the two ensembles share
+      noise streams member for member. <span class="num">d<sub>paired</sub></span> is the
+      RMS adapter-minus-native difference - the adapter's footprint.
+      <span class="num">d<sub>internal</sub></span> is <span class="num">√2 ×</span> the
+      native ensemble's own spread - what re-seeding FCN3 does on its own. The adapter's
+      footprint starts at 22% of the model's own stochasticity and reaches 99% of it only
+      at day 21, exactly where this verification lives.
+    </p>
+    <p>
+      That is the mechanism behind the null: at the verification window an adapter IC and
+      a re-seed are the same size of perturbation, so a skill difference between them
+      <em>cannot</em> be anything but sampling noise. The interesting part of the curve
+      is the left half, where the adapter is a genuinely smaller perturbation than the
+      model's own noise.
+    </p>
+  </div>
+
+  <figure>
+    <div class="figtop">
+      <div class="t">Divergence by forecast lead</div>
+      <div class="s">CONUS-mean T2m, 6-hourly, 84 steps. Shaded band is the 7-day verification window.</div>
+    </div>
+    <div class="legend">
+      <span><i style="background:var(--adapter)"></i>d<sub>paired</sub> - adapter vs native</span>
+      <span><i style="background:var(--truth)"></i>d<sub>internal</sub> - FCN3's own noise</span>
+      <span><i style="background:var(--shade);height:10px"></i>verification week</span>
+    </div>
+    <div class="figbody"><div id="fig-div"></div></div>
+    <figcaption>
+      Ratio <span class="num">d<sub>paired</sub> ÷ d<sub>internal</sub></span>:
+      0.22 at 1.5 d · 0.30 at 5 d · 0.41 at 7 d · 0.51 at 9 d · 0.71 at 12 d · 0.99 at 21 d.
+      It never exceeds 1 - Gate 2's G2c criterion. Member-for-member rank equivalence holds
+      out to 8.5 d.
+    </figcaption>
+  </figure>
+</section>
+
+<!-- ============================ FIG 3: THE MISS ============================ -->
+<section id="miss">
+  <p class="eyebrow">The finding that is not about the adapter</p>
+  <h2>Neither ensemble forecasts the heat dome</h2>
+  <div class="measure">
+    <p>
+      The adapter question is answered, and it is the less interesting half of this page.
+      Over the PNW box the observed 7-day-mean anomaly was
+      <strong>+7.72 K</strong>. The ensemble means are <strong>+1.52 K</strong> (adapter)
+      and <strong>+2.29 K</strong> (native) - a fifth and under a third of the event respectively.
+      Exactly one member out of 24 on each side reaches the observed value.
+    </p>
+    <p>
+      Nor is the ensemble honest about that miss. Spread ÷ error over the box is
+      <strong>0.46</strong> and <strong>0.60</strong>: the ensemble is confidently wrong,
+      not widely uncertain. GenCast 0.25° at the same lead behaves the same way (0.53,
+      zero members reaching the observed value), so this is a property of 21-day-lead
+      forecasting rather than of FCN3 or of the adapter.
+    </p>
+  </div>
+
+  <figure>
+    <div class="figtop">
+      <div class="t">Per-member PNW index vs. what happened</div>
+      <div class="s">A<sub>L</sub> = area-mean 7-day-mean T2m anomaly, 44–50 N / 124–118 W. One dot per ensemble member.</div>
+    </div>
+    <div class="legend">
+      <span><i class="dot" style="background:var(--adapter)"></i>adapter IC</span>
+      <span><i class="dot" style="background:var(--native)"></i>native IC</span>
+      <span><i style="background:var(--truth);width:2px;height:12px"></i>observed, ERA5 +7.72 K</span>
+      <span><i style="background:var(--faint);width:2px;height:12px"></i>ensemble mean</span>
+    </div>
+    <div class="figbody"><div id="fig-al"></div></div>
+    <figcaption>
+      The observed value sits at the extreme right edge of both ensembles. This is the gap
+      Phase 4 of AI+RES exists to close: a single member out of 24 reaches the observed value on each
+      side, and the ensemble mean falls five to six kelvin short of it. Reaching a tail that
+      direct sampling touches once in 24 tries is the whole reason a resampling scheme is
+      worth its GPU hours.
+    </figcaption>
+  </figure>
+
+  <div class="callout">
+    <p class="h">Read the two results in the right order</p>
+    <p>
+      "The adapter is free" is a statement about the <em>plumbing</em> - the score a walker
+      receives is a property of the walker, not of how its state was converted. That is what
+      Gate 2 needed and it holds.
+    </p>
+    <p>
+      "The forecast misses the dome" is a statement about the <em>atmosphere</em> at 21-day
+      lead. It is not a defect the adapter introduced, and it does not weaken the gate.
+      It is the premise of the experiment.
+    </p>
+  </div>
+</section>
+
+<!-- ============================ LIMITS ============================ -->
+<section id="limits">
+  <p class="eyebrow">What this test cannot say</p>
+  <h2>The resolution of the null</h2>
+  <div class="measure">
+    <p>
+      "No detected cost" is bounded by what 24 members on one event can detect. Stated
+      plainly, rather than left for a reader to infer:
+    </p>
+  </div>
+  <ul class="tight">
+    <li>
+      <strong>Detection limit.</strong> At two paired standard errors, this test would only
+      catch an RMSE degradation larger than <span class="num">±0.31 K</span> over CONUS
+      (19% of the native run's 1.64 K) or <span class="num">±1.41 K</span> over the PNW box
+      (25% of 5.52 K). A smaller real penalty would pass unseen.
+    </li>
+    <li>
+      <strong>One event, one init.</strong> Everything here is the 2021 PNW heat dome from
+      2021-06-07. The adapter's three derived channels (<code>u100m</code>,
+      <code>v100m</code>, <code>tcwv</code>) come from a calibration fitted on 90 held-out
+      ICs, so the Gate 1 error bars generalize; this skill comparison does not.
+    </li>
+    <li>
+      <strong>The truth itself is uncertain by more than the effect.</strong> ERA5 puts the
+      observed PNW anomaly at +7.72 K; the HRRR analysis puts it at +6.89 K. That 0.83 K
+      disagreement about <em>what happened</em> exceeds every adapter-minus-native
+      difference on this page. Repeating the scoring against HRRR moves both runs together
+      and leaves the gap between them essentially unchanged (CONUS 0.05 K, PNW 0.73 K).
+    </li>
+    <li>
+      <strong>One lead, one variable.</strong> Skill is verified only at the 21-day
+      verification window, on T2m, because that is the only truth field cached for this
+      event. A lead-resolved skill curve would need an ERA5 time series that is not on
+      disk here.
+    </li>
+  </ul>
+
+  <div class="tablewrap">
+    <table>
+      <caption>Same comparison, verified against HRRR analysis instead of ERA5</caption>
+      <thead><tr><th>Region</th><th>Adapter RMSE</th><th>Native RMSE</th><th>Δ RMSE</th><th>Adapter CRPS</th><th>Native CRPS</th><th>Δ CRPS</th></tr></thead>
+      <tbody>
+        <tr><td>CONUS</td><td>2.073</td><td>2.020</td><td class="hi">+0.053</td><td>1.082</td><td>1.089</td><td class="hi">−0.007</td></tr>
+        <tr><td>PNW box</td><td>5.802</td><td>5.076</td><td class="hi">+0.726</td><td>4.066</td><td>3.212</td><td class="hi">+0.854</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p class="foot">
+    Against HRRR at CONUS scale, neither run beats a climatology forecast on RMSE
+    (2.05 K) - only on CRPS. The choice of truth dataset changes the absolute skill verdict;
+    it does not change the adapter verdict.
+  </p>
+</section>
+
+<!-- ============================ REPRODUCE ============================ -->
+<section id="repro">
+  <p class="eyebrow">Provenance</p>
+  <h2>Reproduce from cached cubes</h2>
+  <div class="measure">
+    <p>
+      No GPU and no network. Both cubes were already on disk; the only new work is the
+      scoring, which runs in about twenty seconds of CPU.
+    </p>
+  </div>
+  <pre><span class="c"># inputs, all local</span>
+runs/aires/gate2/cache/PNW_HeatDome_2021_adapter_cube.nc   <span class="c">203 MB · 24 members · adapter IC</span>
+runs/fcn3/week3/cache/PNW_HeatDome_2021_cube.nc            <span class="c">24 members · native IC</span>
+runs/xres/0p25/week3/verif/PNW_HeatDome_2021_t2m_anom_members.nc
+runs/observations/PNW_HeatDome_2021_verif_t2m_anom.nc      <span class="c">ERA5 truth</span>
+runs/observations/PNW_HeatDome_2021_hrrr_verif_t2m_anom.nc <span class="c">HRRR truth</span>
+runs/models/clim_1990_2019_t2m_conus.nc                    <span class="c">lat=105 lon=237 - verify the grid</span>
+
+<span class="c"># outputs</span>
+runs/aires/gate2/skill/PNW_HeatDome_2021_skill_vs_truth.json
+runs/aires/gate2/skill/PNW_HeatDome_2021_skill_vs_truth.csv
+runs/aires/gate2/skill/PNW_HeatDome_2021_members_vs_truth.csv</pre>
+  <p class="foot">
+    Reductions come from the experiment's own code - <code>xres.xmetrics.forecast_field</code>
+    for the 7-day-mean anomaly and <code>aires.aindex.area_mean</code> for the cos-lat area
+    mean - so a walker, an FCN3 score forecast and an ERA5 truth field are reduced by
+    identical functions.
+  </p>
+</section>
+
+<footer>
+  <span>AI+RES · branch <span class="num">aires</span></span>
+  <span>Gate 2 verdict: PASS (G2a 0.083 K · G2b 8.5 d · G2c 0.990)</span>
+  <span>Scored on Derecho, <span class="num">my-env</span></span>
+</footer>
+
+</div>
+
+<div class="tip" id="tip" role="status" aria-live="polite"></div>
+
+<script type="module">
+const D = {"AL_pnw":{"adapter":[1.078,1.623,2.289,-2.131,-3.604,8.709,3.579,-0.239,3.339,2.056,-0.259,2.211,3.051,3.604,4.487,1.778,2.36,-0.89,-3.146,-1.335,4.102,3.258,0.154,0.431],"native":[2.932,-0.614,6.861,-1.415,-1.715,1.664,3.206,4.885,3.943,1.22,-1.852,-1.944,0.606,1.754,0.041,5.986,5.424,7.873,2.188,-0.867,2.785,6.633,-0.677,5.917]},"AL_conus":{"adapter":[0.187,1.498,-0.118,1.083,1.091,0.701,1.252,1.373,0.402,0.485,0.582,1.012,1.486,0.904,0.712,0.818,1.199,0.236,0.589,0.448,1.479,0.792,1.337,0.899],"native":[1.26,1.661,-0.39,1.593,1.31,0.998,1.526,0.477,1.364,1.313,0.745,0.991,1.401,1.341,0.055,1.247,0.036,1.508,1.635,0.403,0.19,1.278,0.55,-0.044]},"obs":{"PNW":7.716,"CONUS":0.643,"PNW_hrrr":6.887,"CONUS_hrrr":0.229},"lead":[0.0,0.25,0.5,0.75,1.0,1.25,1.5,1.75,2.0,2.25,2.5,2.75,3.0,3.25,3.5,3.75,4.0,4.25,4.5,4.75,5.0,5.25,5.5,5.75,6.0,6.25,6.5,6.75,7.0,7.25,7.5,7.75,8.0,8.25,8.5,8.75,9.0,9.25,9.5,9.75,10.0,10.25,10.5,10.75,11.0,11.25,11.5,11.75,12.0,12.25,12.5,12.75,13.0,13.25,13.5,13.75,14.0,14.25,14.5,14.75,15.0,15.25,15.5,15.75,16.0,16.25,16.5,16.75,17.0,17.25,17.5,17.75,18.0,18.25,18.5,18.75,19.0,19.25,19.5,19.75,20.0,20.25,20.5,20.75,21.0],"d_paired":[0.0,0.3772,0.3622,0.3856,0.3704,0.3184,0.2976,0.3715,0.3498,0.283,0.2644,0.3818,0.3945,0.3393,0.3467,0.5644,0.6062,0.4891,0.4989,0.7513,0.7134,0.5949,0.5985,0.8785,0.9271,0.8291,0.8124,1.2702,1.3543,1.1005,1.0871,1.6769,1.7175,1.3654,1.2914,1.7948,1.8675,1.5933,1.5577,2.1499,2.2656,1.9712,1.909,2.5728,2.668,2.2671,2.1703,2.8947,3.0245,2.5752,2.418,3.2423,3.4193,2.8923,2.6838,3.5442,3.5754,3.0296,2.7372,3.6693,3.7676,3.1209,2.8043,3.7919,3.8987,3.2113,2.8704,3.8859,4.0029,3.2373,2.9096,3.8944,3.9626,3.2072,2.8567,3.9459,4.0993,3.2311,2.8993,4.108,4.3219,3.3633,2.9364,4.2652,4.5974],"d_internal":[0.0001,1.0696,1.122,1.3318,1.3527,1.3703,1.343,1.7384,1.6742,1.496,1.4902,1.851,1.897,1.7135,1.625,2.1431,2.2013,1.8709,1.8247,2.4477,2.4032,2.1107,2.087,2.6507,2.7564,2.4996,2.3999,3.119,3.2979,2.8615,2.6584,3.64,3.7851,3.2535,3.0487,3.6794,3.6322,3.2321,3.0534,3.6708,3.823,3.4,3.2905,4.05,4.1535,3.671,3.4343,4.2553,4.2792,3.6419,3.3141,4.131,4.2115,3.5481,3.2173,4.3749,4.5364,3.7089,3.4224,4.5738,4.7072,3.8486,3.4406,4.5441,4.6472,3.8532,3.5316,4.5902,4.6254,3.8818,3.494,4.4237,4.4738,3.7441,3.3197,4.2938,4.4652,3.6366,3.2729,4.3443,4.6311,3.7328,3.3178,4.3397,4.6437],"rho":[null,0.9861,0.9896,0.9904,0.9722,0.9913,0.9957,0.9696,0.9852,0.9826,0.9939,0.9913,0.9817,0.9904,0.9783,0.9861,0.9426,0.9609,0.9435,0.9548,0.96,0.9687,0.9374,0.9617,0.9791,0.9739,0.9678,0.9652,0.9843,0.9504,0.9565,0.9296,0.9017,0.947,0.9513,0.9174,0.9174,0.933,0.9209,0.7557,0.7591,0.8061,0.807,0.6313,0.6339,0.7226,0.6148,0.48,0.5078,0.6,0.6096,0.493,0.56,0.2991,0.333,0.5017,0.3548,0.1896,0.3235,0.307,0.1443,0.2096,0.2901,0.033,-0.0443,-0.1174,0.0591,0.013,0.1087,0.0478,0.1,0.2043,0.2035,0.1339,0.3391,0.213,0.1722,0.0922,0.0722,0.1391,0.133,-0.0165,-0.0591,-0.1087,-0.0122],"paired":{"CONUS":{"d_rmse_mean":-0.04996013641357422,"d_rmse_se":0.15429837244303038,"d_rmse_t":-0.32378913414670246,"d_AL_mean":-0.08343777790044744,"d_AL_se":0.149153611159331,"d_rmse_ens_mean":0.09908771514892578,"d_crps":0.008468389511108398,"d_acc":-0.07523012161254883},"PNW":{"d_rmse_mean":0.7888009746869405,"d_rmse_se":0.7025878388218249,"d_rmse_t":1.1227079819794308,"d_AL_mean":-0.7635518767250081,"d_AL_se":0.7636851046998012,"d_rmse_ens_mean":0.7887639999389648,"d_crps":1.0481770038604736,"d_acc":-0.0011104345321655273}},"noise":{"CONUS":{"split_half_abs_d_rmse_median":0.23061031103134155,"split_half_abs_d_rmse_p90":0.5721879363059998,"split_half_abs_d_AL_median":0.17257153987884521,"split_half_abs_d_AL_p90":0.4208918571472168,"bootstrap_se_rmse_M24":0.16836617397615378,"n_draws":2000},"PNW":{"split_half_abs_d_rmse_median":0.8611938953399658,"split_half_abs_d_rmse_p90":2.120808744430543,"split_half_abs_d_AL_median":0.8591769337654114,"split_half_abs_d_AL_p90":2.106827378273011,"bootstrap_se_rmse_M24":0.6304886067390313,"n_draws":2000}}};
+
+const tip = document.getElementById("tip");
+function showTip(evt, html) {
+  tip.innerHTML = html;
+  tip.style.opacity = "1";
+  const pad = 14, r = tip.getBoundingClientRect();
+  let x = evt.clientX + pad, y = evt.clientY + pad;
+  if (x + r.width > window.innerWidth - 8) x = evt.clientX - r.width - pad;
+  if (y + r.height > window.innerHeight - 8) y = evt.clientY - r.height - pad;
+  tip.style.left = x + "px"; tip.style.top = y + "px";
+}
+const hideTip = () => { tip.style.opacity = "0"; };
+
+const SVGNS = "http://www.w3.org/2000/svg";
+function el(name, attrs = {}, parent = null) {
+  const n = document.createElementNS(SVGNS, name);
+  for (const [k, v] of Object.entries(attrs)) n.setAttribute(k, v);
+  if (parent) parent.appendChild(n);
+  return n;
+}
+function txt(parent, x, y, s, cls = "", extra = {}) {
+  const t = el("text", { x, y, ...extra }, parent);
+  if (cls) t.setAttribute("class", cls);
+  t.textContent = s;
+  return t;
+}
+function svgRoot(mount, w, h) {
+  const s = el("svg", { viewBox: `0 0 ${w} ${h}`, width: w, height: h,
+                        preserveAspectRatio: "xMinYMin meet", role: "img" });
+  s.style.minWidth = Math.min(w, 560) + "px";
+  document.getElementById(mount).appendChild(s);
+  return s;
+}
+const fmt = (v, n = 2) => (v >= 0 ? "+" : "−") + Math.abs(v).toFixed(n);
+
+/* ---------------- FIG 1: effect vs noise ---------------- */
+(function () {
+  const rows = [
+    { lab: "CONUS   RMSE",  d: Math.abs(D.paired.CONUS.d_rmse_ens_mean), med: D.noise.CONUS.split_half_abs_d_rmse_median, p90: D.noise.CONUS.split_half_abs_d_rmse_p90, unit: "K" },
+    { lab: "CONUS   Aₗ", d: Math.abs(D.paired.CONUS.d_AL_mean),       med: D.noise.CONUS.split_half_abs_d_AL_median,   p90: D.noise.CONUS.split_half_abs_d_AL_p90,   unit: "K" },
+    { lab: "PNW   RMSE",    d: Math.abs(D.paired.PNW.d_rmse_ens_mean),   med: D.noise.PNW.split_half_abs_d_rmse_median,   p90: D.noise.PNW.split_half_abs_d_rmse_p90,   unit: "K" },
+    { lab: "PNW   Aₗ",   d: Math.abs(D.paired.PNW.d_AL_mean),         med: D.noise.PNW.split_half_abs_d_AL_median,     p90: D.noise.PNW.split_half_abs_d_AL_p90,     unit: "K" },
+  ];
+  const W = 780, H = 250, L = 138, R = 78, T = 34, B = 44;
+  const iw = W - L - R, ih = H - T - B;
+  const xmax = 2.3, x = v => L + (v / xmax) * iw;
+  const rowH = ih / rows.length, cy = i => T + rowH * (i + 0.5);
+
+  const s = svgRoot("fig-noise", W, H);
+  s.setAttribute("aria-label", "Observed adapter minus native differences plotted against the split-half noise range of the native ensemble; all four fall at or below the median.");
+
+  for (const v of [0, 0.5, 1, 1.5, 2]) {
+    el("line", { class: "gridline", x1: x(v), x2: x(v), y1: T - 6, y2: T + ih }, s);
+    txt(s, x(v), T + ih + 17, v.toFixed(1), "", { "text-anchor": "middle" });
+  }
+  txt(s, L, T + ih + 34, "ABSOLUTE DIFFERENCE  (K)", "axis-title");
+  el("line", { class: "axisline", x1: L, x2: L, y1: T - 6, y2: T + ih }, s);
+
+  rows.forEach((r, i) => {
+    const y = cy(i);
+    txt(s, L - 14, y + 4, r.lab, "rowname", { "text-anchor": "end" });
+    // noise band: median -> p90
+    el("rect", { x: x(r.med), y: y - 9, width: Math.max(1, x(r.p90) - x(r.med)), height: 18,
+                 fill: "var(--band)", rx: 2 }, s);
+    // 0 -> median, lighter
+    el("rect", { x: x(0), y: y - 9, width: x(r.med) - x(0), height: 18,
+                 fill: "var(--band)", opacity: 0.42, rx: 2 }, s);
+    el("line", { x1: x(r.med), x2: x(r.med), y1: y - 13, y2: y + 13,
+                 stroke: "var(--faint)", "stroke-width": 2 }, s);
+    // observed |delta|
+    el("circle", { cx: x(r.d), cy: y, r: 6, fill: "var(--adapter)",
+                   stroke: "var(--panel)", "stroke-width": 2 }, s);
+    txt(s, x(r.p90) + 10, y + 4, r.d.toFixed(2) + " K", "dlabel");
+    const hit = el("rect", { x: L, y: y - rowH / 2, width: iw + R - 10, height: rowH,
+                             fill: "transparent" }, s);
+    hit.addEventListener("mousemove", e => showTip(e,
+      `<b>${r.lab.replace(/\s+/g, " ")}</b><br>
+       <span class="k">observed |Δ|</span> ${r.d.toFixed(3)} K<br>
+       <span class="k">split-half median</span> ${r.med.toFixed(3)} K<br>
+       <span class="k">split-half p90</span> ${r.p90.toFixed(3)} K`));
+    hit.addEventListener("mouseleave", hideTip);
+  });
+})();
+
+/* ---------------- FIG 2: divergence by lead ---------------- */
+(function () {
+  const W = 820, H = 320, L = 58, R = 96, T = 26, B = 48;
+  const iw = W - L - R, ih = H - T - B;
+  const xmax = 21, ymax = 5.2;
+  const x = v => L + (v / xmax) * iw, y = v => T + ih - (v / ymax) * ih;
+
+  const s = svgRoot("fig-div", W, H);
+  s.setAttribute("aria-label", "Adapter-versus-native divergence stays below FourCastNet 3's own internal noise at every lead, converging to it only at day 21.");
+
+  // verification window shading (lead 14 to 21 d)
+  el("rect", { x: x(14), y: T, width: x(21) - x(14), height: ih, fill: "var(--shade)" }, s);
+  txt(s, (x(14) + x(21)) / 2, T + 14, "VERIFICATION WEEK", "axis-title", { "text-anchor": "middle" });
+
+  for (let v = 0; v <= 5; v++) {
+    el("line", { class: "gridline", x1: L, x2: L + iw, y1: y(v), y2: y(v) }, s);
+    txt(s, L - 9, y(v) + 4, v.toFixed(0), "", { "text-anchor": "end" });
+  }
+  for (const v of [0, 3, 6, 9, 12, 15, 18, 21]) {
+    txt(s, x(v), T + ih + 18, v, "", { "text-anchor": "middle" });
+    el("line", { class: "gridline", x1: x(v), x2: x(v), y1: T + ih, y2: T + ih + 5 }, s);
+  }
+  txt(s, L, T + ih + 36, "FORECAST LEAD  (DAYS)", "axis-title");
+  txt(s, L - 9, T - 10, "K", "axis-title", { "text-anchor": "end" });
+  el("line", { class: "axisline", x1: L, x2: L + iw, y1: T + ih, y2: T + ih }, s);
+
+  const path = (arr) => arr.map((v, i) => `${i ? "L" : "M"}${x(D.lead[i]).toFixed(1)},${y(v).toFixed(1)}`).join(" ");
+  el("path", { d: path(D.d_internal), fill: "none", stroke: "var(--truth)",
+               "stroke-width": 2, "stroke-linejoin": "round" }, s);
+  el("path", { d: path(D.d_paired), fill: "none", stroke: "var(--adapter)",
+               "stroke-width": 2, "stroke-linejoin": "round" }, s);
+
+  const last = D.lead.length - 1;
+  txt(s, x(21) + 9, y(D.d_internal[last]) + 4, "dᵢₙₜ  " + D.d_internal[last].toFixed(2), "dlabel");
+  txt(s, x(21) + 9, y(D.d_paired[last]) + 16, "dₚₐᵢᵣ  " + D.d_paired[last].toFixed(2), "dlabel");
+
+  // ratio annotations at two informative leads
+  for (const L2 of [5, 12]) {
+    const i = D.lead.indexOf(L2);
+    if (i < 0) continue;
+    el("line", { x1: x(L2), x2: x(L2), y1: y(D.d_paired[i]), y2: y(D.d_internal[i]),
+                 stroke: "var(--faint)", "stroke-width": 1, "stroke-dasharray": "2 3" }, s);
+    el("circle", { cx: x(L2), cy: y(D.d_paired[i]), r: 4, fill: "var(--adapter)",
+                   stroke: "var(--panel)", "stroke-width": 1.5 }, s);
+    el("circle", { cx: x(L2), cy: y(D.d_internal[i]), r: 4, fill: "var(--truth)",
+                   stroke: "var(--panel)", "stroke-width": 1.5 }, s);
+    txt(s, x(L2) + 7, (y(D.d_paired[i]) + y(D.d_internal[i])) / 2 + 4,
+        (D.d_paired[i] / D.d_internal[i]).toFixed(2) + "×", "dlabel");
+  }
+
+  // crosshair
+  const cross = el("line", { y1: T, y2: T + ih, stroke: "var(--faint)",
+                             "stroke-width": 1, opacity: 0 }, s);
+  const overlay = el("rect", { x: L, y: T, width: iw, height: ih, fill: "transparent" }, s);
+  overlay.addEventListener("mousemove", e => {
+    const bb = s.getBoundingClientRect();
+    const px = (e.clientX - bb.left) * (W / bb.width);
+    const lead = Math.max(0, Math.min(xmax, ((px - L) / iw) * xmax));
+    let i = 0, best = Infinity;
+    D.lead.forEach((v, k) => { const d = Math.abs(v - lead); if (d < best) { best = d; i = k; } });
+    cross.setAttribute("x1", x(D.lead[i])); cross.setAttribute("x2", x(D.lead[i]));
+    cross.setAttribute("opacity", 0.6);
+    showTip(e, `<b>lead ${D.lead[i].toFixed(2)} d</b><br>
+      <span class="k">d<sub>paired</sub></span> ${D.d_paired[i].toFixed(3)} K<br>
+      <span class="k">d<sub>internal</sub></span> ${D.d_internal[i].toFixed(3)} K<br>
+      <span class="k">ratio</span> ${(D.d_paired[i] / D.d_internal[i]).toFixed(3)}${
+        D.rho[i] == null ? "" : `<br><span class="k">rank corr.</span> ${D.rho[i].toFixed(3)}`}`);
+  });
+  overlay.addEventListener("mouseleave", () => { cross.setAttribute("opacity", 0); hideTip(); });
+})();
+
+/* ---------------- FIG 3: per-member A_L vs observed ---------------- */
+(function () {
+  const W = 820, H = 236, L = 116, R = 30, T = 30, B = 48;
+  const iw = W - L - R, ih = H - T - B;
+  const xmin = -4.5, xmax = 9.5;
+  const x = v => L + ((v - xmin) / (xmax - xmin)) * iw;
+
+  const s = svgRoot("fig-al", W, H);
+  s.setAttribute("aria-label", "Per-member PNW anomaly index for both ensembles; the observed value of +7.72 K sits at the extreme right edge, reached by one member of 24 in each.");
+
+  const series = [
+    { key: "adapter", lab: "adapter IC", col: "var(--adapter)", y: T + ih * 0.30 },
+    { key: "native",  lab: "native IC",  col: "var(--native)",  y: T + ih * 0.74 },
+  ];
+
+  for (let v = -4; v <= 8; v += 2) {
+    el("line", { class: "gridline", x1: x(v), x2: x(v), y1: T, y2: T + ih }, s);
+    txt(s, x(v), T + ih + 18, fmt(v, 0), "", { "text-anchor": "middle" });
+  }
+  el("line", { class: "zeroline", x1: x(0), x2: x(0), y1: T, y2: T + ih }, s);
+  txt(s, L, T + ih + 36, "7-DAY-MEAN T2M ANOMALY OVER THE PNW BOX  (K)", "axis-title");
+
+  // observed
+  el("line", { x1: x(D.obs.PNW), x2: x(D.obs.PNW), y1: T - 8, y2: T + ih,
+               stroke: "var(--truth)", "stroke-width": 2.5 }, s);
+  txt(s, x(D.obs.PNW) - 8, T - 12, "OBSERVED  +7.72 K", "dlabel", { "text-anchor": "end" });
+
+  series.forEach(ser => {
+    const vals = D.AL_pnw[ser.key];
+    const mean = vals.reduce((a, b) => a + b, 0) / vals.length;
+    el("line", { x1: L, x2: L + iw, y1: ser.y, y2: ser.y, stroke: "var(--rule)", "stroke-width": 1 }, s);
+    txt(s, L - 14, ser.y + 4, ser.lab, "rowname", { "text-anchor": "end" });
+    // mean marker
+    el("line", { x1: x(mean), x2: x(mean), y1: ser.y - 20, y2: ser.y + 20,
+                 stroke: "var(--faint)", "stroke-width": 2 }, s);
+    txt(s, x(mean), ser.y + 34, "mean " + fmt(mean), "dlabel", { "text-anchor": "middle" });
+    // dots, jittered deterministically by index parity so overlaps stay readable
+    vals.forEach((v, i) => {
+      const dy = ((i % 3) - 1) * 4.6;
+      const c = el("circle", { cx: x(v), cy: ser.y + dy, r: 5, fill: ser.col,
+                               "fill-opacity": 0.78, stroke: "var(--panel)", "stroke-width": 1.6 }, s);
+      c.addEventListener("mousemove", e => showTip(e,
+        `<b>${ser.lab} · member ${i}</b><br>
+         <span class="k">Aₗ (PNW)</span> ${fmt(v)} K<br>
+         <span class="k">observed</span> ${fmt(D.obs.PNW)} K<br>
+         <span class="k">shortfall</span> ${(D.obs.PNW - v).toFixed(2)} K`));
+      c.addEventListener("mouseleave", hideTip);
+    });
+  });
+})();
+</script>

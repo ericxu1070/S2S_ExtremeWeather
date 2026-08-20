@@ -1,0 +1,31 @@
+[check] array index 8 == null_20241121 (null, seed 8333) -- matches fcn3.fevents.ALL_ORDER
+Host: nucla3m-a3meganodeset-6
+Start: Thu Aug 20 00:52:36 UTC 2026
+GPU 0: NVIDIA H100 80GB HBM3 (UUID: GPU-b8ea1035-0007-7515-3dd6-af91b019c0d5)
+GPU 1: NVIDIA H100 80GB HBM3 (UUID: GPU-d6d50080-e779-0925-0ed6-43a4555a210a)
+GPU 2: NVIDIA H100 80GB HBM3 (UUID: GPU-511024c1-3c7e-7c77-1079-2f1703c3eab2)
+GPU 3: NVIDIA H100 80GB HBM3 (UUID: GPU-5af99110-d654-920b-c96a-2bd40ba27b5f)
+GPU 4: NVIDIA H100 80GB HBM3 (UUID: GPU-d99414f2-afb8-63e6-e2f0-9c1d091423da)
+GPU 5: NVIDIA H100 80GB HBM3 (UUID: GPU-85259381-d999-65b3-d62c-cdcff9d594cb)
+GPU 6: NVIDIA H100 80GB HBM3 (UUID: GPU-dee27eeb-a837-8f09-94f0-3f975e31b9e4)
+GPU 7: NVIDIA H100 80GB HBM3 (UUID: GPU-af7e590f-89d8-8ce1-c223-d556791a6b06)
+adaptest: event=null_20241121 (array 8) members=24 nshards=8 weeks=3
+CPU: 208 cores / 8 shards -> OMP_NUM_THREADS=26 per shard
+[native] cube already built -> runs/fcn3/week3/cache/null_20241121_cube.nc   (nothing to do)
+=== [adapter] rolling 24 members of null_20241121 across 8 GPUs (Thu Aug 20 00:52:37 UTC 2026)
+--- [adapter] attempt 1/3 (Thu Aug 20 00:52:37 UTC 2026)
+  [adapter] launched shard 0 on GPU 0 (pid 3176047)
+  [adapter] launched shard 1 on GPU 1 (pid 3176048)
+  [adapter] launched shard 2 on GPU 2 (pid 3176049)
+  [adapter] launched shard 3 on GPU 3 (pid 3176050)
+  [adapter] launched shard 4 on GPU 4 (pid 3176051)
+  [adapter] launched shard 5 on GPU 5 (pid 3176052)
+  [adapter] launched shard 6 on GPU 6 (pid 3176053)
+  [adapter] launched shard 7 on GPU 7 (pid 3176054)
+  [adapter] all shards done; merging ...
+[assemble] null_20241121: wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/aires/gate2/cache/null_20241121_adapter_cube.nc {'member': 24, 'time': 85, 'lat': 105, 'lon': 237}
+-rw-rw-r-- 1 ubuntu ubuntu 203074170 Aug 20 01:03 runs/aires/gate2/cache/null_20241121_adapter_cube.nc
+End: Thu Aug 20 01:03:53 UTC 2026
+When every array task is done, on the login node in moe:
+  PYTHONPATH=. python -m aires.adaptest --stage score
+  PYTHONPATH=. python -m aires.adaptest --stage report
