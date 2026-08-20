@@ -30,11 +30,11 @@ Visual summaries:
 | 1 - Gate 3 (score skill, the go/no-go) | **PASS**, a3mega job **1160** (2 h 08 m, one node). rho_s = 0.797 at t_k = 9 d and 0.959 at 12 d, against a 0.5 threshold; persistence scores 0.062 and 0.129 at the same leads. See "What Gate 3 established" |
 | 2 - RES core + C_k tuning | **done**, CPU only. `aires/dmc.py` validated against an analytic Ornstein-Uhlenbeck problem; `aires/ctune.py` replays the schedule on the measured Gate 3 skill curve. `aires.md`'s C_k is **validated as-is**. See "What Phase 2 established" |
 | 3 - workers + Slurm driver | **done**, smoke-tested on the hardware (job **1161**, 30.7 min). `aires/run_aires.py`, `slurm/aires_res.slurm`, `slurm/aires_env.sh`. The loop rolled clones, resampled on real FCN3 scores, pruned states, and replayed bit-identically in 2 s. See "What Phase 3 established" |
-| 4 - run the pilot + figures | **in progress.** `aires/aplots.py` is written and smoke-tested on a synthetic run tree (4 figures, 6 of `aires.md`'s items). The DS baseline is built. The pilot itself is job **1172**, submitted 2026-08-20 |
+| 4 - run the pilot + figures | **done**, job **1172** (7 h 45 m). AI+RES reaches the observed dome (42/64 walkers) where 40 direct GenCast members do not (0/40); P = 0.054. See "What Phase 4 established" |
 | 5 | not started |
 | follow-up - adapter skill vs truth, 6 events + 4 null controls (branch `adapter-test`) | **DONE.** 10/10 cases rolled and scored (jobs 1162, 1167, 1171). Pooled effect **+0.23% [-5.20, +5.65]**, sign 6/10, extreme-vs-null contrast p 0.505 - no effect detectable at +-5.4%, no regime dependence. See "The adapter test" below |
 
-**Phases 1, 2 and 3 are complete.** All three gates pass, the RES core is validated, and
+**Phases 1-4 are complete.** All three gates pass, the RES core is validated, and
 the driver that runs it on real walkers exists and has been exercised end to end on an
 8xH100 node. What is left is Phase 4: submit the pilot and write the figures. See
 "Start here for Phase 4" below. a3mega holds the calibration, the Gate 2 cubes, the 16
@@ -634,43 +634,111 @@ than on Gate 3's 16 walkers. The `gencast` PFS backend is **not** implemented - 
 nested GenCast ensemble per walker per resampling time, i.e. the cost of the whole
 experiment again.
 
-## Phase 4 in flight - job 1172 (pilot, N=64, fcn3 backend)
+## What Phase 4 established - the pilot (job 1172, N=64, FCN3 score)
 
-Submitted 2026-08-20. Legs 1-2 walked, first real resampling done. Recorded as it happens
-because a mid-run diagnosis is the thing that gets lost once the figures exist.
+**AI+RES reached the observed heat dome; direct sampling does not.** 7 h 45 m on one
+8xH100 node, 465 min of coordinator wall - exactly the ~7.6 h the corrected rates predicted.
 
-| leg | phase | wall | outcome |
-|---|---|---|---|
-| 1 | walk (48 of 64 rolled; 16 seeded from Gate 3) | 40.3 min | `C_1 = 0` -> R = 1.0000, ESS 64/64, 0 killed, max mult 1 |
-| 2 | walk (48 of 64) | 34.4 min | |
-| 2 | score, 64 x M=6 from 6 d | 71.8 min | theta +1.975 +- 1.859 K, range [-2.38, +7.38] |
-| 2 | resample, `C_2 = 1.0` | - | R = 1.7702, **ESS 17.7/64 = 0.277**, 28 killed, max mult 11 |
-| 3 | walk (64 of 64) | 41.4 min | the clean rate measurement: 48 steps/shard -> ~52 s/step |
+| | n | mean A_L | sd | max | reaching the observed +7.72 K |
+|---|---|---|---|---|---|
+| **AI+RES** | 64 | +8.24 | 1.49 | **+10.29** | **42** |
+| GenCast direct (Gate 3 walkers) | 16 | +2.54 | 3.02 | +7.49 | 0 |
+| GenCast direct (xres) | 24 | +2.46 | 2.66 | +7.08 | 0 |
+| FCN3 direct | 24 | +2.29 | 3.10 | +7.87 | 1 |
 
-**`C_1 = 0` is the exact identity at N=64 too**, which is the empirical confirmation that
-`--stage prep`'s Gate 3 seeding of segment 2 is valid rather than merely argued.
+**The headline claim needs no estimator at all.** 42 of 64 resampled walkers reach or
+exceed the ERA5 value and the population extends to +10.29 K, while 40 direct GenCast
+members stop at +7.49 K and reach it zero times. That is a statement about where walkers
+landed - it does not depend on a single weight - and it is what `aires.md` scoped the pilot
+to answer.
 
-**The step-2 ESS came in at the 5th percentile of Phase 2's replay, and that is sampling
-luck, not a mis-tuned schedule.** `ctune`'s replay at N=64 puts step 2 at ESS/N = 0.431 on
-average (p10 0.317, p90 0.529) and max multiplicity 6.8 (p90 10); the pilot drew 0.277 and
-11. Both sit at about the 5th percentile. Three things say this is not a problem:
+**The probability, which does depend on the weights: `P(A_L >= +7.72) = 0.054`,** about 1
+in 19 members. The estimated curve runs out to `P = 3.9e-4` (1 in 2600) at +10.29 K, where
+40 direct draws can only report a 95% upper bound of 0.14-0.19. Read it with the
+calibration below, not as three significant figures.
 
-- **The score is not heavy-tailed.** Shapiro-Wilk on the 64 standardized scores gives
-  p = 0.51, skew +0.40, excess kurtosis +0.49 - consistent with the Gaussian the surrogate
-  assumes. The low ESS is two walkers at z = 2.68 and 2.91 taking most of the weight.
-- **Exactly-Gaussian scores at N=64 do the same thing this often.** Simulating the step
-  directly: ESS/N = 0.429 on average, 0.268 at the 5th percentile. The observed 0.276 is a
-  6th-percentile draw of a well-behaved distribution, so the shortfall is the sampling
-  error of an N=64 ESS, not a property of the schedule.
-- **A hard early step does not propagate.** Conditioning the replay on a step-2 ESS at or
-  below 0.277 (95 of 2000 runs), the FINAL ESS/N comes out at 0.656 on average with a p10
-  of 0.502, and **none** end below the N/4 target - an early consolidation onto good
-  ancestors leaves the later steps less degenerate, because the weights telescope.
+### Is the estimator trustworthy here?
 
-So the run continues. What to check at the end is the FINAL ESS against N/4, not this one.
-Read the caveat in "What Phase 2 established" alongside it: the surrogate is a Gaussian
-caricature calibrated to one event's skill curve, and here the Gaussian part is supported
-by the data rather than contradicted by it.
+Two checks, and they say different things:
+
+- **Where RES and direct sampling can both be measured, they agree.** Over +3.7 to +6.8 K
+  the ratio of the two exceedance curves has a geometric mean of 1.27 and a range of
+  0.97-2.13 - inside the sampling error of 16-24 direct draws, whose own Wilson intervals
+  span factors of two to three there. The RES curve is not systematically displaced.
+- **The total-mass check is 0.568, not 1** - and that is ordinary, not a bug. Replaying the
+  schedule 2000 times at N=64 puts 0.568 at the **33rd percentile**; the statistic is
+  strongly right-skewed (mean 0.99, **median 0.73**, sd 1.17) and 36% of runs land below
+  0.6. `dmc.py`'s "should be ~1" is the mean, not what a single run at this N typically
+  reads.
+
+The mechanism behind both is the same, and it is visible in the weight histogram: 58 of the
+64 final weights sit near 1 and the total mass is carried by about three walkers at 10, 12
+and 34.5. **RES deliberately abandons the bulk** - only 11 of 64 founders still have
+descendants and no walker finished below +3.54 K - so the mass that belongs at low `A_L` is
+represented by a handful of heavily-weighted survivors and `P(everything)` is noisy. Below
++3.54 K the RES curve is flat at 0.568 because it has no members there; that segment is the
+total-mass check drawn sideways, **not** a bulk estimate, and must not be read as one.
+Absolute probabilities carry roughly a factor of two at this N. The ratio comparisons and
+the qualitative reach do not.
+
+### The schedule held up
+
+| step | 3 d | 6 d | 9 d | 12 d | 15 d |
+|---|---|---|---|---|---|
+| pilot ESS/N | 1.00 | 0.277 | 0.261 | 0.461 | **0.602** |
+| `ctune` replay | 1.00 | 0.431 | 0.358 | 0.378 | 0.583 |
+| pilot max children | 1 | 11 | 11 | 8 | 3 |
+
+It ran hot in the middle - steps 2 and 3 sat at about the 5th percentile of the replay -
+and finished essentially on the predicted value, **0.602 against the N/4 = 0.25 target**.
+The mid-run diagnosis was made before the answer was known, and held: the step-2 scores
+were consistent with Gaussian (Shapiro-Wilk p = 0.51), exactly-Gaussian scores at N=64 give
+0.268 at their own 5th percentile, and replays conditioned on a step-2 ESS that low all
+finished above target, because consolidating early onto good ancestors leaves the later
+steps less degenerate. `C_k = (0, 1.0, 1.4, 1.8, 2.0)` is confirmed at N=64 on real scores.
+
+The score drove the population into the tail monotonically: theta = **+1.98, +4.07, +5.57,
++6.62 K** at 6/9/12/15 d.
+
+### Score skill on the resampled population, and why it reads lower than Gate 3
+
+`rho_s(theta(t_k), realized A_L)` came out **+0.23, +0.73, +0.85, +0.93** at 6/9/12/15 d,
+against Gate 3's +0.61, +0.80, +0.96 on free-running walkers. **That is range restriction,
+not a worse scorer.** Gate 3's 16 walkers spanned -3.2 to +7.5 K; the resampled population
+spans +3.5 to +10.3 K and is concentrated above +7. Correlation is attenuated by exactly
+that compression, and these walkers are descendants rather than independent draws, so the
+number is not comparable to the gate's - the figure says so on its face.
+
+### Clones separate on their own - the design bet paid off
+
+The paper perturbs log surface pressure with spherical harmonics because PlaSim is
+deterministic and its clones would otherwise be identical. GenCast's diffusion noise was
+supposed to make that unnecessary. It does: sibling clones born at 15 d differ by **1.0 K
+RMS 2 m temperature over CONUS after a single 12 h step**, growing to ~2.5 K by the 21 d
+horizon, against ~3.0-4.5 K for unrelated walkers.
+
+The honest half: at the horizon siblings are still separated by only about 60% of the
+unrelated-pair distance, so **clones remain correlated at verification** and the effective
+number of independent tail samples is smaller than 64. This is the first quantitative
+handle on that, and it is the argument for adding the paper's perturbation if a later run
+resamples harder or later.
+
+### Cost, measured
+
+| leg | walk | score |
+|---|---|---|
+| 1 (0-3 d) | 40.3 min (48 rolled, 16 seeded from Gate 3) | skipped, `C_1 = 0` |
+| 2 (3-6 d) | 34.4 min | 71.8 min |
+| 3 (6-9 d) | 41.4 min | 55.7 min |
+| 4 (9-12 d) | 42.0 min | 43.2 min |
+| 5 (12-15 d) | 39.0 min | 30.6 min |
+| 6 (15-21 d) | 64.9 min (128 segments) | - |
+
+Peak disk 37 GB against the 92 GB projected: with `--keep-states 2` only one or two
+segments of states are ever resident. All 448 diagnostics cubes retained.
+
+Artifacts: `runs/aires/PNW_HeatDome_2021/res/pilot/{res_result,compare}.json`,
+`compare_curve.csv`, and four figures `figures/aires/aires_*_PNW_HeatDome_2021_pilot.png`.
 
 ## The checkpoint bug that cost two runs (read before touching the walker)
 
