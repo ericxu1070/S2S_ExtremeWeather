@@ -6,6 +6,8 @@ Four figures, covering the six items `aires.md` lists. Each reads only artifacts
 plus, for the two that need fields rather than indices, the walker diagnostics cubes. No
 GPU, no model, no network.
 
+    trajectory    the algorithm happening: the observable against lead time, every
+                  branch the pilot rolled, the barriers, the 7-day window
     exceedance    the headline: does the RES tail contain the observed event when direct
                   sampling does not?                                     [aires.md fig 1]
     diagnostics   score skill per t_k, and whether N=64 held up          [figs 3, 4]
@@ -46,7 +48,7 @@ from aires import aconfig as A
 from aires import run_aires as R
 from fcn3 import fevents as F
 
-FIGURES = ("exceedance", "diagnostics", "genealogy", "composite")
+FIGURES = ("trajectory", "exceedance", "diagnostics", "genealogy", "composite")
 
 RES_COLOR = "#1f77b4"
 DS_STYLE = {
@@ -589,6 +591,357 @@ def plot_composite(ctx: R.Ctx, d: dict, top_frac: float = 0.15) -> Path:
 
 
 # --------------------------------------------------------------------------- #
+# Figure 7 - the trajectory plot (the paper's Fig. 1 shape)
+#
+# What the other four figures cannot show: the algorithm happening. Every other panel in
+# this set is a reduction - a distribution, a scatter, a slot index. This one puts the
+# observable itself on the y axis and lead time on the x axis, so a reader sees the
+# population being pushed up the tail one barrier at a time, sees which branches were
+# killed to pay for it, and sees the 7-day window at the end that turns 64 trajectories
+# into 64 numbers.
+#
+# The y axis is the walker's OWN running index - the cos(lat)-weighted box mean of the
+# instantaneous T2m anomaly at each 12 h frame - NOT the score theta. theta is a forecast
+# of where the walker will end up and lives at five discrete leads; this is where the
+# walker actually is. They are different quantities and mixing them on one axis is how a
+# figure ends up claiming the score was right when it is only self-consistent.
+# --------------------------------------------------------------------------- #
+DEAD_COLOR = "0.72"
+
+
+# The variables ``aindex.instantaneous_field`` actually consumes, per metric. A walker
+# diagnostics cube is ~35 MB of 12 prognostic variables on 13 levels; 64 of them held at
+# once is 2.2 GB, and Derecho's login node OOM-kills at less than that. Reading only the
+# metric's own variables drops a segment to well under 100 MB.
+METRIC_VARS = {
+    "t2m_anom": ("2m_temperature",),
+    "u850_speed": ("u_component_of_wind", "v_component_of_wind"),
+    "u850_speed_max": ("u_component_of_wind", "v_component_of_wind"),
+    "tp_total": ("total_precipitation_12hr",),
+    "tp_max12h": ("total_precipitation_12hr",),
+}
+
+
+def _seg_index_series(ctx: R.Ctx, segment: int, n_walkers: int):
+    """``(lead_days[nt], box[n_walkers, nt])`` - the running index for EVERY slot.
+
+    Loaded a segment at a time and reduced with one call to ``aindex.index_series``, so
+    the 1990-2019 climatology is sampled 7 times rather than 448. The slots at a given
+    segment share a time axis by construction (they are one leg of one schedule), which
+    is what makes the concat legal - and ``concat`` would raise if it were not.
+    """
+    from aires import aindex as AI
+
+    parts = []
+    for w in range(n_walkers):
+        p = ctx.diag_path(w, segment)
+        if not p.exists():
+            raise SystemExit(
+                f"no {p}\n  The trajectory figure needs every walker's diagnostics cube, "
+                f"including the branches that were killed. On a3mega they are under "
+                f"runs/aires/{ctx.event}/res/{ctx.tag}/walkers/w*/step*/diag.nc.")
+        want = METRIC_VARS.get(ctx.ev.metric)
+        with xr.open_dataset(p) as ds:
+            if want is None:
+                raise SystemExit(f"no variable list for metric {ctx.ev.metric!r}; add it "
+                                 f"to aplots.METRIC_VARS")
+            missing = [v for v in want if v not in ds]
+            if missing:
+                raise SystemExit(f"{p}: diagnostics cube is missing {missing}")
+            d = ds[list(want)].load()
+        d = d.drop_vars([c for c in ("lead_h",) if c in d.coords])
+        if "batch" in d.dims:
+            d = d.isel(batch=0, drop=True)
+        parts.append(d)
+    big = xr.concat(parts, dim="walker", coords="minimal", compat="override")
+    ser = AI.index_series(big, ctx.event, ctx.ev.metric)["box"].transpose("walker", "time")
+    t = pd.DatetimeIndex(big["time"].values)
+    lead = (t - pd.Timestamp(ctx.ev.init)).total_seconds() / 86400.0
+    out = (np.asarray(lead, dtype=float), np.asarray(ser.values, dtype=float))
+    for d in parts:
+        d.close()
+    big.close()
+    return out
+
+
+def daily(x, y):
+    """A 24 h running mean of a 12-hourly series: the mean of each consecutive pair.
+
+    The raw index carries a real diurnal swing of several kelvin - a heat dome's daytime
+    anomaly is much larger than its nighttime one, and the climatology is sampled per hour
+    so the anomaly does not remove it - which on 64 lineages reads as noise and hides the
+    trend the figure is about. Averaging pairs is continuous ACROSS a barrier because every
+    branch polyline carries its parent's last frame as its first point, so smoothing each
+    branch independently reconstructs exactly the same curve as smoothing a whole lineage.
+    """
+    x = np.asarray(x, dtype=float)
+    y = np.asarray(y, dtype=float)
+    if x.size < 2:
+        return x, y
+    return 0.5 * (x[:-1] + x[1:]), 0.5 * (y[:-1] + y[1:])
+
+
+def _parent_slot(legs, parents_by_leg: dict, walker: int, segment: int):
+    """Which slot's state segment ``(walker, segment)`` continued. ``None`` at the root.
+
+    The same rule as ``run_aires.parent_of``: only the first segment of a leg crosses a
+    resampling barrier. Duplicated here rather than imported because that function returns
+    a path and this needs the index.
+    """
+    leg = next(l for l in legs if segment in l.segments)
+    if segment == 1:
+        return None
+    if segment == leg.first_segment:
+        p = parents_by_leg.get(leg.k)
+        return walker if p is None else int(p[walker])
+    return walker
+
+
+def trajectory_tree(ctx: R.Ctx, d: dict) -> dict:
+    """Every branch the pilot rolled, alive or dead, as index-vs-lead polylines.
+
+    The surviving 64 come straight out of ``compare.json`` (``realized.series_box``), which
+    ``run_aires`` assembled across the genealogy with the same code that produced ``A_L``.
+    The dead branches are not in any artifact - nothing downstream needed them - so they
+    are rebuilt here from the diagnostics cubes and cross-checked against the surviving
+    ones. If the rebuild disagrees with ``series_box``, the genealogy walk is wrong and the
+    figure says so instead of drawing a plausible tree.
+    """
+    cfg = d["config"]
+    legs = A.res_legs(cfg["leads"], cfg["horizon_days"], cfg["C"])
+    n = int(cfg["n_walkers"])
+    segments = sorted({s for leg in legs for s in leg.segments})
+    par = R.parents_by_leg(ctx)
+
+    seg = {}
+    for s in segments:
+        seg[s] = _seg_index_series(ctx, s, n)
+        print(f"    segment {s}: {seg[s][1].shape[1]} frames, "
+              f"lead {seg[s][0][0]:.1f}-{seg[s][0][-1]:.1f} d")
+
+    lin = d["realized"]["lineage"]
+    alive = {(int(lin[i][str(s)]), s) for i in range(len(lin)) for s in segments}
+
+    # Rebuild one surviving trajectory the hard way and check it against the artifact.
+    lead_art = np.asarray(d["realized"]["lead_days"], dtype=float)
+    rebuilt = np.concatenate([seg[s][1][int(lin[0][str(s)])] for s in segments])
+    lead_reb = np.concatenate([seg[s][0] for s in segments])
+    art = np.asarray(d["realized"]["series_box"][0], dtype=float)
+    if rebuilt.shape != art.shape or not np.allclose(rebuilt, art, atol=1e-6):
+        raise SystemExit(
+            "the genealogy walk in this figure disagrees with realized.series_box in "
+            f"compare.json (max |diff| {np.nanmax(np.abs(rebuilt - art)) if rebuilt.shape == art.shape else float('nan'):.4g}). "
+            "Do not read the tree; fix the parent lookup first.")
+    if not np.allclose(lead_reb, lead_art, atol=1e-6):
+        raise SystemExit("rebuilt lead axis does not match compare.json's lead_days")
+
+    # children, so a branch with no descendant can be drawn as a branch that ENDS
+    kids: dict[tuple, list] = {}
+    for s in segments:
+        if s == 1:
+            continue
+        for w in range(n):
+            kids.setdefault((_parent_slot(legs, par, w, s), s - 1), []).append(w)
+
+    branches, deaths = [], []
+    for s in segments:
+        lead_s, box_s = seg[s]
+        for w in range(n):
+            if (w, s) in alive:
+                continue                      # drawn as part of a full surviving path
+            p = _parent_slot(legs, par, w, s)
+            if p is None:
+                x, y = lead_s, box_s[w]
+            else:
+                lead_p, box_p = seg[s - 1]
+                x = np.concatenate([lead_p[-1:], lead_s])
+                y = np.concatenate([box_p[p][-1:], box_s[w]])
+            xs, ys = daily(x, y)
+            branches.append((xs.tolist(), ys.tolist()))
+            if not kids.get((w, s)):
+                deaths.append((float(xs[-1]), float(ys[-1])))
+
+    killed = {}
+    for leg in legs:
+        p = par.get(leg.k)
+        if p is not None:
+            killed[leg.k] = n - len(set(int(x) for x in p))
+    return dict(lead=lead_art.tolist(), segments=segments, dead=branches,
+                deaths=deaths, killed=killed, n_dead_nodes=len(branches))
+
+
+def plot_trajectory(ctx: R.Ctx, d: dict, tree: dict | None = None) -> Path:
+    import matplotlib
+    matplotlib.use("Agg")
+    import matplotlib.pyplot as plt
+    from matplotlib import cm, colors
+    from matplotlib.lines import Line2D
+
+    cfg = d["config"]
+    legs = A.res_legs(cfg["leads"], cfg["horizon_days"], cfg["C"])
+    n = int(cfg["n_walkers"])
+    tree = tree if tree is not None else trajectory_tree(ctx, d)
+
+    lead = np.asarray(tree["lead"], dtype=float)
+    series = np.asarray(d["realized"]["series_box"], dtype=float)   # (n, nt)
+    al = np.asarray(d["realized"]["box"], dtype=float)
+    obs = d.get("observed")
+    theta = d.get("res", {}).get("theta") or []
+
+    norm = colors.Normalize(vmin=float(al.min()), vmax=float(al.max()))
+    # NOT coolwarm here, unlike the genealogy figure: its midpoint is near-white, and on
+    # this panel a mid-A_L survivor drawn in near-white is indistinguishable from a grey
+    # killed branch - the one distinction the figure exists to make. A saturated ramp with
+    # no neutral point, truncated away from its palest end, keeps every survivor readable.
+    base = matplotlib.colormaps["YlOrRd" if ctx.sign > 0 else "YlGnBu"]
+    cmap = colors.LinearSegmentedColormap.from_list(
+        "survivors", base(np.linspace(0.32, 1.0, 256)))
+
+    fig = plt.figure(figsize=(15.5, 7.4))
+    gs = fig.add_gridspec(1, 3, width_ratios=[4.6, 1.0, 0.05], wspace=0.06)
+    ax = fig.add_subplot(gs[0, 0])
+    axm = fig.add_subplot(gs[0, 1], sharey=ax)
+    cax = fig.add_subplot(gs[0, 2])
+
+    # --- the 7-day window A_L is the mean over ----------------------------------- #
+    peak_lead = float(cfg["horizon_days"])
+    win = np.asarray(_window_lead(ctx, d), dtype=float)
+    w0, w1 = float(win.min()), float(win.max())
+    ax.axvspan(w0, w1, color="#f0c040", alpha=0.16, lw=0, zorder=0)
+    ax.text((w0 + w1) / 2, 0.985,
+            f"$A_L$ = the 7-day mean\nover these {win.size} frames",
+            transform=ax.get_xaxis_transform(), ha="center", va="top", fontsize=8.5,
+            color="#8a5a12", linespacing=1.35)
+
+    # --- killed branches, then the survivors on top ------------------------------ #
+    for x, y in tree["dead"]:
+        ax.plot(x, y, "-", lw=0.6, color=DEAD_COLOR, alpha=0.7, zorder=1,
+                solid_capstyle="round")
+    if tree["deaths"]:
+        dx, dy = zip(*tree["deaths"])
+        ax.plot(dx, dy, "x", ms=3.6, mew=0.9, color="0.5", zorder=2)
+    for i in np.argsort(al):                            # extremes drawn last, on top
+        xs, ys = daily(lead, series[i])
+        ax.plot(xs, ys, "-", lw=1.0, color=cmap(norm(al[i])), alpha=0.9,
+                zorder=3, solid_capstyle="round")
+
+    # --- the barriers ------------------------------------------------------------- #
+    for leg, th in zip([l for l in legs if l.resampling],
+                       list(theta) + [None] * len(legs)):
+        xb = leg.lead_end_days
+        ax.axvline(xb, color="0.35", lw=0.9, ls=":", zorder=4)
+        k = tree["killed"].get(leg.k + 1)
+        lab = f"$C$={leg.C:g}"
+        if k is not None:
+            lab += f"\n{k} killed"
+        ax.text(xb, 1.005, lab, transform=ax.get_xaxis_transform(), ha="center",
+                va="bottom", fontsize=7.6, color="0.3", linespacing=1.35)
+        if th is not None:
+            ax.plot([xb], [float(np.mean(th["box"]))], "D", ms=5.5, color="#175d7d",
+                    mec="white", mew=0.8, zorder=6)
+
+    if obs is not None:
+        ax.axhline(float(obs), color=OBS_COLOR, lw=1.3, ls="--", zorder=5)
+        ax.text(0.15, float(obs), f" ERA5 observed $A_L$ = {float(obs):+.2f} K",
+                color=OBS_COLOR, fontsize=8.5, va="bottom", zorder=6)
+
+    ax.set_xlim(-0.4, peak_lead + 0.4)
+    ax.set_xlabel("lead (days from the event init, 2021-06-07)")
+    ax.set_ylabel(_ylab(ctx))
+    n_bar = sum(1 for l in legs if l.resampling)
+    n_kill = sum(tree["killed"].values())
+    ax.set_title(
+        f"{n} GenCast walkers, resampled at {n_bar} barriers on an FCN3 score - "
+        f"{n_kill} lineages killed, {d.get('n_founders', '?')}/{n} founders still "
+        f"represented at the peak", fontsize=10.5, pad=26)
+    ax.grid(alpha=0.2)
+    ax.legend(handles=[
+        Line2D([], [], color=cmap(0.85), lw=1.4, label="surviving lineage (colored by its $A_L$)"),
+        Line2D([], [], color=DEAD_COLOR, lw=1.0,
+               label=f"killed branch ({tree['n_dead_nodes']} segments, x where it ends)"),
+        Line2D([], [], color="#175d7d", marker="D", ls="none", ms=5,
+               label=r"population-mean score $\theta$ at that barrier"),
+    ], fontsize=8, loc="upper left", framealpha=0.92)
+
+    # --- the marginal: where each method's members landed ------------------------ #
+    _marginal(axm, d, al, obs)
+
+    fig.colorbar(cm.ScalarMappable(norm=norm, cmap=cmap), cax=cax,
+                 label=r"realized $A_L$   (K)")
+    fig.suptitle(f"AI+RES pilot - {ctx.event} ({ctx.tag}): the walk itself, barrier by "
+                 f"barrier", fontsize=12)
+    fig.subplots_adjust(left=0.055, right=0.945, top=0.865, bottom=0.115)
+    return _save(fig, _fig_path(ctx, "trajectory"))
+
+
+def _window_lead(ctx: R.Ctx, d: dict) -> np.ndarray:
+    """The leads of the frames ``A_L`` is the mean of - the same rule as ``xmetrics``.
+
+    Mirrors ``fc_times_in_window`` on the lead axis instead of the datetime axis, so the
+    shaded band is the window the number was actually taken over rather than a nominal
+    "last 7 days".
+    """
+    from aires import aindex as AI
+
+    lead = np.asarray(d["realized"]["lead_days"], dtype=float)
+    peak = float(d["config"]["horizon_days"])
+    lo = peak - 6.0
+    m = (lead >= lo - 1e-9) if AI._inclusive_left(ctx.ev.metric) else (lead > lo + 1e-9)
+    return lead[m & (lead <= peak + 1e-9)]
+
+
+def _ylab(ctx: R.Ctx) -> str:
+    from aires import aindex as AI
+
+    box = AI.box_for(ctx.event).name
+    what = {"t2m_anom": "2 m temperature anomaly",
+            "u850_speed": "850 hPa wind speed",
+            "u850_speed_max": "850 hPa wind speed",
+            "tp_total": "12 h precipitation",
+            "tp_max12h": "12 h precipitation"}.get(ctx.ev.metric, ctx.ev.metric)
+    unit = "K" if ctx.ev.metric == "t2m_anom" else (
+        "m s$^{-1}$" if "speed" in ctx.ev.metric else "mm")
+    return f"running index: {box}-box mean {what}, 24 h mean   ({unit})"
+
+
+def _marginal(axm, d: dict, al: np.ndarray, obs) -> None:
+    """Where every method's members ended up, on the main panel's y axis.
+
+    The point of the whole pilot in one column of dots: the resampled population sits on
+    top of the observed value, the direct ensembles stop below it. Drawn against the SAME
+    y axis as the trajectories so no rescaling can flatter either side.
+    """
+    short = {"gencast_walkers": "GenCast\ndirect\n(walkers)",
+             "gencast_xres": "GenCast\ndirect\n(xres)",
+             "fcn3": "FCN3\ndirect"}
+    ds = d.get("ds", {}) or {}
+    cols = [(f"AI+RES\nresampled\nn={al.size}", al, RES_COLOR)]
+    for key, (color, _label) in DS_STYLE.items():
+        if key in ds:
+            v = np.asarray(ds[key]["box"], dtype=float)
+            cols.append((f"{short.get(key, key)}\nn={v.size}", v, color))
+
+    rng = np.random.default_rng(0)
+    for i, (label, v, color) in enumerate(cols):
+        x = i + rng.uniform(-0.22, 0.22, size=v.size)
+        axm.plot(x, v, "o", ms=3.4, color=color, alpha=0.8, mew=0)
+        axm.plot([i - 0.34, i + 0.34], [v.mean()] * 2, "-", color=color, lw=1.8)
+        if obs is not None:
+            k = int(np.sum(v >= float(obs)))
+            axm.text(i, 1.005, f"{k}/{v.size}", transform=axm.get_xaxis_transform(),
+                     ha="center", va="bottom", fontsize=8.5, color=color,
+                     fontweight="bold" if k else "normal")
+    if obs is not None:
+        axm.axhline(float(obs), color=OBS_COLOR, lw=1.3, ls="--")
+    axm.set_xticks(range(len(cols)))
+    axm.set_xticklabels([c[0] for c in cols], fontsize=7.4)
+    axm.set_xlim(-0.6, len(cols) - 0.4)
+    axm.tick_params(labelleft=False)
+    axm.grid(alpha=0.2, axis="y")
+    axm.set_title("reaching the\nobserved value", fontsize=9, pad=16)
+
+
+# --------------------------------------------------------------------------- #
 def main(argv=None) -> int:
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[0],
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
@@ -612,6 +965,9 @@ def main(argv=None) -> int:
         raise SystemExit(f"unknown figure(s) {bad}; want a subset of {list(FIGURES)}")
 
     print(f"[aplots] {ctx.event} tag={ctx.tag}: {', '.join(want)}")
+    if "trajectory" in want:
+        print("  assembling the branch tree from the diagnostics cubes...")
+        plot_trajectory(ctx, d)
     if "exceedance" in want:
         plot_exceedance(ctx, d)
     if "diagnostics" in want:
