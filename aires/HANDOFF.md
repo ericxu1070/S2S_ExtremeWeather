@@ -19,6 +19,10 @@ Visual summaries:
 - Adapter skill vs truth (does the adapter cost skill? the noise floor, the dome miss):
   https://claude.ai/code/artifact/853f6f70-7026-40c0-945f-b84711a2bdae
   (source: `docs/aires_adapter_skill.html`)
+- Phase 4 pilot results (the trajectory plot, the maps, the estimator caveats):
+  https://claude.ai/code/artifact/d4addb42-3ab7-42a0-baec-fd1b3cf47708
+  (source: `docs/aires_pilot.html` + `scripts/embed_figs.py`, which inlines the PNGs as
+  data URIs - the Artifact CSP blocks every external host, so the page cannot link them)
 
 ## Where things stand
 
@@ -738,7 +742,82 @@ Peak disk 37 GB against the 92 GB projected: with `--keep-states 2` only one or 
 segments of states are ever resident. All 448 diagnostics cubes retained.
 
 Artifacts: `runs/aires/PNW_HeatDome_2021/res/pilot/{res_result,compare}.json`,
-`compare_curve.csv`, and four figures `figures/aires/aires_*_PNW_HeatDome_2021_pilot.png`.
+`compare_curve.csv`, and nine figures `figures/aires/aires_*_PNW_HeatDome_2021_pilot.png` -
+five line/scatter figures from `aires/aplots.py` (`exceedance`, `diagnostics`, `genealogy`,
+`composite`, `trajectory`) and four maps from `aires/amaps.py` (`map_compare`, `map_error`,
+`map_walk`, `map_spread`).
+
+The `trajectory` figure needs **all 448 diagnostics cubes**, not just the surviving
+lineages': the killed branches are not in any artifact, because nothing downstream needed
+them, so it rebuilds the whole forest from disk and cross-checks the rebuilt survivor path
+against `compare.json`'s `series_box`. It hard-fails rather than drawing a plausible but
+wrong tree if the parent lookup is off.
+
+### What the maps established (2026-08-21)
+
+The box mean cannot tell a real dome from a displaced ridge that scores the same number.
+`aires/amaps.py` reduces every field through the same `aindex.field` call on the same
+105x237 grid, so walkers, direct members and truth are directly subtractable.
+
+| field | box bias vs ERA5 | box RMSE |
+|---|---|---|
+| **AI+RES, all 64 (mean)** | +0.52 K | **0.86 K** |
+| FCN3, most extreme member | +0.16 K | 1.14 K |
+| GenCast 0.25 deg, most extreme member | -0.64 K | 1.38 K |
+| GenCast walkers, most extreme | -0.23 K | 1.44 K |
+| AI+RES, the 42 that reached ERA5 (mean) | +1.36 K | 1.55 K |
+| *HRRR observed* | *-0.83 K* | *2.34 K* |
+| AI+RES, top 10 (mean) | +2.31 K | 2.49 K |
+| AI+RES, single most extreme | +2.58 K | 2.84 K |
+| GenCast walkers, 16 free-running (mean) | -5.17 K | 5.32 K |
+| GenCast 0.25 deg, 24-member mean | -5.26 K | 5.41 K |
+| FCN3, 24-member mean | -5.43 K | 5.52 K |
+
+Three things, in decreasing order of what they can claim:
+
+- **The baseline ensemble MEANS have no dome at all** at 21 d lead: -5.2 to -5.4 K of box
+  bias. Their most extreme members do, in the right place, at +7.08 / +7.49 / +7.87 K. The
+  pattern is available to a 24-member ensemble; the amplitude is only barely.
+- **The AI+RES population mean is the closest field to what happened (0.86 K), and that is
+  NOT a skill claim.** That population was deliberately aimed at this event, so its
+  unweighted mean is not an estimate of the forecast mean. What it does say is that the
+  observed event sits *inside* the resampled distribution rather than at its edge - which is
+  what a rare-event sampler is for. Quote it against the 2.34 K that ERA5 and HRRR disagree
+  by, never against a baseline's forecast skill.
+- **The far tail overshoots the event.** Top-10 composite +2.31 K of box bias, single most
+  extreme +2.58 K. Correct behaviour for an algorithm told to maximise `A_L`, and a caution:
+  the extreme end of this population is *more* extreme than 2021, not a reconstruction.
+
+Two more, from the other two map figures:
+
+- **At the 9 d barrier the eventual most extreme walker (slot 60, `A_L` +10.29 K) was the
+  COOLEST of all 64 lineages** - -2.69 K against a population mean of -0.17 K. A persistence
+  score would have killed it. The Z500 contours in `map_walk` show why: the ridge was
+  already building offshore while the surface under it had not warmed. One walker, so an
+  illustration - the evidence stays Gate 3's aggregate (persistence 0.06 vs FCN3 0.80 at
+  that lead) - but it shows what those numbers mean.
+- **The resampled population's own box spread is 1.77 K against 2.85 / 3.17 / 3.25 K for the
+  three free ensembles.** A tail-selected population of clones is *tighter* than a free one:
+  the sibling-divergence deficit, seen as a map, and the reason 64 resampled walkers are
+  worth fewer than 64 independent draws.
+
+Traps hit drawing them, all cosmetic but all real:
+
+- `coolwarm`'s midpoint is near-white, so on the trajectory figure a mid-`A_L` survivor was
+  indistinguishable from a grey killed branch - the one distinction the figure exists to
+  make. Survivors now use a truncated `YlOrRd`; `colors` never gets a neutral point on a
+  panel that also carries grey.
+- `magma_r` saturates to black over most of CONUS on the spread field and erases the
+  coastlines. `Purples` instead.
+- A per-panel colorbar on a grid that SHARES its scale repeats the same axis a dozen times
+  and lands between two rows, where it reads as a caption for the row above. One shared bar,
+  and on the error figure an explicit `cax` - eleven map axes span all three columns, so a
+  colorbar that steals space from them centres across the full width and covers the ranking
+  panel in the twelfth slot.
+- The raw 12-hourly index has a real diurnal swing of several kelvin (a dome's daytime
+  anomaly far exceeds its nighttime one, and the climatology is sampled per hour so the
+  anomaly does not remove it). The trajectory figure plots a 24 h running mean, which is
+  continuous across a barrier because every branch polyline carries its parent's last frame.
 
 ## The checkpoint bug that cost two runs (read before touching the walker)
 
