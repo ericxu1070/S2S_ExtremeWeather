@@ -114,6 +114,11 @@
   tbody tr:last-child td{border-bottom:none}
   tbody tr.hero td{background:var(--res-soft)}
   tbody tr.hero .num{color:var(--res); font-weight:600}
+  tbody tr.grp td{background:var(--surface-2); font-family:"IBM Plex Mono",ui-monospace,monospace;
+    font-size:.68rem; letter-spacing:.09em; text-transform:uppercase; color:var(--accent); font-weight:600}
+  td.knob{font-family:"IBM Plex Mono",ui-monospace,monospace; font-size:.8rem; white-space:nowrap; color:var(--ink)}
+  td.val{font-family:"IBM Plex Mono",ui-monospace,monospace; font-size:.8rem; font-variant-numeric:tabular-nums; white-space:nowrap; color:var(--ink-2)}
+  td.why{font-size:.845rem; color:var(--muted); line-height:1.5}
   .num{text-align:right; font-family:"IBM Plex Mono",ui-monospace,monospace; font-variant-numeric:tabular-nums; white-space:nowrap}
 
   .tag{display:inline-block; font-family:"IBM Plex Mono",ui-monospace,monospace; font-size:.66rem; letter-spacing:.08em; text-transform:uppercase; padding:.13rem .42rem; border-radius:2px; font-weight:500; white-space:nowrap}
@@ -164,78 +169,136 @@
   details > *:not(summary){max-width:66ch}
 
   footer{border-top:1px solid var(--rule); padding-top:1.25rem; color:var(--muted); font-size:.8rem; line-height:1.6}
-</style>
 
+  /* ---- displayed equations ---- */
+  .eq{background:var(--sunken); border:1px solid var(--rule); border-left:3px solid var(--accent);
+    border-radius:0 4px 4px 0; padding:1rem 1.15rem; overflow-x:auto;
+    font-family:"IBM Plex Mono",ui-monospace,monospace; font-size:.92rem; line-height:1.9;
+    color:var(--ink); white-space:nowrap}
+  .eq .lbl{display:block; font-size:.66rem; letter-spacing:.11em; text-transform:uppercase;
+    color:var(--muted); margin-bottom:.5rem; white-space:normal; font-weight:500}
+  .eq em{font-style:normal; color:var(--muted)}
+  .where{display:grid; grid-template-columns:auto 1fr; gap:.35rem 1rem; margin:0}
+  @media (max-width:640px){ .where{grid-template-columns:1fr; gap:.05rem 0} }
+  .where dt{font-family:"IBM Plex Mono",ui-monospace,monospace; font-size:.84rem; color:var(--accent); white-space:nowrap}
+  .where dd{margin:0; font-size:.875rem; color:var(--ink-2); line-height:1.5; max-width:62ch}
+  @media (max-width:640px){ .where dd{margin-bottom:.5rem} }
+
+  /* ---- print / save-as-PDF ---- */
+  @media print{
+    :root, :root[data-theme="dark"], :root:not([data-theme="light"]){
+      --ground:#ffffff; --surface:#ffffff; --surface-2:#f7f9fa; --sunken:#f2f5f7;
+      --ink:#000000; --ink-2:#1d2b33; --muted:#4a5a62; --rule:#b9c4ca;
+      --accent:#0f4a66; --accent-soft:#eef5f9;
+      --res:#12557f; --res-soft:#eef4fa;
+      --obs:#8f1322; --obs-soft:#fbeef0;
+      --killed:#5d6a70; --killed-soft:#f2f4f5;
+      --pass:#1f5138; --pass-soft:#eef6f1;
+      --warn:#6b4509; --warn-soft:#faf4e6;
+      --shadow:none;
+    }
+    @page{ margin:14mm; }
+    body{background:#fff; font-size:10.5pt}
+    .wrap{max-width:none; padding:0; gap:1.5rem}
+    /* the on-screen min-widths exist to keep wide content scrollable; on paper they overflow */
+    .figbox img{min-width:0}
+    table{min-width:0; font-size:8.5pt}
+    .figbox, .tw, .card, .kpis, .rail{overflow:visible; box-shadow:none}
+    figure, .figbox, .tw, .card, .callout, .rail, .kpis, .eq, .key, tr{break-inside:avoid}
+    .qhead, h2, h3{break-after:avoid}
+    /* 5-item rows: auto-fit/2-col fallbacks leave an empty cell whose container
+       background reads as a grey block on paper. Pin both to 5 columns. */
+    /* keep the grid clipped so a child background cannot paint over the container's
+       right border; the print block above sets these visible for wide scroll boxes */
+    .kpis, .rail{overflow:hidden}
+    .kpis{grid-template-columns:repeat(5,minmax(0,1fr))}
+    .kpi{padding:.6rem .65rem}
+    .kpi .n{font-size:1.05rem}
+    .kpi .l{font-size:.62rem; line-height:1.3}
+    .rail{grid-template-columns:repeat(5,minmax(0,1fr))}
+    .bar dl{grid-template-columns:1fr auto}
+    .bar dt, .bar dd{white-space:normal; overflow-wrap:anywhere}
+    .bar{padding:.6rem .6rem .7rem}
+    .bar .lead{font-size:1.05rem}
+    .bar dl{font-size:.66rem}
+    .bar dt{font-size:.62rem}
+    figcaption, caption{break-before:avoid}
+    footer{break-before:avoid}
+    a{color:inherit; text-decoration:none}
+    details{break-inside:avoid}
+    summary{list-style:none}
+  }
+</style>
 <div class="wrap">
 
 <header>
   <p class="eyebrow">AI+RES &middot; branch <span class="mono">aires</span> &middot; phase 4 pilot &middot; job 1172</p>
   <h1>Walking into the heat dome</h1>
-  <p class="lede">Sixty-four GenCast walkers, propagated from 21&nbsp;days before the 2021 Pacific Northwest heat dome and resampled five times on a FourCastNet&nbsp;3 score. Forty-two of them reached the temperature ERA5 actually recorded. Forty free-running GenCast members reached it zero times.</p>
+  <p class="lede">Sixty-four GenCast walkers, propagated from 21&nbsp;days before the 2021 Pacific Northwest heat dome and resampled five times on a FourCastNet&nbsp;3 (FCN3) score. Forty-two of them reached the anomaly ERA5 recorded. None of forty free-running GenCast members did.</p>
 </header>
 
 <div class="kpis">
   <div class="kpi hero"><span class="n">42/64</span><span class="l">AI+RES walkers reaching the observed <span class="mono">A<sub>L</sub></span></span></div>
   <div class="kpi"><span class="n">0/40</span><span class="l">direct GenCast members reaching it</span></div>
-  <div class="kpi obs"><span class="n">+7.72 K</span><span class="l">what ERA5 recorded over the PNW box</span></div>
-  <div class="kpi"><span class="n">+10.29 K</span><span class="l">the most extreme walker the run produced</span></div>
+  <div class="kpi obs"><span class="n">+7.72 K</span><span class="l">the ERA5 value over the PNW box</span></div>
+  <div class="kpi"><span class="n">+10.29 K</span><span class="l">the most extreme walker of the run</span></div>
   <div class="kpi"><span class="n">7 h 45 m</span><span class="l">one 8&times;H100 node, end to end</span></div>
 </div>
 
 <!-- ============ 1. the figure ============ -->
 <section>
   <div class="qhead">
-    <span class="qmark">THE RUN</span>
+    <span class="qmark">1 &middot; THE RUN</span>
     <h2>Every branch the pilot rolled, from the init to the peak</h2>
   </div>
 
-  <p>The observable is <span class="mono">A<sub>L</sub></span>: the cos(lat)-weighted mean, over a box covering Oregon and Washington, of the 7-day-mean 2&nbsp;m temperature anomaly for the week ending at the event peak. The y axis below is the same index evaluated <em>frame by frame</em> &mdash; where each walker is at that moment, not what it will average to &mdash; as a 24-hour running mean, because the raw 12-hourly index carries a real diurnal swing of several kelvin that on 64 lineages reads as noise. The five dotted verticals are the resampling barriers.</p>
+  <p>The observable <span class="mono">A<sub>L</sub></span> is the cos(lat)-weighted mean, over a box covering Oregon and Washington, of the 7-day-mean 2&nbsp;m temperature anomaly for the week ending at the event peak. The vertical axis of Fig.&nbsp;1 is the same index evaluated frame by frame, that is, the value a walker holds at that moment rather than the value it will average to. It is plotted as a 24-hour running mean, because the raw 12-hourly index has a diurnal swing of several kelvin that on 64 lineages obscures the trend. The five dotted verticals mark the resampling barriers.</p>
 
   <figure>
     <div class="figbox"><img src="FIG_TRAJECTORY" alt="Trajectory plot: 64 walker lineages of PNW-box mean 2 m temperature anomaly against lead time from 0 to 21 days, with five dotted resampling barriers, grey killed branches, and the shaded 7-day averaging window at the right." loading="lazy"></div>
-    <figcaption><b>The algorithm, happening.</b> Colored lines are the 64 lineages that survive to the peak, tinted by the <span class="mono">A<sub>L</sub></span> each one ends up with. Grey lines are branches that were killed at a barrier and stop there, each marked with a small &times;. The shaded band at the right is the 7-day window that <span class="mono">A<sub>L</sub></span> is the mean over. Right panel: where every method&rsquo;s members landed, on the same axis, against the ERA5 value.</figcaption>
+    <figcaption><b>Figure 1. Every lineage of the pilot, init to peak.</b> Colored lines are the 64 lineages that survive to the peak, tinted by the <span class="mono">A<sub>L</sub></span> each one ends with. Grey lines are branches killed at a barrier, each marked with a small &times;. The shaded band at the right is the 7-day window over which <span class="mono">A<sub>L</sub></span> is averaged. The right panel gives where every method&rsquo;s members landed on the same axis, against the ERA5 value.</figcaption>
   </figure>
 
   <div class="card">
-    <h3>How to read it</h3>
+    <h3>How to read Fig. 1</h3>
     <div class="keys">
       <div class="key">
         <span class="sw"><i></i></span>
-        <span class="tx"><b>A surviving lineage.</b> Not one walker &mdash; a chain of segments stitched across the genealogy. Walker&nbsp;3&rsquo;s state at 15&nbsp;d and its state at 6&nbsp;d can belong to entirely different ancestries, so every trajectory here is assembled by walking the parent table backwards from the peak.</span>
+        <span class="tx"><b>A surviving lineage</b>, which is a chain of segments rather than one walker. Slot&nbsp;3&rsquo;s state at 15&nbsp;d and its state at 6&nbsp;d can belong to different ancestries, so each trajectory is assembled by walking the parent table backwards from the peak.</span>
       </div>
       <div class="key">
         <span class="sw"><i class="dead"></i></span>
-        <span class="tx"><b>A killed branch.</b> Its score at that barrier was low enough that the resampling gave it no children. The compute already spent on it is not wasted &mdash; it is what told the scheme where <em>not</em> to look &mdash; but the branch itself ends.</span>
+        <span class="tx"><b>A killed branch.</b> Its score at that barrier gave it no children in the resampling. The compute already spent on it is not wasted, since it is what told the scheme where <em>not</em> to look, but the branch ends there.</span>
       </div>
       <div class="key">
         <span class="sw"><i class="dot"></i></span>
-        <span class="tx"><b>The population-mean score at each barrier.</b> <span class="mono">&theta;</span> is FCN3&rsquo;s 6-member forecast of the walker&rsquo;s final <span class="mono">A<sub>L</sub></span>, and it is the only quantity the resampling reads. It climbs <span class="mono">+1.98 &rarr; +4.07 &rarr; +5.57 &rarr; +6.62&nbsp;K</span> across the four scored barriers &mdash; the population being steered, one barrier at a time.</span>
+        <span class="tx"><b>The population-mean score at each barrier.</b> <span class="mono">&theta;</span> is FCN3&rsquo;s 6-member forecast of the walker&rsquo;s final <span class="mono">A<sub>L</sub></span>, and it is the only quantity the resampling reads. It rises <span class="mono">+1.98 &rarr; +4.07 &rarr; +5.57 &rarr; +6.62&nbsp;K</span> across the four scored barriers.</span>
       </div>
       <div class="key">
         <span class="sw"><i class="band"></i></span>
-        <span class="tx"><b>The 7-day window.</b> Lead 15&nbsp;d to 21&nbsp;d, thirteen 12-hourly frames ending exactly at the peak. Everything left of it is the walk; the number the whole experiment is about is a single average taken inside it. No resampling happens here &mdash; the last barrier is at 15&nbsp;d, so the event window is a free 6-day run-out.</span>
+        <span class="tx"><b>The 7-day window</b>, lead 15&nbsp;d to 21&nbsp;d, thirteen 12-hourly frames ending at the peak. Everything to its left is the walk, and <span class="mono">A<sub>L</sub></span> is one average taken inside it. No resampling happens in the window, since the last barrier is at 15&nbsp;d and the event week is a free 6-day run-out.</span>
       </div>
       <div class="key">
         <span class="sw"><i class="obs"></i></span>
-        <span class="tx"><b>ERA5, +7.72&nbsp;K.</b> What the atmosphere did. Note where the grey branches sit relative to it: the killed lineages are overwhelmingly the ones that were heading below it.</span>
+        <span class="tx"><b>ERA5, +7.72&nbsp;K.</b> The killed branches sit predominantly below it.</span>
       </div>
     </div>
   </div>
 
   <div class="callout">
-    <span class="h">The one thing this figure is not</span>
-    <p>It is not evidence that the score was <em>right</em>. Trajectories are drawn from the walkers&rsquo; own diagnostics, and the barriers are drawn where the schedule put them; nothing in the picture tests whether <span class="mono">&theta;</span> predicted the outcome. That test is the scatter panel further down, and it was passed before this run was submitted, as Gate&nbsp;3.</p>
+    <span class="h">What Fig. 1 does not test</span>
+    <p>Fig.&nbsp;1 is not evidence that the score was right. Trajectories are drawn from the walkers&rsquo; own diagnostics and the barriers are drawn where the schedule put them, so nothing in the figure tests whether <span class="mono">&theta;</span> predicted the outcome. That test is Fig.&nbsp;8 of Section&nbsp;7, and it was passed before this run was submitted, as Gate&nbsp;3 of Table&nbsp;7.</p>
   </div>
 </section>
 
 <!-- ============ 2. the schedule ============ -->
 <section>
   <div class="qhead">
-    <span class="qmark">SCHEDULE</span>
+    <span class="qmark">2 &middot; SCHEDULE</span>
     <h2>Five barriers, each one harder than the last</h2>
   </div>
 
-  <p>At barrier <span class="mono">k</span> every walker is scored, the scores are standardized across the live population, and each walker is cloned a number of times proportional to <span class="mono">exp(C<sub>k</sub>&thinsp;&middot;&thinsp;standardized score)</span>. <span class="mono">C<sub>k</sub></span> is the selection pressure: at 0 nothing happens, and it was ramped deliberately so the early barriers &mdash; where the score is weakest &mdash; do the least damage.</p>
+  <p>At barrier <span class="mono">k</span> every walker is scored, the scores are standardized across the live population, and each walker is cloned a number of times proportional to <span class="mono">exp(C<sub>k</sub>&thinsp;&middot;&thinsp;standardized score)</span>. <span class="mono">C<sub>k</sub></span> is the selection pressure. At <span class="mono">C<sub>k</sub> = 0</span> the resampling does nothing, and the ramp was set so that the early barriers, where the score is weakest, remove the fewest walkers.</p>
 
   <div class="rail">
     <div class="bar idle">
@@ -290,72 +353,180 @@
     </div>
   </div>
 
-  <p>Barrier&nbsp;1 is deliberately inert. At 3&nbsp;d lead the score has no skill on this event &mdash; Gate&nbsp;3 measured <span class="mono">&rho;<sub>s</sub> = &minus;0.04</span> there &mdash; so spending walkers on it would be selection on noise. The population diversity it preserves is what the later, sharper barriers get to spend.</p>
+  <p>Barrier&nbsp;1 is inert by construction. At 3&nbsp;d lead the score has no skill on this event, <span class="mono">&rho;<sub>s</sub> = &minus;0.04</span> as measured in Gate&nbsp;3 and reported in Table&nbsp;4, so resampling on it would select on noise. The population diversity it preserves is what the later barriers spend.</p>
 
   <div class="callout good">
     <span class="h">The schedule was tuned before the run, and held</span>
-    <p>Replaying the same <span class="mono">C<sub>k</sub></span> on Gate&nbsp;3&rsquo;s measured skill curve predicted effective sample sizes of 1.00 / 0.43 / 0.36 / 0.38 / 0.58. The pilot delivered 1.00 / 0.28 / 0.26 / 0.46 / <b>0.60</b> against a target of <span class="mono">N/4 = 0.25</span>. It ran hot in the middle &mdash; barriers 2 and 3 landed near the 5th percentile of the replay &mdash; and finished essentially on the predicted value. <span class="mono">C<sub>k</sub> = (0, 1.0, 1.4, 1.8, 2.0)</span> is confirmed at <span class="mono">N = 64</span> on real scores.</p>
+    <p>Replaying the same <span class="mono">C<sub>k</sub></span> on Gate&nbsp;3&rsquo;s measured skill curve predicted effective sample sizes of 1.00 / 0.43 / 0.36 / 0.38 / 0.58. The pilot delivered 1.00 / 0.28 / 0.26 / 0.46 / <b>0.60</b> against a target of <span class="mono">N/4 = 0.25</span>. Barriers 2 and 3 landed near the 5th percentile of the replay and barrier&nbsp;5 landed at the predicted value. <span class="mono">C<sub>k</sub> = (0, 1.0, 1.4, 1.8, 2.0)</span> is confirmed at <span class="mono">N = 64</span> on real scores.</p>
   </div>
 </section>
 
-<!-- ============ 3. the headline ============ -->
+<!-- ============ the math ============ -->
 <section>
   <div class="qhead">
-    <span class="qmark">RESULT</span>
-    <h2>The resampled population contains the event; direct sampling does not</h2>
+    <span class="qmark">3 &middot; THE MATH</span>
+    <h2>The score, and the rule that decides who splits and who dies</h2>
+  </div>
+
+  <h3>1 &middot; The score is a forecast, not a measurement</h3>
+  <p>At barrier <span class="mono">k</span>, walker <span class="mono">i</span>&rsquo;s global state is converted to a 72-channel FCN3 initial condition and rolled to the event peak <span class="mono">M</span> times. Its score, Eq.&nbsp;(1), is the mean of what those <span class="mono">M</span> members say the observable will be.</p>
+
+  <div class="eq">
+    <span class="lbl">Eq. (1) &middot; the score</span>
+    &theta;<sub>k</sub>(i) &nbsp;=&nbsp; (1/M) &nbsp;&Sigma;<sub>m=1..M</sub>&nbsp; A<sub>L</sub>( FCN3<sub>m</sub>( adapter( X<sub>k</sub><sup>i</sup> ) ) )
+  </div>
+
+  <dl class="where">
+    <dt>X<sub>k</sub><sup>i</sup></dt><dd>walker <span class="mono">i</span>&rsquo;s global GenCast state at barrier <span class="mono">k</span>, 12 prognostic variables on 13 levels, two time frames.</dd>
+    <dt>FCN3<sub>m</sub></dt><dd>the <span class="mono">m</span>-th stochastic member, rolled at 6&nbsp;h steps from the barrier to the peak. All <span class="mono">M</span> members share the same initial condition and differ only through FCN3&rsquo;s own noise generator.</dd>
+    <dt>A<sub>L</sub>(&middot;)</dt><dd>the cos(lat)-weighted PNW-box mean of the 7-day-mean anomaly for the week ending at the peak, the same function applied to the walkers themselves at the end of the run.</dd>
+    <dt>M = 6</dt><dd>so <span class="mono">&theta;</span> carries a sampling error of about 0.25&nbsp;K on this event, which is enough to <em>rank</em> walkers and not enough to <em>equate</em> them.</dd>
+  </dl>
+
+  <p><span class="mono">&theta;</span> is a prediction of where the walker is going, not a reading of where it is. The cheap alternative, scoring a walker by its current anomaly, is the Standard-RES of Lancelin et al., and Table&nbsp;4 shows it has no skill at the leads that matter here.</p>
+
+  <h3>2 &middot; From score to selection pressure to offspring count</h3>
+  <p>Scores in kelvin cannot drive a schedule that has to work across events with different units and spreads. The score is therefore standardized across the live population and scaled by the barrier&rsquo;s selection pressure, Eq.&nbsp;(2).</p>
+
+  <div class="eq">
+    <span class="lbl">Eq. (2) &middot; standardized score and tilt</span>
+    z<sub>k</sub>(i) &nbsp;=&nbsp; ( &theta;<sub>k</sub>(i) &minus; mean<sub>j</sub> &theta;<sub>k</sub>(j) ) / sd<sub>j</sub> &theta;<sub>k</sub>(j)<br>
+    V<sub>k</sub>(i) &nbsp;=&nbsp; C<sub>k</sub> &middot; z<sub>k</sub>(i)
+  </div>
+
+  <p>A walker&rsquo;s weight is the <strong>change</strong> in <span class="mono">V</span> along the leg it just travelled, from its parent&rsquo;s value to its own. The population mean of those weights normalizes the leg, Eq.&nbsp;(3).</p>
+
+  <div class="eq">
+    <span class="lbl">Eq. (3) &middot; incremental weight and its mean</span>
+    W<sub>k</sub>(i) &nbsp;=&nbsp; exp( V<sub>k</sub>(i) &minus; V<sub>k&minus;1</sub>(parent of i) )<br>
+    R<sub>k</sub> &nbsp;=&nbsp; (1/N) &Sigma;<sub>i</sub> W<sub>k</sub>(i)
+  </div>
+
+  <div class="eq">
+    <span class="lbl">Eq. (4) &middot; expected number of children</span>
+    n<sub>k</sub>(i) &nbsp;=&nbsp; W<sub>k</sub>(i) / R<sub>k</sub> &nbsp;&nbsp;&nbsp; <em>&Sigma;<sub>i</sub> n<sub>k</sub>(i) = N by construction</em>
+  </div>
+
+  <p>Dividing by <span class="mono">R<sub>k</sub></span> holds the population at <span class="mono">N</span>. Cloning the good walkers is paid for by killing others, and that accounting is done in Eq.&nbsp;(4) rather than by capping or padding afterwards.</p>
+
+  <h3>3 &middot; From a fractional child count to an integer</h3>
+  <p><span class="mono">n<sub>k</sub>(i)</span> is a real number such as 4.17 or 0.21, and a walker cannot have 0.21 children. Because <span class="mono">n</span> is often greater than 1, which is what cloning is, this is an allocation problem rather than a selection one.</p>
+
+  <ul>
+    <li><strong>Guaranteed children.</strong> Every walker gets <span class="mono">floor(n<sub>k</sub>(i))</span> children outright. A walker with <span class="mono">n = 4.17</span> is guaranteed 4.</li>
+    <li><strong>Pivotal sampling allocates the leftover fractions</strong> (Deville &amp; Till&eacute;, 1998). The fractions sum to a whole number, pivotal sampling hands out that many extra children, and walker <span class="mono">i</span> receives one with probability equal to its own fraction. It repeatedly takes two undecided walkers and moves probability mass between them until one is settled at 0 or 1, which preserves every marginal exactly and conserves the total at every move.</li>
+  </ul>
+
+  <div class="callout">
+    <span class="h">Two alternatives, and why they fail</span>
+    <p>Independent coin flips on each fraction give the right per-walker probabilities and a fluctuating population size, 61 walkers one step and 67 the next, which makes every downstream budget wrong. A multinomial draw fixes the total and inflates the variance of the offspring counts, which is the noise the estimator has to fight. Pivotal sampling gives exact marginals and an exact total.</p>
+  </div>
+
+  <p><strong>A walker is killed when it gets zero children</strong>, that is, when its floor is 0 and it loses the fractional draw. Nothing else kills a walker, and there is no threshold and no ranking cutoff. The offspring vector is then flattened into a parent list, so counts <span class="mono">[0, 2, 0, 1]</span> become parents <span class="mono">[1, 1, 3]</span>, and the next leg rolls one segment per child from the named parent&rsquo;s state.</p>
+
+  <h3>4 &middot; The allocation at barrier 2 of this run</h3>
+  <p>Barrier&nbsp;2 is the simplest case to read, because <span class="mono">C<sub>1</sub> = 0</span> makes <span class="mono">V<sub>1</sub> &equiv; 0</span> and therefore <span class="mono">W<sub>2</sub>(i) = exp(z<sub>2</sub>(i))</span> exactly. The run used <span class="mono">C<sub>2</sub> = 1.0</span> and measured <span class="mono">R<sub>2</sub> = 1.7702</span>. Table&nbsp;1 gives the allocation that follows.</p>
+
+  <div class="tw">
+    <table>
+      <caption><b>Table 1.</b> Offspring allocation at barrier&nbsp;2. Every entry follows from <span class="mono">C<sub>2</sub> = 1</span> and the measured <span class="mono">R<sub>2</sub> = 1.7702</span>. P(killed) is <span class="mono">1 &minus; n</span> whenever <span class="mono">n &lt; 1</span>, because such a walker has no guaranteed child and its only chance is the fractional draw.</caption>
+      <thead><tr><th class="num">z<sub>2</sub></th><th class="num">W<sub>2</sub> = e<sup>z</sup></th><th class="num">n<sub>2</sub> = W/R</th><th class="num">guaranteed</th><th class="num">P(one more)</th><th class="num">P(killed)</th><th>outcome</th></tr></thead>
+      <tbody>
+        <tr><td class="num">&minus;2.0</td><td class="num">0.135</td><td class="num">0.076</td><td class="num">0</td><td class="num">0.076</td><td class="num">0.924</td><td class="why">almost certainly dies</td></tr>
+        <tr><td class="num">&minus;1.0</td><td class="num">0.368</td><td class="num">0.208</td><td class="num">0</td><td class="num">0.208</td><td class="num">0.792</td><td class="why">4-in-5 chance of dying</td></tr>
+        <tr><td class="num">0.0</td><td class="num">1.000</td><td class="num">0.565</td><td class="num">0</td><td class="num">0.565</td><td class="num">0.435</td><td class="why">the <em>median</em> walker, and still a 0.435 chance of dying</td></tr>
+        <tr><td class="num">+1.0</td><td class="num">2.718</td><td class="num">1.536</td><td class="num">1</td><td class="num">0.536</td><td class="num">0</td><td class="why">survives, coin-flip for a twin</td></tr>
+        <tr class="hero"><td class="num">+2.0</td><td class="num">7.389</td><td class="num">4.174</td><td class="num">4</td><td class="num">0.174</td><td class="num">0</td><td class="why">four clones guaranteed, sometimes five</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <p><span class="mono">R<sub>k</sub></span> is the mean of <span class="mono">exp(z)</span>, and by Jensen&rsquo;s inequality that mean exceeds <span class="mono">exp(mean z) = 1</span>. A walker sitting at the population mean score is therefore below the mean weight and at risk, with <span class="mono">P(killed) = 0.435</span> in the third row of Table&nbsp;1. That is why 28 of 64 walkers died at a barrier whose selection pressure was 1.0. The scheme does not preserve the middle of the population. <span class="mono">R<sub>k</sub></span> falls below 1 at later barriers, where <span class="mono">V<sub>k&minus;1</sub></span> is no longer zero and <span class="mono">W</span> measures a change rather than a level.</p>
+
+  <h3>5 &middot; Undoing the tilt to recover a probability</h3>
+  <p>Because <span class="mono">V</span> depends only on state, the weights telescope along a lineage, and the product of <span class="mono">W</span> down any surviving branch is <span class="mono">exp(V<sub>K</sub> &minus; V<sub>0</sub>)</span>. After the last barrier the population is distributed under the tilted law. Any expectation under the original law is recovered by dividing the tilt back out, Eq.&nbsp;(5).</p>
+
+  <div class="eq">
+    <span class="lbl">Eq. (5) &middot; the estimator</span>
+    E<sub>P</sub>[&phi;] &nbsp;=&nbsp; Z &middot; (1/N) &Sigma;<sub>i</sub> &phi;(X<sup>i</sup>) &middot; exp( &minus;V<sub>K</sub>(lineage of i) ) &nbsp;,&nbsp;&nbsp; Z = &Pi;<sub>k</sub> R<sub>k</sub>
+  </div>
+
+  <p>Setting <span class="mono">&phi; = 1{A<sub>L</sub> &ge; a}</span> in Eq.&nbsp;(5) gives the exceedance curve of Fig.&nbsp;2. For this run <span class="mono">Z = 1.0000 &times; 1.7702 &times; 0.5468 &times; 0.6787 &times; 0.5995 = 0.39387</span> and <span class="mono">log Z = &minus;0.9317</span>.</p>
+
+  <div class="eq">
+    <span class="lbl">Eq. (6) &middot; population health</span>
+    ESS<sub>k</sub> &nbsp;=&nbsp; ( &Sigma;<sub>i</sub> w<sub>i</sub> )<sup>2</sup> / &Sigma;<sub>i</sub> w<sub>i</sub><sup>2</sup> &nbsp;&nbsp; <em>ESS = N under uniform weights, ESS = 1 when one walker has taken over</em>
+  </div>
+
+  <div class="callout good">
+    <span class="h">The C<sub>k</sub> = 0 invariant</span>
+    <p>Set every <span class="mono">C<sub>k</sub> = 0</span>. Then <span class="mono">V &equiv; 0</span>, <span class="mono">W = 1</span>, <span class="mono">R<sub>k</sub> = 1</span>, <span class="mono">Z = 1</span>, and every final weight is 1, so the algorithm reduces to direct sampling exactly rather than approximately. A unit test pins that identity, and it is the strongest end-to-end check available on the scheme. The core is also validated against an analytic Ornstein&ndash;Uhlenbeck problem whose answer is known, with no GPU involved.</p>
+  </div>
+
+  <div class="callout stale">
+    <span class="h">Where the guarantee weakens</span>
+    <p>Eq.&nbsp;(5) is unbiased for a <em>deterministic</em> <span class="mono">V</span>. Standardizing the score across the live population, Eq.&nbsp;(2), is what lets one <span class="mono">C<sub>k</sub></span> schedule work across events with different units, and it makes <span class="mono">V</span> depend on the other walkers. The scheme is then self-interacting and the guarantee drops from <strong>unbiased</strong> to <strong>consistent</strong>. No closed-form confidence interval is available for the RES curve for the same reason. The band drawn in Fig.&nbsp;2 treats the walkers as independent, which standardization makes them not, so it is a <em>lower bound</em> on the true uncertainty. The implementation accepts a fixed reference mean and standard deviation so that the strictly unbiased regime can still be tested.</p>
+  </div>
+</section>
+
+<!-- ============ 4. the headline ============ -->
+<section>
+  <div class="qhead">
+    <span class="qmark">4 &middot; RESULT</span>
+    <h2>The resampled population contains the event and direct sampling does not</h2>
   </div>
 
   <div class="tw">
     <table>
-      <caption>Realized <span class="mono">A<sub>L</sub></span> over the PNW box, in kelvin of 7-day-mean anomaly. The three direct rows are ensembles that already existed on disk: 16 free-running GenCast walkers from Gate&nbsp;3, the 24-member 0.25&deg; GenCast ensemble from the cross-resolution experiment, and the 24-member FourCastNet&nbsp;3 ensemble from the head-to-head. All four start from the same ERA5 analysis at the same init.</caption>
+      <caption><b>Table 2.</b> Realized <span class="mono">A<sub>L</sub></span> over the PNW box, in kelvin of 7-day-mean anomaly. The three direct rows are ensembles that already existed on disk, namely 16 free-running GenCast walkers from Gate&nbsp;3, the 24-member 0.25&deg; GenCast ensemble from the cross-resolution experiment, and the 24-member FCN3 ensemble from the head-to-head comparison. All four populations start from the same ERA5 analysis at the same init.</caption>
       <thead><tr><th>Population</th><th></th><th class="num">n</th><th class="num">mean</th><th class="num">sd</th><th class="num">max</th><th class="num">reach +7.72 K</th></tr></thead>
       <tbody>
         <tr class="hero"><td><b>AI+RES</b></td><td><span class="tag t-res">resampled</span></td><td class="num">64</td><td class="num">+8.24</td><td class="num">1.49</td><td class="num">+10.29</td><td class="num">42</td></tr>
         <tr><td>GenCast, Gate&nbsp;3 walkers</td><td><span class="tag t-dir">direct</span></td><td class="num">16</td><td class="num">+2.54</td><td class="num">3.02</td><td class="num">+7.49</td><td class="num">0</td></tr>
         <tr><td>GenCast, xres 0.25&deg;</td><td><span class="tag t-dir">direct</span></td><td class="num">24</td><td class="num">+2.46</td><td class="num">2.66</td><td class="num">+7.08</td><td class="num">0</td></tr>
-        <tr><td>FourCastNet&nbsp;3</td><td><span class="tag t-dir">direct</span></td><td class="num">24</td><td class="num">+2.29</td><td class="num">3.10</td><td class="num">+7.87</td><td class="num">1</td></tr>
+        <tr><td>FCN3</td><td><span class="tag t-dir">direct</span></td><td class="num">24</td><td class="num">+2.29</td><td class="num">3.10</td><td class="num">+7.87</td><td class="num">1</td></tr>
       </tbody>
     </table>
   </div>
 
-  <p><strong>The headline claim needs no estimator at all.</strong> It is a statement about where walkers landed: 42 of 64 reach or exceed the ERA5 value and the population extends to <span class="mono">+10.29&nbsp;K</span>, while 40 direct GenCast members stop at <span class="mono">+7.49&nbsp;K</span>. Nothing in that sentence depends on a weight, a normalization, or a probability model.</p>
+  <p><strong>The headline claim needs no estimator.</strong> It is a statement about where walkers landed. 42 of 64 reach or exceed the ERA5 value and the population extends to <span class="mono">+10.29&nbsp;K</span>, while the 40 direct GenCast members stop at <span class="mono">+7.49&nbsp;K</span>. Nothing in that statement depends on a weight, a normalization, or a probability model.</p>
 
   <figure>
     <div class="figbox"><img src="FIG_EXCEEDANCE" alt="Left: exceedance probability of the t2m anomaly index on a log axis, AI+RES curve extending three decades past where the three direct-sampling curves stop. Right: strip plot of where each method's members landed relative to the observed value." loading="lazy"></div>
-    <figcaption><b>The tail, as a probability.</b> Left, the exceedance curve <span class="mono">P(A<sub>L</sub> &ge; a)</span>: AI+RES continues to <span class="mono">3.9&times;10<sup>&minus;4</sup></span> &mdash; one member in 2,600 &mdash; where the direct ensembles simply run out of members and can only report a 95% upper bound. The right-hand axis converts the same curve into &ldquo;how many members you would have to draw&rdquo;. Right, the same populations as raw values, colored by the weight that undoes the sampling tilt.</figcaption>
+    <figcaption><b>Figure 2. The tail as a probability.</b> Left, the exceedance curve <span class="mono">P(A<sub>L</sub> &ge; a)</span>. AI+RES continues to <span class="mono">3.9&times;10<sup>&minus;4</sup></span>, one member in 2,600, where the direct ensembles run out of members and can report only a 95% upper bound. The right-hand axis converts the same curve into the number of members that would have to be drawn. Right, the same populations as raw values, colored by the weight that undoes the sampling tilt.</figcaption>
   </figure>
 
   <div class="kpis">
-    <div class="kpi hero"><span class="n">0.054</span><span class="l">estimated <span class="mono">P(A<sub>L</sub> &ge; +7.72&nbsp;K)</span> &mdash; about 1 in 19</span></div>
-    <div class="kpi"><span class="n">3.9e-4</span><span class="l">the far end of the curve, at +10.29&nbsp;K &mdash; 1 in 2,600</span></div>
-    <div class="kpi"><span class="n">0.14&ndash;0.19</span><span class="l">all 40 direct draws can say: a 95% upper bound</span></div>
+    <div class="kpi hero"><span class="n">0.054</span><span class="l">estimated <span class="mono">P(A<sub>L</sub> &ge; +7.72&nbsp;K)</span>, about 1 in 19</span></div>
+    <div class="kpi"><span class="n">3.9e-4</span><span class="l">the far end of the curve, at +10.29&nbsp;K, 1 in 2,600</span></div>
+    <div class="kpi"><span class="n">0.14&ndash;0.19</span><span class="l">the 95% upper bound available from all 40 direct draws</span></div>
   </div>
 </section>
 
-<!-- ============ 3b. the maps ============ -->
+<!-- ============ 5. the maps ============ -->
 <section>
   <div class="qhead">
-    <span class="qmark">IN SPACE</span>
-    <h2>Is it the actual event, or just a number that matches?</h2>
+    <span class="qmark">5 &middot; IN SPACE</span>
+    <h2>Whether the field is the event, or only a matching box mean</h2>
   </div>
 
-  <p><span class="mono">A<sub>L</sub></span> is an area mean, and an area mean can be reached by the wrong field: a ridge displaced a few hundred kilometres, or a broad shallow warm anomaly with no dome in it, scores the same as the event. Neither the exceedance curve nor the trajectory plot can tell those apart. The maps can &mdash; every panel below is the same reduction as <span class="mono">A<sub>L</sub></span>, on the same 105&times;237 grid, so walkers, direct members and observed truth are directly subtractable and share one colour scale.</p>
+  <p><span class="mono">A<sub>L</sub></span> is an area mean, and an area mean can be reached by the wrong field. A ridge displaced a few hundred kilometres, or a broad shallow warm anomaly with no dome in it, scores the same as the event. Neither Fig.&nbsp;1 nor Fig.&nbsp;2 separates those cases. The maps do. Every panel in Fig.&nbsp;3 to Fig.&nbsp;7 is the same reduction as <span class="mono">A<sub>L</sub></span> on the same 105&times;237 grid, so walkers, direct members and observed truth are subtractable and share one colour scale.</p>
 
   <figure>
     <div class="figbox"><img src="FIG_MAP_COMPARE" alt="Twelve CONUS maps of 7-day-mean 2 m temperature anomaly on one shared scale: ERA5 and HRRR observed, three AI+RES tail representations plus its all-64 mean, and the ensemble mean and most extreme member of each of three direct baselines." loading="lazy"></div>
-    <figcaption><b>The observable as a field, one shared scale.</b> Row 1 is truth plus the AI+RES population mean; row 2 is the AI+RES tail; row 3 is every baseline&rsquo;s <em>ensemble mean</em>; row 4 is every baseline&rsquo;s <em>most extreme member</em>, chosen on its own box mean rather than its hottest grid cell. Reading down a column therefore compares a baseline&rsquo;s mean with its own extreme. The number under each panel is that panel&rsquo;s box mean &mdash; the same <span class="mono">A<sub>L</sub></span> every score in this experiment is taken on. Black rectangle is the scored box.</figcaption>
+    <figcaption><b>Figure 3. The observable as a field, one shared scale.</b> Row 1 is truth plus the AI+RES population mean, row 2 the AI+RES tail, row 3 each baseline&rsquo;s <em>ensemble mean</em>, row 4 each baseline&rsquo;s <em>most extreme member</em>, chosen on its own box mean rather than on its hottest grid cell. Reading down a column therefore compares a baseline&rsquo;s mean with its own extreme. The number under each panel is that panel&rsquo;s box mean, the same <span class="mono">A<sub>L</sub></span> every score in this experiment is taken on. The black rectangle is the scored box.</figcaption>
   </figure>
 
-  <p>At 21&nbsp;days&rsquo; lead the baseline <em>ensemble means</em> have no dome in them at all &mdash; <span class="mono">+2.28</span> to <span class="mono">+2.54&nbsp;K</span> against an observed <span class="mono">+7.72</span>. Their most extreme members do have one, in the right place, and land at <span class="mono">+7.08</span>, <span class="mono">+7.49</span> and <span class="mono">+7.87&nbsp;K</span>: the pattern is available to a 24-member ensemble, the amplitude only barely. Every AI+RES panel is past the observed value.</p>
+  <p>At 21&nbsp;days&rsquo; lead the baseline <em>ensemble means</em> in Fig.&nbsp;3 have no dome in them, between <span class="mono">+2.3</span> and <span class="mono">+2.5&nbsp;K</span> against an observed <span class="mono">+7.72&nbsp;K</span>. Their most extreme members do have one, in the right place, and land at <span class="mono">+7.08</span>, <span class="mono">+7.49</span> and <span class="mono">+7.87&nbsp;K</span>. The pattern is available to a 24-member ensemble, and the amplitude is reached by 1 of the 64 direct members in Table&nbsp;2. Every AI+RES panel is past the observed value.</p>
 
   <figure>
     <div class="figbox"><img src="FIG_MAP_ERROR" alt="Eleven CONUS maps of each field minus ERA5 on one shared scale, plus a panel ranking every method by box RMSE against ERA5." loading="lazy"></div>
-    <figcaption><b>Each field minus ERA5.</b> The first panel is <b>HRRR minus ERA5</b> &mdash; two observational products disagreeing about the same week by 2.34&nbsp;K RMSE over the box. It is on the figure deliberately: a method whose error is no larger than that has not been shown to have the event in the wrong place. Teal is too cool, brown too warm.</figcaption>
+    <figcaption><b>Figure 4. Each field minus ERA5.</b> The first panel is <b>HRRR minus ERA5</b>, two observational products disagreeing about the same week by 2.34&nbsp;K RMSE over the box. It is included as a reference scale, since a method whose error is no larger than that has not been shown to have the event in the wrong place. Teal is too cool, brown too warm.</figcaption>
   </figure>
 
   <div class="tw">
     <table>
-      <caption>Box RMSE against ERA5 over the scored PNW box, best first. Bias is the box-mean difference; RMSE also counts pattern error, so a method can have near-zero bias and still be wrong in shape.</caption>
+      <caption><b>Table 3.</b> Box RMSE against ERA5 over the scored PNW box, best first. Bias is the box-mean difference. RMSE also counts pattern error, so a method can have near-zero bias and still be wrong in shape.</caption>
       <thead><tr><th>Field</th><th class="num">box bias</th><th class="num">box RMSE</th></tr></thead>
       <tbody>
         <tr class="hero"><td><b>AI+RES</b>, all 64 (mean)</td><td class="num">+0.52 K</td><td class="num">0.86 K</td></tr>
@@ -374,78 +545,78 @@
   </div>
 
   <div class="callout stale">
-    <span class="h">Read the top row carefully &mdash; it is not a skill claim</span>
-    <p>The AI+RES population mean is the closest field to what happened, at <b>0.86&nbsp;K</b>, well inside the 2.34&nbsp;K that ERA5 and HRRR disagree by. But that population was <em>deliberately aimed at this event</em>, so its unweighted mean is not an estimate of the forecast mean and its closeness is not evidence of better forecast skill. What it does say is the thing a rare-event sampler is supposed to deliver: the observed event sits <b>inside</b> the resampled distribution rather than at its edge. A baseline ensemble mean, which genuinely is a forecast, is 5.2&ndash;5.5&nbsp;K away.</p>
+    <span class="h">The top row of Table 3 is not a skill claim</span>
+    <p>The AI+RES population mean is the closest field to what happened, at <b>0.86&nbsp;K</b>, inside the 2.34&nbsp;K by which ERA5 and HRRR disagree. That population was aimed at this event, so its unweighted mean is not an estimate of the forecast mean and its closeness is not evidence of better forecast skill. What it does show is what a rare-event sampler is meant to deliver, that the observed event sits <b>inside</b> the resampled distribution rather than at its edge. A baseline ensemble mean, which is a forecast, is 5.2 to 5.5&nbsp;K away.</p>
   </div>
 
-  <p><strong>And the tail overshoots.</strong> The top-10 composite and the single most extreme walker carry <span class="mono">+2.3</span> and <span class="mono">+2.6&nbsp;K</span> of box bias &mdash; the resampling was told to maximise <span class="mono">A<sub>L</sub></span> and it went past the observed value rather than stopping at it. That is correct behaviour for the algorithm and a caution for the reader: the far tail of this population is <em>more</em> extreme than 2021, not a reconstruction of it.</p>
+  <p><strong>The tail overshoots the event.</strong> The top-10 composite and the single most extreme walker carry <span class="mono">+2.31</span> and <span class="mono">+2.58&nbsp;K</span> of box bias in Table&nbsp;3. The resampling was told to maximise <span class="mono">A<sub>L</sub></span> and it went past the observed value rather than stopping at it. That is the specified behaviour of the algorithm, and it means the far tail of this population is <em>more</em> extreme than 2021 rather than a reconstruction of it.</p>
 
   <figure>
     <div class="figbox"><img src="FIG_MAP_WALK" alt="Eight CONUS maps: the most extreme surviving lineage's instantaneous 2 m temperature anomaly at leads 3, 6, 9, 12, 15, 18 and 21 days with 500 hPa geopotential height contours, plus its final 7-day mean." loading="lazy"></div>
-    <figcaption><b>The most extreme lineage, in space.</b> Slot 60, final <span class="mono">A<sub>L</sub></span> <span class="mono">+10.29&nbsp;K</span>. Contours are 500&nbsp;hPa geopotential height from the same walker &mdash; the ridge that carries the dome. Box mean by lead: <span class="mono">&minus;2.86, &minus;0.29, &minus;2.69, +2.86, +8.25, +12.62, +12.23&nbsp;K</span>. The last panel is the 7-day mean the score is taken on.</figcaption>
+    <figcaption><b>Figure 5. The most extreme lineage, in space.</b> Slot&nbsp;60, final <span class="mono">A<sub>L</sub></span> <span class="mono">+10.29&nbsp;K</span>. Contours are 500&nbsp;hPa geopotential height from the same walker, the ridge that carries the dome. Box mean by lead: <span class="mono">&minus;2.86, &minus;0.29, &minus;2.69, +2.86, +8.25, +12.62, +12.23&nbsp;K</span>. The last panel is the 7-day mean the score is taken on.</figcaption>
   </figure>
 
   <div class="callout">
-    <span class="h">The clearest single-walker case for an AI scorer</span>
-    <p>At the 9&nbsp;day barrier this lineage&rsquo;s ancestor was <b>the coolest of all 64</b> &mdash; <span class="mono">&minus;2.69&nbsp;K</span> against a population mean of <span class="mono">&minus;0.17&nbsp;K</span> &mdash; and it went on to be the most extreme walker in the run. A persistence score, which clones whoever is already hottest, would have killed it there. This is one walker and therefore an illustration rather than evidence; the evidence is the aggregate, where persistence scores <span class="mono">&rho;<sub>s</sub> = 0.06</span> at that same lead and FCN3 scores <span class="mono">0.80</span>. But it shows what those numbers mean: the ridge at 9&nbsp;d was already building over the Pacific while the surface under it had not yet warmed, and the score was reading the flow rather than the thermometer.</p>
+    <span class="h">A single-walker case for an AI scorer</span>
+    <p>At the 9&nbsp;d barrier this lineage occupied slot&nbsp;63 and held the <b>4th-coolest current anomaly of the 64 walkers alive</b>, <span class="mono">&minus;2.69&nbsp;K</span> against a population mean of <span class="mono">+1.46&nbsp;K</span>. That is <span class="mono">z = &minus;1.33</span> on a persistence score, which is under one expected child, so a persistence score would have killed it there. FCN3 ranked it 10th highest, <span class="mono">&theta; = +7.18&nbsp;K</span>, and it drew 11 children, the maximum multiplicity of that barrier. It became the most extreme walker of the run. This is one walker and therefore an illustration rather than evidence. The evidence is the aggregate in Table&nbsp;4, where persistence scores <span class="mono">&rho;<sub>s</sub> = 0.06</span> at that lead and FCN3 scores <span class="mono">0.80</span>. The ridge at 9&nbsp;d was already building over the Pacific while the surface under it had not yet warmed, so the score was reading the flow rather than the surface temperature.</p>
   </div>
 
   <figure>
     <div class="figbox"><img src="FIG_MAP_SPREAD" alt="Twelve CONUS maps in four rows of three: population mean, population standard deviation, and local exceedance probability for AI+RES and three direct baselines." loading="lazy"></div>
-    <figcaption><b>Spread, and where the probability lives.</b> Column&nbsp;3 is the exceedance estimator applied per grid point &mdash; AI+RES uses its weights, exactly as the scalar curve does; the direct ensembles are raw member fractions and cannot report anything below one member. Note the threshold here is <em>local</em>: a single grid point exceeding <span class="mono">+7.72&nbsp;K</span> is far easier than the whole box mean doing so, which is why the baselines are non-zero in column&nbsp;3 while they are 0/24 on the box mean.</figcaption>
+    <figcaption><b>Figure 6. Spread, and where the probability sits.</b> Column&nbsp;3 is the exceedance estimator applied per grid point. AI+RES uses its weights, as the scalar curve of Fig.&nbsp;2 does, and the direct ensembles are raw member fractions and cannot report anything below one member. The threshold in column&nbsp;3 is <em>local</em>. A single grid point exceeding <span class="mono">+7.72&nbsp;K</span> is easier than the whole box mean doing so, which is why the baselines are non-zero in column&nbsp;3 while they are 0/24 on the box mean.</figcaption>
   </figure>
 
-  <p><strong>Column 2 is the cost of resampling, drawn.</strong> The AI+RES population&rsquo;s own spread over the box is <span class="mono">1.77&nbsp;K</span> against <span class="mono">2.85</span>, <span class="mono">3.17</span> and <span class="mono">3.25&nbsp;K</span> for the three free ensembles. A tail-selected population of clones is <em>tighter</em> than a free one &mdash; the same finding the sibling-divergence panel reports as a 60% separation deficit, seen here as a map. It is why 64 resampled walkers are worth fewer than 64 independent draws.</p>
+  <p><strong>Column 2 of Fig. 6 is the cost of resampling.</strong> The AI+RES population&rsquo;s own spread over the box is <span class="mono">1.77&nbsp;K</span> against <span class="mono">2.85</span>, <span class="mono">3.17</span> and <span class="mono">3.25&nbsp;K</span> for the three free ensembles. A tail-selected population of clones is <em>tighter</em> than a free one, which is the same finding Fig.&nbsp;9 reports as a 60% separation deficit between siblings and unrelated pairs. It is why 64 resampled walkers are worth fewer than 64 independent draws.</p>
 
   <figure>
     <div class="figbox"><img src="FIG_COMPOSITE" alt="Twelve CONUS maps in a 4-by-3 grid: composites of the top 10 of 64 walkers, the mean of all 64, and their difference, for 2 m temperature and 500 hPa geopotential, each at the event peak and 3 days before." loading="lazy"></div>
-    <figcaption><b>What the resampling selected.</b> Left column, the composite of the <b>10 most extreme</b> walkers; middle, the mean of all 64; right, the difference. Rows are 2&nbsp;m temperature and 500&nbsp;hPa geopotential, each at the peak and 3&nbsp;days before it. The difference column is the useful one: at the peak the selected walkers are 4&ndash;5&nbsp;K warmer than the population over Oregon, Washington and British Columbia and <em>cooler</em> over the Great Basin, with a matching positive height anomaly anchored on the same spot. That is a real ridge in the right place, not a uniform warm bias &mdash; which is the failure mode a box-mean index cannot rule out on its own. Caveat printed on the figure itself: the only climatology on this machine is T2m, so the Z500 &ldquo;difference&rdquo; is relative to the walker ensemble, not to a climate.</figcaption>
+    <figcaption><b>Figure 7. What the resampling selected.</b> Left column, the composite of the <b>10 most extreme</b> walkers. Middle, the mean of all 64. Right, the difference. Rows are 2&nbsp;m temperature and 500&nbsp;hPa geopotential, each at the peak and 3&nbsp;days before it. In the difference column, at the peak the selected walkers are 4 to 5&nbsp;K warmer than the population over Oregon, Washington and British Columbia and <em>cooler</em> over the Great Basin, with a matching positive height anomaly on the same location. That is a ridge in the right place rather than a uniform warm bias, which is the failure mode a box-mean index cannot rule out on its own. As the figure itself notes, the only climatology on this machine is T2m, so the Z500 difference is relative to the walker ensemble and not to a climate.</figcaption>
   </figure>
 </section>
 
-<!-- ============ 4. is the estimator trustworthy ============ -->
+<!-- ============ 6. is the estimator trustworthy ============ -->
 <section>
   <div class="qhead">
-    <span class="qmark">CAVEAT</span>
-    <h2>Is the probability trustworthy? Two checks, and they say different things</h2>
+    <span class="qmark">6 &middot; CAVEAT</span>
+    <h2>Two checks on the probability, with different verdicts</h2>
   </div>
 
   <div class="card">
-    <h3>Check 1 &mdash; where both methods can be measured, they agree</h3>
-    <p>Over the range <span class="mono">+3.7</span> to <span class="mono">+6.8&nbsp;K</span>, where the RES curve and the direct curves both have members, the ratio between them has a geometric mean of <b>1.27</b> and a range of <b>0.97&ndash;2.13</b>. That is inside the sampling error of 16&ndash;24 independent draws, whose own Wilson intervals span factors of two to three there. The RES curve is not systematically displaced.</p>
+    <h3>Check 1 &middot; the curves agree where both have members</h3>
+    <p>Over the range <span class="mono">+3.7</span> to <span class="mono">+6.8&nbsp;K</span>, where the RES curve and the direct curves both have members, the ratio between them has a geometric mean of <b>1.27</b> and a range of <b>0.97 to 2.13</b>. That is inside the sampling error of 16 to 24 independent draws, whose Wilson intervals span factors of two to three over the same range. The RES curve is not systematically displaced.</p>
   </div>
 
   <div class="card">
-    <h3>Check 2 &mdash; the total-mass check reads 0.568, not 1</h3>
-    <p>An unbiased estimator should assign total probability 1 to everything. This run assigns <b>0.568</b>. That is ordinary at this ensemble size, not a bug: replaying the schedule 2,000 times at <span class="mono">N = 64</span> puts 0.568 at the <b>33rd percentile</b>, and the statistic is strongly right-skewed &mdash; mean 0.99, <em>median 0.73</em>, sd 1.17, with 36% of runs landing below 0.6. The &ldquo;should be about 1&rdquo; in the estimator&rsquo;s own documentation is the mean, not what a single run at this <span class="mono">N</span> typically reads.</p>
+    <h3>Check 2 &middot; the total-mass check reads 0.568, not 1</h3>
+    <p>An unbiased estimator assigns total probability 1 to everything. This run assigns <b>0.568</b>. That is ordinary at this ensemble size rather than a defect. Replaying the schedule 2,000 times at <span class="mono">N = 64</span> puts 0.568 at the <b>33rd percentile</b>, and the statistic is right-skewed, with mean 0.99, <em>median 0.73</em>, standard deviation 1.17, and 36% of runs below 0.6. The value near 1 quoted in the estimator&rsquo;s own documentation is the mean, not what a single run at this <span class="mono">N</span> reads.</p>
   </div>
 
   <div class="callout stale">
     <span class="h">Both checks have the same cause, and it is visible in the weights</span>
-    <p>58 of the 64 final weights sit near 1; the total mass is carried by about three walkers, weighted 10, 12 and 34.5. Rare-event resampling <em>deliberately abandons the bulk</em> &mdash; only 11 of 64 founders still have descendants, and no walker finished below <span class="mono">+3.54&nbsp;K</span> &mdash; so the probability mass that belongs at low <span class="mono">A<sub>L</sub></span> is represented by a handful of heavily weighted survivors, and <span class="mono">P(everything)</span> is noisy by construction. Below <span class="mono">+3.54&nbsp;K</span> the RES curve is flat at 0.568 because it has no members there: that segment <em>is</em> the total-mass check drawn sideways, and must not be read as a bulk estimate.</p>
+    <p>58 of the 64 final weights are below 2 and 52 are below 1. Four walkers, weighted 6.9, 10.0, 11.2 and 34.5, carry two thirds of the total mass. Rare-event resampling abandons the bulk by design. Only 11 of 64 founders still have descendants and no walker finished below <span class="mono">+3.54&nbsp;K</span>, so the probability mass that belongs at low <span class="mono">A<sub>L</sub></span> is represented by a few heavily weighted survivors and <span class="mono">P(everything)</span> is noisy by construction. Below <span class="mono">+3.54&nbsp;K</span> the RES curve in Fig.&nbsp;2 is flat at 0.568 because it has no members there. That segment is the total-mass check plotted against a threshold axis, and it is not a bulk estimate.</p>
   </div>
 
-  <p><strong>What to quote and what not to.</strong> Absolute probabilities from this run carry roughly a factor of two at <span class="mono">N = 64</span>. The ratio comparisons against direct sampling, and the qualitative reach of the population, do not.</p>
+  <p><strong>Quote the ratios, not the absolute probabilities.</strong> Absolute probabilities from this run carry roughly a factor of two at <span class="mono">N = 64</span>. The ratio comparisons against direct sampling, and the reach of the population, do not.</p>
 </section>
 
-<!-- ============ 5. did the score rank ============ -->
+<!-- ============ 7. did the score rank ============ -->
 <section>
   <div class="qhead">
-    <span class="qmark">DIAGNOSTIC</span>
-    <h2>Did the score actually rank the walkers it was killing?</h2>
+    <span class="qmark">7 &middot; DIAGNOSTIC</span>
+    <h2>Whether the score ranked the walkers it was killing</h2>
   </div>
 
   <figure>
     <div class="figbox"><img src="FIG_DIAGNOSTICS" alt="Top row: four scatter panels of score theta at 6, 9, 12 and 15 days against realized final A_L, with rank correlations rising from +0.23 to +0.93. Bottom left: effective sample size per barrier against the N/4 target. Bottom right: histogram of final weights." loading="lazy"></div>
-    <figcaption><b>Score against outcome, barrier by barrier.</b> Each panel is 64 walkers: the score <span class="mono">&theta;</span> they received at that lead against the <span class="mono">A<sub>L</sub></span> they actually realized six to fifteen days later. Below: the effective sample size against the <span class="mono">N/4</span> target, and the final weight distribution &mdash; 58 near 1, three carrying the mass.</figcaption>
+    <figcaption><b>Figure 8. Score against outcome, barrier by barrier.</b> Each panel is 64 walkers, the score <span class="mono">&theta;</span> received at that lead against the <span class="mono">A<sub>L</sub></span> realized 6 to 15 days later. Below, the effective sample size against the <span class="mono">N/4</span> target, and the final weight distribution, 58 weights below 2 and four carrying most of the mass.</figcaption>
   </figure>
 
   <div class="tw">
     <table>
-      <caption>Rank correlation between the score at <span class="mono">t<sub>k</sub></span> and the walker&rsquo;s own realized <span class="mono">A<sub>L</sub></span>. The Gate&nbsp;3 column is the same statistic on 16 <em>free-running</em> walkers, measured before the pilot was approved; the persistence column is the paper&rsquo;s Standard-RES baseline, which scores a walker by how hot it already is.</caption>
+      <caption><b>Table 4.</b> Rank correlation between the score at <span class="mono">t<sub>k</sub></span> and the walker&rsquo;s own realized <span class="mono">A<sub>L</sub></span>. The Gate&nbsp;3 column is the same statistic on 16 <em>free-running</em> walkers, measured before the pilot was approved. The persistence column is the Standard-RES baseline of Lancelin et al., which scores a walker by how hot it already is. The pilot was not scored at 3&nbsp;d, since <span class="mono">C<sub>1</sub> = 0</span>.</caption>
       <thead><tr><th class="num">lead</th><th class="num">pilot &rho;<sub>s</sub></th><th class="num">Gate 3 &rho;<sub>s</sub></th><th class="num">persistence &rho;<sub>s</sub></th></tr></thead>
       <tbody>
-        <tr><td class="num">3 d</td><td class="num">&mdash;</td><td class="num">&minus;0.04</td><td class="num">&minus;0.38</td></tr>
+        <tr><td class="num">3 d</td><td class="num">n/a</td><td class="num">&minus;0.04</td><td class="num">&minus;0.38</td></tr>
         <tr><td class="num">6 d</td><td class="num">+0.23</td><td class="num">+0.61</td><td class="num">+0.39</td></tr>
         <tr><td class="num">9 d</td><td class="num">+0.73</td><td class="num">+0.80</td><td class="num">+0.06</td></tr>
         <tr><td class="num">12 d</td><td class="num">+0.85</td><td class="num">+0.96</td><td class="num">+0.13</td></tr>
@@ -454,47 +625,107 @@
     </table>
   </div>
 
-  <p><strong>The pilot column reads lower than Gate&nbsp;3, and that is range restriction, not a worse scorer.</strong> Gate&nbsp;3&rsquo;s 16 walkers spanned <span class="mono">&minus;3.2</span> to <span class="mono">+7.5&nbsp;K</span>. The resampled population spans <span class="mono">+3.5</span> to <span class="mono">+10.3&nbsp;K</span> and is concentrated above <span class="mono">+7</span>. Correlation is attenuated by exactly that compression &mdash; and these walkers are descendants of one another rather than independent draws, so the number is not comparable to the gate&rsquo;s in the first place.</p>
+  <p><strong>The pilot column of Table 4 reads lower than the Gate&nbsp;3 column, and the cause is range restriction rather than a worse scorer.</strong> Gate&nbsp;3&rsquo;s 16 walkers spanned <span class="mono">&minus;3.2</span> to <span class="mono">+7.5&nbsp;K</span>. The resampled population spans <span class="mono">+3.5</span> to <span class="mono">+10.3&nbsp;K</span> and is concentrated above <span class="mono">+7&nbsp;K</span>. Correlation is attenuated by that compression. These walkers are also descendants of one another rather than independent draws, so the number is not comparable to the gate&rsquo;s.</p>
 
   <div class="callout">
-    <span class="h">Why an AI scorer, rather than the cheap one</span>
-    <p>Lancelin et al.&rsquo;s Standard-RES scores a walker by the observable&rsquo;s current value, which costs nothing. At the two leads the gate was taken on, that baseline has <em>no skill at all</em> &mdash; <span class="mono">0.06</span> at 9&nbsp;d and <span class="mono">0.13</span> at 12&nbsp;d, both inside the noise &mdash; while FourCastNet&nbsp;3 reaches <span class="mono">0.80</span> and <span class="mono">0.96</span>. Persistence only becomes useful at 15&nbsp;d, by which point the verification window has already begun. Whatever FCN3 is doing, it is not reading off the current state. That is what buys the GPU hours.</p>
+    <span class="h">Why an AI scorer rather than the cheap one</span>
+    <p>The Standard-RES of Lancelin et al. scores a walker by the observable&rsquo;s current value, which costs nothing. At the two leads the gate was taken on, that baseline has no skill, <span class="mono">0.06</span> at 9&nbsp;d and <span class="mono">0.13</span> at 12&nbsp;d, both inside the noise, while FCN3 reaches <span class="mono">0.80</span> and <span class="mono">0.96</span> in Table&nbsp;4. Persistence becomes useful only at 15&nbsp;d, by which point the verification window has begun. FCN3 is therefore not reading off the current state, and that is what the GPU hours buy.</p>
   </div>
 </section>
 
-<!-- ============ 6. genealogy + clones ============ -->
+<!-- ============ 8. genealogy + clones ============ -->
 <section>
   <div class="qhead">
-    <span class="qmark">GENEALOGY</span>
+    <span class="qmark">8 &middot; GENEALOGY</span>
     <h2>Eleven founders, and clones that separate on their own</h2>
   </div>
 
   <figure>
     <div class="figbox"><img src="FIG_GENEALOGY" alt="Left: ancestry tree of 64 walker slots against lead time, lines colored by realized A_L, converging onto 11 founders. Right: RMS 2 m temperature difference between sibling clones versus unrelated walkers, from 15 to 21 days." loading="lazy"></div>
-    <figcaption><b>Left, the same tree by slot rather than by temperature</b> &mdash; useful for seeing the bookkeeping: which slot continued which, and the collapse onto 11 surviving founders. <b>Right, the design bet.</b> The paper perturbs log surface pressure with spherical harmonics because PlaSim is deterministic and its clones would otherwise be bit-identical forever. GenCast&rsquo;s diffusion noise was supposed to make that unnecessary.</figcaption>
+    <figcaption><b>Figure 9. Left, the tree of Fig.&nbsp;1 indexed by slot</b> rather than tinted by temperature, which shows which slot continued which and the collapse onto 11 surviving founders. <b>Right, the design bet.</b> Lancelin et al. perturb log surface pressure with spherical harmonics because PlaSim is deterministic and its clones would otherwise stay bit-identical. GenCast&rsquo;s diffusion noise was expected to make that perturbation unnecessary.</figcaption>
   </figure>
 
   <div class="card">
-    <h3>It does &mdash; and here is the honest half</h3>
+    <h3>What the sibling separation shows</h3>
     <ul>
       <li>Sibling clones born at the 15&nbsp;d barrier differ by <strong>1.0&nbsp;K RMS</strong> in 2&nbsp;m temperature over CONUS after a <em>single</em> 12&nbsp;h step, growing to about <strong>2.5&nbsp;K</strong> by the 21&nbsp;d horizon. No hand-tuned perturbation was needed.</li>
-      <li>But unrelated walkers sit at <strong>3.0&ndash;4.5&nbsp;K</strong> over the same span. At the horizon siblings are still separated by only about <strong>60%</strong> of the unrelated-pair distance, so <strong>clones remain correlated at verification</strong> and the effective number of independent tail samples is smaller than 64.</li>
-      <li>This is the first quantitative handle on that, and it is the argument for adding the paper&rsquo;s perturbation if a later run resamples harder or later than this one did.</li>
+      <li>Unrelated walkers sit at <strong>3.0 to 4.5&nbsp;K</strong> over the same span. At the horizon siblings are separated by about <strong>60%</strong> of the unrelated-pair distance, so <strong>clones remain correlated at verification</strong> and the effective number of independent tail samples is below 64.</li>
+      <li>This is the first quantitative measurement of that correlation, and it is the argument for adding the perturbation of Lancelin et al. if a later run resamples harder or later than this one did.</li>
     </ul>
   </div>
 
 </section>
 
-<!-- ============ 7. cost ============ -->
+<!-- ============ hyperparameters ============ -->
 <section>
   <div class="qhead">
-    <span class="qmark">COST</span>
-    <h2>What it took</h2>
+    <span class="qmark">9 &middot; CONFIG</span>
+    <h2>Every knob, and what it was set to</h2>
+  </div>
+
+  <p>The driver freezes its configuration to <span class="mono">run.json</span> before the first walker moves and refuses to resume a run whose configuration has changed, so two runs that disagree on any of this are two runs. Table&nbsp;5 is read from that frozen record, or from the module constants it does not capture.</p>
+
+  <div class="tw">
+    <table>
+      <caption><b>Table 5.</b> Configuration frozen at <span class="mono">runs/aires/PNW_HeatDome_2021/res/pilot/run.json</span>. Values marked &sect; are not in the frozen block. They come from <span class="mono">aires/aconfig.py</span>, <span class="mono">aires/aindex.py</span> or the Slurm script, and are recorded here because they change the answer.</caption>
+      <thead><tr><th>Knob</th><th>Value</th><th>What it decides</th></tr></thead>
+      <tbody>
+        <tr class="grp"><td colspan="3">The walker, GenCast</td></tr>
+        <tr><td class="knob">params_file</td><td class="val">GenCast 0p25deg &lt;2019.npz</td><td class="why">Trained on pre-2019 data only, so a 2021 event is out of sample. Occupies about 64&nbsp;GB of an 80&nbsp;GB H100, which is why every walker step is serial.</td></tr>
+        <tr><td class="knob">resolution</td><td class="val">0p25</td><td class="why">0.25&deg;, global. Walker states must be global, since a CONUS crop cannot restart a walker or initialise the scorer.</td></tr>
+        <tr><td class="knob">step_h</td><td class="val">12</td><td class="why">GenCast&rsquo;s native step. 42 steps from the init to the peak.</td></tr>
+        <tr><td class="knob">seg_steps</td><td class="val">6</td><td class="why">6 &times; 12&nbsp;h = one 3-day segment, the unit of work handed to a worker. One XLA compile per worker per leg.</td></tr>
+        <tr><td class="knob">n_walkers</td><td class="val">64</td><td class="why">Population size <span class="mono">N</span>. Sets the resolution of the tail and the factor-of-two uncertainty on the probability.</td></tr>
+        <tr><td class="knob">horizon_days</td><td class="val">21.0</td><td class="why">The peak. Must equal the init-to-peak lead, otherwise the walkers never enter the verification window and <span class="mono">A<sub>L</sub></span> is undefined.</td></tr>
+        <tr><td class="knob">keep_states &sect;</td><td class="val">2</td><td class="why">Segments of walker state kept resident. Each state is 477&nbsp;MB, which is what held peak disk at 37&nbsp;GB.</td></tr>
+
+        <tr class="grp"><td colspan="3">The score, FCN3</td></tr>
+        <tr><td class="knob">backend</td><td class="val">fcn3</td><td class="why">The alternative, <span class="mono">persistence</span>, is the Standard-RES baseline of Lancelin et al. and was run as a separate control.</td></tr>
+        <tr><td class="knob">members</td><td class="val">6</td><td class="why"><span class="mono">M</span>, the score ensemble. <span class="mono">&theta;</span> is the mean of these 6 members&rsquo; <span class="mono">A<sub>L</sub></span>.</td></tr>
+        <tr><td class="knob">FCN3 step &sect;</td><td class="val">6 h</td><td class="why">The scorer&rsquo;s native step, half the walker&rsquo;s. A barrier at 6&nbsp;d forecasts 60 steps to the peak, and one at 15&nbsp;d forecasts 24.</td></tr>
+        <tr><td class="knob">IC perturbation &sect;</td><td class="val">Zero()</td><td class="why">All 6 members start from the same 72-channel field. Their spread is FCN3&rsquo;s own stochasticity rather than a perturbed initial condition.</td></tr>
+        <tr><td class="knob">skip_null_scores</td><td class="val">true</td><td class="why">A barrier with <span class="mono">C<sub>k</sub> = 0</span> resamples nothing, so its score is never computed. Barrier&nbsp;1 therefore cost zero GPU hours.</td></tr>
+
+        <tr class="grp"><td colspan="3">The resampling, diffusion Monte Carlo</td></tr>
+        <tr><td class="knob">C</td><td class="val">0, 1.0, 1.4, 1.8, 2.0</td><td class="why">Selection pressure per barrier. Clone count &prop; <span class="mono">exp(C<sub>k</sub> &middot; standardized score)</span>. The score is standardized across the live population at each barrier, which makes the scheme self-interacting and rules out a closed-form error bar, as Section&nbsp;3 states.</td></tr>
+        <tr><td class="knob">leads</td><td class="val">3, 6, 9, 12, 15 d</td><td class="why">Where the barriers sit. The last is 6&nbsp;days before the peak, so the event window is a free run-out.</td></tr>
+        <tr><td class="knob">tail_sign</td><td class="val">+1.0</td><td class="why">HIGH tail, so the largest <span class="mono">A<sub>L</sub></span> is cloned. A cold event such as Uri sets &minus;1 and the same code selects the most negative.</td></tr>
+        <tr><td class="knob">ESS target &sect;</td><td class="val">&gt; N/4 = 16</td><td class="why">The health floor, not an input. Breaching it means the population has collapsed onto too few ancestors to estimate anything.</td></tr>
+
+        <tr class="grp"><td colspan="3">The observable</td></tr>
+        <tr><td class="knob">metric</td><td class="val">t2m_anom</td><td class="why">Departure from the 1990&ndash;2019 climatology, sampled at each frame&rsquo;s own hour and day-of-year.</td></tr>
+        <tr><td class="knob">box &sect;</td><td class="val">44&ndash;50 N, 124&ndash;118 W</td><td class="why">Oregon and Washington. A CONUS mean of this event is mostly grid points that were not having a heat wave. The 50&nbsp;N edge is the CONUS crop rather than a choice.</td></tr>
+        <tr><td class="knob">window &sect;</td><td class="val">13 frames, 15&rarr;21 d</td><td class="why">The 7-day mean ending at the peak. <span class="mono">check_window</span> hard-fails on any other frame count rather than averaging over two frames and calling it <span class="mono">A<sub>L</sub></span>.</td></tr>
+        <tr><td class="knob">climatology &sect;</td><td class="val">105 &times; 237 @ 0.25&deg;</td><td class="why">Verified by grid rather than by filename, after a 2&deg; file of the same name on another machine produced silently wrong anomalies.</td></tr>
+
+        <tr class="grp"><td colspan="3">Seeds</td></tr>
+        <tr><td class="knob">base_seed</td><td class="val">20260101</td><td class="why">Walker noise. The stream is <span class="mono">fold_in(fold_in(key, slot), segment)</span>, keyed on the <em>slot</em>, so a clone draws a different stream from its sibling. That is what makes clones separate.</td></tr>
+        <tr><td class="knob">dmc_seed</td><td class="val">20260819</td><td class="why">The resampling draw. Fixing it makes the genealogy replayable from the cached scores in seconds.</td></tr>
+        <tr><td class="knob">score seed &sect;</td><td class="val">CRC32(event, lead)</td><td class="why">Not a function of the walker. Every walker at one barrier is scored under the same FCN3 noise, so a difference in <span class="mono">&theta;</span> is a difference in state. Common random numbers.</td></tr>
+
+        <tr class="grp"><td colspan="3">Runtime</td></tr>
+        <tr><td class="knob">shards &sect;</td><td class="val">8</td><td class="why">One process per H100 on one node, for both the walk and the score pools.</td></tr>
+        <tr><td class="knob">attempts &sect;</td><td class="val">3</td><td class="why">Per-leg retries. A leg that loses a node to a foreign process retries rather than killing the run, and cached segments skip.</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="callout">
+    <span class="h">Two settings were chosen against a measurement</span>
+    <p><span class="mono">M = 6</span> and the <span class="mono">C<sub>k</sub></span> ramp both come from work done before the run. <span class="mono">C<sub>k</sub></span> was replayed on Gate&nbsp;3&rsquo;s measured skill curve and predicted the effective sample sizes of Section&nbsp;2 to within a few hundredths. <span class="mono">M</span> is a floor set by the noise on an ensemble mean. At <span class="mono">M = 6</span> two ensemble means of this event&rsquo;s <span class="mono">A<sub>L</sub></span> differ by 0.36&nbsp;K from sampling noise alone, which is adequate for <em>ranking</em> walkers and was fatal to a 0.25&nbsp;K equivalence threshold, the reason Gate&nbsp;2 was re-scored at <span class="mono">M = 24</span>.</p>
+  </div>
+</section>
+
+<!-- ============ 10. cost ============ -->
+<section>
+  <div class="qhead">
+    <span class="qmark">10 &middot; COST</span>
+    <h2>What the run took</h2>
   </div>
 
   <div class="tw">
     <table>
-      <caption>One 8&times;H100 node, 465&nbsp;min of coordinator wall &mdash; almost exactly the 7.6&nbsp;h the corrected rate estimates predicted. Leg&nbsp;1 rolled only 48 of 64 segments because 16 were already on disk from Gate&nbsp;3; its score was skipped because <span class="mono">C<sub>1</sub> = 0</span>. Leg&nbsp;6 carries the population through the event window and rolls 128 segments with no barrier at the end.</caption>
+      <caption><b>Table 6.</b> One 8&times;H100 node, 465&nbsp;min of coordinator wall, against the 7.6&nbsp;h the corrected rate estimates predicted. Leg&nbsp;1 rolled only 48 of 64 segments because 16 were already on disk from Gate&nbsp;3, and its score was skipped because <span class="mono">C<sub>1</sub> = 0</span>, so its entry in the last column is the walkers&rsquo; own box mean printed by the driver rather than an FCN3 score. Leg&nbsp;6 carries the population through the event window and rolls 128 segments with no barrier at the end.</caption>
       <thead><tr><th>Leg</th><th class="num">lead</th><th class="num">walk</th><th class="num">score</th><th class="num">&theta; mean</th></tr></thead>
       <tbody>
         <tr><td>1</td><td class="num">0 &rarr; 3 d</td><td class="num">40.3 min</td><td class="num">skipped</td><td class="num">&minus;3.18</td></tr>
@@ -502,29 +733,29 @@
         <tr><td>3</td><td class="num">6 &rarr; 9 d</td><td class="num">41.4 min</td><td class="num">55.7 min</td><td class="num">+4.07</td></tr>
         <tr><td>4</td><td class="num">9 &rarr; 12 d</td><td class="num">42.0 min</td><td class="num">43.2 min</td><td class="num">+5.57</td></tr>
         <tr><td>5</td><td class="num">12 &rarr; 15 d</td><td class="num">39.0 min</td><td class="num">30.6 min</td><td class="num">+6.62</td></tr>
-        <tr><td>6</td><td class="num">15 &rarr; 21 d</td><td class="num">64.9 min</td><td class="num">&mdash;</td><td class="num">&mdash;</td></tr>
+        <tr><td>6</td><td class="num">15 &rarr; 21 d</td><td class="num">64.9 min</td><td class="num">n/a</td><td class="num">n/a</td></tr>
       </tbody>
     </table>
   </div>
 
-  <p>Peak disk was <strong>37&nbsp;GB</strong> against 92&nbsp;GB projected: with only two segments of walker states ever resident, the projection had been charging for three. All 448 diagnostics cubes were retained &mdash; which is the only reason the trajectory figure at the top of this page could be drawn, including its killed branches, months after the run.</p>
+  <p>Peak disk was <strong>37&nbsp;GB</strong> against 92&nbsp;GB projected. With only two segments of walker states ever resident, the projection had been charging for three. All 448 diagnostics cubes were retained, which is why Fig.&nbsp;1 could be drawn, including its killed branches, months after the run.</p>
 
-  <details>
+  <details open>
     <summary>The stack, in one paragraph</summary>
-    <p>GenCast is the <b>walker</b>: the thing propagated, cloned and killed. FourCastNet&nbsp;3 is the <b>score function</b>: at each barrier it is handed the walker&rsquo;s state and asked, with 6 members run to the peak, where that walker is heading. The roles are inverted relative to the obvious reading of the two models &mdash; the diffusion model does the physics, the deterministic-core model does the judging. They cannot share a process (JAX versus PyTorch), so walker and scorer hand off through disk, and the join is a 72-channel adapter in which 69 channels are a rename plus a latitude flip and 3 are derived from a fitted calibration.</p>
+    <p>GenCast is the <b>walker</b>, the object propagated, cloned and killed. FCN3 is the <b>score function</b>. At each barrier it is handed the walker&rsquo;s state and asked, with 6 members run to the peak, where that walker is heading. The roles are inverted relative to the obvious reading of the two models, in that the diffusion model does the physics and the deterministic-core model does the judging. They cannot share a process, JAX against PyTorch, so walker and scorer hand off through disk, and the join is a 72-channel adapter in which 69 channels are a rename plus a latitude flip and 3 are derived from a fitted calibration.</p>
   </details>
 </section>
 
-<!-- ============ 8. gates ============ -->
+<!-- ============ 11. gates ============ -->
 <section>
   <div class="qhead">
-    <span class="qmark">PROVENANCE</span>
+    <span class="qmark">11 &middot; PROVENANCE</span>
     <h2>The three gates this run had to pass first</h2>
   </div>
 
   <div class="tw">
     <table>
-      <caption>Every gate was specified with a threshold before it was measured. Gate&nbsp;2&rsquo;s second criterion was amended from a 21-day endpoint to a horizon test, and that amendment is the substantive result of that gate: at 21&nbsp;d lead any initial-condition difference whatsoever has been amplified to the internal-noise level, so the original criterion could not have been passed by a perfect adapter either.</caption>
+      <caption><b>Table 7.</b> Gates, each specified with a threshold before it was measured. Gate&nbsp;2&rsquo;s second criterion was amended from a 21-day endpoint to a horizon test, and that amendment is the substantive result of that gate. At 21&nbsp;d lead any initial-condition difference has been amplified to the internal-noise level, so the original criterion could not have been passed by a perfect adapter either.</caption>
       <thead><tr><th>Gate</th><th>What it asks</th><th class="num">measured</th><th class="num">threshold</th><th></th></tr></thead>
       <tbody>
         <tr><td>1</td><td>Do the adapter&rsquo;s 3 derived channels match a native FCN3 IC?</td><td class="num">0.63 m/s &middot; 4.6%</td><td class="num">1.0 m/s &middot; 5%</td><td><span class="tag t-pass">pass</span></td></tr>
@@ -536,27 +767,27 @@
     </table>
   </div>
 
-  <p>A separate ten-case follow-up asked whether the adapter costs forecast skill against observed truth, using six extreme events and four quiet-day null controls. The pooled effect is <strong>+0.23%</strong> with a 95% interval of <span class="mono">[&minus;5.20, +5.65]</span> and no regime dependence &mdash; so whatever the adapter costs at week&nbsp;3 lead, it is under about 5% of the native run&rsquo;s RMSE. For AI+RES that bound is the number that matters: the walker score is an ensemble mean, and a bias this far under the ensemble&rsquo;s own sampling noise cannot reorder walkers.</p>
+  <p>A separate ten-case follow-up asked whether the adapter costs forecast skill against observed truth, using six extreme events and four quiet-day null controls. The pooled effect is <strong>+0.23%</strong> with a 95% interval of <span class="mono">[&minus;5.20, +5.65]</span> and no regime dependence, so whatever the adapter costs at week&nbsp;3 lead is under about 5% of the native run&rsquo;s RMSE. That bound is the number that matters for AI+RES. The walker score is an ensemble mean, and a bias this far under the ensemble&rsquo;s own sampling noise cannot reorder walkers.</p>
 </section>
 
-<!-- ============ 9. what's next ============ -->
+<!-- ============ 12. what's next ============ -->
 <section>
   <div class="qhead">
-    <span class="qmark">OPEN</span>
+    <span class="qmark">12 &middot; OPEN</span>
     <h2>What this pilot does not settle</h2>
   </div>
   <ul>
-    <li><strong>One event, one atmosphere.</strong> Everything here is the 2021 PNW dome from one init. The reach claim is robust; the probability is one draw of one schedule at <span class="mono">N = 64</span>.</li>
-    <li><strong>Clones are not independent.</strong> 60% of the unrelated-pair separation at verification means the 64 tail samples are worth fewer than 64. Quantified, not yet fixed.</li>
+    <li><strong>One event, one atmosphere.</strong> Everything here is the 2021 PNW dome from one init. The reach claim is robust, and the probability is one draw of one schedule at <span class="mono">N = 64</span>.</li>
+    <li><strong>Clones are not independent.</strong> A separation at 60% of the unrelated-pair distance at verification means the 64 tail samples are worth fewer than 64. Quantified, not yet fixed.</li>
     <li><strong>The box clips the event.</strong> The observed dome maximum reached about 52&nbsp;N into British Columbia, outside the 50&nbsp;N CONUS crop the cubes carry, so the scored box sees the southern two thirds of what happened.</li>
-    <li><strong>The far tail overshoots the event.</strong> The top-10 composite carries +2.3 K of box bias and the single most extreme walker +2.6 K. Correct for an algorithm told to maximise <span class="mono">A<sub>L</sub></span>, but it means the extreme end of this population is more extreme than 2021 rather than a reconstruction of it.</li>
-    <li><strong>Absolute probabilities want more walkers.</strong> The factor-of-two uncertainty on <span class="mono">P</span> is an <span class="mono">N</span> problem, and the total-mass diagnostic is the thing to watch as <span class="mono">N</span> grows.</li>
+    <li><strong>The far tail overshoots the event.</strong> The top-10 composite carries +2.31&nbsp;K of box bias and the single most extreme walker +2.58&nbsp;K. That is correct for an algorithm told to maximise <span class="mono">A<sub>L</sub></span>, and it means the extreme end of this population is more extreme than 2021 rather than a reconstruction of it.</li>
+    <li><strong>Absolute probabilities need more walkers.</strong> The factor-of-two uncertainty on <span class="mono">P</span> is an <span class="mono">N</span> problem, and the total-mass diagnostic is the statistic to watch as <span class="mono">N</span> grows.</li>
   </ul>
 </section>
 
 <footer>
   <p>AI+RES phase&nbsp;4 pilot &middot; <span class="mono">PNW_HeatDome_2021</span>, init 2021-06-07, peak 2021-06-28 &middot; N&nbsp;=&nbsp;64 walkers, M&nbsp;=&nbsp;6 score members, <span class="mono">C<sub>k</sub></span>&nbsp;=&nbsp;(0,&nbsp;1.0,&nbsp;1.4,&nbsp;1.8,&nbsp;2.0) &middot; Slurm job 1172 on one 8&times;H100 node, 465&nbsp;min &middot; <span class="mono">log Z = &minus;0.9317</span>, total-mass check 0.5684, 11/64 founders surviving.</p>
-  <p>Figures regenerated from <span class="mono">runs/aires/PNW_HeatDome_2021/res/pilot/</span> by <span class="mono">aires/aplots.py</span>. Method after Lancelin et al., <span class="mono">arXiv:2510.27066</span>, with the roles inverted: GenCast walks, FourCastNet&nbsp;3 scores.</p>
+  <p>Figures regenerated from <span class="mono">runs/aires/PNW_HeatDome_2021/res/pilot/</span> by <span class="mono">aires/aplots.py</span>. Method after Lancelin et al., <span class="mono">arXiv:2510.27066</span>, with the roles inverted, so GenCast walks and FCN3 scores.</p>
 </footer>
 
 </div>
