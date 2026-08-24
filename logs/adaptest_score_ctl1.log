@@ -1,0 +1,2 @@
+[score] null_20230324          t2m_anom    box RMSE   2.806 vs   2.651  delta  +0.155 +- 0.247 (  +5.8%)  -> null_20230324_skill.json
+[score] null_20240329          t2m_anom    box RMSE   2.402 vs   2.636  delta  -0.234 +- 0.240 (  -8.9%)  -> null_20240329_skill.json

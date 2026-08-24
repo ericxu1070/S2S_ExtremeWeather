@@ -1,0 +1,38 @@
+[check] torch-harmonics DISCO CUDA extension: PRESENT -> FCN3 runs bf16
+[infer] host=nucla3m-a3meganodeset-4 shard=2/8: members 6..8 of 24; device=cuda
+[model] loaded cache fcn3_model_2.11.0+cu128_th0.8.1_a305be3ecd79.pt in 10.8 s
+[infer] null_20241121: rolling 3 member(s) x 84 steps from the ADAPTER IC (init 2024-10-31T00:00:00, vars=['t2m'], seed=8335) ...
+[32m2026-08-20 00:51:37.268[0m | [1mINFO    [0m | [36mearth2studio.run[0m:[36mensemble[0m:[36m400[0m - [1mRunning ensemble inference![0m
+[32m2026-08-20 00:51:37.268[0m | [1mINFO    [0m | [36mearth2studio.run[0m:[36mensemble[0m:[36m407[0m - [1mInference device: cuda[0m
+Traceback (most recent call last):
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "/home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/aires/gate2.py", line 629, in <module>
+    sys.exit(main())
+             ^^^^^^
+  File "/home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/aires/gate2.py", line 622, in main
+    return stage_infer(ev, a.shard, a.nshards, a.members, a.batch_size, a.keep_zarr)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/aires/gate2.py", line 315, in stage_infer
+    io = ensemble([ev.init.strftime("%Y-%m-%dT%H:%M:%S")], F.NSTEPS, count, model, data,
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ubuntu/miniconda3/envs/fcn3/lib/python3.11/site-packages/earth2studio/run.py", line 408, in ensemble
+    prognostic = prognostic.to(device)
+                 ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ubuntu/miniconda3/envs/fcn3/lib/python3.11/site-packages/torch/nn/modules/module.py", line 1384, in to
+    return self._apply(convert)
+           ^^^^^^^^^^^^^^^^^^^^
+  File "/home/ubuntu/miniconda3/envs/fcn3/lib/python3.11/site-packages/torch/nn/modules/module.py", line 934, in _apply
+    module._apply(fn)
+  File "/home/ubuntu/miniconda3/envs/fcn3/lib/python3.11/site-packages/torch/nn/modules/module.py", line 934, in _apply
+    module._apply(fn)
+  File "/home/ubuntu/miniconda3/envs/fcn3/lib/python3.11/site-packages/torch/nn/modules/module.py", line 934, in _apply
+    module._apply(fn)
+  [Previous line repeated 3 more times]
+  File "/home/ubuntu/miniconda3/envs/fcn3/lib/python3.11/site-packages/torch/nn/modules/module.py", line 965, in _apply
+    param_applied = fn(param)
+                    ^^^^^^^^^
+  File "/home/ubuntu/miniconda3/envs/fcn3/lib/python3.11/site-packages/torch/nn/modules/module.py", line 1370, in convert
+    return t.to(
+           ^^^^^
+torch.OutOfMemoryError: CUDA out of memory. Tried to allocate 1.23 GiB. GPU 0 has a total capacity of 79.18 GiB of which 502.50 MiB is free. Process 2290907 has 77.05 GiB memory in use. Including non-PyTorch memory, this process has 1.62 GiB memory in use. Of the allocated memory 1.11 GiB is allocated by PyTorch, and 4.62 MiB is reserved by PyTorch but unallocated. If reserved but unallocated memory is large try setting PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True to avoid fragmentation.  See documentation for Memory Management  (https://docs.pytorch.org/docs/stable/notes/cuda.html#optimizing-memory-usage-with-pytorch-cuda-alloc-conf)
