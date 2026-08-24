@@ -35,13 +35,14 @@ Visual summaries:
 | 2 - RES core + C_k tuning | **done**, CPU only. `aires/dmc.py` validated against an analytic Ornstein-Uhlenbeck problem; `aires/ctune.py` replays the schedule on the measured Gate 3 skill curve. `aires.md`'s C_k is **validated as-is**. See "What Phase 2 established" |
 | 3 - workers + Slurm driver | **done**, smoke-tested on the hardware (job **1161**, 30.7 min). `aires/run_aires.py`, `slurm/aires_res.slurm`, `slurm/aires_env.sh`. The loop rolled clones, resampled on real FCN3 scores, pruned states, and replayed bit-identically in 2 s. See "What Phase 3 established" |
 | 4 - run the pilot + figures | **done**, job **1172** (7 h 45 m). AI+RES reaches the observed dome (42/64 walkers) where 40 direct GenCast members do not (0/40); P = 0.054. See "What Phase 4 established" |
+| 4b - rebuild the pilot's probabilities as binned PDFs vs ERA5 | **done**, job **1174** (45 s, debug CPU node). The weighted spatial PDF reaches ERA5's tail: box P(point >= +9 K) = 0.0505 vs ERA5's 0.0848, where 24 direct members give 0.0011. See "The pilot's probabilities as binned PDFs" |
 | 5 | not started |
 | follow-up - adapter skill vs truth, 6 events + 4 null controls (branch `adapter-test`) | **DONE.** 10/10 cases rolled and scored (jobs 1162, 1167, 1171). Pooled effect **+0.23% [-5.20, +5.65]**, sign 6/10, extreme-vs-null contrast p 0.505 - no effect detectable at +-5.4%, no regime dependence. See "The adapter test" below |
 
-**Phases 1-4 are complete.** All three gates pass, the RES core is validated, and
-the driver that runs it on real walkers exists and has been exercised end to end on an
-8xH100 node. What is left is Phase 4: submit the pilot and write the figures. See
-"Start here for Phase 4" below. a3mega holds the calibration, the Gate 2 cubes, the 16
+**Phases 1-4 are complete.** All three gates pass, the RES core is validated, the
+driver ran the pilot end to end on an 8xH100 node (job 1172), and the pilot's
+probabilities are rebuilt as binned PDFs against ERA5 (job 1174). What is left is
+Phase 5. a3mega holds the calibration, the Gate 2 cubes, the 16
 walker trajectories and the H100s. The full Gate 2 data tree is mirrored on Derecho as well and
 re-scores there identically, so Derecho can do CPU analysis, but it is not required again
 until Phase 5.
@@ -819,6 +820,57 @@ Traps hit drawing them, all cosmetic but all real:
   anomaly does not remove it). The trajectory figure plots a 24 h running mean, which is
   continuous across a barrier because every branch polyline carries its parent's last frame.
 
+## The pilot's probabilities as binned PDFs (job 1174) - the weighted tail reaches ERA5's
+
+**Reweighted by its DMC importance weights, the pilot's population places tail mass where
+ERA5 put it; direct sampling does not.** `aires/apdfs.py` (new) rebuilds the probability
+distribution as house-style binned PDFs (the `xres/xcombined.py::PDF_histogram` recipe:
+100 shared bins, probability per bin, log y) of the verification-week T2m anomaly at every
+grid point, pooled over the ensemble, each walker's 105x237 (or 25x25 in-box) points
+carrying its weight `exp(-V_K)`. The plotted curve is **self-normalized**
+(`p_b = sum_i w_i n_ib / (G sum_i w_i)`, total mass 1, bin-for-bin comparable to ERA5 and
+the direct ensembles); the Z-scaled estimator differs by exactly the constant 0.5684 - the
+total-mass check above, a uniform 0.245-decade shift - and is stated on the figures rather
+than applied.
+
+| P(grid point >= +9 K) | PNW box | CONUS |
+|---|---|---|
+| ERA5 truth | 0.0848 | 0.0032 |
+| **AI+RES weighted** | **0.0505** (0.60x ERA5) | **0.0026** (0.82x) |
+| AI+RES resampled population, unweighted | 0.391 (4.6x over) | 0.0154 (4.8x) |
+| GenCast direct (xres, 24) | 0.0011 (~80x short) | 0.0001 |
+| GenCast direct (Gate 3 walkers, 16) | 0.0176 | 0.0008 |
+| FCN3 direct (24) | 0.0079 | 0.0003 |
+
+The weighted curve carries mass out to +14 K in the box; every direct ensemble is done by
+~+10 K. (An early draft quoted the direct shortfall as ~46x; the measured value is ~80x.)
+
+Read the box PDF's **left flank** with the same discipline as the exceedance curve's flat
+segment: weight ESS is 5.68 of 64 (Kish), the three heaviest walkers carry 60% of the
+mass, and the heaviest (w07, w = 34.46, 37%) is the population's *coldest* member
+(A_L = +3.54 K), so the weighted mode (+4.8 K vs ERA5's +8.4 K) is a small-sample
+artifact. The right tail pools many small-weight walkers and is the part to trust; the
+figures carry both caveats on their face.
+
+Mechanics, verified by an independent pass (16 gates, fresh process, nothing trusted from
+the build's own printout): per-walker fields are stitched through the genealogy
+(`compare.json` `realized.lineage`, cross-checked against `run_aires.slot_lineage`;
+only segments 5/6/7 cover the window, only `2m_temperature` is read),
+`check_window == 13` is hard-asserted per walker, and the recomputed per-walker `A_L`
+reproduce `compare.json` **bit-exactly** (all 64, box and CONUS) - as do the three direct
+baselines vs `compare.json["ds"]` and the weighted exceedance at all 41 curve thresholds
+(max diff 2.8e-17). One number in older prose corrected on the way: the observed CONUS
+`A_L` is **+0.64 K** (cos-lat weighted, `ds_baseline.json` `observed.conus`); +0.72 is the
+unweighted plain mean.
+
+Artifacts: `runs/aires/PNW_HeatDome_2021/res/pilot/pdf/pdf_fields.nc` (13 MB, all fields +
+weights + attrs; gitignored, `--stage build` rebuilds it in ~45 s),
+`figures/aires/aires_pdf_{conus,box}_PNW_HeatDome_2021_pilot.png`,
+`figures/aires/aires_anom_maps_PNW_HeatDome_2021_pilot.png`. Entry:
+`PYTHONPATH=. python -m aires.apdfs --stage all --event PNW_HeatDome_2021 --tag pilot`
+(login node or `sbatch slurm/aires_pdfs.slurm`); figures redraw in seconds from the
+intermediate. 19 unit tests in `aires/tests/test_apdfs.py`.
+
 ## The checkpoint bug that cost two runs (read before touching the walker)
 
 Gate 3's first two attempts produced physically wrong walkers, and the reason is a trap
@@ -1054,6 +1106,7 @@ M = 6, N = 64, states pruned to the last 2 segments, no score bought where `C_k 
 | `aires/dmc.py` | the RES core: splitting, pivotal sampling, genealogy, the unbiased estimator |
 | `aires/ctune.py` | replays the C_k schedule on a surrogate calibrated to the Gate 3 skill curve |
 | `aires/aplots.py` | the Phase 4 figures: exceedance, diagnostics, genealogy, composite |
+| `aires/apdfs.py` | the pilot's PDFs: `--stage {build,figs,all}` - lineage-stitched walker fields, weighted binned PDFs (CONUS + box), the 3-panel map |
 | `aires/run_aires.py` | the production driver: `--stage {prep,walk,score,res,ds,compare}`. `res` IS the coordinator and launches both GPU pools itself |
 | `aires/tests/test_adapter.py` | 25 tests incl. the 69-channel bit-exactness check |
 | `aires/tests/test_walker.py` | state contract, batch-from-arbitrary-state, cloning RNG, checkpoint choice |
@@ -1061,10 +1114,12 @@ M = 6, N = 64, states pruned to the last 2 segments, no score bought where `C_k 
 | `aires/tests/test_ctune.py` | the surrogate reproduces the skill curve and the correlations it was not given |
 | `aires/tests/test_aplots.py` | sibling pairing, the exceedance standard error, weighted quantiles, and that each figure renders |
 | `aires/tests/test_run_aires.py` | leg schedule, lineage validation, the replay guard, pruning, the cold-event sign; runs the real DMC loop through the real coordinator on a fake tree |
+| `aires/tests/test_apdfs.py` | weighted_pdf identities: weights=None == `xcombined.PDF_histogram`, ones == None, the Z-scaling constant, mass 1 |
 | `slurm/aires_gate2.slurm` | Gate 2 infer, 8 shards on one a3mega node, `--job-name=Vayuh-s2s` |
 | `slurm/aires_gate3.slurm` | Gate 3 walk (moe) + score (fcn3) on ONE allocation, 8 GPUs, retried |
 | `slurm/aires_res.slurm` | the pilot: ONE process (the coordinator), 12 h, `--job-name=Vayuh-s2s` |
 | `slurm/aires_env.sh` | the ONE place either conda env is activated; deactivates first so `moe` cannot leak into `fcn3` |
+| `slurm/aires_pdfs.slurm` | the PDF rebuild on a `debug` CPU node (45 s), `--job-name=Vayuh-s2s` |
 | `runs/aires/calib/derived_calib.nc` | fitted calibration (gitignored, rebuildable in ~2 min) |
 | `runs/aires/gate2/` | adapter IC, 24-member adapter cube, scores JSON/CSV |
 | `figures/aires/gate2_PNW_HeatDome_2021.png` | the three Gate 2 panels |
@@ -1072,12 +1127,15 @@ M = 6, N = 64, states pruned to the last 2 segments, no score bought where `C_k 
 | `figures/aires/ctune_PNW_HeatDome_2021.png` | the C_k schedule replay |
 | `runs/aires/<event>/walkers/`, `/scores/`, `/gate3/` | 16 trajectories, 80 score cubes, the verdict |
 | `runs/aires/<event>/res/<tag>/` | the pilot's own tree - walkers, scores, per-leg manifests, `res_result.json`. DISJOINT from the gate's |
+| `runs/aires/<event>/res/<tag>/pdf/pdf_fields.nc` | the PDF intermediate: 64 walker fields + weights + all baselines (gitignored, ~45 s rebuild) |
+| `figures/aires/aires_pdf_*_PNW_HeatDome_2021_pilot.png`, `aires_anom_maps_*` | the two binned PDFs (CONUS, box) + the three-map comparison |
 | `runs/aires/<event>/ds_baseline.json` | the direct-sampling baseline (no GPU, tag-independent) |
 | `docs/aires_gate2.html` | published Gate 2 summary (artifact source) |
 | `docs/aires_gate3.html` | published Gate 3 summary (artifact source) |
 
-Everything `aires.md` names is written. What is outstanding is the pilot's own
-output: job 1172's `compare.json` and the four figures drawn from it.
+Everything `aires.md` names is written, including the pilot's own output (job 1172:
+`compare.json` and the four figures drawn from it) and the PDF rebuild on top of it
+(job 1174: `aires/apdfs.py` and its three figures).
 
 ## Notes
 
