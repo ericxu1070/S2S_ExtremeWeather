@@ -40,9 +40,10 @@ Visual summaries:
 | follow-up - adapter skill vs truth, 6 events + 4 null controls (branch `adapter-test`) | **DONE.** 10/10 cases rolled and scored (jobs 1162, 1167, 1171). Pooled effect **+0.23% [-5.20, +5.65]**, sign 6/10, extreme-vs-null contrast p 0.505 - no effect detectable at +-5.4%, no regime dependence. See "The adapter test" below |
 
 **Phases 1-4 are complete.** All three gates pass, the RES core is validated, the
-driver ran the pilot end to end on an 8xH100 node (job 1172), and the pilot's
-probabilities are rebuilt as binned PDFs against ERA5 (job 1174). What is left is
-Phase 5. a3mega holds the calibration, the Gate 2 cubes, the 16
+driver ran the pilot end to end on an 8xH100 node (job 1172) with its figures written
+(see "What Phase 4 established"), and the pilot's probabilities are rebuilt as binned
+PDFs against ERA5 (job 1174). What is left is Phase 5 (gated, exploratory) and the
+un-run persistence-backend control. a3mega holds the calibration, the Gate 2 cubes, the 16
 walker trajectories and the H100s. The full Gate 2 data tree is mirrored on Derecho as well and
 re-scores there identically, so Derecho can do CPU analysis, but it is not required again
 until Phase 5.
@@ -791,12 +792,19 @@ Three things, in decreasing order of what they can claim:
 
 Two more, from the other two map figures:
 
-- **At the 9 d barrier the eventual most extreme walker (slot 60, `A_L` +10.29 K) was the
-  COOLEST of all 64 lineages** - -2.69 K against a population mean of -0.17 K. A persistence
-  score would have killed it. The Z500 contours in `map_walk` show why: the ridge was
-  already building offshore while the surface under it had not warmed. One walker, so an
-  illustration - the evidence stays Gate 3's aggregate (persistence 0.06 vs FCN3 0.80 at
-  that lead) - but it shows what those numbers mean.
+- **At the 9 d barrier the lineage that ends as slot 60 (`A_L` +10.29 K) - then occupying
+  slot 63 - had the 4th-coolest persistence index of the 64 walkers alive**: -2.69 K
+  against a population mean of +1.46 K (z ~ -1.3, i.e. well under one expected child from
+  a persistence score), while FCN3 ranked it 10th HIGHEST (theta +7.18 K) and it drew 11
+  children, the step's maximum multiplicity. (Corrected 2026-08-21: this bullet originally
+  read "slot 60 was the COOLEST of all 64 lineages, -2.69 K against a mean of -0.17 K" -
+  those numbers describe the 14 back-traced SURVIVOR ancestries, weighted by descendants,
+  not the population at the barrier; recomputed from the step03 diag cubes plus
+  `res_result.json`'s theta/parents. Same conclusion, right reference set.) The Z500
+  contours in `map_walk` show why: the ridge was already building offshore while the
+  surface under it had not warmed. One walker, so an illustration - the evidence stays
+  Gate 3's aggregate (persistence 0.06 vs FCN3 0.80 at that lead) - but it shows what
+  those numbers mean.
 - **The resampled population's own box spread is 1.77 K against 2.85 / 3.17 / 3.25 K for the
   three free ensembles.** A tail-selected population of clones is *tighter* than a free one:
   the sibling-divergence deficit, seen as a map, and the reason 64 resampled walkers are

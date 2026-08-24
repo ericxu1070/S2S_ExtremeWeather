@@ -1,0 +1,480 @@
+<title>Reading the Adapter Figures</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Serif:ital,wght@0,400;0,600;1,400&display=swap">
+<style>
+  :root{
+    --ground:#eceff2; --surface:#ffffff; --surface-2:#f3f6f8; --sunken:#e4e9ed;
+    --ink:#101a20; --ink-2:#31434d; --muted:#66787f; --rule:#d0d9de;
+    --accent:#175d7d; --accent-soft:#e0edf3;
+    --native:#2166ac; --native-soft:#e2ecf6;
+    --adapter:#b2182b; --adapter-soft:#f8e5e6;
+    --diffhi:#b35806; --difflo:#6a3d9a; --diff-soft:#f5ecdf;
+    --pass:#2c6a4c; --pass-soft:#e1efe8;
+    --warn:#8a5a12; --warn-soft:#f6eeda;
+    --shadow:0 1px 2px rgba(16,26,32,.06), 0 10px 28px rgba(16,26,32,.05);
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --ground:#0d1418; --surface:#141e24; --surface-2:#19242b; --sunken:#101a1f;
+      --ink:#e2ebef; --ink-2:#b3c3cb; --muted:#84959d; --rule:#25343b;
+      --accent:#69b1d6; --accent-soft:#10303e;
+      --native:#77aede; --native-soft:#132836;
+      --adapter:#e58a8f; --adapter-soft:#331a1d;
+      --diffhi:#dfa05c; --difflo:#b18ad4; --diff-soft:#2c2416;
+      --pass:#7cc9a0; --pass-soft:#113124;
+      --warn:#dcb069; --warn-soft:#302512;
+      --shadow:0 1px 2px rgba(0,0,0,.45), 0 12px 32px rgba(0,0,0,.35);
+    }
+  }
+  :root[data-theme="dark"]{
+    --ground:#0d1418; --surface:#141e24; --surface-2:#19242b; --sunken:#101a1f;
+    --ink:#e2ebef; --ink-2:#b3c3cb; --muted:#84959d; --rule:#25343b;
+    --accent:#69b1d6; --accent-soft:#10303e;
+    --native:#77aede; --native-soft:#132836;
+    --adapter:#e58a8f; --adapter-soft:#331a1d;
+    --diffhi:#dfa05c; --difflo:#b18ad4; --diff-soft:#2c2416;
+    --pass:#7cc9a0; --pass-soft:#113124;
+    --warn:#dcb069; --warn-soft:#302512;
+    --shadow:0 1px 2px rgba(0,0,0,.45), 0 12px 32px rgba(0,0,0,.35);
+  }
+
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  @media (prefers-reduced-motion:reduce){ html{scroll-behavior:auto} *{animation:none!important; transition:none!important} }
+
+  body{
+    margin:0; background:var(--ground); color:var(--ink);
+    font-family:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+    font-size:16px; line-height:1.62; -webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:62rem; margin:0 auto; padding:2.75rem 1.25rem 5rem; display:flex; flex-direction:column; gap:3rem}
+  @media (max-width:640px){ .wrap{padding-top:1.5rem; gap:2.25rem} }
+
+  p{margin:0; max-width:66ch}
+  a{color:var(--accent); text-underline-offset:.18em}
+  a:focus-visible, summary:focus-visible{outline:2px solid var(--accent); outline-offset:3px; border-radius:3px}
+
+  .eyebrow{
+    font-family:"IBM Plex Mono",ui-monospace,monospace; font-size:.7rem; font-weight:500;
+    letter-spacing:.15em; text-transform:uppercase; color:var(--muted); margin:0;
+  }
+  h1{
+    font-family:"IBM Plex Serif",Georgia,serif; font-weight:600;
+    font-size:clamp(2rem,5vw,2.85rem); line-height:1.1; letter-spacing:-.016em;
+    margin:.55rem 0 0; text-wrap:balance;
+  }
+  .lede{font-size:1.075rem; color:var(--ink-2); margin-top:1rem; max-width:60ch}
+
+  section{display:flex; flex-direction:column; gap:1.1rem}
+  .qhead{display:flex; gap:.85rem; align-items:baseline; border-top:2px solid var(--ink); padding-top:.85rem}
+  .qmark{
+    font-family:"IBM Plex Mono",ui-monospace,monospace; font-size:.75rem; font-weight:600;
+    color:var(--accent); letter-spacing:.1em; padding-top:.35rem; white-space:nowrap;
+  }
+  h2{
+    font-family:"IBM Plex Serif",Georgia,serif; font-weight:600;
+    font-size:clamp(1.3rem,3vw,1.6rem); line-height:1.2; margin:0; text-wrap:balance; letter-spacing:-.008em;
+  }
+  h3{font-size:.82rem; font-weight:600; margin:0; letter-spacing:.09em; text-transform:uppercase; color:var(--muted);
+     font-family:"IBM Plex Mono",ui-monospace,monospace}
+
+  code, .mono{font-family:"IBM Plex Mono",ui-monospace,monospace; font-size:.86em}
+  p code, li code, td code{background:var(--sunken); padding:.1em .34em; border-radius:3px}
+
+  .card{background:var(--surface); border:1px solid var(--rule); border-radius:4px; padding:1.35rem 1.5rem; box-shadow:var(--shadow); display:flex; flex-direction:column; gap:.9rem}
+  .flat{background:var(--surface-2); border:1px solid var(--rule); border-radius:4px; padding:1.15rem 1.35rem; display:flex; flex-direction:column; gap:.7rem; box-shadow:none}
+
+  /* ---- the panel map: replicates the actual 2x3 figure grid ---- */
+  .panelmap{display:grid; grid-template-columns:repeat(3,1fr); gap:.7rem}
+  @media (max-width:760px){ .panelmap{grid-template-columns:1fr} }
+  .pm{
+    background:var(--surface); border:1px solid var(--rule); border-radius:3px;
+    padding:.85rem .95rem 1rem; display:flex; flex-direction:column; gap:.45rem;
+    border-top:3px solid var(--rule);
+  }
+  .pm .slot{font-family:"IBM Plex Mono",ui-monospace,monospace; font-size:.66rem; letter-spacing:.11em; text-transform:uppercase; color:var(--muted)}
+  .pm .name{font-weight:600; font-size:.95rem; line-height:1.3}
+  .pm .what{font-size:.855rem; color:var(--ink-2); line-height:1.5}
+  .pm .fx{font-family:"IBM Plex Mono",ui-monospace,monospace; font-size:.74rem; color:var(--muted); border-top:1px dashed var(--rule); padding-top:.45rem; margin-top:.1rem; line-height:1.45}
+  .pm-truth{border-top-color:var(--ink-2)}
+  .pm-native{border-top-color:var(--native)}
+  .pm-adapter{border-top-color:var(--adapter)}
+  .pm-diff{border-top-color:var(--diffhi)}
+
+  /* ---- provenance chain ---- */
+  .chain{display:flex; flex-direction:column; gap:0}
+  .step{display:grid; grid-template-columns:8.5rem 1fr; gap:1.1rem; padding:.72rem 0; border-bottom:1px solid var(--rule); align-items:baseline}
+  .step:last-child{border-bottom:none}
+  @media (max-width:640px){ .step{grid-template-columns:1fr; gap:.15rem} }
+  .step .k{font-family:"IBM Plex Mono",ui-monospace,monospace; font-size:.72rem; letter-spacing:.06em; color:var(--accent); text-transform:uppercase; font-weight:500}
+  .step .v{font-size:.92rem; color:var(--ink-2); line-height:1.55}
+  .step .v strong{color:var(--ink); font-weight:600}
+  .split{display:grid; grid-template-columns:1fr 1fr; gap:.7rem; margin:.15rem 0}
+  @media (max-width:640px){ .split{grid-template-columns:1fr} }
+  .branch{border-left:3px solid var(--native); background:var(--native-soft); padding:.7rem .85rem; border-radius:0 3px 3px 0; font-size:.87rem; line-height:1.5}
+  .branch.b2{border-left-color:var(--adapter); background:var(--adapter-soft)}
+  .branch b{display:block; font-family:"IBM Plex Mono",ui-monospace,monospace; font-size:.7rem; letter-spacing:.1em; text-transform:uppercase; margin-bottom:.22rem}
+  .branch.b1 b{color:var(--native)} .branch.b2 b{color:var(--adapter)}
+
+  /* ---- tables ---- */
+  .tw{overflow-x:auto; border:1px solid var(--rule); border-radius:4px; background:var(--surface)}
+  table{border-collapse:collapse; width:100%; font-size:.87rem; min-width:30rem}
+  caption{caption-side:bottom; text-align:left; font-size:.78rem; color:var(--muted); padding:.6rem .9rem 0; line-height:1.5}
+  th,td{padding:.52rem .9rem; text-align:left; border-bottom:1px solid var(--rule); vertical-align:top}
+  thead th{font-family:"IBM Plex Mono",ui-monospace,monospace; font-size:.68rem; letter-spacing:.09em; text-transform:uppercase; color:var(--muted); font-weight:500; background:var(--surface-2); white-space:nowrap}
+  tbody tr:last-child td{border-bottom:none}
+  tbody tr.zero td{background:var(--pass-soft)}
+  tbody tr.zero .num{color:var(--pass); font-weight:600}
+  .num{text-align:right; font-family:"IBM Plex Mono",ui-monospace,monospace; font-variant-numeric:tabular-nums; white-space:nowrap}
+
+  .tag{display:inline-block; font-family:"IBM Plex Mono",ui-monospace,monospace; font-size:.66rem; letter-spacing:.08em; text-transform:uppercase; padding:.13rem .42rem; border-radius:2px; font-weight:500; white-space:nowrap}
+  .t-pass{background:var(--pass-soft); color:var(--pass)}
+  .t-warn{background:var(--warn-soft); color:var(--warn)}
+  .t-ex{background:var(--native-soft); color:var(--native)}
+  .t-null{background:var(--diff-soft); color:var(--diffhi)}
+
+  /* ---- key number strip ---- */
+  .kpis{display:grid; grid-template-columns:repeat(auto-fit,minmax(11rem,1fr)); gap:1px; background:var(--rule); border:1px solid var(--rule); border-radius:4px; overflow:hidden}
+  .kpi{background:var(--surface); padding:1rem 1.1rem; display:flex; flex-direction:column; gap:.18rem}
+  .kpi .n{font-family:"IBM Plex Mono",ui-monospace,monospace; font-size:1.5rem; font-weight:600; letter-spacing:-.02em; font-variant-numeric:tabular-nums; line-height:1.1}
+  .kpi .l{font-size:.78rem; color:var(--muted); line-height:1.4}
+  .kpi.hero .n{color:var(--accent)}
+
+  .callout{border-left:3px solid var(--accent); background:var(--accent-soft); padding:.95rem 1.15rem; border-radius:0 4px 4px 0; display:flex; flex-direction:column; gap:.55rem}
+  .callout.stale{border-left-color:var(--warn); background:var(--warn-soft)}
+  .callout .h{font-family:"IBM Plex Mono",ui-monospace,monospace; font-size:.7rem; letter-spacing:.11em; text-transform:uppercase; font-weight:600; color:var(--accent)}
+  .callout.stale .h{color:var(--warn)}
+  .callout p{font-size:.9rem; line-height:1.58; color:var(--ink-2); max-width:64ch}
+
+  ul{margin:0; padding-left:1.1rem; display:flex; flex-direction:column; gap:.5rem}
+  li{font-size:.94rem; line-height:1.58; color:var(--ink-2); max-width:64ch}
+  li strong{color:var(--ink)}
+
+  pre{margin:0; overflow-x:auto; background:var(--sunken); border:1px solid var(--rule); border-radius:4px; padding:.85rem 1rem; font-size:.8rem; line-height:1.6}
+  pre code{background:none; padding:0}
+
+  footer{border-top:1px solid var(--rule); padding-top:1.25rem; color:var(--muted); font-size:.8rem; line-height:1.6}
+</style>
+
+<div class="wrap">
+
+<header>
+  <p class="eyebrow">AI+RES &middot; branch <span class="mono">aires</span> &middot; adapter test</p>
+  <h1>Reading the adapter figures</h1>
+  <p class="lede">What each panel actually contains, what the 24-member mean is a mean <em>over</em>, why the two forecast means differ, and what the ten-case experiment concluded.</p>
+</header>
+
+<!-- ============ Q1 ============ -->
+<section>
+  <div class="qhead">
+    <span class="qmark">Q1</span>
+    <h2>The 24-member mean is a mean over FCN3&rsquo;s internal noise &mdash; not over perturbed initial conditions</h2>
+  </div>
+
+  <p>There is exactly <strong>one</strong> initial condition per panel. The IC perturbation passed to earth2studio is literally <code>Zero()</code> in both <code>fcn3/run_fcn3.py</code> and <code>aires/gate2.py</code>. All 24 members start from the identical 72-channel field and diverge only because FourCastNet&nbsp;3 is a stochastic model: its own noise generator is reseeded per shard with <code>model.set_rng(seed = seed_for(event) + shard)</code>, 8 shards &times; 3 members.</p>
+
+  <div class="flat">
+    <h3>So the two kinds of spread in these figures mean different things</h3>
+    <ul>
+      <li><strong>Spread <em>within</em> one panel&rsquo;s ensemble</strong> &mdash; purely FCN3 internal stochasticity. For the PNW dome, the per-member scatter of <span class="mono">A_L</span> is &sigma;&nbsp;=&nbsp;0.62&nbsp;K.</li>
+      <li><strong>Difference <em>between</em> the two panels</strong> &mdash; purely the initial condition, because member&nbsp;<em>i</em> on each side shares a noise stream with member&nbsp;<em>i</em> on the other. That pairing is verified rather than assumed: if the seeds had silently diverged, the paired difference would have equaled the ensemble&rsquo;s own spread from the first step. It is 22% of it at day 1.5 and grows from there.</li>
+    </ul>
+  </div>
+
+  <h3>Provenance of one panel</h3>
+  <div class="card">
+    <div class="chain">
+      <div class="step"><span class="k">Source</span><span class="v">One ERA5 analysis frame at the init &mdash; <strong>2021-06-07 00Z</strong> for the PNW dome, 21&nbsp;days before the verification week ending 2021-06-28.</span></div>
+    </div>
+    <div class="split">
+      <div class="branch b1"><b>Native path</b><code>fcn3/run_fcn3.py</code> builds the 72-channel FCN3 IC straight from ERA5.</div>
+      <div class="branch b2"><b>Adapter path</b>The same ERA5 frame in GenCast layout &rarr; <code>aires/adapter.py</code> &rarr; 72 channels. 69 are bit-identical (rename + latitude flip); <code>u100m</code>, <code>v100m</code>, <code>tcwv</code> are derived from the fitted calibration.</div>
+    </div>
+    <div class="chain">
+      <div class="step"><span class="k">Rollout</span><span class="v"><strong>84 &times; 6&nbsp;h</strong> steps to 21&nbsp;d, 24 ensemble slots, <code>Zero()</code> IC perturbation, matched RNG seeds on both sides.</span></div>
+      <div class="step"><span class="k">Crop</span><span class="v">0.25&deg; CONUS, <strong>105 &times; 237</strong>. This is the full extent of the cached cubes &mdash; no global field survives the host transfer, which is why every map stops at the CONUS box.</span></div>
+      <div class="step"><span class="k">Reduce</span><span class="v"><code>xres.xmetrics.forecast_field</code> &rarr; the <strong>7-day mean</strong> of the metric over the window ending at the event peak. 25 frames at a 6&nbsp;h step; <code>aires.aindex.check_window</code> hard-fails if the cube supplies any other count.</span></div>
+      <div class="step"><span class="k">Average</span><span class="v"><code>.mean("member")</code> over all 24. <strong>That is the panel.</strong></span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ Q2 ============ -->
+<section>
+  <div class="qhead">
+    <span class="qmark">Q2</span>
+    <h2>The variable is per case: nine cases are T2m anomaly, Hurricane Ian is 850&nbsp;hPa wind speed</h2>
+  </div>
+  <p>Each case declares one metric in <code>fcn3/fevents.py</code>, and every panel, colorbar and score in that case&rsquo;s figure is in that metric&rsquo;s own units. Nothing is averaged across metrics in physical units &mdash; the pooling in Q5 is done on a <em>relative</em> delta precisely so a wind case and a temperature case can share an axis.</p>
+
+  <div class="tw">
+    <table>
+      <caption>Ten cases, all initialised at 21&nbsp;d lead. Boxes are from <code>aires/aindex.py</code>; the p90 and null cases score on CONUS because the CONUS mean <em>is</em> their event-defining index.</caption>
+      <thead><tr><th>Case</th><th>Group</th><th>Metric</th><th>Scored box</th><th>Peak</th></tr></thead>
+      <tbody>
+        <tr><td><code>PNW_HeatDome_2021</code></td><td><span class="tag t-ex">extreme</span></td><td><code>t2m_anom</code></td><td>PNW &middot; 44&ndash;50N, 124&ndash;118W</td><td class="num">2021-06-28</td></tr>
+        <tr><td><code>WinterStorm_Uri_2021</code></td><td><span class="tag t-ex">extreme</span></td><td><code>t2m_anom</code> <span class="mono" style="color:var(--muted)">(cold tail)</span></td><td>TX/OK &middot; 26&ndash;37N, 106&ndash;94W</td><td class="num">2021-02-15</td></tr>
+        <tr><td><code>HurricaneIan_2022</code></td><td><span class="tag t-ex">extreme</span></td><td><code>u850_speed</code></td><td>SW Florida &middot; 24&ndash;30N, 84&ndash;76W</td><td class="num">2022-09-28</td></tr>
+        <tr><td><code>p90_20231107</code></td><td><span class="tag t-ex">extreme</span></td><td><code>t2m_anom</code></td><td>CONUS</td><td class="num">2023-11-07</td></tr>
+        <tr><td><code>p90_20240802</code></td><td><span class="tag t-ex">extreme</span></td><td><code>t2m_anom</code></td><td>CONUS</td><td class="num">2024-08-02</td></tr>
+        <tr><td><code>p90_20251224</code></td><td><span class="tag t-ex">extreme</span></td><td><code>t2m_anom</code></td><td>CONUS</td><td class="num">2025-12-24</td></tr>
+        <tr><td><code>null_20230324</code></td><td><span class="tag t-null">null</span></td><td><code>t2m_anom</code></td><td>CONUS</td><td class="num">2023-03-24</td></tr>
+        <tr><td><code>null_20240329</code></td><td><span class="tag t-null">null</span></td><td><code>t2m_anom</code></td><td>CONUS</td><td class="num">2024-03-29</td></tr>
+        <tr><td><code>null_20241121</code></td><td><span class="tag t-null">null</span></td><td><code>t2m_anom</code></td><td>CONUS</td><td class="num">2024-11-21</td></tr>
+        <tr><td><code>null_20250526</code></td><td><span class="tag t-null">null</span></td><td><code>t2m_anom</code></td><td>CONUS</td><td class="num">2025-05-26</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <p>For <code>t2m_anom</code> the field is a departure from the 1990&ndash;2019 climatology sampled at each frame&rsquo;s own hour and day-of-year, so a panel value of 0 means &ldquo;climatologically normal week&rdquo;, not &ldquo;0&nbsp;K&rdquo;. For <code>u850_speed</code> it is an absolute <span class="mono">&radic;(u&sup2;+v&sup2;)</span> at 850&nbsp;hPa &mdash; no anomaly, and therefore no zero-skill reference for Ian.</p>
+</section>
+
+<!-- ============ Q3 ============ -->
+<section>
+  <div class="qhead">
+    <span class="qmark">Q3</span>
+    <h2>The two means differ because of the adapter&rsquo;s three derived channels &mdash; grown by 21 days of chaos</h2>
+  </div>
+
+  <p>First, a labelling trap worth naming: the panels read &ldquo;Native&nbsp;IC, 24-member mean&rdquo; and &ldquo;Adapter&nbsp;IC, 24-member mean&rdquo;, but those are <strong>day-21 forecast fields</strong>, not initial conditions. The label names which IC the forecast came <em>from</em>.</p>
+
+  <p>Since the internal noise is matched member-for-member and the perturbation is <code>Zero()</code>, the entire difference between the two panels traces to the IC &mdash; and the IC differs in exactly three of its 72 channels:</p>
+
+  <div class="tw">
+    <table>
+      <caption>Gate 1, scored on the 6 held-out event ICs; the calibration was fit on the 90 disjoint p90 ICs. All four criteria passed.</caption>
+      <thead><tr><th>Derived channel</th><th>How</th><th class="num">Worst held-out</th><th class="num">Threshold</th><th></th></tr></thead>
+      <tbody>
+        <tr><td><code>u100m</code>, <code>v100m</code> RMSE</td><td rowspan="2"><span class="mono">W100 = c(x)&middot;W10</span>, <span class="mono">c</span> complex &mdash; one number carries the boundary-layer speed-up (|c|, median 1.25) and the veering (arg&nbsp;c, &plusmn;7&deg;)</td><td class="num">0.634 m/s</td><td class="num">1.0</td><td><span class="tag t-pass">pass</span></td></tr>
+        <tr><td><code>u100m</code>, <code>v100m</code> |bias|</td><td class="num">0.066 m/s</td><td class="num">0.2</td><td><span class="tag t-pass">pass</span></td></tr>
+        <tr><td><code>tcwv</code> relative RMSE</td><td rowspan="2">per-grid-point quadrature <span class="mono">tcwv = &Sigma;<sub>l</sub> w<sub>l</sub> q<sub>l</sub></span>, ridge-shrunk toward the physical trapezoid</td><td class="num">4.57%</td><td class="num">5%</td><td><span class="tag t-pass">pass</span></td></tr>
+        <tr><td><code>tcwv</code> |relative bias|</td><td class="num">0.60%</td><td class="num">2%</td><td><span class="tag t-pass">pass</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <p>Those residuals are tiny at hour 0, but a 21-day rollout sits far past the <strong>~8.5&nbsp;d predictability horizon</strong> Gate 2 measured for CONUS T2m. So the difference you see in the third panel is not the adapter&rsquo;s error propagated linearly &mdash; it is chaos, <em>triggered</em> by the adapter&rsquo;s error and then grown to saturation. That is why the difference field has weather-shaped structure (the PNW case peaks at 2.04&nbsp;K, on a colorbar the caption itself flags as only 27% of the error scale) rather than a smooth bias pattern.</p>
+
+  <h3>The curve that proves it &mdash; measured on T2m, the bit-identical channel</h3>
+  <p><code>gate2._divergence_curves</code> defaults to <code>var="2m_temperature"</code>, so this is the paired adapter-minus-native divergence of the very field whose IC is byte-for-byte the same. It starts at exactly zero and is put there by nothing but the other three channels.</p>
+
+  <div class="tw">
+    <table>
+      <caption>PNW Heat Dome 2021. <span class="mono">d_paired</span> = cos(lat)-weighted RMS over members of (adapter<sub>i</sub> &minus; native<sub>i</sub>); <span class="mono">d_internal</span> = &radic;2 &times; the native ensemble&rsquo;s own spread, i.e. the RMS difference between two arbitrary members of one ensemble.</caption>
+      <thead><tr><th>Lead</th><th class="num">d_paired (K)</th><th class="num">d_internal (K)</th><th class="num">ratio</th><th>What is happening</th></tr></thead>
+      <tbody>
+        <tr class="zero"><td>0 &mdash; the IC</td><td class="num">0.0000</td><td class="num">0.0001</td><td class="num">0.00</td><td>T2m is bit-identical. No arithmetic touched it &mdash; a rename and a latitude flip.</td></tr>
+        <tr><td>0.25 d &mdash; one step</td><td class="num">0.377</td><td class="num">1.070</td><td class="num">0.35</td><td><strong>Coupling.</strong> One 6&nbsp;h step and the three derived channels have reached T2m.</td></tr>
+        <tr><td>2 d</td><td class="num">0.350</td><td class="num">1.674</td><td class="num">0.21</td><td>Flat. The perturbation is small and the surface is constrained; the model&rsquo;s own noise grows faster.</td></tr>
+        <tr><td>5 d</td><td class="num">0.713</td><td class="num">2.403</td><td class="num">0.30</td><td>Growth begins.</td></tr>
+        <tr><td>7 d</td><td class="num">1.354</td><td class="num">3.298</td><td class="num">0.41</td><td>&mdash;</td></tr>
+        <tr><td>12 d</td><td class="num">3.025</td><td class="num">4.279</td><td class="num">0.71</td><td>&mdash;</td></tr>
+        <tr><td>21 d &mdash; the panels</td><td class="num">4.597</td><td class="num">4.644</td><td class="num">0.99</td><td><strong>Saturation.</strong> This is the field every map in these figures shows.</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <p>So the answer to &ldquo;T2m was bit-identical, why does it look off?&rdquo; is that FCN3 has <strong>no channel-wise isolation</strong>. The <code>tcwv</code> residual (~1&nbsp;kg&nbsp;m&#8315;&sup2;) perturbs moisture &rarr; latent heating &rarr; geopotential &rarr; advection; the 100&nbsp;m wind residual (0.63&nbsp;m/s) perturbs boundary-layer fluxes. T2m inherits both on the first step, and then 84 steps of a chaotic system multiply it 12&times;.</p>
+
+  <div class="flat">
+    <h3>By the verification week the two ensembles are independent draws</h3>
+    <p style="font-size:.93rem">Paired-member rank correlation of <span class="mono">A_L</span> by lead: <span class="mono">0.99</span> at 0.25&nbsp;d, <span class="mono">0.98</span> at 3&nbsp;d, <span class="mono">0.95</span> at 8.5&nbsp;d, <span class="mono">0.35</span> at 14&nbsp;d, <span class="mono">&minus;0.01</span> at 21&nbsp;d. Past ~8.5&nbsp;d the pairing carries no information at all &mdash; which is exactly why the difference panels look like <em>weather</em> rather than a smooth offset, and why a per-case delta at 21&nbsp;d lead is dominated by which member happened to land where.</p>
+  </div>
+
+  <h3>And why some cases show more than others</h3>
+  <p>Flow-dependent growth rate, not a per-case adapter defect. From <code>adaptest_diff_maps.png</code>, max |adapter &minus; native| over the verification week:</p>
+
+  <div class="tw">
+    <table>
+      <caption>Extremes span 1.44&ndash;3.58&nbsp;K, controls 1.31&ndash;2.00&nbsp;K &mdash; overlapping ranges. That is the same fact as the extreme-vs-null contrast coming out null (p&nbsp;=&nbsp;0.505): the adapter perturbation does not grow preferentially in extreme flow.</caption>
+      <thead><tr><th>Case</th><th>Group</th><th class="num">max |diff|</th><th>Why</th></tr></thead>
+      <tbody>
+        <tr><td>Winter Storm Uri 2021</td><td><span class="tag t-ex">extreme</span></td><td class="num">3.58 K</td><td>February, strongly baroclinic &mdash; the fastest error growth in the set</td></tr>
+        <tr><td>p90 2025-12-24</td><td><span class="tag t-ex">extreme</span></td><td class="num">2.11 K</td><td>winter, same reason, weaker</td></tr>
+        <tr><td>PNW Heat Dome 2021</td><td><span class="tag t-ex">extreme</span></td><td class="num">2.04 K</td><td>&mdash;</td></tr>
+        <tr><td>null 2024-03-29</td><td><span class="tag t-null">null</span></td><td class="num">2.00 K</td><td>a &ldquo;quiet day&rdquo; with a strong regional dipole underneath &mdash; see the caveats</td></tr>
+        <tr><td>Hurricane Ian 2022</td><td><span class="tag t-ex">extreme</span></td><td class="num">1.88 m/s</td><td>wind speed, not comparable in units</td></tr>
+        <tr><td>null 2023-03-24</td><td><span class="tag t-null">null</span></td><td class="num">1.73 K</td><td>&mdash;</td></tr>
+        <tr><td>null 2024-11-21</td><td><span class="tag t-null">null</span></td><td class="num">1.61 K</td><td>&mdash;</td></tr>
+        <tr><td>p90 2024-08-02</td><td><span class="tag t-ex">extreme</span></td><td class="num">1.54 K</td><td>warm season, weakest gradients</td></tr>
+        <tr><td>p90 2023-11-07</td><td><span class="tag t-ex">extreme</span></td><td class="num">1.44 K</td><td>&mdash;</td></tr>
+        <tr><td>null 2025-05-26</td><td><span class="tag t-null">null</span></td><td class="num">1.31 K</td><td>late spring, the smallest in the set</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="callout">
+    <span class="h">The bound Gate 2 put on it</span>
+    <p>The paired IC-driven divergence never exceeds FCN3&rsquo;s own internal noise at any lead: 22% of it at day&nbsp;1.5, 51% at day&nbsp;9, and only 0.990 at day-21 saturation. In other words, swapping a native IC for an adapter IC moves the forecast <em>less</em> than re-seeding the model does &mdash; at every single lead time.</p>
+  </div>
+
+  <div class="kpis">
+    <div class="kpi"><span class="n">0.083 K</span><span class="l">G2a &mdash; |&Delta; mean A_L|, threshold &lt;&nbsp;0.25</span></div>
+    <div class="kpi"><span class="n">8.5 d</span><span class="l">G2b &mdash; rank-equivalence horizon, threshold &ge;&nbsp;7</span></div>
+    <div class="kpi"><span class="n">0.990</span><span class="l">G2c &mdash; max paired&nbsp;/&nbsp;internal divergence, threshold &le;&nbsp;1.00</span></div>
+    <div class="kpi"><span class="n">69 / 72</span><span class="l">IC channels bit-identical, max abs diff 0.0</span></div>
+  </div>
+</section>
+
+<!-- ============ Q4 ============ -->
+<section>
+  <div class="qhead">
+    <span class="qmark">Q4</span>
+    <h2>&ldquo;Observed&rdquo; is truth, and the two error panels are ensemble-mean minus truth</h2>
+  </div>
+
+  <p>Neither error panel is a single member, and nothing here is pooled across members before differencing. The map figure is a fixed 2&times;3 grid, and every cell is one of three things: truth, an ensemble mean, or a difference of those two.</p>
+
+  <div class="panelmap">
+    <div class="pm pm-truth">
+      <span class="slot">Row 1 &middot; left</span>
+      <span class="name">Observed (ERA5)</span>
+      <span class="what">The cached verification truth &mdash; a <em>single field</em>, no ensemble. Same 7-day-mean reduction as the forecasts, nearest-reindexed onto the cube grid with a 1e&minus;4 tolerance so a float32 coordinate round-trip cannot silently produce an all-NaN difference.</span>
+      <span class="fx">truth[metric], 1 field</span>
+    </div>
+    <div class="pm pm-native">
+      <span class="slot">Row 1 &middot; centre</span>
+      <span class="name">Native IC, 24-member mean</span>
+      <span class="what">FCN3 from the ERA5-built IC. The day-21 forecast, averaged over all 24 members. Shares row&nbsp;1&rsquo;s colour scale with the other two so the three are directly comparable.</span>
+      <span class="fx">native.mean(member)</span>
+    </div>
+    <div class="pm pm-adapter">
+      <span class="slot">Row 1 &middot; right</span>
+      <span class="name">Adapter IC, 24-member mean</span>
+      <span class="what">FCN3 from the GenCast-state IC, same 24 seeds. This is the panel AI+RES actually depends on being right.</span>
+      <span class="fx">adapter.mean(member)</span>
+    </div>
+    <div class="pm pm-native">
+      <span class="slot">Row 2 &middot; left</span>
+      <span class="name">Native &minus; observed</span>
+      <span class="what">The native ensemble mean&rsquo;s forecast error field. The RMSE in its title is <code>rmse_ens_mean</code>: the cos(lat)-weighted RMS of <em>this</em> field &mdash; the error of the mean, not the mean of the members&rsquo; errors.</span>
+      <span class="fx">native.mean(member) &minus; truth</span>
+    </div>
+    <div class="pm pm-adapter">
+      <span class="slot">Row 2 &middot; centre</span>
+      <span class="name">Adapter &minus; observed</span>
+      <span class="what">Same reduction, adapter side. Rows&nbsp;2 left and centre share one colour scale, so the honest comparison is how similar these two look &mdash; and they look nearly identical.</span>
+      <span class="fx">adapter.mean(member) &minus; truth</span>
+    </div>
+    <div class="pm pm-diff">
+      <span class="slot">Row 2 &middot; right</span>
+      <span class="name">Adapter &minus; native</span>
+      <span class="what">The IC effect, isolated. Drawn on <em>its own, much smaller</em> scale &mdash; the caption states the ratio explicitly (27% of the error scale for the PNW dome) so the panel is never mistaken for being the same magnitude as the errors beside it.</span>
+      <span class="fx">adapter.mean &minus; native.mean</span>
+    </div>
+  </div>
+
+  <div class="flat">
+    <h3>Two other reductions that appear in the numbers but not the maps</h3>
+    <ul>
+      <li><strong><span class="mono">rmse_member_mean</span></strong> &mdash; the mean over members of each member&rsquo;s own RMSE. Always larger than <span class="mono">rmse_ens_mean</span> (2.436 vs 1.640&nbsp;K native, CONUS) because averaging cancels noise before scoring.</li>
+      <li><strong><span class="mono">CRPS</span></strong> &mdash; the fair (unbiased) ensemble form, evaluated per grid point and <em>then</em> area-averaged. Not the CRPS of the area mean, which is a different and much smaller number.</li>
+      <li><strong><span class="mono">A_L</span></strong> &mdash; the scalar the whole experiment sorts on: the cos(lat)-weighted area mean of the 7-day-mean field over the event box. One number per member; the panels are its un-reduced field.</li>
+    </ul>
+  </div>
+
+  <div class="tw">
+    <table>
+      <caption>PNW Heat Dome 2021, ERA5 truth, 24 members each. The paired bootstrap resamples member <em>indices</em> once and applies the same indices to both ensembles, which is what removes the shared internal noise from the difference.</caption>
+      <thead><tr><th>Reduction</th><th class="num">Native</th><th class="num">Adapter</th><th class="num">&Delta; rel</th><th class="num">Sign flips</th></tr></thead>
+      <tbody>
+        <tr><td>CONUS &middot; ens-mean RMSE</td><td class="num">1.640 K</td><td class="num">1.739 K</td><td class="num">+6.0%</td><td class="num">31%</td></tr>
+        <tr><td>CONUS &middot; CRPS</td><td class="num">0.858 K</td><td class="num">0.866 K</td><td class="num">+1.0%</td><td class="num">45%</td></tr>
+        <tr><td>PNW box &middot; ens-mean RMSE</td><td class="num">5.523 K</td><td class="num">6.312 K</td><td class="num">+14.3%</td><td class="num">14%</td></tr>
+        <tr><td>PNW box &middot; CRPS</td><td class="num">3.684 K</td><td class="num">4.733 K</td><td class="num">+28.4%</td><td class="num">11%</td></tr>
+        <tr><td>CONUS &middot; per-member RMSE (paired)</td><td class="num">2.436 K</td><td class="num">2.386 K</td><td class="num" style="color:var(--pass)">&minus;2.1%</td><td class="num">&mdash;</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p>Note the last row: the tightest paired reduction points the <em>other way</em>. On one event, the direction is not established by the data.</p>
+</section>
+
+<!-- ============ Q5 ============ -->
+<section>
+  <div class="qhead">
+    <span class="qmark">Q5</span>
+    <h2>The takeaway: no detectable skill cost, bounded at about &plusmn;5%</h2>
+  </div>
+
+  <div class="kpis">
+    <div class="kpi hero"><span class="n">+0.23%</span><span class="l">Pooled effect, all 10 cases &mdash; an eighth of its own error bar</span></div>
+    <div class="kpi"><span class="n">&plusmn;5.4%</span><span class="l">95% CI half-width &mdash; the detection limit this experiment reached</span></div>
+    <div class="kpi"><span class="n">p = 0.505</span><span class="l">Extreme-vs-null contrast &mdash; no regime dependence</span></div>
+    <div class="kpi"><span class="n">I&sup2; = 0%</span><span class="l">Cases consistent with one common effect plus sampling noise</span></div>
+  </div>
+
+  <div class="tw">
+    <table>
+      <caption>ERA5 truth, event box, ensemble-mean RMSE, relative delta (adapter &minus; native) / native. Positive = adapter worse.</caption>
+      <thead><tr><th>Group</th><th class="num">Pooled &Delta; rel</th><th class="num">95% CI</th><th class="num">Sign test</th><th class="num">I&sup2;</th></tr></thead>
+      <tbody>
+        <tr><td><span class="tag t-ex">extreme</span> &nbsp;6 cases</td><td class="num">+1.86%</td><td class="num">[&minus;5.38, +9.09]</td><td class="num">4/6 worse, p 0.688</td><td class="num">15%</td></tr>
+        <tr><td><span class="tag t-null">null</span> &nbsp;4 controls</td><td class="num">&minus;1.87%</td><td class="num">[&minus;10.08, +6.34]</td><td class="num">2/4 worse, p 1.000</td><td class="num">0%</td></tr>
+        <tr style="background:var(--surface-2)"><td><strong>all 10</strong></td><td class="num"><strong>+0.23%</strong></td><td class="num"><strong>[&minus;5.20, +5.65]</strong></td><td class="num">6/10 worse, p 0.754</td><td class="num">0%</td></tr>
+        <tr><td>contrast (extreme &minus; null)</td><td class="num">+3.73%</td><td class="num">z = +0.67</td><td class="num">p 0.505</td><td class="num">&mdash;</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <p>Read the result as three separate statements, not one verdict:</p>
+  <ul>
+    <li><strong>Quote the bound, not the sign.</strong> The direction was never a coin flip a priori &mdash; the adapter IC carries real added error (0.63&nbsp;m/s on the winds, 4.6% on tcwv) and adding IC error cannot help in expectation, so a small degradation is the <em>prior</em>, not a finding. What the experiment actually delivers is the upper bound: whatever the adapter costs at week&nbsp;3, it is <strong>under ~5% of the native run&rsquo;s RMSE</strong>.</li>
+    <li><strong>The controls did their job.</strong> Four quiet days were added because all six events are exactly the flows where a small IC perturbation has the best chance of growing &mdash; an effect measured only on extremes cannot be told apart from one the extremes manufacture. The contrast came out at z&nbsp;=&nbsp;0.67, so the six extremes were <em>not</em> a biased sample for this question. Adding the controls also moved the point estimate toward zero and tightened the detection limit by ~25%.</li>
+    <li><strong>The per-case scatter is chaos, not adapter error.</strong> Individual cases run from &minus;14.1% (<code>p90_20231107</code>) to +14.3% (the PNW dome) with standard errors of the same size, and I&sup2; is 0&ndash;15%. At 21&nbsp;d lead, past the ~8.5&nbsp;d predictability horizon, a paired difference is dominated by which member happened to land where.</li>
+  </ul>
+
+  <div class="callout">
+    <span class="h">Why this is the number that matters for AI+RES</span>
+    <p>The walker score is an ensemble mean. A bias this far under the ensemble&rsquo;s own sampling noise &mdash; and under the 0.83&nbsp;K by which ERA5 and HRRR disagree about what actually happened &mdash; cannot reorder walkers, which is the only thing the score is used for. The adapter is fit for its job.</p>
+  </div>
+
+  <div class="flat">
+    <h3>Caveats that belong with the number</h3>
+    <ul>
+      <li><strong>&ldquo;No anomaly&rdquo; means no CONUS-<em>mean</em> anomaly, not no weather.</strong> <code>null_20240329</code> has a CONUS mean of +0.033&nbsp;K over a strong regional dipole reaching about &minus;8&nbsp;K over the northern plains. Still the right control &mdash; a day nobody would have picked as an extreme, initialised and scored exactly like one &mdash; but the null group is not a quiescent atmosphere.</li>
+      <li><strong>No summer control.</strong> Every summer non-event day in the frozen p90 control set predates the WeatherBench2 cutoff, so the controls are spring/autumn while two of the six events are warm-season. The contrast is not season-matched.</li>
+      <li><strong>HRRR truth covers only three cases</strong>, so its CIs are correspondingly wide (+4.6% to +8.8%, all crossing zero). It leans the same way as ERA5.</li>
+      <li><strong>More members would not have helped.</strong> Pushing the per-event s.e. below the effect needs M&nbsp;&asymp;&nbsp;100 on one event, and it would still be one draw of one atmosphere. Independent cases are what buy power: six unanimous cases bottom out at p&nbsp;=&nbsp;0.031, ten reach p&nbsp;=&nbsp;0.002.</li>
+    </ul>
+  </div>
+</section>
+
+<!-- ============ how they are made ============ -->
+<section>
+  <div class="qhead">
+    <span class="qmark">How</span>
+    <h2>Which script draws which figure</h2>
+  </div>
+  <p>Every figure is drawn from cached cubes on CPU &mdash; no model runs. The maps and the numbers printed beside them come from one shared reduction (<code>adaptest.verification_fields</code>), so a figure cannot be drawn from a different reduction than its own caption.</p>
+
+  <div class="tw">
+    <table>
+      <thead><tr><th>Figure</th><th>Built by</th><th>Contents</th></tr></thead>
+      <tbody>
+        <tr><td><code>adaptest_maps_&lt;case&gt;.png</code></td><td><code>aires.adaptest --stage maps</code></td><td>The six-panel grid mapped above, one per case &times; 10</td></tr>
+        <tr><td><code>adaptest_diff_maps.png</code></td><td><code>aires.adaptest --stage maps</code></td><td>All ten adapter&minus;native fields side by side, extremes and controls together</td></tr>
+        <tr><td><code>adaptest_effect.png</code></td><td><code>aires.adaptest --stage report</code></td><td>Forest plot &mdash; per-case relative effect with bootstrap CIs, extremes blue / controls orange, pooled band behind</td></tr>
+        <tr><td><code>adapter_vs_native_&lt;case&gt;.png</code></td><td><code>aires.fig_adapter_vs_native</code></td><td>Three-panel Gate 2 view: the two ensemble means and their difference</td></tr>
+        <tr><td><code>gate2_&lt;case&gt;.png</code></td><td><code>aires.gate2 --stage score</code></td><td>The divergence curves &mdash; paired vs internal, and rank correlation by lead</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <pre><code># all CPU, either box, GenCast env
+PYTHONPATH=. python -m aires.adaptest --stage score
+PYTHONPATH=. python -m aires.adaptest --stage report
+PYTHONPATH=. python -m aires.adaptest --stage maps
+PYTHONPATH=. python -m aires.fig_adapter_vs_native</code></pre>
+
+  <div class="callout stale">
+    <span class="h">On this checkout, the JSON is one case behind the figures</span>
+    <p>Derecho&rsquo;s <code>runs/aires/adaptest/adaptest.json</code> and <code>adaptest_events.csv</code> hold the single-event (PNW only) scoring from Aug&nbsp;19. The ten-case figures and the pooled numbers on this page came from a3mega and were synced as PNGs plus the HANDOFF text; the ten per-case <code>scores/*.json</code> were not. Re-running <code>--stage score</code> here needs the nine other adapter and native cubes pulled across first. <code>runs/</code> is gitignored, so git will never surface this gap.</p>
+  </div>
+</section>
+
+<footer>
+  Sources on this checkout: <code>aires/HANDOFF.md</code> (adapter-test section, 2026-08-20) &middot; <code>aires/adaptest.py</code> &middot; <code>aires/gate2.py</code> &middot; <code>aires/aindex.py</code> &middot; <code>aires/fig_adapter_vs_native.py</code> &middot; <code>fcn3/run_fcn3.py</code> &middot; <code>fcn3/fevents.py</code> &middot; <code>runs/aires/gate2/skill/</code>. Branch <code>aires</code> at 93a2612.
+</footer>
+
+</div>
