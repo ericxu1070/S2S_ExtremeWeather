@@ -329,9 +329,7 @@ def main(argv=None) -> int:
     ap.add_argument("--list", action="store_true", help="print this shard's tasks and exit")
     a = ap.parse_args(argv)
 
-    if a.event not in F.EVENTS:
-        raise SystemExit(f"unknown event {a.event!r}; known: {', '.join(F.ORDER)}")
-    ev = F.EVENTS[a.event]
+    ev = F.event(a.event)
     leads = [float(x) for x in a.leads.split(",") if x.strip()]
 
     if a.list:

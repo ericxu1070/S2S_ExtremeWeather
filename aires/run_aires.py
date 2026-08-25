@@ -162,7 +162,15 @@ class Ctx:
         return A.res_leg_dir(self.event, k, self.tag)
 
     def config(self) -> dict:
-        """The frozen configuration. Two runs that disagree on any of it are two runs."""
+        """The frozen configuration. Two runs that disagree on any of it are two runs.
+
+        The box is part of it: theta is a box mean, so two runs of the same tag under
+        different boxes make different resampling decisions and are two experiments.
+        (Tags frozen before this key existed diff on it once; --force re-freezes them.)
+        """
+        from aires import aindex as AI
+
+        box = AI.box_for(self.event)
         return dict(
             event=self.event, tag=self.tag, n_walkers=self.n_walkers,
             members=self.members, C=list(self.C), leads=list(self.leads),
@@ -172,13 +180,12 @@ class Ctx:
             resolution=A.WALKER_RES, params_file=A.walker_model_kwargs()["params_file"],
             metric=self.ev.metric, peak=self.ev.peak, init=str(self.ev.init),
             tail_sign=self.sign,
+            box=box.name, box_lat=list(box.lat), box_lon=list(box.lon),
         )
 
 
 def _event(name: str) -> F.Event:
-    if name not in F.EVENTS:
-        raise SystemExit(f"unknown event {name!r}; known: {', '.join(F.ORDER)}")
-    return F.EVENTS[name]
+    return F.event(name)
 
 
 # --------------------------------------------------------------------------- #
@@ -802,7 +809,8 @@ def stage_prep(ctx: Ctx, *, seed: bool = True, force: bool = False) -> int:
     # disk
     live = max(ctx.keep_states, 2) + 1 if ctx.keep_states > 0 else len(ctx.segments)
     peak_gb = live * ctx.n_walkers * 0.477
-    diag_gb = total_seg * 0.006
+    diag_gb = total_seg * 0.035       # 35 MB each, measured on the pilot (not the 6 MB
+                                      # the original estimate assumed)
     cube_gb = want_cubes * 0.010          # 0 for a backend that buys no forecasts
     free_gb = shutil.disk_usage(A.AIRES_ROOT).free / 1e9
     need = peak_gb + diag_gb + cube_gb
@@ -1247,6 +1255,49 @@ def stage_compare(ctx: Ctx) -> int:
 
 
 # --------------------------------------------------------------------------- #
+# stage: prune (CPU, login node) - reclaim the walker states of a FINISHED run
+# --------------------------------------------------------------------------- #
+def stage_prune(ctx: Ctx) -> int:
+    """Delete every walker state under ``res/<tag>/walkers/`` once the run is done.
+
+    States are working memory: rolling segment s needs only segment s-1, and once
+    ``--stage res`` and ``--stage compare`` have both finished nothing downstream reads a
+    state again - every observable comes from the diagnostics cubes, which (with the score
+    cubes and the JSON records) are the permanent record and are never touched here. The
+    cost of pruning is that the run can no longer be resumed or EXTENDED (e.g. to a longer
+    horizon), which is why this refuses to run before both results exist rather than
+    trusting whoever types it at 2 a.m. Seeded segments are hardlinks into the Gate 3
+    tree, so unlinking them here frees nothing and leaves the gate's artifacts intact.
+    """
+    root = A.res_dir(ctx.event, ctx.tag)
+    missing = [p.name for p in (root / "res_result.json", root / "compare.json")
+               if not p.exists()]
+    if missing:
+        raise SystemExit(
+            f"[prune] refusing: {', '.join(missing)} missing under {root}\n"
+            f"  Prune deletes the walker states, after which the run cannot be resumed "
+            f"or extended. It is only safe once --stage res AND --stage compare have "
+            f"both finished.")
+    states = sorted((root / "walkers").rglob("state.nc"))
+    if not states:
+        print(f"[prune] {ctx.event}/{ctx.tag}: no walker states on disk - nothing to do")
+        return 0
+    linked = sum(1 for p in states if p.stat().st_nlink > 1)
+    freed = sum(p.stat().st_size for p in states if p.stat().st_nlink == 1)
+    if ctx.dry_run:
+        print(f"[prune] DRY RUN: would remove {len(states)} state file(s) under "
+              f"{root / 'walkers'}, freeing {freed / 1e9:.1f} GB"
+              + (f" ({linked} hardlinked elsewhere, freeing nothing)" if linked else ""))
+        return 0
+    for p in states:
+        p.unlink()
+    print(f"[prune] {ctx.event}/{ctx.tag}: removed {len(states)} state file(s), "
+          f"freed {freed / 1e9:.1f} GB"
+          + (f" ({linked} were hardlinked elsewhere and freed nothing)" if linked else ""))
+    return 0
+
+
+# --------------------------------------------------------------------------- #
 def build_ctx(a) -> Ctx:
     leads = tuple(float(x) for x in str(a.leads).split(",") if str(x).strip())
     C = tuple(float(x) for x in str(a.C).split(",") if str(x).strip())
@@ -1262,7 +1313,7 @@ def main(argv=None) -> int:
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[0],
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--stage", required=True,
-                    choices=["prep", "walk", "score", "res", "ds", "compare"])
+                    choices=["prep", "walk", "score", "res", "ds", "compare", "prune"])
     ap.add_argument("--event", default=os.environ.get("AIRES_EVENT", DEFAULT_EVENT))
     ap.add_argument("--tag", default=A.RES_TAG)
     ap.add_argument("--walkers", type=int, default=A.RES_N_WALKERS)
@@ -1304,6 +1355,8 @@ def main(argv=None) -> int:
         return stage_ds(ctx)
     if a.stage == "compare":
         return stage_compare(ctx)
+    if a.stage == "prune":
+        return stage_prune(ctx)
     if a.stage == "walk":
         if a.leg is None:
             raise SystemExit("--stage walk needs --leg")

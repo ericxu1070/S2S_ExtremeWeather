@@ -38,6 +38,7 @@ Visual summaries:
 | 4b - rebuild the pilot's probabilities as binned PDFs vs ERA5 | **done**, job **1174** (45 s, debug CPU node). The weighted spatial PDF reaches ERA5's tail: box P(point >= +9 K) = 0.0505 vs ERA5's 0.0848, where 24 direct members give 0.0011. See "The pilot's probabilities as binned PDFs" |
 | 5 | not started |
 | follow-up - adapter skill vs truth, 6 events + 4 null controls (branch `adapter-test`) | **DONE.** 10/10 cases rolled and scored (jobs 1162, 1167, 1171). Pooled effect **+0.23% [-5.20, +5.65]**, sign 6/10, extreme-vs-null contrast p 0.505 - no effect detectable at +-5.4%, no regime dependence. See "The adapter test" below |
+| 4c - multi-event extension: 3 heat events + controls | **IN FLIGHT** (2026-08-24). Registry/boxes/tests landed; productions running for Southwest_HeatWave_2020 (job **1176**) and California_HeatWave_2022 (job **1177**); Gate 3 for SCentral_HeatDome_2023 (job **1178**). See "The multi-event extension (wave log)" below |
 
 **Phases 1-4 are complete.** All three gates pass, the RES core is validated, the
 driver ran the pilot end to end on an 8xH100 node (job 1172) with its figures written
@@ -47,6 +48,153 @@ un-run persistence-backend control. a3mega holds the calibration, the Gate 2 cub
 walker trajectories and the H100s. The full Gate 2 data tree is mirrored on Derecho as well and
 re-scores there identically, so Derecho can do CPU analysis, but it is not required again
 until Phase 5.
+
+## The multi-event extension (wave log) - 2026-08-24
+
+Open problem 6 ("the pilot has one event") is being closed with a **severity ladder**,
+not more heat domes: one more genuinely extreme event in a different regime, one moderate
+event, and (optionally) a mild control - because the deliverable is a weighted exceedance
+curve, and hits alone cannot show the weights are honest. A moderate event tests the
+mid-curve probabilities (the only place a handful of hindcasts can detect miscalibration)
+and maps where RES stops paying for its FCN3 hours; a mild/null case is the false-alarm
+control for a sampler that is built to push walkers hot. Full plan:
+`/home/ubuntu/.claude/plans/come-up-with-a-snoopy-sunrise.md`.
+
+The slate (all week-3, frozen C_k = (0, 1.0, 1.4, 1.8, 2.0) - deliberately NOT re-tuned
+per event, so "one schedule generalises" stays testable):
+
+| event | peak | box (measured, pinned by test) | role | Gate 3? |
+|---|---|---|---|---|
+| SCentral_HeatDome_2023 | 2023-06-27 | S Texas 26-32N 106-100W, **+5.73 K** (CONUS +0.52) | second extreme hit, new regime; dome core clipped at the Mexico border like PNW's at BC | **yes** (job 1178) - new region, no baseline data; its 16 walkers double as the DS baseline |
+| Southwest_HeatWave_2020 | 2020-08-16 | SW/S Plains 29-35N 109-103W, **+5.14 K** (CONUS +1.54) | moderate rung / mid-curve calibration | no - xres cube IS the DS baseline; skill risk covered post-hoc (see below) |
+| California_HeatWave_2022 | 2022-09-06 | California 35-41N 124-118W, **+4.71 K** (CONUS +1.60) | third rung; the UNCONSTRAINED max (+7.32 K) is Idaho/Montana and was deliberately not used - see the box note | no - same |
+
+Gate 3 is skipped for the two staged events on purpose: its DS-baseline role is redundant
+(24-member xres cubes exist), seeding saves only ~2.8 GPU-h, and the skill go/no-go is
+insurance PNW passed 0.797/0.959 vs 0.5. The residual-risk checks are free: the first
+resampling (3 d, C=0) is the identity, so production walkers are still i.i.d. at 6 d - a
+post-hoc score-vs-realized rho_s at 3/6 d falls out of the run's own score cubes - and a
+skill collapse shows up as per-leg ESS/N crashing without recovery.
+
+What landed in code (all tests green, 202 passed):
+
+- `fcn3/fevents.py`: `RES_EVENTS`/`RES_ORDER`, and `SEED_ORDER = ALL_ORDER + RES_ORDER` -
+  the ten frozen cases keep their exact seeds (pinned literally in `test_adaptest.py`);
+  extension seeds are 10333/11333/12333. `F.event(name)` resolves anything registered;
+  `--res-spec`/`--res-events` CLI. ALL_ORDER is untouched, so the adapter-test Slurm
+  array pin still passes unchanged.
+- `aires/aindex.py`: the three boxes (selection rule now stated in the module comment) and
+  `python -m aires.aindex --scan <event>` - the box-picker that measured every number
+  above from the ERA5 truth with the experiment's own reduction.
+- `aires/run_aires.py`: `run.json` now records the box (theta is a box mean - two boxes
+  are two experiments; pre-existing PNW tags will diff once and need `--force`, do this
+  for `persist` before launching the control); `--stage prune` (guarded: refuses without
+  BOTH res_result.json and compare.json; `--dry-run` supported); the disk estimate now
+  uses the measured 35 MB/diag, not 6.
+- `slurm/xres_pool_0p25_week3_aires.slurm`: optional 24-member baseline-cube launcher for
+  extension events; unlike the p90 launcher it does NOT overwrite the frozen
+  `gencast_pool_timing.json` sidecar. Only needed if SCentral should get the same
+  three-row DS figure as the pilot.
+
+Wave state (cap: <= 4 GPU nodes for this experiment at any time; never > 2 concurrent
+productions):
+
+- [x] SCentral xres prep on the login node (ARCO path, ~25 min; truth grid max +7.53 K)
+- [x] box scan -> S Texas box finalised and pinned BEFORE any reduce/prep froze it
+- [x] job **1176** Southwest production: **done** (7 h 34 m), ds + compare reduced.
+  **Two findings.** (1) CALIBRATION PASSES: through the range 24 direct members can
+  resolve, the weighted RES exceedance tracks direct sampling within binomial noise
+  (P(>=+2.23 K) 0.077 vs 0.083; P(>=+3.03) 0.026 vs 0.042), then extends ~2 decades
+  deeper (P ~ 3e-4 at +4.31 K) - the weights deflate honestly (weighted mean +1.24 vs
+  unweighted +2.47). (2) THE OBSERVED EVENT IS OUT OF REACH: ERA5 box A_L +5.14 K,
+  direct 0/24 (max +3.82), AI+RES **0/64** (max +4.31). GenCast's week-3 distribution
+  (mean +0.71, sd 1.33) puts the observation at +3.3 sigma - deeper relative to model
+  spread than PNW was - and a C<=2, K=5 tilt moves the mean ~+1.75 K, not +4.4. Run
+  health: log Z -0.8660, normalization check 1.0623, 16/64 founders; ESS/N crashed to
+  0.11 at step 3 (C=1.4, max mult 23) then recovered 0.25/0.37 - the clone-correlation
+  caveat (open problem: log-ps perturbation) is doing real damage to reach here.
+  Full figure set written (apdfs/aplots/amaps). `aires/amaps.py` needed a fix first:
+  it hard-required the Gate 3 tree, the FCN3 context cube and the HRRR truth, none of
+  which an extension event necessarily has - all baselines are now optional (at least
+  one required), the empty "0 that reached ERA5" panel is dropped, and the HRRR caption
+  only appears when the HRRR panel does.
+- [x] job **1177** California production: **done** (8 h 03 m), ds + compare reduced,
+  states pruned (+91 GB). **A HIT at moderate severity**: 25/64 walkers reached the
+  observed +4.71 K (max +6.33) -> weighted **P = 0.0186**, where direct sampling scored
+  0/24 with its best member grazing at +4.70. Calibration clean where direct resolves
+  (P(>=+2.99) 0.114 vs 0.125; P(>=+3.99) 0.045 vs 0.042), curve extends to 7.7e-5 at
+  +6.33 K. Run health: log Z -1.2488, normalization check 0.7771 (the low side of the
+  replay distribution - compare across runs per open problem 5), 16/64 founders; ESS/N
+  0.22/0.18/0.25/0.47 (earliest collapse of the three, max mult 15/17).
+  **The severity ladder now reads**: reach follows how far the observation sits outside
+  the MODEL's forecast spread - PNW ~2.0 sigma: reached, P 0.054; CA ~2.9 sigma:
+  reached, P 0.019; SW ~3.3 sigma: NOT reached, P < 3e-4 (calibrated mid-curve).
+- [x] job **1178** SCentral Gate 3: **PASS** (2 h 28 m). rho_s **0.700** at 9 d
+  [CI 0.26, 0.93] and **0.765** at 12 d [0.33, 0.94] vs the 0.50 threshold; 0.985 at
+  15 d. CAVEAT worth carrying into the writeup: persistence is far stronger here at 12 d
+  (+0.582) than it was for PNW (+0.129) - FCN3 still beats it, but the margin over "who
+  is hottest now" is thin at that lead (persistence at 9 d is -0.006, so the 9 d
+  checkpoint is where FCN3 earns its hours). `ctune --check`: mean |assumption error|
+  0.153 vs ~0.28 noise at N=16 - the frozen C_k schedule is consistent with SCentral's
+  measured skill curve.
+- [x] SCentral production prep: frozen (tag `pilot`), 32/448 segments seeded from Gate 3
+  (hardlinks), ~61.1 H100-h, READY: yes. **Submission held** until a wave-1 production
+  finishes: with 333 GB free, a third concurrent production's 111 GB peak would land on
+  the disk guard, and the plan caps concurrent productions at 2 regardless.
+- [x] job **1180** PNW persistence control (Standard-RES): **done** (3 h 50 m), compared,
+  states pruned. **THE ATTRIBUTION QUESTION IS CLOSED**: same walkers, same DMC, same
+  C_k, same seeds, only the score swapped - persistence-RES reached the observed +7.72 K
+  with **0/64** walkers (max +7.33), where FCN3-scored AI+RES reached with 42/64 (max
+  +10.29, P 0.054). The persistence selection is noise at this lead: ESS/N 0.04/0.02 at
+  steps 3-4 (max mult 39/49), 3/64 founders survive, weights span 0.013..869,
+  normalization check **8.75**, weighted mean +0.29 (the weights cancel the tilt).
+  Cloning on a skillful forecast of the event beats cloning on "who is hottest now" -
+  the FCN3 score is the ingredient, exactly what Gate 3's persistence column predicted.
+- [x] job **1179** SCentral production: **done** (7 h 13 m), ds + compare reduced,
+  states pruned. **THE GENERALITY CLAIM LANDS**: 6/64 walkers reached the observed
+  +5.73 K (max +6.19) -> weighted **P = 0.00273**, where the 16-walker Gate 3 direct
+  baseline had nothing (max +4.19, a ~2.2 sigma target). The frozen C_k schedule,
+  ported unchanged to a subtropical-ridge regime, reaches and prices the second extreme
+  event. Weights honest: weighted mean +2.35 vs direct mean +2.04. Run health: log Z
+  -0.7771, normalization check 1.2672, 17/64 founders, final ESS/N 0.65.
+  Full figure set written (13 figures, all internal gates 0.00e+00). `aires/apdfs.py`
+  needed the same optional-baseline treatment as amaps: with no xres cube it now
+  PROMOTES the Gate 3 walkers to the direct-GenCast slot (they are the like-for-like
+  ensemble by construction), records `gencast_xres_source="gate3"` in pdf_fields.nc,
+  relabels the curve, and validates G13 against the ds key the ensemble was recorded
+  under. Suite green after: 202 passed, 1 skipped.
+- [ ] wave 3 (optional, user's call): p90_20240802 at N=32 tag `pilot32` (~29 GPU-h).
+  With SW's curve-agreement calibration + the nulls' role in the adapter test, the
+  amplitude-scaling question may already be answered well enough - the four-run set
+  (PNW hit / CA hit / SCentral hit / SW honest miss + persistence control) is a
+  complete story.
+
+**Wave summary (the paper's table, 2026-08-25).** All at week-3 lead, N=64, frozen C_k:
+
+| event | obs box A_L | direct sampling | AI+RES | weighted P(>= obs) |
+|---|---|---|---|---|
+| PNW_HeatDome_2021 | +7.72 K (~2.0 sigma of direct) | 0/40 (max +7.49) | **42/64** (max +10.29) | **0.054** |
+| SCentral_HeatDome_2023 | +5.73 K (~2.2 sigma) | 0/16 (max +4.19) | **6/64** (max +6.19) | **0.0027** |
+| California_HeatWave_2022 | +4.71 K (~2.9 sigma) | 0/24 (max +4.70) | **25/64** (max +6.33) | **0.019** |
+| Southwest_HeatWave_2020 | +5.14 K (~3.3 sigma) | 0/24 (max +3.82) | 0/64 (max +4.31) | < 3e-4 (not reached) |
+| PNW persistence control | +7.72 K | 0/16 | **0/64** (max +7.33) | - (score is the ingredient) |
+
+Reach follows the observation's depth in the MODEL's forecast distribution, not the
+absolute anomaly; the honest miss (SW) plus the mid-curve calibration agreement on all
+three curves is what makes the three hits believable; the persistence control attributes
+the entire gain to the FCN3 score. Total spent: ~232 H100-h across 5 runs + 1 Gate 3.
+- [ ] wave 3 (optional): p90_20240802 at N=32 tag `pilot32` as the mild control
+- [ ] after each finished+compared run: `--stage ds`, `--stage compare`, apdfs/aplots/amaps,
+  then `--stage prune`
+- [x] pruned via the guarded `--stage prune`: PNW pilot states (192 files, 91 GB) and
+  Southwest pilot states (192 files, 91 GB) - both only after res_result.json AND
+  compare.json existed. 339 GB free after.
+- [ ] **two deletions still pending the user** (raw `rm`/`find -delete` is blocked by
+  the permission classifier; only the guarded python prune passes): PNW Gate 3
+  step03-07 states, 80 files / 38 GB (`find runs/aires/PNW_HeatDome_2021/walkers -path
+  '*step0[3-7]/state.nc' -delete` - KEEPS step01/02, which the persistence control
+  seeds from), and `rm -rf runs/aires/PNW_HeatDome_2021/res/smoke` (1.3 GB). Not on the
+  critical path.
 
 ## The adapter test (branch `adapter-test`) - the open question and how to close it
 

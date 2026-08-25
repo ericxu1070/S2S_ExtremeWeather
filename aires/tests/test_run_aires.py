@@ -77,6 +77,17 @@ def fake_walk_pool(ctx: R.Ctx, calls: list):
 # --------------------------------------------------------------------------- #
 # The leg schedule
 # --------------------------------------------------------------------------- #
+def test_event_resolution_spans_the_extension_registry():
+    """`--event` resolves the frozen ten AND the AI+RES extension events, and nothing
+    else. This is the regression test for widening the resolvers from ``F.EVENTS`` to
+    ``F.event`` -- before the widening, an extension event was a SystemExit at prep."""
+    ev = R._event("Southwest_HeatWave_2020")
+    assert (ev.metric, ev.family) == ("t2m_anom", "heat")
+    assert R._event("null_20230324").family == "null"
+    with pytest.raises(SystemExit, match="unknown event"):
+        R._event("Chicago_HeatWave_1995")
+
+
 def test_legs_tile_the_horizon_with_equal_length_segments():
     legs = A.res_legs()
     segs = [s for leg in legs for s in leg.segments]

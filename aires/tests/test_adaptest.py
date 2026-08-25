@@ -290,6 +290,37 @@ def test_controls_are_appended_so_the_six_events_keep_their_seeds():
     seeds = [F.seed_for(e) for e in F.all_events()]
     assert len(set(seeds)) == len(seeds), "two cases share a base seed"
 
+    # The AI+RES extension takes indices AFTER the ten frozen cases. This prefix
+    # invariant is the whole design: every seed already rolled to disk is unchanged.
+    assert F.SEED_ORDER[:len(F.ALL_ORDER)] == F.ALL_ORDER
+    assert set(F.RES_ORDER).isdisjoint(F.ALL_ORDER)
+    frozen = {
+        "PNW_HeatDome_2021": 333, "HurricaneIan_2022": 1333,
+        "WinterStorm_Uri_2021": 2333, "p90_20231107": 3333,
+        "p90_20240802": 4333, "p90_20251224": 5333,
+        "null_20230324": 6333, "null_20240329": 7333,
+        "null_20241121": 8333, "null_20250526": 9333,
+    }
+    for name, seed in frozen.items():
+        assert F.seed_for(F.ALL_EVENTS[name]) == seed
+    seeds = [F.seed_for(e) for e in F.all_events() + F.res_events()]
+    assert len(set(seeds)) == len(seeds), "an extension event shares a base seed"
+
+
+def test_extension_events_are_outside_the_adapter_test_universe():
+    """``ALL_ORDER`` is the adapter test's universe -- the Slurm array index map.
+
+    An extension event that leaked into it would make the array shorter than the registry
+    it is pinned against, and (worse) shift a control's array index. The extension lives
+    in its own tuple and only the seed space concatenates them.
+    """
+    from fcn3 import fevents as F
+
+    assert len(F.ALL_ORDER) == 10
+    text = (ROOT / "slurm" / "aires_adaptest.slurm").read_text()
+    for name in F.RES_ORDER:
+        assert name not in text, f"{name} must not appear in the adapter-test array"
+
 
 def test_controls_stay_out_of_the_fcn3_vs_gencast_experiment():
     """``F.selected()`` is what run_fcn3.py and compare_fcn3_gencast.py iterate over.
@@ -307,6 +338,10 @@ def test_controls_stay_out_of_the_fcn3_vs_gencast_experiment():
     try:
         os.environ["FCN3_EVENTS"] = F.CONTROL_ORDER[0]
         assert [e.name for e in F.selected()] == [F.CONTROL_ORDER[0]]
+        # An extension event is likewise reachable only when named explicitly (that is
+        # how a native FCN3 context cube would be rolled for one), never by default.
+        os.environ["FCN3_EVENTS"] = "Southwest_HeatWave_2020"
+        assert [e.name for e in F.selected()] == ["Southwest_HeatWave_2020"]
     finally:
         os.environ.pop("FCN3_EVENTS", None)
         if old is not None:
@@ -328,6 +363,10 @@ def test_the_frozen_p90_gencast_spec_is_unchanged():
     ctl = F.xres_extra_events_spec(F.controls())
     assert all(n in ctl for n in F.CONTROL_ORDER)
     assert not any(n in ctl for n in F.ORDER)
+    # The extension spec declares only what xres does NOT already know: the two
+    # xres-native heat events must never be re-declared to xres through the hook.
+    assert F.xres_extra_events_spec(F.res_events()) == (
+        "SCentral_HeatDome_2023=2023-06-27:t2m_anom")
 
 
 def test_controls_are_actually_quiet_days():
