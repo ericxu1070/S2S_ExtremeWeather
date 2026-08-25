@@ -1,0 +1,59 @@
+Host: nucla3m-a3meganodeset-6
+Start: Mon Aug 24 22:30:53 UTC 2026
+GPU 0: NVIDIA H100 80GB HBM3 (UUID: GPU-b8ea1035-0007-7515-3dd6-af91b019c0d5)
+GPU 1: NVIDIA H100 80GB HBM3 (UUID: GPU-d6d50080-e779-0925-0ed6-43a4555a210a)
+GPU 2: NVIDIA H100 80GB HBM3 (UUID: GPU-511024c1-3c7e-7c77-1079-2f1703c3eab2)
+GPU 3: NVIDIA H100 80GB HBM3 (UUID: GPU-5af99110-d654-920b-c96a-2bd40ba27b5f)
+GPU 4: NVIDIA H100 80GB HBM3 (UUID: GPU-d99414f2-afb8-63e6-e2f0-9c1d091423da)
+GPU 5: NVIDIA H100 80GB HBM3 (UUID: GPU-85259381-d999-65b3-d62c-cdcff9d594cb)
+GPU 6: NVIDIA H100 80GB HBM3 (UUID: GPU-dee27eeb-a837-8f09-94f0-3f975e31b9e4)
+GPU 7: NVIDIA H100 80GB HBM3 (UUID: GPU-af7e590f-89d8-8ce1-c223-d556791a6b06)
+Gate 3: event=SCentral_HeatDome_2023 walkers=16 members=6 gpus=8 phase=all
+Gate 3 - SCentral_HeatDome_2023  (init 2023-06-06, peak 2023-06-27, 21 d lead, metric t2m_anom)
+SCentral_HeatDome_2023: primary box S Texas (26-32N, 106W-100W)
+    South/central Texas and the Rio Grande - the measured week-mean maximum (+5.73 K over this box vs a +0.52 K CONUS mean), inside the named region, so both halves of the selection rule agree. The dome's core extended well into Mexico, south of the 24 N crop, so like PNW this box sees the northern part of the event. Finalised from the ERA5 truth on 2026-08-24, before any Gate 3 reduce or production prep froze it.
+  secondary: CONUS (24-50N, 125W-66W)
+
+  walkers          16
+  segments/walker  7 x 6 x 12 h = 42 GenCast steps to the peak
+  checkpoints      3 d, 6 d, 9 d, 12 d, 15 d
+  score members    M = 6
+
+  prerequisites
+    walker init frames  OK   /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/xres/0p25/week3/inputs/SCentral_HeatDome_2023_inputs.nc
+    derived calibration OK   /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/aires/calib/derived_calib.nc
+    ERA5 truth          OK   /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/observations/SCentral_HeatDome_2023_verif_t2m_anom.nc   (context only, not required)
+
+  walker segments   0 cached, 112 to roll, 0 STALE, 0 partial
+
+  score forecasts   0 cached, 80 to run (80 total = 16 walkers x 5 leads)
+                    23,040 FCN3 steps x 6 members already included; ~6.4 GPU-h at 1 s/step, ~48 min over 8 GPUs
+  walker rollout    672 GenCast steps; ~5.2 GPU-h at 28 s/step, ~39 min over 8 GPUs
+
+  disk              states 53.4 GB new (477 MB each), diag 4.03 GB, score cubes ~0.80 GB
+
+  READY: yes
+--- walk phase: Mon Aug 24 22:31:02 UTC 2026 ---
+  walk: attempt 1/3
+  launched walk shard 0 on GPU 0 (pid 3349430)
+  launched walk shard 1 on GPU 1 (pid 3349431)
+  launched walk shard 2 on GPU 2 (pid 3349432)
+  launched walk shard 3 on GPU 3 (pid 3349433)
+  launched walk shard 4 on GPU 4 (pid 3349434)
+  launched walk shard 5 on GPU 5 (pid 3349435)
+  launched walk shard 6 on GPU 6 (pid 3349436)
+  launched walk shard 7 on GPU 7 (pid 3349437)
+CPU: 208 cores / 8 shards -> OMP_NUM_THREADS=26 per shard
+--- score phase: Mon Aug 24 23:46:59 UTC 2026 ---
+  score: attempt 1/3
+  launched score shard 0 on GPU 0 (pid 3361338)
+  launched score shard 1 on GPU 1 (pid 3361339)
+  launched score shard 2 on GPU 2 (pid 3361340)
+  launched score shard 3 on GPU 3 (pid 3361341)
+  launched score shard 4 on GPU 4 (pid 3361342)
+  launched score shard 5 on GPU 5 (pid 3361343)
+  launched score shard 6 on GPU 6 (pid 3361344)
+  launched score shard 7 on GPU 7 (pid 3361345)
+End: Tue Aug 25 00:58:35 UTC 2026
+Now reduce on the login node in moe:
+  PYTHONPATH=. python -m aires.gate3 --stage reduce --event SCentral_HeatDome_2023 --walkers 16
