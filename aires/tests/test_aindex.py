@@ -59,6 +59,39 @@ def test_p90_events_use_the_conus_index():
         assert AI.box_for(name) is AI.CONUS
 
 
+def test_every_aires_extension_event_has_an_explicit_box():
+    """Forgetting a box is not an error -- it is a silent CONUS mean.
+
+    ``box_for`` deliberately falls back to CONUS (the p90 cases need it to). For a
+    regional heat event that fallback is the failure mode the module docstring warns
+    about: a CONUS mean of a regional heat wave is mostly grid points that were not
+    having one, and Gate 3 measured that the CONUS mean has no tail worth sampling. So
+    every extension event must opt in explicitly.
+    """
+    from fcn3 import fevents as F
+
+    for name in F.RES_ORDER:
+        assert AI.box_for(name) is not AI.CONUS, f"{name} fell back to the CONUS mean"
+
+
+def test_registered_boxes_are_the_pinned_science_choice():
+    """The boxes are scientific decisions, not implementation details.
+
+    Each was measured against the ERA5 truth (``python -m aires.aindex --scan <event>``)
+    and, for California, deliberately NOT the anomaly-maximising window -- see the notes
+    in ``EVENT_BOXES``. A refactor that nudges one silently changes every downstream
+    theta, so the values are pinned literally.
+    """
+    want = {
+        "SCentral_HeatDome_2023": ((26.0, 32.0), (254.0, 260.0)),
+        "Southwest_HeatWave_2020": ((29.0, 35.0), (251.0, 257.0)),
+        "California_HeatWave_2022": ((35.0, 41.0), (236.0, 242.0)),
+    }
+    for name, (lat, lon) in want.items():
+        box = AI.EVENT_BOXES[name]
+        assert (box.lat, box.lon) == (lat, lon), name
+
+
 def test_out_of_range_box_raises_rather_than_clipping():
     cube = _cube(12, INIT, PEAK)
     bad = AI.Box("too-far-north", (45.0, 60.0), (236.0, 242.0))

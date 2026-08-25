@@ -88,7 +88,7 @@ def test_score_seed_is_common_across_walkers_but_not_leads():
 
 
 def test_score_seeds_are_distinct_across_every_event_and_lead():
-    seeds = [S.score_seed(n, l) for n in F.ORDER for l in A.GATE3_LEAD_DAYS]
+    seeds = [S.score_seed(n, l) for n in F.KNOWN_ORDER for l in A.GATE3_LEAD_DAYS]
     assert len(set(seeds)) == len(seeds)
 
 

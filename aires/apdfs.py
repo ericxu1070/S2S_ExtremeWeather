@@ -494,15 +494,31 @@ def build(ctx: R.Ctx, *, force: bool = False) -> Path:
     gencast_walkers = gate3_fields(ctx)
     fcn3 = (_member_field(ctx, F.cube_path(ctx.ev), "fcn3", "fcn3")
             if F.cube_path(ctx.ev).exists() else None)
+    gencast_xres_source = "xres"
     if gencast_xres is None:
-        raise SystemExit("no direct GenCast ensemble on disk; nothing to compare against")
+        if gencast_walkers is None:
+            raise SystemExit("no direct GenCast ensemble on disk (neither an xres cube "
+                             "nor Gate 3 walkers); nothing to compare against")
+        # An extension event without the optional xres baseline cube (SCentral) still has
+        # a like-for-like direct ensemble: the free-running Gate 3 walkers -- same
+        # checkpoint, same init, same step, resampling off. Promote them to the primary
+        # slot (they then anchor the bin range and every "GenCast direct" curve) and drop
+        # the separate context curve so one population is not drawn twice. The stored
+        # `gencast_xres_source` attr keeps the labels honest downstream.
+        print("[apdfs] no xres cube: the Gate 3 walkers ARE the direct GenCast ensemble")
+        gencast_xres = gencast_walkers.rename(gate3_walker="member").rename("gencast_xres")
+        gencast_walkers = None
+        gencast_xres_source = "gate3"
     if fcn3 is not None and fcn3.sizes["member"] != gencast_xres.sizes["member"]:
         fcn3 = fcn3.rename(member="fcn3_member")
 
     # --- G13: the baselines must reduce to compare.json's own ds numbers -------- #
     ds_ref = d.get("ds", {})
     worst = 0.0
-    for key, da in (("gencast_xres", gencast_xres),
+    # A promoted ensemble validates against the ds key it was RECORDED under -- for the
+    # gate3 promotion that is "gencast_walkers", or G13 would silently check nothing.
+    primary_key = "gencast_walkers" if gencast_xres_source == "gate3" else "gencast_xres"
+    for key, da in ((primary_key, gencast_xres),
                     ("gencast_walkers", gencast_walkers), ("fcn3", fcn3)):
         if da is None or key not in ds_ref:
             continue
@@ -559,6 +575,7 @@ def build(ctx: R.Ctx, *, force: bool = False) -> Path:
     ds.attrs = dict(
         event=ctx.event, tag=ctx.tag, metric=ctx.ev.metric,
         n_walkers=int(ctx.n_walkers),
+        gencast_xres_source=gencast_xres_source,
         log_Z=float(result.log_Z), normalization_check=norm,
         sum_weights=float(weights.sum()), ess_weights=_ess(weights),
         observed_box=float(obs.get("box", d.get("observed", float("nan")))),
@@ -662,9 +679,11 @@ def curve_entries(ds: xr.Dataset, region, *, with_hrrr: bool = False) -> list[di
         label=f"AI+RES resampled population, unweighted  (N={n_w}, "
               f"n={aires.size:,} pts)",
         style=dict(color=RES_COLOR, ls=(0, (1, 1.4)), lw=2.2, zorder=4)))
+    xres_name = ("GenCast direct (free-running Gate 3 walkers)"
+                 if str(ds.attrs.get("gencast_xres_source", "xres")) == "gate3"
+                 else "GenCast direct (xres ensemble)")
     for key, tag, color, ls, name in (
-        ("gencast_xres", "GenCast direct", GENCAST_COLOR, (0, (5, 2)),
-         "GenCast direct (xres ensemble)"),
+        ("gencast_xres", "GenCast direct", GENCAST_COLOR, (0, (5, 2)), xres_name),
         ("gencast_walkers", "Gate-3 walkers", G3_COLOR, (0, (6, 2, 1, 2)),
          "GenCast direct (free-running Gate 3 walkers)"),
         ("fcn3", "FCN3 direct", FCN3_COLOR, (0, (4, 2)), "FCN3 direct"),

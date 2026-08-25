@@ -94,6 +94,9 @@ class Event:
                          # "p90ctl" -> null control; injected the same way, but GenCast is
                          #             never run for it (the adapter test needs the INIT
                          #             frames, not a rollout)
+                         # "aires"  -> AI+RES extension event with no xres data; injected
+                         #             via XRES_EXTRA_EVENTS for prep (and optionally a
+                         #             baseline cube), never part of the frozen experiments
     note: str = ""
 
     @property
@@ -187,7 +190,7 @@ P90_SOURCE_CASE = {
 # MEAN daily T2m anomaly, so a control is a day whose CONUS mean is near zero -- NOT a day
 # with no weather. null_20240329 is the clearest example: its CONUS mean is +0.033 K, but
 # the field is a strong dipole, about -8 K over the northern plains against widespread
-# warmth elsewhere (see figures/aires/adaptest_maps_null_20240329.png). That is the right
+# warmth elsewhere (see figures/aires/null_20240329/adaptest_maps_null_20240329.png). That is the right
 # control for this test -- it is a day nobody would have selected as an extreme, initialised
 # and scored exactly like one -- but it is not a quiescent atmosphere, and the pooled
 # statistic must not be described as one.
@@ -246,6 +249,62 @@ ALL_EVENTS: dict[str, Event] = {**EVENTS, **CONTROLS}
 ALL_ORDER = ORDER + CONTROL_ORDER
 
 
+# --------------------------------------------------------------------------- #
+# AI+RES extension events (Phase 4 multi-event runs).
+#
+# These are NOT part of either frozen experiment in this file. They are not in EVENTS,
+# because ``F.selected()`` is what run_fcn3.py and compare_fcn3_gencast.py iterate over
+# and a seventh panel would change that experiment's published figures. They are not in
+# CONTROLS, and they are NOT in ALL_ORDER, because ALL_ORDER is the adapter test's
+# universe: it is the Slurm array index map in slurm/aires_adaptest.slurm and appending
+# to it would make that array shorter than the registry it is pinned against.
+#
+# They still need a seed index, because ``seed_for`` is defined over a position -- so the
+# seed space is a SEPARATE tuple that has ALL_ORDER as a prefix. Every one of the ten
+# frozen cases keeps the exact index, and therefore the exact seed, it was rolled with.
+# New extension events are APPENDED here, never inserted.
+# --------------------------------------------------------------------------- #
+RES_EVENTS: dict[str, Event] = {
+    "SCentral_HeatDome_2023": Event(
+        "SCentral_HeatDome_2023", "2023-06-27", "t2m_anom", "heat",
+        "S-Central Heat Dome 2023", "aires",
+        "Texas/Louisiana June 2023 heat dome. Init 2023-06-06 is AFTER "
+        "gencast_s2s.data.WB2_END (2023-01-10), so xres prep reads ARCO rather than the "
+        "WeatherBench2 zarr and does not OOM the 15 GB a3mega login node."),
+    "Southwest_HeatWave_2020": Event(
+        "Southwest_HeatWave_2020", "2020-08-16", "t2m_anom", "heat",
+        "Southwest Heat Wave 2020", "xres",
+        "xres-native: init frames, the 24-member 0.25 deg GenCast cube and the ERA5 "
+        "truth are all already on disk. No prep, no new GenCast baseline run."),
+    "California_HeatWave_2022": Event(
+        "California_HeatWave_2022", "2022-09-06", "t2m_anom", "heat",
+        "California Heat Wave 2022", "xres",
+        "xres-native, same as Southwest. See aires/aindex.py for why its box is a "
+        "documented choice, not a maximisation."),
+}
+RES_ORDER = tuple(RES_EVENTS)
+
+# The seed space. ALL_ORDER is a PREFIX, so indices 0..9 -- and every seed the native and
+# adapter cubes on disk were rolled with -- are unchanged; the extension takes 10, 11, 12.
+SEED_ORDER = ALL_ORDER + RES_ORDER
+
+# Everything any driver in this repo may resolve by name.
+KNOWN: dict[str, Event] = {**ALL_EVENTS, **RES_EVENTS}
+KNOWN_ORDER = SEED_ORDER
+
+
+def event(name: str) -> Event:
+    """Resolve any registered event: the six, the four controls, the AI+RES extension."""
+    if name not in KNOWN:
+        raise SystemExit(f"unknown event {name!r}; known: {', '.join(KNOWN_ORDER)}")
+    return KNOWN[name]
+
+
+def res_events() -> list[Event]:
+    """The AI+RES extension events, in registry order."""
+    return [RES_EVENTS[n] for n in RES_ORDER]
+
+
 def selected() -> list[Event]:
     """Events for this run. ``FCN3_EVENTS`` (comma-separated names) subsets them.
 
@@ -260,21 +319,24 @@ def selected() -> list[Event]:
     if not sel:
         return [EVENTS[n] for n in ORDER]
     want = [s.strip() for s in sel.split(",") if s.strip()]
-    unknown = [w for w in want if w not in ALL_EVENTS]
+    unknown = [w for w in want if w not in KNOWN]
     if unknown:
         raise SystemExit(f"unknown event(s) in FCN3_EVENTS: {', '.join(unknown)}\n"
-                         f"known: {', '.join(ALL_ORDER)}")
-    return [ALL_EVENTS[w] for w in want]
+                         f"known: {', '.join(KNOWN_ORDER)}")
+    return [KNOWN[w] for w in want]
 
 
 def seed_for(ev: Event) -> int:
     """Deterministic per-event base seed (offset by position in the frozen order).
 
-    Indexed over ``ALL_ORDER``, whose first six entries ARE ``ORDER`` -- so every seed the
-    six native cubes on disk were rolled with is unchanged, and the adapter ensembles keep
-    pairing with them member for member. Controls occupy indices 6+.
+    Indexed over ``SEED_ORDER``, whose first six entries ARE ``ORDER`` and whose first ten
+    ARE ``ALL_ORDER`` -- so every seed the six native cubes and four control cubes on disk
+    were rolled with is unchanged, and the adapter ensembles keep pairing with them member
+    for member. Controls occupy indices 6..9; AI+RES extension events occupy 10+. The
+    prefix invariant ``SEED_ORDER[:len(ALL_ORDER)] == ALL_ORDER`` is what freezes the ten,
+    and it is pinned by a test.
     """
-    return BASE_SEED + 1000 * ALL_ORDER.index(ev.name)
+    return BASE_SEED + 1000 * SEED_ORDER.index(ev.name)
 
 
 # --------------------------------------------------------------------------- #
@@ -489,6 +551,12 @@ def describe() -> str:
         e = CONTROLS[n]
         lines.append(f"  {e.name:22s} {e.family:9s} peak {e.peak}  init "
                      f"{e.init.date()}  {e.metric:10s}  {e.note}")
+    lines += ["", f"  AI+RES extension events (not part of either frozen experiment):"]
+    for n in RES_ORDER:
+        e = RES_EVENTS[n]
+        gc_state = "cached" if gencast_cube_path(e).exists() else "absent"
+        lines.append(f"  {e.name:22s} {e.family:9s} peak {e.peak}  init "
+                     f"{e.init.date()}  {e.metric:10s}  GenCast: {gc_state}")
     return "\n".join(lines)
 
 
@@ -500,5 +568,9 @@ if __name__ == "__main__":  # `python fcn3/fevents.py` prints the plan; --spec f
         print(xres_extra_events_spec(controls()))
     elif "--controls" in sys.argv:
         print(",".join(CONTROL_ORDER))
+    elif "--res-spec" in sys.argv:
+        print(xres_extra_events_spec(res_events()))
+    elif "--res-events" in sys.argv:
+        print(",".join(RES_ORDER))
     else:
         print(describe())

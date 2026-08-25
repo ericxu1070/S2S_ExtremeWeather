@@ -87,9 +87,7 @@ DEFAULT_EVENT = "PNW_HeatDome_2021"
 
 
 def _event(name: str) -> F.Event:
-    if name not in F.EVENTS:
-        raise SystemExit(f"unknown event {name!r}; known: {', '.join(F.ORDER)}")
-    return F.EVENTS[name]
+    return F.event(name)
 
 
 def expected_valid(ev: F.Event, lead_days: float) -> pd.Timestamp:

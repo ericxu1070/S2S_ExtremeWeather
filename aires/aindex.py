@@ -73,6 +73,13 @@ CONUS = Box("CONUS", CONUS_LAT, CONUS_LON,
 # into British Columbia, north of the 50 N crop) and is recorded in the note rather than
 # left for a reader to infer from the numbers.
 #
+# Selection rule for a heat/cold box: the 6x6 degree window that maximises the ERA5
+# week-mean anomaly, SUBJECT TO lying inside the region the event is named for. PNW obeys
+# it (+7.72 K registered vs +8.07 K unconstrained CONUS-wide). Where the two halves of the
+# rule conflict, the named region wins and the unconstrained maximum is recorded in the
+# note - a box in Montana labelled "California Heat Wave" would score a different event
+# than the one selected. ``python -m aires.aindex --scan <event>`` reproduces the numbers.
+#
 # The p90 cases are deliberately CONUS: p90/cases_meta.json defines them as exceedances of
 # the "cos(lat)-weighted CONUS-mean daily-mean T2m anomaly", so the CONUS mean IS their
 # event-defining index and any smaller box would score a different event than the one
@@ -92,6 +99,28 @@ EVENT_BOXES: dict[str, Box] = {
         "SW Florida", (24.0, 30.0), (276.0, 284.0),
         "Cayo Costa landfall (26.7 N, 82.3 W) plus the approach and the Atlantic exit; "
         "scored on 850 hPa wind speed, not T2m."),
+    # --- AI+RES extension events (fcn3.fevents.RES_EVENTS) --------------------- #
+    "SCentral_HeatDome_2023": Box(
+        "S Texas", (26.0, 32.0), (254.0, 260.0),
+        "South/central Texas and the Rio Grande - the measured week-mean maximum "
+        "(+5.73 K over this box vs a +0.52 K CONUS mean), inside the named region, so "
+        "both halves of the selection rule agree. The dome's core extended well into "
+        "Mexico, south of the 24 N crop, so like PNW this box sees the northern part "
+        "of the event. Finalised from the ERA5 truth on 2026-08-24, before any Gate 3 "
+        "reduce or production prep froze it."),
+    "Southwest_HeatWave_2020": Box(
+        "SW/S Plains", (29.0, 35.0), (251.0, 257.0),
+        "Southern New Mexico and west Texas - where the week-mean ERA5 anomaly for the "
+        "frozen 2020-08-16 peak actually maximises (+5.14 K over this box, vs a +1.54 K "
+        "CONUS mean). A Desert-Southwest box over CA/AZ/NV (32-38 N, 242-248 E) sees "
+        "only +2.76 K: the mid-August 2020 ridge was centred east of the name."),
+    "California_HeatWave_2022": Box(
+        "California", (35.0, 41.0), (236.0, 242.0),
+        "Central/Northern California - the named event and the societal record "
+        "(Sacramento's all-time 116 F on 2022-09-06): +4.71 K week-mean vs a +1.60 K "
+        "CONUS mean. The UNCONSTRAINED week-mean maximum is elsewhere - +7.32 K over "
+        "Idaho/Montana (44-50 N, 248-254 E) - and is deliberately not used: it would "
+        "score a different event than the one this box names."),
     # p90_* fall through to CONUS by design - see the comment above.
 }
 
@@ -113,7 +142,7 @@ def tail_sign(event: str) -> float:
     """
     from fcn3 import fevents as F
 
-    ev = F.EVENTS.get(event)
+    ev = F.KNOWN.get(event)
     return -1.0 if (ev is not None and ev.cold) else +1.0
 
 
@@ -298,8 +327,61 @@ def describe(event: str) -> str:
     return "\n".join(lines)
 
 
-if __name__ == "__main__":
+def scan_boxes(event: str, *, size: float = 6.0, step: float = 1.0, top: int = 8) -> None:
+    """Slide a ``size`` x ``size`` degree window over the event's ERA5 truth field and
+    print the ``top`` windows by cos(lat)-weighted mean, next to the registered box.
+
+    This is the measurement behind every number in the EVENT_BOXES notes, using the exact
+    reduction (``area_mean``) the experiment scores with - so "constrained vs
+    unconstrained" gaps are visible, reproducible, and argued about before a box is
+    frozen, not after a run.
+    """
     from fcn3 import fevents as F
-    for n in F.ORDER:
-        print(describe(n))
-        print()
+
+    ev = F.event(event)
+    path = F.era5_truth_path(ev)
+    if not path.exists():
+        raise SystemExit(f"no ERA5 truth at {path}; run xres prep for {event} first")
+    with xr.open_dataset(path) as ds:
+        da = ds[ev.metric].load()
+    lat0, lat1 = float(da.lat[0]), float(da.lat[-1])
+    lon0, lon1 = float(da.lon[0]), float(da.lon[-1])
+    rows = []
+    la = lat0
+    while la + size <= lat1 + 1e-6:
+        lo = lon0
+        while lo + size <= lon1 + 1e-6:
+            box = Box("scan", (la, la + size), (lo, lo + size))
+            rows.append((float(area_mean(da, box)), box))
+            lo += step
+        la += step
+    rows.sort(key=lambda r: r[0], reverse=tail_sign(event) > 0)
+    print(f"{event}: top {top} of {len(rows)} {size:g}x{size:g} deg windows "
+          f"({'high' if tail_sign(event) > 0 else 'LOW (cold)'} tail), step {step:g} deg")
+    for val, box in rows[:top]:
+        print(f"  {val:+7.2f} K   {box.label}")
+    reg = box_for(event)
+    print(f"  registered: {reg.name} ({reg.label}) = "
+          f"{float(area_mean(da, reg)):+.2f} K"
+          + ("" if reg is not CONUS else "   [CONUS fallback - no box registered]"))
+    print(f"  CONUS mean: {float(area_mean(da, CONUS)):+.2f} K")
+
+
+if __name__ == "__main__":
+    import sys
+
+    from fcn3 import fevents as F
+    if "--scan" in sys.argv:
+        i = sys.argv.index("--scan")
+        args = sys.argv[i + 1:]
+        if not args or args[0].startswith("-"):
+            raise SystemExit("usage: python -m aires.aindex --scan <event> "
+                             "[size [step [top]]]")
+        rest = [float(x) for x in args[1:4]]
+        scan_boxes(args[0], size=rest[0] if rest else 6.0,
+                   step=rest[1] if len(rest) > 1 else 1.0,
+                   top=int(rest[2]) if len(rest) > 2 else 8)
+    else:
+        for n in F.KNOWN_ORDER:
+            print(describe(n))
+            print()

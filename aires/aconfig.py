@@ -244,7 +244,8 @@ RES_DMC_SEED = int(os.environ.get("AIRES_DMC_SEED", 20260819))
 # are N of them per segment, so N=64 x 7 segments is 213 GB - against ~600 GB free on a
 # 95%-full shared NFS (measured 2026-08-19). Rolling segment s needs only segment s-1, so
 # 2 is sufficient and costs 61 GB; <= 0 keeps everything. Diagnostics cubes are NEVER
-# pruned - they are 6 MB each and every observable in the experiment is derived from them.
+# pruned - they are 35 MB each (measured on the pilot; the design estimate said 6) and
+# every observable in the experiment is derived from them.
 RES_KEEP_STATES = int(os.environ.get("AIRES_KEEP_STATES", 2))
 
 if len(RES_C) != len(RES_LEAD_DAYS):

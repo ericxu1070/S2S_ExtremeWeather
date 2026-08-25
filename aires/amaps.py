@@ -190,47 +190,79 @@ def build_panels(ctx: R.Ctx, d: dict) -> dict:
     print("  loading fields")
     res = res_al_fields(ctx, d)
     print(f"    AI+RES: {res.sizes['walker']} surviving lineages")
-    g3 = gate3_al_fields(ev, peak, metric)
     # Canonical accessors, not hand-built paths: F.gencast_cube_path is the same 0.25 deg
     # cube the FCN3-vs-GenCast head-to-head scored, and F.cube_path is that experiment's
     # FCN3 cube. Reusing them is what makes the baselines on this figure literally the
     # published baselines and not a re-derivation.
-    gc = cube_al_fields(F.gencast_cube_path(ctx.ev), peak, metric, "GenCast 0.25 deg")
-    fc = cube_al_fields(F.cube_path(ctx.ev), peak, metric, "FCN3")
+    #
+    # Every baseline (and the HRRR overlay) is OPTIONAL, because an extension event
+    # legitimately lacks some of them: Southwest/California run without a Gate 3 tree,
+    # only the six head-to-head events have an FCN3 context cube, SCentral has no xres
+    # cube unless the optional baseline job ran, and its HRRR truth needs Derecho. The
+    # figures already key their panels by presence; what is NOT optional is having at
+    # least one baseline, or the "comparison" would be a self-portrait.
+    try:
+        g3 = gate3_al_fields(ev, peak, metric)
+    except SystemExit as e:
+        print(f"    (no Gate 3 walker baseline: {e})")
+        g3 = None
+    gc_path, fc_path = F.gencast_cube_path(ctx.ev), F.cube_path(ctx.ev)
+    gc = (cube_al_fields(gc_path, peak, metric, "GenCast 0.25 deg")
+          if gc_path.exists() else None)
+    if gc is None:
+        print(f"    (no xres GenCast cube at {gc_path})")
+    fc = cube_al_fields(fc_path, peak, metric, "FCN3") if fc_path.exists() else None
+    if fc is None:
+        print(f"    (no FCN3 context cube at {fc_path})")
+    if gc is None and fc is None and g3 is None:
+        raise SystemExit("no baseline available at all: need the xres cube, a Gate 3 "
+                         "tree, or an FCN3 cube to compare against")
+    try:
+        hrrr = truth_field(ev, "hrrr")
+    except SystemExit:
+        print("    (no HRRR truth for this event)")
+        hrrr = None
 
     k = max(2, int(round(0.15 * al.size)))
     top = np.argsort(sign * al)[-k:]
     reached = np.flatnonzero(sign * al >= sign * observed)
     imax = int(np.argmax(sign * al))
 
-    pops = {
-        "res": res,
-        "gencast_xres": gc,
-        "fcn3": fc,
-        "gencast_walkers": g3,
-    }
+    pops = {"res": res}
     panels = {
         "obs_era5": (obs, "ERA5 observed", "truth"),
-        "obs_hrrr": (truth_field(ev, "hrrr"), "HRRR observed", "truth"),
         "res_mean": (res.mean("walker"), f"AI+RES  all {al.size} (mean)", "res"),
         "res_top": (res.isel(walker=top).mean("walker"),
                     f"AI+RES  top {k} (mean)", "res"),
-        "res_reached": (res.isel(walker=reached).mean("walker"),
-                        f"AI+RES  the {reached.size} that reached ERA5 (mean)", "res"),
         "res_max": (res.isel(walker=imax), "AI+RES  single most extreme", "res"),
-        "gc_mean": (gc.mean("member"),
-                    f"GenCast 0.25 deg  {gc.sizes['member']}-member mean", "base"),
-        "gc_max": (_extreme_member(gc, "member", box, sign),
-                   "GenCast 0.25 deg  most extreme member", "base"),
-        "fc_mean": (fc.mean("member"),
-                    f"FCN3  {fc.sizes['member']}-member mean", "base"),
-        "fc_max": (_extreme_member(fc, "member", box, sign),
-                   "FCN3  most extreme member", "base"),
-        "g3_mean": (g3.mean("walker"),
-                    f"GenCast walkers  {g3.sizes['walker']} free-running (mean)", "base"),
-        "g3_max": (_extreme_member(g3, "walker", box, sign),
-                   "GenCast walkers  most extreme", "base"),
     }
+    if hrrr is not None:
+        panels["obs_hrrr"] = (hrrr, "HRRR observed", "truth")
+    if reached.size:
+        # An empty selection would draw an all-NaN panel captioned "the 0 that reached
+        # ERA5" - the absence is already said, louder, by res_max falling short.
+        panels["res_reached"] = (res.isel(walker=reached).mean("walker"),
+                                 f"AI+RES  the {reached.size} that reached ERA5 (mean)",
+                                 "res")
+    if gc is not None:
+        pops["gencast_xres"] = gc
+        panels["gc_mean"] = (gc.mean("member"),
+                             f"GenCast 0.25 deg  {gc.sizes['member']}-member mean", "base")
+        panels["gc_max"] = (_extreme_member(gc, "member", box, sign),
+                            "GenCast 0.25 deg  most extreme member", "base")
+    if fc is not None:
+        pops["fcn3"] = fc
+        panels["fc_mean"] = (fc.mean("member"),
+                             f"FCN3  {fc.sizes['member']}-member mean", "base")
+        panels["fc_max"] = (_extreme_member(fc, "member", box, sign),
+                            "FCN3  most extreme member", "base")
+    if g3 is not None:
+        pops["gencast_walkers"] = g3
+        panels["g3_mean"] = (g3.mean("walker"),
+                             f"GenCast walkers  {g3.sizes['walker']} free-running (mean)",
+                             "base")
+        panels["g3_max"] = (_extreme_member(g3, "walker", box, sign),
+                            "GenCast walkers  most extreme", "base")
     return dict(panels=panels, pops=pops, box=box, obs=obs, observed=observed,
                 sign=sign, al=al, k=k, n_reached=int(reached.size))
 
@@ -306,8 +338,8 @@ def _sym(*arrays) -> float:
 
 
 def _fig_path(ctx: R.Ctx, kind: str) -> Path:
-    A.fig_dir().mkdir(parents=True, exist_ok=True)
-    return A.fig_dir() / f"aires_map_{kind}_{ctx.event}_{ctx.tag}.png"
+    A.fig_dir(ctx.event).mkdir(parents=True, exist_ok=True)
+    return A.fig_dir(ctx.event) / f"aires_map_{kind}_{ctx.event}_{ctx.tag}.png"
 
 
 def _save(fig, path: Path) -> Path:
@@ -413,11 +445,13 @@ def plot_error(ctx: R.Ctx, dat: dict) -> Path:
     cb = fig.colorbar(m, cax=cax, orientation="horizontal")
     cb.set_label("difference from ERA5  (K)", fontsize=9)
     cb.ax.tick_params(labelsize=8)
+    hrrr_note = (
+        "\nThe first panel is HRRR minus ERA5 - two observational products disagreeing "
+        "about the same week. A method whose error is no larger than that has not been "
+        "shown to have the event in the wrong place." if "obs_hrrr" in panels else "")
     fig.suptitle(
         f"AI+RES pilot - {ctx.event} ({ctx.tag}): each field MINUS ERA5, one shared scale."
-        f"\nThe first panel is HRRR minus ERA5 - two observational products disagreeing "
-        f"about the same week. A method whose error is no larger than that has not been "
-        f"shown to have the event in the wrong place.", fontsize=11, y=0.995, va="top")
+        + hrrr_note, fontsize=11, y=0.995, va="top")
     return _save(fig, _fig_path(ctx, "error"))
 
 
@@ -524,16 +558,16 @@ def plot_spread(ctx: R.Ctx, dat: dict, d: dict) -> Path:
     Z = float(np.exp(d["log_Z"]))
 
     rows = []
-    for key, label, dim, weighted in (
-        ("res", f"AI+RES  {pops['res'].sizes['walker']} resampled", "walker", True),
-        ("gencast_xres", f"GenCast 0.25 deg  {pops['gencast_xres'].sizes['member']} direct",
-         "member", False),
-        ("fcn3", f"FCN3  {pops['fcn3'].sizes['member']} direct", "member", False),
-        ("gencast_walkers",
-         f"GenCast walkers  {pops['gencast_walkers'].sizes['walker']} free-running",
-         "walker", False),
+    for key, label_fmt, dim, weighted in (
+        ("res", "AI+RES  {n} resampled", "walker", True),
+        ("gencast_xres", "GenCast 0.25 deg  {n} direct", "member", False),
+        ("fcn3", "FCN3  {n} direct", "member", False),
+        ("gencast_walkers", "GenCast walkers  {n} free-running", "walker", False),
     ):
+        if key not in pops:      # optional baselines - see build_panels
+            continue
         pop = pops[key]
+        label = label_fmt.format(n=pop.sizes[dim])
         ind = (sign * pop >= sign * thr).astype("float64")
         if weighted:
             # The estimator itself, applied per grid point: P = Z * mean(w * 1{...}). The
