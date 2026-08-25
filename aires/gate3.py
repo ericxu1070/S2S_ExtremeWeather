@@ -725,7 +725,7 @@ def _plot(ev: F.Event, res: dict) -> None:
                  f"box {res['box']['name']}, N={res['n_walkers']}, "
                  f"M={res['m_members']}): {verdict}", fontsize=13)
     fig.tight_layout(rect=(0, 0, 1, 0.95))
-    out = A.fig_dir() / f"gate3_{ev.name}.png"
+    out = A.fig_dir(ev.name) / f"gate3_{ev.name}.png"
     out.parent.mkdir(parents=True, exist_ok=True)
     fig.savefig(out, dpi=150)
     plt.close(fig)

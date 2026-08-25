@@ -170,7 +170,7 @@ Caveats that belong with the number:
 - **"No anomaly" means no CONUS-MEAN anomaly, not no weather.** The p90 index is the
   cos(lat)-weighted CONUS mean, so a control is a day that mean says nothing happened on.
   `null_20240329` has a CONUS mean of +0.033 K and a strong regional dipole underneath it -
-  about -8 K over the northern plains (`figures/aires/adaptest_maps_null_20240329.png`).
+  about -8 K over the northern plains (`figures/aires/null_20240329/adaptest_maps_null_20240329.png`).
   That is still the right control - a day nobody would have picked as an extreme, initialised
   and scored exactly like one - but the null group is not a quiescent atmosphere and should
   not be described as one.
@@ -185,7 +185,7 @@ Caveats that belong with the number:
 Artifacts: `runs/aires/adaptest/adaptest.json` (verdict + per-group pooling + contrast),
 `runs/aires/adaptest/adaptest_events.csv` (52 rows: case x truth x region x stat),
 `runs/aires/adaptest/scores/<case>_skill.json`, `figures/aires/adaptest_effect.png` (forest
-plot, extremes blue / controls orange), `figures/aires/adaptest_maps_<case>.png` (ten
+plot, extremes blue / controls orange), `figures/aires/<case>/adaptest_maps_<case>.png` (ten
 six-panel comparisons: observed / native / adapter, both error fields, and
 adapter-minus-native on its own scale), `figures/aires/adaptest_diff_maps.png` (all ten
 difference fields side by side).
@@ -355,7 +355,7 @@ score, so the criterion could not be passed by anything and carried no informati
 proves this rather than asserts it: `d_paired/d_internal = 0.990` at day 21, i.e. by then
 the adapter's perturbation IS a re-seed's.
 
-Resolved by lead (third panel of `figures/aires/gate2_PNW_HeatDome_2021.png`) the same
+Resolved by lead (third panel of `figures/aires/PNW_HeatDome_2021/gate2_PNW_HeatDome_2021.png`) the same
 statistic is well-behaved:
 
     rho_s = 0.994 at 2.5 d, 0.960 at 5 d, 0.957 at 7.5 d, 0.759 at 10 d, 0.144 at 15 d
@@ -431,7 +431,7 @@ sampling misses? It also settles the box question empirically - on the CONUS mea
 would have had no tail to find.
 
 Artifacts: `runs/aires/PNW_HeatDome_2021/gate3/*.json|csv`,
-`figures/aires/gate3_PNW_HeatDome_2021.png`, 16 walker trajectories (57 GB) and 80 score
+`figures/aires/PNW_HeatDome_2021/gate3_PNW_HeatDome_2021.png`, 16 walker trajectories (57 GB) and 80 score
 cubes under `runs/aires/PNW_HeatDome_2021/`.
 
 ## What Phase 2 established
@@ -744,7 +744,7 @@ Peak disk 37 GB against the 92 GB projected: with `--keep-states 2` only one or 
 segments of states are ever resident. All 448 diagnostics cubes retained.
 
 Artifacts: `runs/aires/PNW_HeatDome_2021/res/pilot/{res_result,compare}.json`,
-`compare_curve.csv`, and nine figures `figures/aires/aires_*_PNW_HeatDome_2021_pilot.png` -
+`compare_curve.csv`, and nine figures `figures/aires/PNW_HeatDome_2021/aires_*_PNW_HeatDome_2021_pilot.png` -
 five line/scatter figures from `aires/aplots.py` (`exceedance`, `diagnostics`, `genealogy`,
 `composite`, `trajectory`) and four maps from `aires/amaps.py` (`map_compare`, `map_error`,
 `map_walk`, `map_spread`).
@@ -873,8 +873,8 @@ unweighted plain mean.
 
 Artifacts: `runs/aires/PNW_HeatDome_2021/res/pilot/pdf/pdf_fields.nc` (13 MB, all fields +
 weights + attrs; gitignored, `--stage build` rebuilds it in ~45 s),
-`figures/aires/aires_pdf_{conus,box}_PNW_HeatDome_2021_pilot.png`,
-`figures/aires/aires_anom_maps_PNW_HeatDome_2021_pilot.png`. Entry:
+`figures/aires/PNW_HeatDome_2021/aires_pdf_{conus,box}_PNW_HeatDome_2021_pilot.png`,
+`figures/aires/PNW_HeatDome_2021/aires_anom_maps_PNW_HeatDome_2021_pilot.png`. Entry:
 `PYTHONPATH=. python -m aires.apdfs --stage all --event PNW_HeatDome_2021 --tag pilot`
 (login node or `sbatch slurm/aires_pdfs.slurm`); figures redraw in seconds from the
 intermediate. 19 unit tests in `aires/tests/test_apdfs.py`.
@@ -1130,13 +1130,13 @@ M = 6, N = 64, states pruned to the last 2 segments, no score bought where `C_k 
 | `slurm/aires_pdfs.slurm` | the PDF rebuild on a `debug` CPU node (45 s), `--job-name=Vayuh-s2s` |
 | `runs/aires/calib/derived_calib.nc` | fitted calibration (gitignored, rebuildable in ~2 min) |
 | `runs/aires/gate2/` | adapter IC, 24-member adapter cube, scores JSON/CSV |
-| `figures/aires/gate2_PNW_HeatDome_2021.png` | the three Gate 2 panels |
-| `figures/aires/gate3_PNW_HeatDome_2021.png` | the four Gate 3 panels |
-| `figures/aires/ctune_PNW_HeatDome_2021.png` | the C_k schedule replay |
+| `figures/aires/PNW_HeatDome_2021/gate2_PNW_HeatDome_2021.png` | the three Gate 2 panels |
+| `figures/aires/PNW_HeatDome_2021/gate3_PNW_HeatDome_2021.png` | the four Gate 3 panels |
+| `figures/aires/PNW_HeatDome_2021/ctune_PNW_HeatDome_2021.png` | the C_k schedule replay |
 | `runs/aires/<event>/walkers/`, `/scores/`, `/gate3/` | 16 trajectories, 80 score cubes, the verdict |
 | `runs/aires/<event>/res/<tag>/` | the pilot's own tree - walkers, scores, per-leg manifests, `res_result.json`. DISJOINT from the gate's |
 | `runs/aires/<event>/res/<tag>/pdf/pdf_fields.nc` | the PDF intermediate: 64 walker fields + weights + all baselines (gitignored, ~45 s rebuild) |
-| `figures/aires/aires_pdf_*_PNW_HeatDome_2021_pilot.png`, `aires_anom_maps_*` | the two binned PDFs (CONUS, box) + the three-map comparison |
+| `figures/aires/PNW_HeatDome_2021/aires_pdf_*_PNW_HeatDome_2021_pilot.png`, `aires_anom_maps_*` | the two binned PDFs (CONUS, box) + the three-map comparison |
 | `runs/aires/<event>/ds_baseline.json` | the direct-sampling baseline (no GPU, tag-independent) |
 | `docs/aires_gate2.html` | published Gate 2 summary (artifact source) |
 | `docs/aires_gate3.html` | published Gate 3 summary (artifact source) |

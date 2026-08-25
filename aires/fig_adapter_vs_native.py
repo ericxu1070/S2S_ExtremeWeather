@@ -31,7 +31,7 @@ from fcn3 import fevents as F
 EVENT = "PNW_HeatDome_2021"
 NATIVE_CUBE = Path("runs/fcn3/week3/cache") / f"{EVENT}_cube.nc"
 ADAPTER_CUBE = Path("runs/aires/gate2/cache") / f"{EVENT}_adapter_cube.nc"
-OUT = Path("figures/aires") / f"adapter_vs_native_{EVENT}.png"
+OUT = Path("figures/aires") / EVENT / f"adapter_vs_native_{EVENT}.png"
 
 
 def _event() -> F.Event:

@@ -754,6 +754,7 @@ def _plot(df: pd.DataFrame, verdict: dict) -> None:
         ax.spines[s].set_visible(False)
     fig.tight_layout()
     out = A.fig_dir() / "adaptest_effect.png"
+    out.parent.mkdir(parents=True, exist_ok=True)
     fig.savefig(out, dpi=150)
     plt.close(fig)
     print(f"  wrote {out}")
@@ -892,7 +893,7 @@ def maps_one(ev: F.Event, truth: str = "era5"):
         + (f"    dashed box = {box.name}, the scored region" if box is not None else ""),
         fontsize=10.5, y=0.995)
     fig.tight_layout(rect=(0, 0, 1, 0.92), h_pad=3.0)
-    out = A.fig_dir() / f"adaptest_maps_{ev.name}.png"
+    out = A.fig_dir(ev.name) / f"adaptest_maps_{ev.name}.png"
     out.parent.mkdir(parents=True, exist_ok=True)
     fig.savefig(out, dpi=140)
     plt.close(fig)

@@ -325,7 +325,7 @@ def main(argv=None) -> int:
          "rho_raw": skill["rho_raw"].tolist(), "schedules": res}, indent=2))
     print(f"\n  wrote {out}")
     if not a.no_plot:
-        plot(skill, res, a.walkers, thresholds, A.fig_dir() / f"ctune_{a.event}.png")
+        plot(skill, res, a.walkers, thresholds, A.fig_dir(a.event) / f"ctune_{a.event}.png")
     return 0
 
 

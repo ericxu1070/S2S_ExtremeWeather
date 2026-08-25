@@ -381,8 +381,12 @@ def gate3_dir(event: str) -> Path:
     return event_dir(event) / "gate3"
 
 
-def fig_dir() -> Path:
-    return ROOT / "figures" / "aires"
+def fig_dir(event: str | None = None) -> Path:
+    """Figures live one folder per event; pass the event (or adapter-test case)
+    name. Only cross-event aggregates - which belong to no single event - are
+    written to the top level, i.e. with `event=None`."""
+    base = ROOT / "figures" / "aires"
+    return base if event is None else base / event
 
 
 def event_dir(event: str) -> Path:

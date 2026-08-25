@@ -444,7 +444,7 @@ PYTHONPATH=. python -m aires.gate2 --stage score         # re-derives the Gate 2
 ```
 
 `--stage score` reads two cubes and writes the verdict JSON, the per-member CSV and
-`figures/aires/gate2_PNW_HeatDome_2021.png`. It needs `scipy` and `matplotlib` in `my-env`.
+`figures/aires/PNW_HeatDome_2021/gate2_PNW_HeatDome_2021.png`. It needs `scipy` and `matplotlib` in `my-env`.
 
 | file | on Derecho? | note |
 |---|---|---|
