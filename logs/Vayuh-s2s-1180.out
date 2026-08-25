@@ -1,0 +1,98 @@
+Host: nucla3m-a3meganodeset-3
+Start: Tue Aug 25 06:31:25 UTC 2026
+GPU 0: NVIDIA H100 80GB HBM3 (UUID: GPU-3d728601-5a90-3332-b4f8-55a26b42a17b)
+GPU 1: NVIDIA H100 80GB HBM3 (UUID: GPU-b189949f-6b30-1a6a-bf9e-a1f13b566ce4)
+GPU 2: NVIDIA H100 80GB HBM3 (UUID: GPU-78950a76-0d22-aa22-2931-ff4e9e591bf6)
+GPU 3: NVIDIA H100 80GB HBM3 (UUID: GPU-f545a6c6-519b-ded3-1d46-a56618ba791c)
+GPU 4: NVIDIA H100 80GB HBM3 (UUID: GPU-5d3a37da-d139-e33f-6aa9-24142cd182f0)
+GPU 5: NVIDIA H100 80GB HBM3 (UUID: GPU-140f8c08-c442-2c67-bf38-d0f0e31ef4ea)
+GPU 6: NVIDIA H100 80GB HBM3 (UUID: GPU-6d85aa1f-f837-6673-e525-d8778183da70)
+GPU 7: NVIDIA H100 80GB HBM3 (UUID: GPU-59e0f36c-c2c3-2bc1-c010-a6e20c827c65)
+AI+RES: event=PNW_HeatDome_2021 tag=persist backend=persistence shards=8
+AI+RES persist - PNW_HeatDome_2021  (init 2021-06-07, peak 2021-06-28, metric t2m_anom)
+PNW_HeatDome_2021: primary box PNW (44-50N, 124W-118W)
+    Oregon + Washington, the dome core. The observed maximum reached ~52 N into British Columbia, which is outside the 50 N CONUS crop, so this box sees the southern two thirds of the event.
+  secondary: CONUS (24-50N, 125W-66W)
+
+  N walkers        64
+  score backend    persistence   M = 6
+  tail             HIGH (clone the largest A_L)
+  C_k              0, 1, 1.4, 1.8, 2 at 3 d, 6 d, 9 d, 12 d, 15 d
+  legs
+    1: 0 -> 3 d, segments [1], C = 0
+    2: 3 -> 6 d, segments [2], C = 1
+    3: 6 -> 9 d, segments [3], C = 1.4
+    4: 9 -> 12 d, segments [4], C = 1.8
+    5: 12 -> 15 d, segments [5], C = 2
+    6: 15 -> 21 d, segments [6, 7], carry to the horizon (no resampling)
+
+  prerequisites
+    walker init frames  OK   /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/xres/0p25/week3/inputs/PNW_HeatDome_2021_inputs.nc
+    derived calibration OK   /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/aires/calib/derived_calib.nc
+    xres reference cube OK   /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/xres/0p25/week3/cache/PNW_HeatDome_2021_cube.nc   (physical check on the first segment; not required)
+
+  cached            32/448 walker segments, no FCN3 forecasts (backend 'persistence' scores from the walkers themselves) (32 states resident)
+
+  budget            walk 2,496 GenCast steps ~36.1 GPU-h (~270 min over 8 GPUs)
+                    score 0 FCN3 steps ~0.0 GPU-h (~0 min over 8 GPUs)
+                    total ~36.1 H100-h, ~4.5 h wall on one node
+
+  disk              states 92 GB peak (3 segments resident x 64 x 477 MB, --keep-states 2), diagnostics 16 GB, score cubes 0 GB
+                    ~107 GB needed, 404 GB free
+
+  configuration frozen at /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/aires/PNW_HeatDome_2021/res/persist/run.json
+
+  READY: yes
+--- res: Tue Aug 25 06:31:29 UTC 2026 ---
+[res] PNW_HeatDome_2021 tag=persist N=64 M=6 backend=persistence C=(0.0, 1.0, 1.4, 1.8, 2.0)
+[res] host=nucla3m-a3meganodeset-3 shards=8 visible GPUs=8 seed=20260819
+  [walk] leg 1: 48/64 segment(s) to roll (0 -> 3 d)
+  [walk-leg01] attempt 1/3: 8 shard(s)
+  [walk] leg 1: pool finished in 30.6 min
+  [score] leg 1 (skipped(C=0)): theta over the box mean -3.177, sd 0.857
+  [dmc] step 1: C=0.00 R=1.0000 ESS=64.0/64 killed=0 max_mult=1
+  [walk] leg 2: 48/64 segment(s) to roll (3 -> 6 d)
+  [walk-leg02] attempt 1/3: 8 shard(s)
+  [walk] leg 2: pool finished in 30.2 min
+  [score] leg 2 (persistence): theta over the box mean +0.239, sd 1.851
+  [dmc] step 2: C=1.00 R=1.6877 ESS=22.3/64 killed=27 max_mult=9
+  [walk] pruned walker states at segments <= 1 (30.2 GB freed; --keep-states 2)
+  [walk] leg 3: 64/64 segment(s) to roll (6 -> 9 d)
+  [walk-leg03] attempt 1/3: 8 shard(s)
+  [walk] leg 3: pool finished in 38.4 min
+  [score] leg 3 (persistence): theta over the box mean +2.924, sd 3.740
+  [dmc] step 3: C=1.40 R=3.0888 ESS=2.6/64 killed=48 max_mult=39
+  [walk] pruned walker states at segments <= 2 (30.3 GB freed; --keep-states 2)
+  [walk] leg 4: 64/64 segment(s) to roll (9 -> 12 d)
+  [walk-leg04] attempt 1/3: 8 shard(s)
+  [walk] leg 4: pool finished in 35.4 min
+  [score] leg 4 (persistence): theta over the box mean +2.274, sd 1.911
+  [dmc] step 4: C=1.80 R=4.1560 ESS=1.6/64 killed=59 max_mult=49
+  [walk] pruned walker states at segments <= 3 (30.3 GB freed; --keep-states 2)
+  [walk] leg 5: 64/64 segment(s) to roll (12 -> 15 d)
+  [walk-leg05] attempt 1/3: 8 shard(s)
+  [walk] leg 5: pool finished in 35.3 min
+  [score] leg 5 (persistence): theta over the box mean +5.519, sd 2.558
+  [dmc] step 5: C=2.00 R=0.0295 ESS=7.7/64 killed=49 max_mult=16
+  [walk] pruned walker states at segments <= 4 (30.3 GB freed; --keep-states 2)
+  [walk] leg 6: 128/128 segment(s) to roll (15 -> 21 d)
+  [walk-leg06] attempt 1/3: 8 shard(s)
+  [walk] leg 6: pool finished in 58.3 min
+
+  step   C_k      R_k     ESS  ESS/N  killed  max mult
+     1  0.00   1.0000   64.00   1.00       0         1
+     2  1.00   1.6877   22.25   0.35      27         9
+     3  1.40   3.0888    2.61   0.04      48        39
+     4  1.80   4.1560    1.59   0.02      59        49
+     5  2.00   0.0295    7.67   0.12      49        16
+  log Z = -0.4469   normalization check = 8.7497 (should be ~1)
+  founders surviving: 3/64
+
+[res] finished in 229.3 min -> /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/aires/PNW_HeatDome_2021/res/persist/res_result.json
+[res] now reduce on the login node:
+  PYTHONPATH=. python -m aires.run_aires --stage ds --event PNW_HeatDome_2021
+  PYTHONPATH=. python -m aires.run_aires --stage compare --event PNW_HeatDome_2021 --tag persist
+End: Tue Aug 25 10:20:50 UTC 2026
+Now, on the login node in moe:
+  PYTHONPATH=. python -m aires.run_aires --stage ds --event PNW_HeatDome_2021
+  PYTHONPATH=. python -m aires.run_aires --stage compare --event PNW_HeatDome_2021 --tag persist
