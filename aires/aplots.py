@@ -77,8 +77,8 @@ def load(ctx: R.Ctx) -> dict:
 
 
 def _fig_path(ctx: R.Ctx, kind: str) -> Path:
-    A.fig_dir().mkdir(parents=True, exist_ok=True)
-    return A.fig_dir() / f"aires_{kind}_{ctx.event}_{ctx.tag}.png"
+    A.fig_dir(ctx.event).mkdir(parents=True, exist_ok=True)
+    return A.fig_dir(ctx.event) / f"aires_{kind}_{ctx.event}_{ctx.tag}.png"
 
 
 def _save(fig, path: Path) -> Path:
@@ -664,21 +664,88 @@ def _seg_index_series(ctx: R.Ctx, segment: int, n_walkers: int):
     return out
 
 
-def daily(x, y):
-    """A 24 h running mean of a 12-hourly series: the mean of each consecutive pair.
+def _init_index_series(ctx: R.Ctx):
+    """``(lead_days[2], box[2])`` for the event's ERA5 init frames, or ``None``.
+
+    ONE series, not 64: every walker is launched from these same two analysis frames, and
+    the walk's first FORECAST frame is at +12 h. Without this anchor the whole forest
+    starts half a day inside the axis, which reads as the trajectories being misaligned
+    with the axis rather than as the 12 h step it is. Carrying both frames (-12 h and 0 h)
+    also gives the lead-0 point a full centred smoothing window, so the curves leave the
+    origin at the same value they would have if the analysis ran on forever.
+
+    Returns ``None`` rather than raising if the init file is absent: it is built by the
+    xres prep stage and lives outside ``runs/aires``, so a tree copied to another machine
+    can be missing it, and losing the anchor is not worth losing the figure over.
+    """
+    from aires import aindex as AI
+
+    path = A.gencast_inputs_path(ctx.event)
+    if not path.exists():
+        print(f"    no init frames at {path}; drawing from the first forecast frame")
+        return None
+    want = list(METRIC_VARS[ctx.ev.metric])
+    with xr.open_dataset(path) as ds:
+        if any(v not in ds for v in want):
+            return None
+        d = ds[want].load()
+    if "batch" in d.dims:
+        d = d.isel(batch=0, drop=True)
+    box = AI.index_series(d, ctx.event, ctx.ev.metric)["box"]
+    t = pd.DatetimeIndex(d["time"].values)
+    lead = (t - pd.Timestamp(ctx.ev.init)).total_seconds() / 86400.0
+    d.close()
+    return np.asarray(lead, dtype=float), np.asarray(box.values, dtype=float)
+
+
+def _from_root(root, lead_s, box_s):
+    """A segment-1 polyline extended back onto the ERA5 init, ready for ``daily``."""
+    if root is None:
+        return daily(lead_s, box_s)
+    lead_r, box_r = root
+    return daily(np.concatenate([lead_r, lead_s]),
+                 np.concatenate([box_r, box_s]), drop_first=len(lead_r) - 1)
+
+
+def daily(x, y, drop_first: int = 0):
+    """A 24 h running mean of a 12-hourly series, CENTRED ON ITS OWN TIME AXIS.
 
     The raw index carries a real diurnal swing of several kelvin - a heat dome's daytime
     anomaly is much larger than its nighttime one, and the climatology is sampled per hour
     so the anomaly does not remove it - which on 64 lineages reads as noise and hides the
-    trend the figure is about. Averaging pairs is continuous ACROSS a barrier because every
-    branch polyline carries its parent's last frame as its first point, so smoothing each
-    branch independently reconstructs exactly the same curve as smoothing a whole lineage.
+    trend the figure is about.
+
+    The filter is the trapezoid over ``[t-12h, t+12h]``, weights ``(1, 2, 1)/4``, i.e. the
+    mean of the two consecutive-pair means straddling ``t``. Like a pair mean it is an
+    exact null at the 24 h period for a 12-hourly series, but unlike one it does not move
+    the sample off its own timestamp. That distinction is the whole point: an earlier
+    version returned the pair means on their midpoints, which slid every curve 6 h to the
+    left, so trajectories appeared to start at lead 0.75 d rather than 0.5 d and every
+    branch appeared to die a quarter-day BEFORE the barrier that actually killed it.
+
+    At a genuine end of a lineage there is no frame on one side, and the window is closed
+    with ``y[0] + y[1] - y[2]`` rather than by mirroring. Mirroring would collapse the
+    filter to the pair mean, which is still diurnal-free but is centred half a step inside
+    the series, so the last point of every lineage - the one sitting on the event peak,
+    where ``A_L`` is taken - would be pulled a quarter-day back down its own trend. This
+    padding is the one that makes the end weights ``(0.75, 0.5, -0.25)``: exact on a linear
+    trend, still an exact null at 24 h.
+
+    ``drop_first`` trims lead-in frames supplied only so that the first RETAINED point gets
+    a full centred window (see ``trajectory_tree``); it is applied after smoothing, so a
+    branch drawn from a barrier starts exactly ON that barrier.
     """
     x = np.asarray(x, dtype=float)
     y = np.asarray(y, dtype=float)
     if x.size < 2:
         return x, y
-    return 0.5 * (x[:-1] + x[1:]), 0.5 * (y[:-1] + y[1:])
+    if y.size >= 3:
+        lo, hi = y[0] + y[1] - y[2], y[-1] + y[-2] - y[-3]
+    else:
+        lo, hi = y[1], y[-2]                          # only a pair: mirror and accept it
+    pad = np.concatenate([[lo], y, [hi]])
+    sm = 0.25 * pad[:-2] + 0.5 * pad[1:-1] + 0.25 * pad[2:]
+    return x[drop_first:], sm[drop_first:]
 
 
 def _parent_slot(legs, parents_by_leg: dict, walker: int, segment: int):
@@ -719,6 +786,7 @@ def trajectory_tree(ctx: R.Ctx, d: dict) -> dict:
         print(f"    segment {s}: {seg[s][1].shape[1]} frames, "
               f"lead {seg[s][0][0]:.1f}-{seg[s][0][-1]:.1f} d")
 
+    root = _init_index_series(ctx)
     lin = d["realized"]["lineage"]
     alive = {(int(lin[i][str(s)]), s) for i in range(len(lin)) for s in segments}
 
@@ -751,12 +819,17 @@ def trajectory_tree(ctx: R.Ctx, d: dict) -> dict:
                 continue                      # drawn as part of a full surviving path
             p = _parent_slot(legs, par, w, s)
             if p is None:
-                x, y = lead_s, box_s[w]
+                xs, ys = _from_root(root, lead_s, box_s[w])
             else:
+                # TWO lead-in frames from the parent, not one. The branch has to be drawn
+                # from the barrier itself, and the point sitting ON the barrier only gets
+                # a full centred 24 h window if the frame before it is also present. The
+                # first is dropped after smoothing - it belongs to the parent's polyline.
                 lead_p, box_p = seg[s - 1]
-                x = np.concatenate([lead_p[-1:], lead_s])
-                y = np.concatenate([box_p[p][-1:], box_s[w]])
-            xs, ys = daily(x, y)
+                k = min(2, lead_p.size)
+                x = np.concatenate([lead_p[-k:], lead_s])
+                y = np.concatenate([box_p[p][-k:], box_s[w]])
+                xs, ys = daily(x, y, drop_first=k - 1)
             branches.append((xs.tolist(), ys.tolist()))
             if not kids.get((w, s)):
                 deaths.append((float(xs[-1]), float(ys[-1])))
@@ -767,7 +840,8 @@ def trajectory_tree(ctx: R.Ctx, d: dict) -> dict:
         if p is not None:
             killed[leg.k] = n - len(set(int(x) for x in p))
     return dict(lead=lead_art.tolist(), segments=segments, dead=branches,
-                deaths=deaths, killed=killed, n_dead_nodes=len(branches))
+                deaths=deaths, killed=killed, n_dead_nodes=len(branches),
+                root=None if root is None else [root[0].tolist(), root[1].tolist()])
 
 
 def plot_trajectory(ctx: R.Ctx, d: dict, tree: dict | None = None) -> Path:
@@ -776,6 +850,7 @@ def plot_trajectory(ctx: R.Ctx, d: dict, tree: dict | None = None) -> Path:
     import matplotlib.pyplot as plt
     from matplotlib import cm, colors
     from matplotlib.lines import Line2D
+    from matplotlib.ticker import MultipleLocator
 
     cfg = d["config"]
     legs = A.res_legs(cfg["leads"], cfg["horizon_days"], cfg["C"])
@@ -803,32 +878,48 @@ def plot_trajectory(ctx: R.Ctx, d: dict, tree: dict | None = None) -> Path:
     axm = fig.add_subplot(gs[0, 1], sharey=ax)
     cax = fig.add_subplot(gs[0, 2])
 
-    # --- the 7-day window A_L is the mean over ----------------------------------- #
+    # --- the x axis: LEAD TIME TO THE EVENT, counted down --------------------------- #
+    # Everything upstream carries lead-from-init (0 d at the init, 21 d at the peak),
+    # which is the natural coordinate for a forecast and the wrong one for this figure:
+    # the reader is watching a population converge on a fixed event, so the axis has to
+    # count down to it - 21 d of lead on the left, 0 d at the peak on the right. Time
+    # still runs left to right; only the coordinate is reversed. The conversion happens
+    # once, HERE, at the drawing boundary, so nothing upstream has to know about it and
+    # no annotation can drift out of step with the curves.
     peak_lead = float(cfg["horizon_days"])
+
+    def tb(v):
+        """lead-from-init (days) -> lead time remaining to the event peak (days)."""
+        return peak_lead - np.asarray(v, dtype=float)
+
+    # --- the 7-day window A_L is the mean over ----------------------------------- #
     win = np.asarray(_window_lead(ctx, d), dtype=float)
     w0, w1 = float(win.min()), float(win.max())
-    ax.axvspan(w0, w1, color="#f0c040", alpha=0.16, lw=0, zorder=0)
-    ax.text((w0 + w1) / 2, 0.985,
+    ax.axvspan(tb(w0), tb(w1), color="#f0c040", alpha=0.16, lw=0, zorder=0)
+    ax.text(tb(0.5 * (w0 + w1)), 0.985,
             f"$A_L$ = the 7-day mean\nover these {win.size} frames",
             transform=ax.get_xaxis_transform(), ha="center", va="top", fontsize=8.5,
             color="#8a5a12", linespacing=1.35)
 
     # --- killed branches, then the survivors on top ------------------------------ #
     for x, y in tree["dead"]:
-        ax.plot(x, y, "-", lw=0.6, color=DEAD_COLOR, alpha=0.7, zorder=1,
+        ax.plot(tb(x), y, "-", lw=0.6, color=DEAD_COLOR, alpha=0.7, zorder=1,
                 solid_capstyle="round")
     if tree["deaths"]:
         dx, dy = zip(*tree["deaths"])
-        ax.plot(dx, dy, "x", ms=3.6, mew=0.9, color="0.5", zorder=2)
+        ax.plot(tb(dx), dy, "x", ms=3.6, mew=0.9, color="0.5", zorder=2)
+    root = tree.get("root")
+    root = None if root is None else (np.asarray(root[0], dtype=float),
+                                      np.asarray(root[1], dtype=float))
     for i in np.argsort(al):                            # extremes drawn last, on top
-        xs, ys = daily(lead, series[i])
-        ax.plot(xs, ys, "-", lw=1.0, color=cmap(norm(al[i])), alpha=0.9,
+        xs, ys = _from_root(root, lead, series[i])
+        ax.plot(tb(xs), ys, "-", lw=1.0, color=cmap(norm(al[i])), alpha=0.9,
                 zorder=3, solid_capstyle="round")
 
     # --- the barriers ------------------------------------------------------------- #
     for leg, th in zip([l for l in legs if l.resampling],
                        list(theta) + [None] * len(legs)):
-        xb = leg.lead_end_days
+        xb = float(tb(leg.lead_end_days))
         ax.axvline(xb, color="0.35", lw=0.9, ls=":", zorder=4)
         k = tree["killed"].get(leg.k + 1)
         lab = f"$C$={leg.C:g}"
@@ -842,11 +933,18 @@ def plot_trajectory(ctx: R.Ctx, d: dict, tree: dict | None = None) -> Path:
 
     if obs is not None:
         ax.axhline(float(obs), color=OBS_COLOR, lw=1.3, ls="--", zorder=5)
-        ax.text(0.15, float(obs), f" ERA5 observed $A_L$ = {float(obs):+.2f} K",
+        ax.text(float(tb(0.15)), float(obs),
+                f" ERA5 observed $A_L$ = {float(obs):+.2f} K",
                 color=OBS_COLOR, fontsize=8.5, va="bottom", zorder=6)
 
-    ax.set_xlim(-0.4, peak_lead + 0.4)
-    ax.set_xlabel("lead (days from the event init, 2021-06-07)")
+    # Reversed limits rather than invert_xaxis(): the marginal panel shares only y, and a
+    # single set_xlim keeps the direction with the data instead of as a later mutation.
+    ax.set_xlim(float(tb(-0.4)), float(tb(peak_lead + 0.4)))
+    # Ticks every RES_SEG_DAYS so they land ON the barriers rather than between them.
+    ax.xaxis.set_major_locator(MultipleLocator(float(A.GATE3_SEG_DAYS)))
+    init_s, peak_s = str(cfg["init"])[:10], str(cfg["peak"])[:10]
+    ax.set_xlabel(f"lead time to the event peak (days)      "
+                  f"init {init_s} at {peak_lead:g} d  \u2192  peak {peak_s} at 0 d")
     ax.set_ylabel(_ylab(ctx))
     n_bar = sum(1 for l in legs if l.resampling)
     n_kill = sum(tree["killed"].values())
