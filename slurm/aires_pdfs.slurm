@@ -15,7 +15,7 @@
 #           genealogy (segments 5/6/7, `2m_temperature` only, ~200 MB read), reduces the
 #           ERA5/HRRR truth and the three direct ensembles, checks gates G1/G4/G13 and
 #           writes runs/aires/<event>/res/<tag>/pdf/pdf_fields.nc (~13 MB).
-#   figs    draws figures/aires/aires_pdf_{conus,box}_<event>_<tag>.png and
+#   figs    draws figures/aires/<event>/aires_pdf_{conus,box}_<event>_<tag>.png and
 #           aires_anom_maps_<event>_<tag>.png from that intermediate alone.
 #
 # NO GPU. Measured cost on the login node: ~17 s for build, ~15 s for the three figures.

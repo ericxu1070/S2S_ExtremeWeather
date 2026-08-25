@@ -592,7 +592,8 @@ def _plot(ev: F.Event, res: dict) -> None:
                  f"(init {res['init'][:10]}, {F.LEAD_DAYS} d lead): {verdict}",
                  fontsize=12)
     fig.tight_layout(rect=(0, 0, 1, 0.94))
-    out = A.fig_dir() / f"gate2_{ev.name}.png"
+    out = A.fig_dir(ev.name) / f"gate2_{ev.name}.png"
+    out.parent.mkdir(parents=True, exist_ok=True)
     fig.savefig(out, dpi=150)
     plt.close(fig)
     print(f"  wrote {out}")

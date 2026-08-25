@@ -447,7 +447,7 @@ The full result, the estimator's calibration against direct sampling, and the ca
 in `aires/HANDOFF.md`, "What Phase 4 established" - read that, not this.
 
 `aires/aplots.py` draws the six figures below as four PNGs
-(`figures/aires/aires_{exceedance,diagnostics,genealogy,composite}_<event>_<tag>.png`);
+(`figures/aires/<event>/aires_{exceedance,diagnostics,genealogy,composite}_<event>_<tag>.png`);
 `--stage ds` builds the direct-sampling baseline with no GPU at all:
 
 | direct sample | n | mean A_L | sd | max | reaching the observed +7.72 K |

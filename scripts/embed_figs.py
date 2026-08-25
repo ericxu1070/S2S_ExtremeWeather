@@ -14,15 +14,15 @@ from pathlib import Path
 
 REPO = Path(__file__).resolve().parents[1]
 FIGS = {
-    "FIG_TRAJECTORY":  "figures/aires/aires_trajectory_PNW_HeatDome_2021_pilot.png",
-    "FIG_EXCEEDANCE":  "figures/aires/aires_exceedance_PNW_HeatDome_2021_pilot.png",
-    "FIG_DIAGNOSTICS": "figures/aires/aires_diagnostics_PNW_HeatDome_2021_pilot.png",
-    "FIG_GENEALOGY":   "figures/aires/aires_genealogy_PNW_HeatDome_2021_pilot.png",
-    "FIG_COMPOSITE":   "figures/aires/aires_composite_PNW_HeatDome_2021_pilot.png",
-    "FIG_MAP_COMPARE": "figures/aires/aires_map_compare_PNW_HeatDome_2021_pilot.png",
-    "FIG_MAP_ERROR":   "figures/aires/aires_map_error_PNW_HeatDome_2021_pilot.png",
-    "FIG_MAP_WALK":    "figures/aires/aires_map_walk_PNW_HeatDome_2021_pilot.png",
-    "FIG_MAP_SPREAD":  "figures/aires/aires_map_spread_PNW_HeatDome_2021_pilot.png",
+    "FIG_TRAJECTORY":  "figures/aires/PNW_HeatDome_2021/aires_trajectory_PNW_HeatDome_2021_pilot.png",
+    "FIG_EXCEEDANCE":  "figures/aires/PNW_HeatDome_2021/aires_exceedance_PNW_HeatDome_2021_pilot.png",
+    "FIG_DIAGNOSTICS": "figures/aires/PNW_HeatDome_2021/aires_diagnostics_PNW_HeatDome_2021_pilot.png",
+    "FIG_GENEALOGY":   "figures/aires/PNW_HeatDome_2021/aires_genealogy_PNW_HeatDome_2021_pilot.png",
+    "FIG_COMPOSITE":   "figures/aires/PNW_HeatDome_2021/aires_composite_PNW_HeatDome_2021_pilot.png",
+    "FIG_MAP_COMPARE": "figures/aires/PNW_HeatDome_2021/aires_map_compare_PNW_HeatDome_2021_pilot.png",
+    "FIG_MAP_ERROR":   "figures/aires/PNW_HeatDome_2021/aires_map_error_PNW_HeatDome_2021_pilot.png",
+    "FIG_MAP_WALK":    "figures/aires/PNW_HeatDome_2021/aires_map_walk_PNW_HeatDome_2021_pilot.png",
+    "FIG_MAP_SPREAD":  "figures/aires/PNW_HeatDome_2021/aires_map_spread_PNW_HeatDome_2021_pilot.png",
 }
 
 
