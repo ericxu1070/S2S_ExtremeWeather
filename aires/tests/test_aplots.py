@@ -70,6 +70,60 @@ def test_weighted_quantile_follows_the_weights():
 
 
 # --------------------------------------------------------------------------- #
+# The trajectory figure's time axis
+#
+# These pin an alignment defect that rendered without any error: the 24 h running mean was
+# the mean of consecutive PAIRS, returned on the pair midpoints, so every curve sat 6 h to
+# the left of the axis. The forest started at lead 0.75 d instead of 0.5, no polyline
+# reached the peak, and each killed branch's terminal x sat a quarter-day BEFORE the
+# barrier that killed it - which reads as the resampling acting one step early.
+# --------------------------------------------------------------------------- #
+def test_the_running_mean_stays_on_its_own_time_axis():
+    lead = np.arange(0.5, 21.01, 0.5)
+    xs, _ = P.daily(lead, np.zeros(lead.size))
+    assert np.allclose(xs, lead)
+
+
+def test_the_running_mean_annihilates_the_diurnal_cycle():
+    """A 24 h period sampled 12-hourly alternates in sign; the filter must null it.
+
+    Including at the two ENDS, and without dragging them back down the trend - the last
+    point of a lineage sits on the event peak, which is where ``A_L`` is taken.
+    """
+    lead = np.arange(0.5, 21.01, 0.5)
+    trend = 0.4 * lead
+    diurnal = 3.0 * (-1.0) ** np.arange(lead.size)
+    _, ys = P.daily(lead, trend + diurnal)
+    assert np.allclose(ys, trend, atol=1e-9)
+
+
+def test_a_branch_starts_exactly_on_its_barrier():
+    """With two lead-in frames and ``drop_first=1``, the first drawn point IS the barrier,
+    and it carries the same value the uninterrupted lineage has there."""
+    lead = np.arange(0.5, 21.01, 0.5)
+    y = 0.4 * lead + 3.0 * (-1.0) ** np.arange(lead.size)
+    _, full = P.daily(lead, y)
+    i = int(np.argmin(np.abs(lead - 6.0)))                  # the 6 d barrier
+    xb, yb = P.daily(lead[i - 1:], y[i - 1:], drop_first=1)
+    assert xb[0] == pytest.approx(6.0)
+    assert yb[0] == pytest.approx(full[i], abs=1e-9)
+
+
+def test_the_root_anchor_puts_every_lineage_on_lead_zero():
+    root = (np.array([-0.5, 0.0]), np.array([-6.0, -3.0]))
+    lead = np.arange(0.5, 3.01, 0.5)
+    xs, ys = P._from_root(root, lead, np.zeros(lead.size))
+    assert xs[0] == pytest.approx(0.0)
+    assert xs.size == ys.size == lead.size + 1
+
+
+def test_without_an_init_file_the_curve_still_starts_at_the_first_frame():
+    lead = np.arange(0.5, 3.01, 0.5)
+    xs, _ = P._from_root(None, lead, np.zeros(lead.size))
+    assert xs[0] == pytest.approx(0.5)
+
+
+# --------------------------------------------------------------------------- #
 # Rendering
 # --------------------------------------------------------------------------- #
 def _compare_dict(n=8):

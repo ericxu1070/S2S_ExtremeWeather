@@ -252,10 +252,10 @@
     <h2>Every branch the pilot rolled, from the init to the peak</h2>
   </div>
 
-  <p>The observable <span class="mono">A<sub>L</sub></span> is the cos(lat)-weighted mean, over a box covering Oregon and Washington, of the 7-day-mean 2&nbsp;m temperature anomaly for the week ending at the event peak. The vertical axis of Fig.&nbsp;1 is the same index evaluated frame by frame, that is, the value a walker holds at that moment rather than the value it will average to. It is plotted as a 24-hour running mean, because the raw 12-hourly index has a diurnal swing of several kelvin that on 64 lineages obscures the trend. The five dotted verticals mark the resampling barriers.</p>
+  <p>The observable <span class="mono">A<sub>L</sub></span> is the cos(lat)-weighted mean, over a box covering Oregon and Washington, of the 7-day-mean 2&nbsp;m temperature anomaly for the week ending at the event peak. The vertical axis of Fig.&nbsp;1 is the same index evaluated frame by frame, that is, the value a walker holds at that moment rather than the value it will average to. It is plotted as a 24-hour running mean centred on each frame, because the raw 12-hourly index has a diurnal swing of several kelvin that on 64 lineages obscures the trend. The horizontal axis is lead time <em>remaining</em> to the peak, so it counts down: every lineage leaves the shared ERA5 initial condition at 21&nbsp;days on the left and arrives at the peak at 0 on the right. The five dotted verticals mark the resampling barriers, which are quoted elsewhere in this page as lead from the init (3, 6, 9, 12 and 15&nbsp;d) and therefore fall at 18, 15, 12, 9 and 6&nbsp;days before the peak here.</p>
 
   <figure>
-    <div class="figbox"><img src="FIG_TRAJECTORY" alt="Trajectory plot: 64 walker lineages of PNW-box mean 2 m temperature anomaly against lead time from 0 to 21 days, with five dotted resampling barriers, grey killed branches, and the shaded 7-day averaging window at the right." loading="lazy"></div>
+    <div class="figbox"><img src="FIG_TRAJECTORY" alt="Trajectory plot: 64 walker lineages of PNW-box mean 2 m temperature anomaly against lead time counting down from 21 days to the event peak at 0, with five dotted resampling barriers, grey killed branches, and the shaded 7-day averaging window at the right." loading="lazy"></div>
     <figcaption><b>Figure 1. Every lineage of the pilot, init to peak.</b> Colored lines are the 64 lineages that survive to the peak, tinted by the <span class="mono">A<sub>L</sub></span> each one ends with. Grey lines are branches killed at a barrier, each marked with a small &times;. The shaded band at the right is the 7-day window over which <span class="mono">A<sub>L</sub></span> is averaged. The right panel gives where every method&rsquo;s members landed on the same axis, against the ERA5 value.</figcaption>
   </figure>
 
@@ -276,7 +276,7 @@
       </div>
       <div class="key">
         <span class="sw"><i class="band"></i></span>
-        <span class="tx"><b>The 7-day window</b>, lead 15&nbsp;d to 21&nbsp;d, thirteen 12-hourly frames ending at the peak. Everything to its left is the walk, and <span class="mono">A<sub>L</sub></span> is one average taken inside it. No resampling happens in the window, since the last barrier is at 15&nbsp;d and the event week is a free 6-day run-out.</span>
+        <span class="tx"><b>The 7-day window</b>, the last 6&nbsp;days of lead, thirteen 12-hourly frames ending at the peak. Everything to its left is the walk, and <span class="mono">A<sub>L</sub></span> is one average taken inside it. No resampling happens in the window, since the last barrier is at 15&nbsp;d from the init, 6&nbsp;d before the peak, and the event week is a free 6-day run-out.</span>
       </div>
       <div class="key">
         <span class="sw"><i class="obs"></i></span>

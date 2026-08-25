@@ -974,7 +974,26 @@ Traps hit drawing them, all cosmetic but all real:
 - The raw 12-hourly index has a real diurnal swing of several kelvin (a dome's daytime
   anomaly far exceeds its nighttime one, and the climatology is sampled per hour so the
   anomaly does not remove it). The trajectory figure plots a 24 h running mean, which is
-  continuous across a barrier because every branch polyline carries its parent's last frame.
+  continuous across a barrier because every branch polyline carries its parent's last frames.
+- **A running mean of consecutive PAIRS lands on the midpoints, not on the samples.** The
+  first version of `aplots.daily` returned `0.5*(x[:-1]+x[1:])`, which slid every curve on
+  the trajectory figure 6 h to the left: the forest appeared to start at lead 0.75 d, every
+  branch appeared to die a quarter-day BEFORE the barrier that killed it, and no polyline
+  reached the peak. It now uses the centred trapezoid `(1, 2, 1)/4` - the mean of the two
+  pair means straddling each frame, which is the same exact null at the 24 h period but
+  stays on the sample's own timestamp. Branch polylines therefore carry TWO lead-in frames
+  from the parent (`daily(..., drop_first=1)`) so the point sitting ON the barrier still
+  gets a full centred window.
+- **The x axis of the trajectory figure counts DOWN.** It is lead time remaining to the
+  peak (21 d at the init, 0 at the peak), converted from the upstream lead-from-init at the
+  drawing boundary only. Ticks are at `GATE3_SEG_DAYS` so they land on the barriers. Note
+  the pilot page quotes barriers as lead FROM the init (3, 6, 9, 12, 15 d), which on this
+  axis is 18, 15, 12, 9, 6 - `docs/aires_pilot.html` says so explicitly. The genealogy
+  figure's tree panel still uses lead-from-init.
+- Every trajectory is drawn from the event's ERA5 init (`A.gencast_inputs_path`), not from
+  the first forecast frame at +12 h, so all 64 leave one shared point at 21 d. That file is
+  built by the xres prep stage and lives outside `runs/aires`; `_init_index_series` returns
+  `None` and the figure falls back to starting at 0.5 d if it is absent.
 
 ## The pilot's probabilities as binned PDFs (job 1174) - the weighted tail reaches ERA5's
 
