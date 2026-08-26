@@ -1147,6 +1147,103 @@ Traps hit drawing them, all cosmetic but all real:
   built by the xres prep stage and lives outside `runs/aires`; `_init_index_series` returns
   `None` and the figure falls back to starting at 0.5 d if it is absent.
 
+## The CFSv2 operational baseline on the trajectory figures - 2026-08-25
+
+**What a real forecast centre had at the same 21-day lead.** Every other curve on the
+trajectory figure is a machine-learning model, which made the figure an argument between
+AI systems and left the obvious question - *would the operational dynamical model have
+seen this event either?* - unanswered. `aires/cfs.py` answers it with the same reduction:
+
+    A_L^CFS = aires.aindex.a_index(CFSv2 forecast, peak, metric, the event's own box)
+
+NCEP's operational CFSv2 9-month run, initialised at the AI+RES init, verified over the
+identical 7-day window ending at the peak. Four members, from the four 6-hourly cycles
+**ENDING** at the init (`init-18h ... init`), so leads are 21.0-21.75 d: the 00Z member is
+exactly lead-matched to the walkers and no member is at a shorter lead than the thing it
+is a baseline for.
+
+| event | CFS mean A_L | CFS best member | AI+RES mean | observed | CFS members reaching observed |
+|---|---|---|---|---|---|
+| PNW_HeatDome_2021 | +0.30 | +3.42 | +8.24 | +7.72 | 0/4 |
+| SCentral_HeatDome_2023 | -0.14 | +1.19 | +4.10 | +5.73 | 0/4 |
+| Southwest_HeatWave_2020 | +1.05 | +1.60 | +2.47 | +5.14 | 0/4 |
+| California_HeatWave_2022 | +2.41 | +3.68 | +4.11 | +4.71 | 0/4 |
+| WinterStorm_Elliott_2022 | -2.81 | -10.74 | - | - | - |
+
+Read that table with the box in mind - each row's `A_L` is over that event's own box (see
+`aires/aindex.py::EVENT_BOXES`), so the columns compare methods within a row, not events
+across rows. **CFS at 21 d lead is nowhere near any of these events**: 0/4 members reach
+the observed value on any of the four with a run, and on three of four the ensemble mean
+is within ~1 K of climatology. It is a *lower* bar than GenCast direct sampling on PNW
+(+0.30 vs +2.46 K), and a comparable one on California (+2.41 vs +1.37 K).
+
+The spread between four cycles 6 h apart is the striking part - PNW runs -2.03 to +3.42 K,
+Elliott -10.74 to +3.93 K. That IS the lagged ensemble's own spread at S2S lead, and it is
+the same "past the predictability horizon you are measuring chaos" fact Gate 2's noise
+floor made concrete. Do not read a single cycle as "what CFS said".
+
+**On the figure.** The four members are drawn as black dashed running-index curves on the
+main panel, and `A_L` as a black bar spanning exactly the shaded 7-day window at exactly
+the ensemble-mean height (a curve's ENDPOINT is not `A_L`, and drawing the number anywhere
+else invites that misreading). The marginal panel gains a `CFSv2 operational` column with
+the same sign-aware `k/n` count as the other methods.
+
+### Things to know before quoting a number
+
+- **The anomaly is against the ERA5 1990-2019 climatology, not CFSv2's own reforecast
+  climatology.** So `A_L^CFS` carries CFS's model drift and representativity offset. This
+  is the *consistent* choice - the walkers and the FCN3 cubes get the identical treatment
+  - but it is NOT a bias-corrected forecast. Measured, not assumed: at 12 h into the run,
+  before anything has drifted, CFS's PNW box-mean T2m is **0.65 K** below a GenCast
+  walker's (0.28 K over CONUS), on a ~0.94 deg Gaussian grid against 0.25 deg in
+  mountainous terrain. Small against the +7.7 K the event registers; not zero, so do not
+  argue a 1 K-level result from this cube alone. Same cause, smaller term: a 6 deg box is
+  only ~6.4 CFS cells across, so the box mean is resolution-dependent - regridding to
+  0.25 deg and averaging there differs from a cos(lat) mean over the native cells whose
+  centres fall in the box by -0.09 K over the PNW forecast (-0.26 K over the verification
+  window). That spread is the discretisation uncertainty on `A_L^CFS`.
+- **`init_anom` is weather, not bias.** The printed day-0/1 box anomaly is where the
+  forecast starts. PNW's is -4.98 K because the Pacific Northwest genuinely was ~5 K below
+  climatology three weeks before the dome; the ERA5-initialised walkers start at -3.95 K
+  over the same box. The figure draws both, so a real offset would be visible.
+- **The archive, and its two traps.** NCEI's object store
+  (`https://www.ncei.noaa.gov/oa/prod-cfs-operational-forecast`, `time-series/` product),
+  one ~95 MB GRIB2 per cycle per variable. Each ships a wgrib `.inv` giving per-record
+  byte offsets and the store honours range requests, so a 21-day window is a single ~7 MB
+  prefix read. (1) The inventory URL **replaces** `.grb2` with `.inv` - appending gives a
+  clean 404 on a cycle that is perfectly present. (2) The `.inv` is not always shipped
+  (`tmp2m` at 2020-07-25 06Z has the GRIB and no inventory); the module falls back to the
+  whole file. A genuinely absent cycle is skipped with a warning and recorded in the cube
+  attrs, not silently dropped.
+- **The AWS mirror `noaa-cfs-pds` is useless here** - it is a rolling archive starting
+  2023-04-22, and four of the five events predate it.
+- **Precip metrics are refused, not guessed.** CFS ships `prate`, a 6 h mean RATE; the
+  12 h accumulation `xres.xmetrics` wants is a conversion with nothing here to validate
+  it against. `t2m_anom` (`tmp2m`) and `u850_speed*` (`wnd850`) are supported.
+- **`cfgrib` was pip-installed into `moe`** (with `eccodes`/`eccodeslib`/`eckitlib`/
+  `findlibs`; additive, no numpy/xarray upgrade). `aires/aplots.py` imports it lazily and
+  drops the CFS curve with a message if it is unavailable, so the figure stage keeps
+  working without it.
+- **The 6-hourly diurnal filter is not `aplots.daily`.** CFS is 6-hourly where the walkers
+  are 12-hourly, so the 24 h trapezoid is the 5-point `(0.5,1,1,1,0.5)/4`, not the 3-point
+  `(1,2,1)/4` - which at a 6 h step spans 12 h and leaves most of the diurnal swing on the
+  curve. The end padding generalises `daily`'s `y[0]+y[1]-y[2]` to `y[-j] = y[P-j] -
+  (y[P]-y[0])` (one 24 h period back, shifted by one period of trend): simultaneously
+  exact on a linear trend and an exact periodic extension, so the LAST point - the one on
+  the event peak where `A_L` is read - is neither pulled down its own trend nor left
+  carrying a quarter of the diurnal amplitude. `test_cfs.py` pins that it reduces to
+  `aplots.daily` exactly at a 12 h step.
+
+```bash
+# login node (internet, no GPU), moe env, repo root. ~10 s and ~27 MB per event.
+PYTHONPATH=. python -m aires.cfs --all
+PYTHONPATH=. python -m aires.cfs --all --summary-only     # no network; A_L from cache
+PYTHONPATH=. python -m aires.aplots --event PNW_HeatDome_2021 --tag pilot --only trajectory
+```
+
+`aires/aplots.py` only READS the cache - the figure stage stays offline, and a missing
+cube drops the CFS curve with a message telling you how to build it rather than failing.
+
 ## The pilot's probabilities as binned PDFs (job 1174) - the weighted tail reaches ERA5's
 
 **Reweighted by its DMC importance weights, the pilot's population places tail mass where
@@ -1432,7 +1529,8 @@ M = 6, N = 64, states pruned to the last 2 segments, no score bought where `C_k 
 | `aires/gate3.py` | Gate 3: `--stage {plan,walk,reduce}`, plus the physical check against the xres ensemble |
 | `aires/dmc.py` | the RES core: splitting, pivotal sampling, genealogy, the unbiased estimator |
 | `aires/ctune.py` | replays the C_k schedule on a surrogate calibrated to the Gate 3 skill curve |
-| `aires/aplots.py` | the Phase 4 figures: exceedance, diagnostics, genealogy, composite |
+| `aires/aplots.py` | the Phase 4 figures: trajectory, exceedance, diagnostics, genealogy, composite |
+| `aires/cfs.py` | the CFSv2 operational baseline: range-fetches NCEI's archive, regrids to the 0.25 deg CONUS grid, reports `A_L` at the 21 d lead. `--event NAME` / `--all`. Needs internet, no GPU |
 | `aires/apdfs.py` | the pilot's PDFs: `--stage {build,figs,all}` - lineage-stitched walker fields, weighted binned PDFs (CONUS + box), the 3-panel map |
 | `aires/run_aires.py` | the production driver: `--stage {prep,walk,score,res,ds,compare}`. `res` IS the coordinator and launches both GPU pools itself |
 | `aires/tests/test_adapter.py` | 25 tests incl. the 69-channel bit-exactness check |
@@ -1441,6 +1539,7 @@ M = 6, N = 64, states pruned to the last 2 segments, no score bought where `C_k 
 | `aires/tests/test_ctune.py` | the surrogate reproduces the skill curve and the correlations it was not given |
 | `aires/tests/test_aplots.py` | sibling pairing, the exceedance standard error, weighted quantiles, and that each figure renders |
 | `aires/tests/test_run_aires.py` | leg schedule, lineage validation, the replay guard, pruning, the cold-event sign; runs the real DMC loop through the real coordinator on a fake tree |
+| `aires/tests/test_cfs.py` | CFS URL/inventory contracts, the trailing lag ensemble, and the 6-hourly 24 h filter (incl. that it reduces to `aplots.daily` at a 12 h step) |
 | `aires/tests/test_apdfs.py` | weighted_pdf identities: weights=None == `xcombined.PDF_histogram`, ones == None, the Z-scaling constant, mass 1 |
 | `slurm/aires_gate2.slurm` | Gate 2 infer, 8 shards on one a3mega node, `--job-name=Vayuh-s2s` |
 | `slurm/aires_gate3.slurm` | Gate 3 walk (moe) + score (fcn3) on ONE allocation, 8 GPUs, retried |
@@ -1457,6 +1556,7 @@ M = 6, N = 64, states pruned to the last 2 segments, no score bought where `C_k 
 | `runs/aires/<event>/res/<tag>/pdf/pdf_fields.nc` | the PDF intermediate: 64 walker fields + weights + all baselines (gitignored, ~45 s rebuild) |
 | `figures/aires/PNW_HeatDome_2021/aires_pdf_*_PNW_HeatDome_2021_pilot.png`, `aires_anom_maps_*` | the two binned PDFs (CONUS, box) + the three-map comparison |
 | `runs/aires/<event>/ds_baseline.json` | the direct-sampling baseline (no GPU, tag-independent) |
+| `runs/aires/<event>/cfs/` | the CFSv2 baseline cube + its `A_L` JSON (tag-independent; ~17 MB/event, gitignored, ~10 s rebuild) |
 | `docs/aires_gate2.html` | published Gate 2 summary (artifact source) |
 | `docs/aires_gate3.html` | published Gate 3 summary (artifact source) |
 

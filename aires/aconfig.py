@@ -460,3 +460,21 @@ def verify_against_ic(path) -> None:
             raise AssertionError(f"grid mismatch vs {path}: {dict(ds.sizes)}")
         if ds["lat"].values[0] < ds["lat"].values[-1]:
             raise AssertionError(f"{path} has ascending lat; FCN3 expects 90 -> -90")
+
+
+# --------------------------------------------------------------------------- #
+# The CFSv2 operational baseline (aires/cfs.py).
+#
+# Lives beside the run rather than inside a tag: the cube is a property of the EVENT and
+# its lead, not of an AI+RES schedule, so every tag of an event reads the same file.
+# --------------------------------------------------------------------------- #
+def cfs_dir(event: str) -> Path:
+    return event_dir(event) / "cfs"
+
+
+def cfs_cube_path(event: str, lead_days: float, metric: str) -> Path:
+    return cfs_dir(event) / f"{event}_cfs_lead{int(round(lead_days)):02d}_{metric}.nc"
+
+
+def cfs_json_path(event: str, lead_days: float, metric: str) -> Path:
+    return cfs_dir(event) / f"{event}_cfs_lead{int(round(lead_days)):02d}_{metric}.json"
