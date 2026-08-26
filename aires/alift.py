@@ -255,8 +255,15 @@ def plot_lift(curves: list[dict], out: Path | None = None) -> Path:
     import matplotlib.pyplot as plt
     from matplotlib.lines import Line2D
 
+    # Order by how extreme the outcome ACTUALLY was, most extreme first. That ordering is
+    # verification, not construction - it changes only which row a run is drawn on, never
+    # a curve or a lift - and it is what turns the right panel into a discrimination plot:
+    # if the run called extremes and stood down on ordinary weeks, the dots march right to
+    # left down the panel. Whether they do is the question the figure is asking.
+    curves = sorted(curves, key=lambda c: (c["obs_pct"] is not None,
+                                           c["obs_pct"] or 0.0), reverse=True)
     n = len(curves)
-    fig = plt.figure(figsize=(16.6, max(7.6, 1.02 * n + 2.4)))
+    fig = plt.figure(figsize=(16.6, max(7.6, 0.80 * n + 3.0)))
     gs = fig.add_gridspec(1, 2, width_ratios=[1.55, 1], wspace=0.05)
     ax = fig.add_subplot(gs[0, 0])
     bx = fig.add_subplot(gs[0, 1])
@@ -301,9 +308,7 @@ def plot_lift(curves: list[dict], out: Path | None = None) -> Path:
         # The x axis is rarity in the event's OWN tail, so a cold event is directly
         # comparable to a hot one - but the reader has to be told which tail it is.
         tail = " (cold tail)" if c["sign"] < 0 else ""
-        ax.plot([], [], color=col, lw=2.2,
-                label=f"{c['event'].replace('_', ' ')} [{c['tag']}]{tail}"
-                      f"   lift@p99 = {_lift_str(c['rungs'][99.0]['lift'])}")
+
         # verification marker
         if c["observed"] is not None and c["obs_p_clim"]:
             yv, mk = c["obs_p_fc"], "*"
@@ -316,6 +321,7 @@ def plot_lift(curves: list[dict], out: Path | None = None) -> Path:
             label="VERIFICATION ONLY: where the event landed")
     ax.plot([], [], marker="v", ms=8, mfc="none", mec="0.3", mew=1.6, ls="none",
             label="  ... and the run gave it zero mass")
+    ax.plot([], [], color="none", label="curve colours match the rows at right")
     ax.set_xscale("log"); ax.set_yscale("log")
     ax.set_xlim(1.0, xlo)                       # inverted: rarer to the RIGHT
     ax.set_ylim(ylo, 1.8)
@@ -325,7 +331,8 @@ def plot_lift(curves: list[dict], out: Path | None = None) -> Path:
     ax.set_ylabel(r"forecast probability   $P_{\mathrm{fc}}(A_L \geq a)"
                   r" = \sum_i p_i \, \mathbf{1}\{A_L^i \geq a\}$")
     ax.grid(alpha=0.22, which="both")
-    ax.legend(fontsize=8.5, loc="lower left", framealpha=0.96, borderpad=0.5)
+    ax.legend(fontsize=8.5, loc="lower left", framealpha=0.96, borderpad=0.5,
+              handletextpad=0.8)
     ax.set_title("the threshold axis is climatology, not the outcome:\n"
                  "nothing that builds these curves knows what happened",
                  fontsize=9.5, color="0.3")
@@ -376,10 +383,10 @@ def plot_lift(curves: list[dict], out: Path | None = None) -> Path:
         bx.text(5.6e-3, i + 0.30, f"{c['event'].replace('_', ' ')}  [{c['tag']}]{tail}",
                 fontsize=9, ha="left", va="center", color=col, zorder=5)
         obs = ("" if c["obs_pct"] is None else
-               f"observed = clim p{c['obs_pct']:.1f}      ")
+               f"observed = clim p{c['obs_pct']:.1f}   ")
         bx.text(5.6e-3, i + 0.12,
-                f"{obs}$\\Sigma_i\\, p_i$ = {c['total_mass']:.2f}"
-                f"      ESS {c['ess']:.0f}/{c['n_walkers']}",
+                f"{obs}$\\Sigma_i\\, p_i$={c['total_mass']:.2f}"
+                f"   ESS {c['ess']:.0f}/{c['n_walkers']}",
                 fontsize=7.6, ha="left", va="center", color="0.4", zorder=5)
     bx.tick_params(axis="y", length=0)
     bx.set_yticks([])
@@ -392,17 +399,23 @@ def plot_lift(curves: list[dict], out: Path | None = None) -> Path:
                        for _, (mk, _, lab) in marks.items()]
                       + [Line2D([], [], marker=">", ls="none", color="0.35", ms=9,
                                 label="lower bound past the pool")],
-              fontsize=8, loc="lower right", framealpha=0.96)
-    bx.set_title("did the run call the event, without being told?\n ",
+              fontsize=8.5, loc="upper center", bbox_to_anchor=(0.5, -0.075), ncol=3,
+              frameon=False, columnspacing=1.6, handletextpad=0.5)
+    bx.set_title("did the run call the event, without being told?\n"
+                 "rows ordered by how extreme the week ACTUALLY was, most extreme first",
                  fontsize=9.5, color="0.3")
 
     fig.suptitle("AI+RES: forecast probability against the box's own climatology "
                  "- no hindsight in any curve", fontsize=13, y=0.985)
-    fig.text(0.5, 0.005,
-             "Caveat: every event here was SELECTED for being extreme, so lift > 1 across "
-             "the slate is partly selection, not skill. The discrimination claim needs the "
-             "null_* controls, which have no RES run yet.",
-             ha="center", fontsize=8.5, color="0.35")
+    y0 = min(ax.get_position().y0, bx.get_position().y0)
+    fig.text(0.5, y0 - 0.115,
+             "Selection: the six named events were chosen FOR being extreme, so a lift > 1 "
+             "on those rows is partly selection, not skill.\nThe three p90_* cases were "
+             "drawn on a different index (the daily CONUS-mean anomaly); on this figure's "
+             "6-day observable one of them verified at clim p53.6 - an ordinary week -\n"
+             "which makes it the closest thing on this slate to a null control. The "
+             "purpose-built null_* controls still have no RES run.",
+             ha="center", va="top", fontsize=8.5, color="0.35", linespacing=1.5)
     out = out or (A.fig_dir() / "aires_lift.png")
     out.parent.mkdir(parents=True, exist_ok=True)
     fig.savefig(out, dpi=140, bbox_inches="tight")
