@@ -1,0 +1,59 @@
+Host: nucla3m-a3meganodeset-4
+Start: Tue Aug 25 21:30:42 UTC 2026
+GPU 0: NVIDIA H100 80GB HBM3 (UUID: GPU-8deaf399-5257-44be-de29-dbab5cab2837)
+GPU 1: NVIDIA H100 80GB HBM3 (UUID: GPU-08ce4409-9463-80ec-57ba-eca08d003482)
+GPU 2: NVIDIA H100 80GB HBM3 (UUID: GPU-8d511a9b-a471-736e-637d-a997e0a57717)
+GPU 3: NVIDIA H100 80GB HBM3 (UUID: GPU-ab33084f-509e-82b2-8949-d8815d024cb0)
+GPU 4: NVIDIA H100 80GB HBM3 (UUID: GPU-67dcae5f-2cfd-b933-fa3a-05a8184dccf0)
+GPU 5: NVIDIA H100 80GB HBM3 (UUID: GPU-6f4c5b9e-2690-3130-7cd6-0ff15eee4c02)
+GPU 6: NVIDIA H100 80GB HBM3 (UUID: GPU-5544fb35-a86b-e04c-5eea-201f7515a48a)
+GPU 7: NVIDIA H100 80GB HBM3 (UUID: GPU-5d02916b-f04f-56da-a539-ff7cf9f27b6f)
+Gate 3: event=WinterStorm_Uri_2021 walkers=16 members=6 gpus=8 phase=all
+Gate 3 - WinterStorm_Uri_2021  (init 2021-01-25, peak 2021-02-15, 21 d lead, metric t2m_anom)
+WinterStorm_Uri_2021: primary box TX/OK (26-37N, 106W-94W)
+    Texas and Oklahoma - the freeze's footprint and the grid failure's. Cold event: the extreme tail is the NEGATIVE side of A_L.
+  secondary: CONUS (24-50N, 125W-66W)
+
+  walkers          16
+  segments/walker  7 x 6 x 12 h = 42 GenCast steps to the peak
+  checkpoints      3 d, 6 d, 9 d, 12 d, 15 d
+  score members    M = 6
+
+  prerequisites
+    walker init frames  OK   /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/xres/0p25/week3/inputs/WinterStorm_Uri_2021_inputs.nc
+    derived calibration OK   /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/aires/calib/derived_calib.nc
+    ERA5 truth          OK   /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/observations/WinterStorm_Uri_2021_verif_t2m_anom.nc   (context only, not required)
+
+  walker segments   0 cached, 112 to roll, 0 STALE, 0 partial
+
+  score forecasts   0 cached, 80 to run (80 total = 16 walkers x 5 leads)
+                    23,040 FCN3 steps x 6 members already included; ~6.4 GPU-h at 1 s/step, ~48 min over 8 GPUs
+  walker rollout    672 GenCast steps; ~5.2 GPU-h at 28 s/step, ~39 min over 8 GPUs
+
+  disk              states 53.4 GB new (477 MB each), diag 4.03 GB, score cubes ~0.80 GB
+
+  READY: yes
+--- walk phase: Tue Aug 25 21:30:52 UTC 2026 ---
+  walk: attempt 1/3
+  launched walk shard 0 on GPU 0 (pid 2738810)
+  launched walk shard 1 on GPU 1 (pid 2738811)
+  launched walk shard 2 on GPU 2 (pid 2738812)
+  launched walk shard 3 on GPU 3 (pid 2738813)
+  launched walk shard 4 on GPU 4 (pid 2738814)
+  launched walk shard 5 on GPU 5 (pid 2738815)
+  launched walk shard 6 on GPU 6 (pid 2738816)
+  launched walk shard 7 on GPU 7 (pid 2738817)
+CPU: 208 cores / 8 shards -> OMP_NUM_THREADS=26 per shard
+--- score phase: Tue Aug 25 22:26:36 UTC 2026 ---
+  score: attempt 1/3
+  launched score shard 0 on GPU 0 (pid 2750032)
+  launched score shard 1 on GPU 1 (pid 2750033)
+  launched score shard 2 on GPU 2 (pid 2750034)
+  launched score shard 3 on GPU 3 (pid 2750035)
+  launched score shard 4 on GPU 4 (pid 2750036)
+  launched score shard 5 on GPU 5 (pid 2750037)
+  launched score shard 6 on GPU 6 (pid 2750038)
+  launched score shard 7 on GPU 7 (pid 2750039)
+End: Tue Aug 25 23:37:43 UTC 2026
+Now reduce on the login node in moe:
+  PYTHONPATH=. python -m aires.gate3 --stage reduce --event WinterStorm_Uri_2021 --walkers 16
