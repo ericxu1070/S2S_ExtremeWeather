@@ -318,26 +318,185 @@ moment `compare.json` exists):
   The 16 free-running walkers double as a second DS baseline (box mean +0.406 +- 3.227,
   range [-5.16, +6.43] vs the observed -7.40 - 0/16, consistent with the xres cube's
   +0.06 +- 3.27 and 0/24).
-- [ ] job **1182** `p90_20251224` production (submitted 2026-08-25 21:32). Started
-  CONCURRENTLY with the Gate 3 rather than after it: it is a warm high-tail case that
-  shares no part of the cold sign chain the gate is testing, and 2 GPU nodes / 1
-  production is inside both caps.
+- [x] job **1182** `p90_20251224` production: **done** (8 h 42 m), ds + compare reduced,
+  full figure set written, states pruned (91 GB freed; the run settles at **19 GB**,
+  exactly the plan's estimate). Started CONCURRENTLY with the Gate 3 rather than after
+  it: a warm high-tail case shares no part of the cold sign chain the gate was testing,
+  and 2 GPU nodes / 1 production is inside both caps.
+  **THE CALIBRATION ANCHOR HOLDS.** ERA5 observed +3.259 K; AI+RES reaches it with
+  **46/64** walkers -> weighted **P = 0.0661**, against direct sampling's **1/24 =
+  0.0417 [0.00739, 0.202]**. The AI+RES estimate sits INSIDE the direct estimate's 95%
+  CI. This is the thing no wave-1 row could do: every one of them had direct at 0/24, so
+  the weighted probability had nothing to be checked against. Here it does, and the two
+  methods agree on a probability direct sampling can only just resolve. (FCN3 direct is
+  0/24; its curve stops at +2.66.)
+  Run health, the best of any production so far: log Z -1.1846, normalization check
+  0.6890, 16/64 founders, ESS/N **1.00 / 0.32 / 0.56 / 0.54 / 0.69** - it RECOVERS after
+  the first barrier instead of degrading, and max multiplicity peaks at 9 and falls to 3.
+  Wave 1 by contrast bottomed out at 0.11 (SW, mult 23) and 0.18 (CA). The clone-
+  correlation damage is much milder at a +1.91 sigma target than at a +3.3 sigma one.
+  Three things worth carrying into the writeup:
+  1. **Mid-curve agreement is good but not perfect.** Through the range direct resolves,
+     AI+RES runs consistently ~2x the direct estimate (P(>=+1.28) 0.481 vs 0.250;
+     P(>=+1.49) 0.331 vs 0.167), which is 2.2-2.6 binomial s.e. at n=24 - a mild high
+     bias, not clearly significant on 24 members, but it leans the same way at every
+     threshold. In the deep tail they agree (0.066 vs 0.042, well inside the CI).
+  2. **The weighted mean does NOT return to the direct mean** (+1.907 vs +0.248, against
+     an unweighted +3.829) - and it CANNOT, because the resampled population's support
+     starts at **+1.25 K**. Every low-A_L lineage was killed, so no reweighting of what
+     survives can reach a mean of +0.248. This is a SUPPORT limitation, not a weighting
+     error, and it is why "the weighted mean returns to the direct mean" is only a
+     meaningful test on the near-median runs (4 and 5), where the tilt is gentle enough
+     that the population still covers the bulk.
+  3. **The normalization check is visible directly on the exceedance figure**: the RES
+     curve saturates at 0.689, not 1.0, for every threshold below the population minimum
+     - because at those thresholds the estimator returns exactly Z*mean(w). That is open
+     problem 5 made legible, and it means the curve's absolute level carries a ~31% low
+     bias here. Self-normalizing would put P(>= obs) at 0.096, also inside the direct CI.
+  The DERIVED tail threshold validated itself on first use: p95 of the observed ERA5
+  field over the box gives **+9.043 K**, and ERA5's own binned curve returns **0.0534**
+  at it - 5% by construction, recovered to binning precision. AI+RES weighted 0.0103,
+  direct 0.0042, unweighted 0.0907. `pdf_box` was skipped as a deliberate duplicate:
+  a p90 case's scored region IS CONUS, so the two panels would be one picture under two
+  filenames.
 - [ ] job **1183** Uri production (submitted 2026-08-25 23:44, after the gate passed).
+  **THE NEGATIVE-TAIL PATH IS NOW EXERCISED END TO END IN A PRODUCTION RUN** - the gap
+  this whole wave exists to close. Checked on leg 2's live `theta.json` (the run's FIRST
+  real FCN3-scored resampling; leg 1 is `skipped(C=0)` and sets `used` to all zeros, so
+  it cannot demonstrate anything): `used == -box` exactly, and the walker `dmc` ranks
+  FIRST has box A_L **-6.09 K, which IS the population minimum** (the leg's spread runs
+  -6.09 to +5.62 K). The sampler is cloning the coldest walker of a freeze, not the
+  warmest. `run_aires.leg_theta` is where this happens - `rec["box"]` stays the raw
+  PHYSICAL A_L (so a cold event's printed theta is correctly negative: -3.054 at leg 1,
+  -0.234 +- 2.305 at leg 2) and `rec["used"] = sign * box` is the only thing dmc sees.
   Prep seeded **64 artifacts for 32 (walker, segment) pairs** from the Gate 3 tree as
   hardlinks - segment 1 is the same rollout in both runs and segment 2 is too, because
   C_1 = 0 makes the first resampling the identity - which drops the budget from 63.9 to
   **61.1 H100-h** (~7.6 h wall). Seeding is done in the manual login-node prep on
   purpose: `aires_res.slurm` passes `--no-seed` in-job so a GPU allocation can never
   silently become a builder.
+- [x] job **1183** Uri production: **done** (7 h 12 m), ds + compare reduced, full figure
+  set written, states pruned (91 GB).
+  **THE FIRST COLD HIT, AND THE FIRST CLEAN DEMONSTRATION OF WEIGHT HONESTY.**
+  ERA5 observed **-7.397 K**; AI+RES reaches it with **32/64** walkers (most extreme
+  **-10.20 K**, i.e. it overshoots the observation by 2.8 K) -> weighted
+  **P = 0.00895**. Direct sampling scores **0/16** free-running Gate 3 walkers, **0/24**
+  xres GenCast and **0/24** FCN3 - three independent baselines, all empty, best member
+  only -6.51 K. The frozen `C_k` schedule, ported unchanged from four warm heat events to
+  a Texas freeze, reaches and prices it.
+  **The tilt is FULLY UNDONE here**, which `p90_20251224` could not show: unweighted mean
+  **-6.780** -> weighted **+0.210**, against a direct mean of +0.406 (walkers) / +0.064
+  (xres). The population range is [-10.20, **+1.57**], so unlike the p90 anchor it still
+  covers the bulk, and the weights walk the mean all the way back. That is the "weighted
+  mean returns to the direct mean" criterion, satisfied on a real run.
+  **Curve agreement is the best of the wave.** Through the whole range direct resolves,
+  the weighted curve tracks BOTH direct ensembles within binomial noise, leaning slightly
+  LOW if anything: P(<=-1.67) 0.247 vs 0.250/0.292; P(<=-2.95) 0.165 vs 0.188/0.208;
+  P(<=-3.38) 0.095 vs 0.125/0.125; P(<=-5.09) 0.054 vs 0.063/0.083. Then it extends ~2
+  decades past where every direct curve stops.
+  Run health: log Z -0.6735, **normalization check 1.7688**, 16/64 founders, ESS/N
+  1.00 / 0.40 / 0.43 / 0.41 / 0.30.
+  **Two caveats that belong with the numbers.**
+  1. The normalization check is **1.7688 here against 0.6890 for `p90_20251224`** - the
+     two bracket 1 from opposite sides, and the direction of the mid-curve bias tracks
+     it (the run with check < 1 read ~2x HIGH vs direct; this one, with check > 1, reads
+     slightly LOW). No single rescaling fixes both, which is exactly why open problem 5
+     says to read this statistic ACROSS runs and not to "correct" one curve by it.
+  2. **The weight ESS is only 2.24 of 64** (weights span 0.0108 .. 144), against PNW's
+     5.68 and the p90 anchor's 7.24. The A_L exceedance is a 64-walker weighted estimate
+     and survives that, but the SPATIAL PDF is effectively two walkers wide and should be
+     read as shape, not level. On the per-grid-point tail the box ERA5 truth has
+     P(point <= -15.46 K) = 0.0630 where all three direct ensembles give exactly 0.0000
+     and AI+RES gives 0.00003 weighted / 0.0030 unweighted - AI+RES is the only method
+     that puts ANY mass there, but it is still far short of what ERA5 did.
+  The cold figure layer works end to end: axis inverted so further right is more extreme,
+  `P(A_L <= a)` / `P(point <= -15.46 K)` labels, threshold derived as the p5 of the
+  observed field, and the measured footnote correctly names the heaviest-weighted walker
+  as the one ranked **64/64 towards the extreme at +1.57 K** - the population's WARMEST.
+  The old hardcoded caption said "the population's coldest member", which is precisely
+  backwards on a freeze.
+- [x] job **1184** Elliott production: **done** (7 h 26 m), ds + compare reduced, full
+  figure set written, states pruned (91 GB). No Gate 3 and no seeding, so the full
+  63.9 H100-h.
+  **THE SECOND COLD HIT, AND THE DEEPEST REACH OF THE WHOLE EXPERIMENT.** ERA5 observed
+  **-14.422 K** at **+2.81 sigma** - deeper in the model's own distribution than anything
+  wave 1 reached, and 0.5 sigma deeper than Southwest, which AI+RES MISSED. AI+RES
+  reaches it with **20/64** walkers (most extreme **-17.04 K**, overshooting by 2.6 K)
+  -> weighted **P = 0.0079**. Direct sampling: **0/24**, best member only -9.83 K, i.e.
+  4.6 K short.
+  **The free second rung pays off.** `aindex.indices()` records both boxes on every run,
+  so the CONUS index comes out at no extra GPU cost and is a SECOND CALIBRATION ANCHOR
+  on the cold side: observed **-2.73 K** at +1.89 sigma, direct **1/24 = 0.0417
+  [0.0074, 0.202]**, AI+RES **32/64 -> weighted P = 0.136** - inside the direct CI,
+  matching `p90_20251224`'s role on the warm side.
+  Run health: log Z -1.1612, **normalization check 0.8108** (the closest to 1 of the
+  wave), 14/64 founders, ESS/N 1.00 / 0.39 / **0.29** / 0.33 / **0.59** - it takes its
+  worst hit at step 3 and then RECOVERS, the same shape `p90_20251224` showed.
+  Weight ESS 8.61, the healthiest of the wave.
+  **The tilt is only PARTLY undone here**: unweighted -11.863 -> weighted **-3.638**,
+  against a direct mean of -0.760. The population range is [-17.04, **-0.41**], so unlike
+  the p90 anchor the support does still bracket the direct mean - the weights simply do
+  not carry it all the way. Read across the three finished runs there is a clear pattern:
+  **the deeper the tilt, the less of it the reweighting recovers** - Uri (+2.28 sigma)
+  returns essentially exactly (+0.210 vs +0.406/+0.064), Elliott (+2.81 sigma) gets
+  two thirds of the way back, and `p90_20251224` cannot return at all because resampling
+  killed every walker below +1.25 K. That is a statement about the ESTIMATOR's small-
+  sample behaviour, not about the physics, and it is the thing runs 4 and 5 were put on
+  the slate to pin down at the gentle end.
+  Only ONE direct baseline exists for this event (the 24-member xres cube - no Gate 3
+  tree, and Elliott is not one of the six head-to-head events so there is no FCN3 cube).
+  Both `apdfs` and `amaps` handled that through the optional-baseline path the wave-1
+  extension added, with no code change needed.
 - [ ] Elliott and the two remaining p90 cases skip Gate 3, on the wave-1 argument: their
   cached 24-member xres cubes ARE the DS baseline, and once Uri passes, Elliott inherits
   the cold-T2m skill argument. Residual-risk checks are free - the first resampling
   (3 d, C=0) is the identity, so walkers are still i.i.d. at 6 d and a post-hoc
   score-vs-realized `rho_s` falls out of the run's own score cubes; a skill collapse shows
   as per-leg ESS/N crashing without recovery.
+- [x] job **1185** `p90_20240802` production: **done** (7 h 48 m), reduced, figures
+  written, states pruned (91.6 GB). Run 4, the no-harm / false-alarm control at
+  **0.00 sigma** - the observation sits exactly at the ensemble median.
+  **THE MEDIAN CHECK PASSES, WHICH IS THE WHOLE POINT OF THIS RUN.** ERA5 observed
+  **+1.057 K**; AI+RES weighted **P = 0.649** against direct sampling's **14/24 = 0.583
+  [0.388, 0.755]** (FCN3 independently also 14/24). The plan predicted ~0.58 and the
+  estimator returned 0.649 - inside the direct CI, and nowhere near the failure mode it
+  was built to detect. **If AI+RES had reported 0.05 for a median target the estimator
+  would be broken; it reports 0.65.**
+  Do NOT quote the reach count as a headline: 63/64 walkers "reach" a median target,
+  which is a statement about where the tilt pushed the population and carries no
+  information. The deliverables are the three below.
+  **Spatial PDF - the cleanest no-harm evidence in the wave.** On the per-grid-point tail
+  at the derived threshold (+3.952 K, p95 of the observed field), AI+RES weighted gives
+  **0.0727** against direct GenCast's **0.0702** - agreement to 4% - while the UNWEIGHTED
+  RES population gives 0.1627, i.e. 2.3x too heavy. The weights do their job on the
+  spatial distribution, not just on the scalar. (ERA5 truth 0.0468, FCN3 0.0543.)
+  **Curve agreement** is exact at the observation (0.649 vs 0.583/0.583) and again leans
+  HIGH in the mid-range (0.630 vs 0.375-0.417 around +1.3 to +1.4 K) before converging by
+  +1.5 K. The weighted curve is visibly COARSE there - it steps 0.630 -> 0.255 between
+  +1.433 and +1.512 - because at ESS ~10 a handful of walkers carry the whole estimate.
+  **Weight honesty, partial**: unweighted +1.932 -> weighted +1.508 against a direct mean
+  of +1.058. The unweighted mean IS well above direct as the plan predicted, and the
+  weights recover most of the gap, but a +0.45 K residual (0.74 direct-sd) remains even
+  at 0.00 sigma. Read with the other three runs, the residual in ensemble-sd units is
+  Uri **0.045**, Elliott 0.59, this run 0.74, `p90_20251224` 1.05 - so it does NOT track
+  sigma-depth cleanly, and Uri is the outlier that returns almost exactly. The honest
+  statement is that the weighted mean retains a residual bias TOWARDS the tail of roughly
+  0.6-1.0 ensemble sd in three of four runs.
+  Run health: log Z -0.6063, normalization check 0.7039, 15/64 founders, ESS/N
+  1.00 / 0.53 / 0.37 / 0.30 / 0.40.
+  **A diagnostic lead worth chasing (n = 4, so a lead and not a finding):** the
+  normalization check and the DIRECTION of the mid-curve discrepancy are anti-correlated
+  across every run of this wave. Check < 1 -> the weighted curve reads HIGH vs direct
+  (`p90_20251224` 0.689, Elliott 0.811, this run 0.704); check > 1 -> it reads LOW (Uri
+  1.769). If that holds up it is a usable per-run correction indicator, which open
+  problem 5 currently lacks.
+- [ ] job **1186** `p90_20231107` production (submitted 2026-08-26 13:52, as 1184's slot
+  freed). Run 5, the last of the slate: -0.97 sigma, a literal ~0 K anomaly BELOW the
+  ensemble median, direct 21/24.
 - [ ] wave 3 (optional): p90_20240802 at N=32 tag `pilot32` as the mild control
 - [ ] after each finished+compared run: `--stage ds`, `--stage compare`, apdfs/aplots/amaps,
-  then `--stage prune`
+  then `PYTHONPATH=. python -m aires.alift` (cross-event, redraws the whole slate from
+  every `compare.json` it finds - no per-run argument), then `--stage prune`
 - [x] pruned via the guarded `--stage prune`: PNW pilot states (192 files, 91 GB) and
   Southwest pilot states (192 files, 91 GB) - both only after res_result.json AND
   compare.json existed. 339 GB free after.
