@@ -197,6 +197,53 @@ def test_tail_probability_sums_the_bins_at_or_above_the_threshold():
     assert P.tail_probability(pts, dens, 0.0) == pytest.approx(1.00)
 
 
+def test_a_cold_tail_takes_the_mass_BELOW_the_threshold():
+    """The sign is the whole reason this table means anything on a freeze.
+
+    Unsigned, a cold event's `P(point >= threshold)` is the mass on the WARM side of a
+    cold threshold - the complement of what the figure is about, and for a
+    PNW-style +9 K constant it is identically zero for every curve.
+    """
+    pts = np.array([-15.0, -10.0, -5.0, 0.0])
+    dens = np.array([0.05, 0.15, 0.3, 0.5])
+    assert P.tail_probability(pts, dens, -10.0, -1.0) == pytest.approx(0.20)
+    assert P.tail_probability(pts, dens, 0.0, -1.0) == pytest.approx(1.00)
+    # the same call unsigned is the complement, which is the bug being pinned out
+    assert P.tail_probability(pts, dens, -10.0, +1.0) == pytest.approx(0.95)
+
+
+def test_the_four_wave_one_events_keep_the_published_nine_kelvin_threshold():
+    """Those four `P(point >= 9 K)` tables are quoted in aires/HANDOFF.md and sit in
+    figures/aires/. Deriving them instead would silently redraw published numbers."""
+    era5 = np.linspace(-3.0, 3.0, 601)          # nowhere near +9 K: a derived
+    for name in ("PNW_HeatDome_2021", "SCentral_HeatDome_2023",
+                 "California_HeatWave_2022", "Southwest_HeatWave_2020"):
+        thr, src = P.tail_threshold_for(name, era5, +1.0)
+        assert thr == 9.0, name                 # threshold would be ~+2.9 K
+        assert "pinned" in src
+
+
+def test_a_new_event_derives_its_threshold_from_its_own_observed_field():
+    """Event-intrinsic and sign-aware: the warm side takes p95, the cold side p5."""
+    era5 = np.linspace(0.0, 100.0, 101)
+    thr, src = P.tail_threshold_for("p90_20240802", era5, +1.0)
+    assert thr == pytest.approx(95.0)
+    assert "p95" in src
+    cold, csrc = P.tail_threshold_for("WinterStorm_Elliott_2022", era5, -1.0)
+    assert cold == pytest.approx(5.0)
+    assert "p5" in csrc
+    # and it scales with the event rather than with a constant
+    mild, _ = P.tail_threshold_for("p90_20231107", era5 / 100.0, +1.0)
+    assert mild == pytest.approx(0.95)
+
+
+def test_tail_op_and_metric_unit_follow_the_sign_and_the_metric():
+    assert (P.tail_op(+1.0), P.tail_op(-1.0)) == (">=", "<=")
+    assert P.metric_unit("t2m_anom") == "K"
+    assert P.metric_unit("u850_speed") == "m s$^{-1}$"
+    assert P.metric_unit("tp_total") == "mm"
+
+
 def test_ess_of_uniform_weights_is_the_count():
     assert P._ess(np.ones(64)) == pytest.approx(64.0)
     assert P._ess(np.array([1.0, 0.0, 0.0, 0.0])) == pytest.approx(1.0)

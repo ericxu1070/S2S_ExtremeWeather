@@ -121,6 +121,22 @@ EVENT_BOXES: dict[str, Box] = {
         "CONUS mean. The UNCONSTRAINED week-mean maximum is elsewhere - +7.32 K over "
         "Idaho/Montana (44-50 N, 248-254 E) - and is deliberately not used: it would "
         "score a different event than the one this box names."),
+    "WinterStorm_Elliott_2022": Box(
+        "N Plains", (43.0, 49.0), (254.0, 260.0),
+        "The northern Plains core of the December 2022 arctic outbreak: -14.42 K "
+        "week-mean over this box against a -2.73 K CONUS mean. COLD EVENT - the extreme "
+        "tail of A_L is the NEGATIVE side (fcn3.fevents family='cold' -> tail_sign -1), "
+        "and the box was scanned with that sign, i.e. it is the most NEGATIVE window, "
+        "not the most positive. Elliott is a named STORM, not a named region, so the "
+        "'must lie inside the region the event is named for' half of the selection rule "
+        "does not bind and the window is chosen unconstrained - unlike California, where "
+        "the unconstrained maximum was rejected because it would have scored a different "
+        "event than the box's own name. The scan's outright minimum is -14.64 K over "
+        "44-50 N, 107-101 W; this box is 0.22 K shallower and is preferred because it "
+        "sits a full degree clear of the 50 N CONUS crop edge rather than flush against "
+        "it - the outbreak's core continued north into the Canadian Prairies, so a box "
+        "on the boundary would be reporting a clipped window's mean. Measured from the "
+        "ERA5 truth on 2026-08-25, before any prep froze it.",),
     # p90_* fall through to CONUS by design - see the comment above.
 }
 

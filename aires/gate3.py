@@ -535,9 +535,17 @@ def stage_reduce(ev: F.Event, walkers: int, members: int, leads, *, plot: bool =
         print(f"    {k:5s}  mean {r.mean():+7.3f}   sd {r.std(ddof=1):.3f}   "
               f"range [{r.min():+.2f}, {r.max():+.2f}]{extra}")
     if observed:
+        # Sign-aware: "reaching" means reaching the EXTREME tail. Compared unsigned, a
+        # cold event reports the walkers that were WARMER than a freeze - a number near
+        # N that reads as "the walkers had no trouble getting there". The Gate 3 verdict
+        # itself is a Spearman correlation and is legitimately sign-symmetric; only this
+        # diagnostic line needs the sign.
+        sign = AI.tail_sign(ev.name)
+        op = ">=" if sign > 0 else "<="
         for k in keys:
-            n_over = int((realized[k] >= observed[k]).sum())
-            print(f"    {k:5s}  walkers reaching the observed value: {n_over}/{n}")
+            n_over = int((sign * realized[k] >= sign * observed[k]).sum())
+            print(f"    {k:5s}  walkers reaching the observed value "
+                  f"(A_L {op} {observed[k]:+.2f}): {n_over}/{n}")
 
     print(f"\n  GATE 3  (box index {box.name}; N = {n} walkers, M = {members} score members)")
     print(f"    {'t_k':>6s}  {'rho_s':>7s}  {'95% CI':>16s}  {'p':>7s}  "

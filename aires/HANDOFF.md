@@ -183,6 +183,158 @@ Reach follows the observation's depth in the MODEL's forecast distribution, not 
 absolute anomaly; the honest miss (SW) plus the mid-curve calibration agreement on all
 three curves is what makes the three hits believable; the persistence control attributes
 the entire gain to the FCN3 score. Total spent: ~232 H100-h across 5 runs + 1 Gate 3.
+
+## Wave 2 - cold regimes and the low end of the ladder - 2026-08-25 (IN FLIGHT)
+
+Wave 1 answered one question in one regime at the top of the severity scale: every
+production was a warm, high-tail T2m heat event. Two things were untested as a result.
+(1) **Regime generality** - `aires.aindex.tail_sign()` returns `-1` for a cold event and
+`run_aires.leg_theta` applies it before `dmc` ever sees a score, but **no production run
+had ever exercised that path**, so a sign bug was invisible. (2) **No-harm at the bottom
+of the ladder** - every wave-1 row is a *reach* result with direct sampling at 0/24 or
+1/24, so none of them can show the weights are honest at a target the model already
+resolves. Plan: `/home/ubuntu/.claude/plans/can-you-run-some-staged-unicorn.md`.
+
+**The measurement that set the slate.** The `p90` cases were selected on the PEAK-DAY
+CONUS mean anomaly, but AI+RES scores the 7-DAY mean over `[peak-6d, peak]`. On the
+observable that matters the cases are scrambled - the `null_*` controls are not the
+near-zero cases and the `p90_*` events are not all extreme. Re-derived here from the ERA5
+truth and each event's own cached 24-member week-3 GenCast cube, with the experiment's
+own reduction (`aires.aindex`), and every number below reproduced the plan's:
+
+| candidate | box | obs `A_L` | ens mean +- sd | sigma-depth | direct reach |
+|---|---|---|---|---|---|
+| `WinterStorm_Elliott_2022` | N Plains (new) | -14.42 K | -0.76 +- 4.87 | **+2.81** | 0/24 |
+| `WinterStorm_Uri_2021` | TX/OK | -7.40 K | +0.06 +- 3.27 | **+2.28** | 0/24 |
+| `p90_20251224` | CONUS | +3.26 K | +0.25 +- 1.58 | **+1.91** | **1/24** |
+| `p90_20240802` | CONUS | +1.06 K | +1.06 +- 0.60 | **0.00** | 14/24 |
+| `p90_20231107` | CONUS | +0.21 K | +1.28 +- 1.09 | -0.97 | 21/24 |
+| *(wave-1 reference)* `PNW_HeatDome_2021` | PNW | +7.72 K | +2.46 +- 2.65 | +1.98 | 0/24 |
+
+Elliott yields a **free second rung**: `aindex.indices()` records both the event box and
+CONUS on every run and `stage_compare` stores the whole dict, so its CONUS index is a
+second calibration anchor at **-2.73 K, +1.89 sigma, direct 1/24** - the cold-side match
+to `p90_20251224`'s role on the warm side.
+
+**Hurricanes were evaluated and rejected.** On its registered `u850_speed` metric
+`HurricaneIan_2022` puts the observation at **-0.60 sigma**, BELOW the ensemble mean,
+with 17/24 direct members already exceeding it (+0.19 on `u850_speed_max`); Idalia is
+-0.44/+0.47, Ida the best at +1.43 but needs a new metric wired end to end. A 7-day-mean,
+box-mean 850 hPa wind washes out a one-day landfall, so at week-3 lead a hurricane is not
+a rare-event observable in this reduction. Not a tuning problem; out of scope.
+
+The slate - 5 productions, week-3, N=64, M=6, frozen `C_k = (0, 1.0, 1.4, 1.8, 2.0)` at
+3/6/9/12/15 d, horizon 21 d, tag `pilot`. `C_k` is again deliberately NOT re-tuned per
+event, so "one schedule generalises" stays testable:
+
+| # | event | sign | role |
+|---|---|---|---|
+| 1 | `WinterStorm_Uri_2021` | **-1** | first cold extreme; first end-to-end exercise of the negative-tail path |
+| 2 | `WinterStorm_Elliott_2022` | **-1** | second cold rung, deeper (+2.81 sigma) - where the cold-side reach boundary sits |
+| 3 | `p90_20251224` | +1 | +1.91 sigma, **direct 1/24** - the calibration anchor: the one rung where direct sampling returns a NON-ZERO probability to check the weighted curve against |
+| 4 | `p90_20240802` | +1 | **0.00 sigma** - the observation sits exactly at the ensemble median. No-harm / false-alarm control |
+| 5 | `p90_20231107` | +1 | -0.97 sigma, a literal ~0 K anomaly BELOW the median |
+
+**What runs 4 and 5 actually deliver is NOT "walkers reaching the observation."** With the
+target at or below the median that will be ~half the population and the number means
+nothing; say so in the writeup. The deliverables are (a) **curve agreement** - weighted
+`P(A_L >= a)` overlaying the direct curve across the range direct resolves, within
+binomial noise; (b) **weight honesty** - the weighted mean returning to the direct mean
+where the *unweighted* RES mean is well above it; (c) **the median check** - weighted
+`P(>= obs)` landing near the direct empirical quantile, ~0.58 for `p90_20240802` (14/24)
+and ~0.88 for `p90_20231107` (21/24). AI+RES reporting 0.05 for a median target would
+mean the estimator is broken, and that is a result worth having.
+
+What landed in code (suite green, **220 passed, 1 skipped**; `test_adaptest.py`'s seed
+literals passed UNCHANGED, which is what proves the frozen index prefix survived):
+
+- `fcn3/fevents.py`: `WinterStorm_Elliott_2022` APPENDED to `RES_EVENTS`/`RES_ORDER`
+  (seed index 13 -> 13333). `family="cold"` is the functional bit - it makes `Event.cold`
+  true and flips `aindex.tail_sign` to -1. `source="xres"` keeps it out of
+  `xres_extra_events_spec`, so the frozen p90 GenCast spec is untouched. `ALL_ORDER` is
+  unchanged, so all ten adapter-test seeds are unchanged. **Uri needed no registry work** -
+  it has been in `EVENTS` at index 2 since the head-to-head experiment.
+- `aires/aindex.py`: the `N Plains` box, 43-49 N / 106-100 W, **-14.42 K** vs a -2.73 K
+  CONUS mean, pinned by `test_aindex.py`. Registered in `fevents` BEFORE the scan was run:
+  `tail_sign()` returns `+1` for an unregistered event, so scanning first would have
+  sorted warmest-first and reported the wrong window. Elliott is a named STORM, not a
+  named region, so the "inside the region the event is named for" half of the selection
+  rule does not bind and the window is chosen unconstrained. The scan's outright minimum
+  is -14.64 K over 44-50 N, which is 0.22 K deeper but sits FLUSH against the 50 N CONUS
+  crop edge - the outbreak continued into the Canadian Prairies, so that window reports a
+  clipped mean; the registered box clears the edge by a full degree.
+- `aires/apdfs.py`: `TAIL_THRESHOLD = 9.0` was a module constant and is now per-event.
+  It was wrong-SIGNED for a cold event (a freeze has no grid points above +9 K, so every
+  row would read 0.00000) and wrong-SCALE for a near-median one. Now
+  `EVENT_TAIL_THRESHOLD` **pins 9.0 for the four wave-1 events** - all four published
+  `P(point >= 9 K)` tables were drawn with the constant - and anything else derives the
+  sign-aware `TAIL_PERCENTILE`th (95th) percentile of the OBSERVED ERA5 field over the
+  event box: event-intrinsic, correctly scaled, and readable as "what fraction of the
+  population's grid points got as extreme as the most extreme 5% of what actually
+  happened". `tail_probability()` takes `sign`; the axis inverts for a cold event (the
+  house convention `aplots` already used: further right is always more extreme); labels
+  become `P(point <= a)`; units come from the metric. The value AND its provenance are
+  written to `pdf_fields.nc` attrs (`tail_threshold`, `tail_threshold_source`,
+  `tail_sign`) - nothing recorded them before, so a regenerated figure could not be told
+  from an archived one. **Verified**: PNW regenerates bit-identical numbers (box weighted
+  0.05053, ERA5 0.08480, direct 0.00107).
+- `aires/apdfs.py` prose: the footnote asserted the heaviest weight belongs to "the
+  population's coldest member". That inverts on a freeze - resampling tilts toward the
+  cold tail there, so the least-selected walker is the WARMEST. It is now MEASURED (the
+  rank of `argmax(weight)` in the tail direction) rather than restating the mechanism.
+- `aires/amaps.py`: `truth_field()` hardcoded the stem `<event>_verif_t2m_anom.nc` and the
+  variable `t2m_anom`, ignoring `ev.metric`. Correct for this slate (all five are T2m) but
+  a latent trap - a wind event would have silently loaded the same event's T2m field.
+  Now metric-driven, matching `fevents.era5_truth_path`. New `aires/tests/test_amaps.py`
+  (there was none) pins it, plus `_sym`'s behaviour on a near-median field.
+- Two sign bugs that would have misreported on the cold runs, both diagnostic-only:
+  `aires/gate3.py`'s "walkers reaching the observed value" counted `realized >= observed`
+  unsigned (on a freeze that is the walkers WARMER than the event, a number near N that
+  reads as "no trouble getting there"); `aires/aplots.py::_marginal`'s "k/N" annotation
+  had the same bug, where the exceedance panel 20 lines away already did it correctly.
+  Gate 3's PASS/FAIL verdict is a Spearman correlation and is legitimately sign-symmetric.
+
+Prep verification, all five, BEFORE any GPU time (the check this whole plan guards):
+`READY: yes` and the tail line reads **LOW (cold event: clone the most negative A_L)** for
+Uri and Elliott and **HIGH** for the three p90 cases. ~63.9 H100-h and ~8.0 h wall each.
+
+Wave-2 state (cap: <= 4 GPU nodes; never > 2 concurrent productions; prune each run the
+moment `compare.json` exists):
+
+- [x] job **1181** Uri Gate 3: **PASS** (2 h 07 m). rho_s **+0.909** at 9 d
+  [CI +0.71, +0.98] and **+0.968** at 12 d [+0.85, +1.00] against the 0.50 threshold -
+  the STRONGEST of the three Gate 3 runs (PNW 0.797/0.959, SCentral 0.700/0.765), and it
+  establishes FCN3 score skill on a COLD target, which no earlier gate did. Persistence
+  is +0.432 at 9 d and +0.062 at 12 d, so the margin over "who is coldest now" is wide at
+  both required leads - unlike SCentral, where persistence reached +0.582 at 12 d. (3 d
+  is -0.035, but its noise ceiling is 0.000: at that lead the 6-member score sd exceeds
+  the between-walker spread, so nothing is measurable there. C_1 = 0 anyway.) Secondary
+  CONUS index agrees: +0.906 / +0.941.
+  **THE COLD SIGN CHAIN IS NOW VERIFIED END TO END** - `tail_sign` -1 -> the box scan
+  sorted coldest-first -> prep printed `LOW (cold event...)` -> the score ranks the cold
+  tail, and the reduce's own reach line reads `walkers reaching the observed value
+  (A_L <= -7.40): 0/16`. That line is also the proof the sign fix works: unsigned it
+  would have read 16/16, because every free-running walker is warmer than the freeze.
+  The 16 free-running walkers double as a second DS baseline (box mean +0.406 +- 3.227,
+  range [-5.16, +6.43] vs the observed -7.40 - 0/16, consistent with the xres cube's
+  +0.06 +- 3.27 and 0/24).
+- [ ] job **1182** `p90_20251224` production (submitted 2026-08-25 21:32). Started
+  CONCURRENTLY with the Gate 3 rather than after it: it is a warm high-tail case that
+  shares no part of the cold sign chain the gate is testing, and 2 GPU nodes / 1
+  production is inside both caps.
+- [ ] job **1183** Uri production (submitted 2026-08-25 23:44, after the gate passed).
+  Prep seeded **64 artifacts for 32 (walker, segment) pairs** from the Gate 3 tree as
+  hardlinks - segment 1 is the same rollout in both runs and segment 2 is too, because
+  C_1 = 0 makes the first resampling the identity - which drops the budget from 63.9 to
+  **61.1 H100-h** (~7.6 h wall). Seeding is done in the manual login-node prep on
+  purpose: `aires_res.slurm` passes `--no-seed` in-job so a GPU allocation can never
+  silently become a builder.
+- [ ] Elliott and the two remaining p90 cases skip Gate 3, on the wave-1 argument: their
+  cached 24-member xres cubes ARE the DS baseline, and once Uri passes, Elliott inherits
+  the cold-T2m skill argument. Residual-risk checks are free - the first resampling
+  (3 d, C=0) is the identity, so walkers are still i.i.d. at 6 d and a post-hoc
+  score-vs-realized `rho_s` falls out of the run's own score cubes; a skill collapse shows
+  as per-leg ESS/N crashing without recovery.
 - [ ] wave 3 (optional): p90_20240802 at N=32 tag `pilot32` as the mild control
 - [ ] after each finished+compared run: `--stage ds`, `--stage compare`, apdfs/aplots/amaps,
   then `--stage prune`

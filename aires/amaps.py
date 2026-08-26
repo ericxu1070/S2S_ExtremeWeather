@@ -60,15 +60,24 @@ BOX_EDGE = "#111111"
 # --------------------------------------------------------------------------- #
 # Truth
 # --------------------------------------------------------------------------- #
-def truth_field(event: str, source: str = "era5") -> xr.DataArray:
-    """The observed 7-day-mean T2m anomaly. ``source`` is ``era5`` or ``hrrr``."""
-    stem = f"{event}_verif_t2m_anom.nc" if source == "era5" else \
-           f"{event}_hrrr_verif_t2m_anom.nc"
+def truth_field(event: str, metric: str = "t2m_anom",
+                source: str = "era5") -> xr.DataArray:
+    """The observed 7-day-mean field for ``metric``. ``source`` is ``era5`` or ``hrrr``.
+
+    The stem and the variable both come from ``metric`` rather than being hardcoded to
+    ``t2m_anom``: ``fcn3.fevents.era5_truth_path`` and ``xres.xhrrr`` name these files
+    ``<event>_verif_<metric>.nc`` / ``<event>_hrrr_verif_<metric>.nc``, and every AI+RES
+    production so far has happened to be T2m. A wind- or precip-metric event would
+    otherwise have loaded some other event's T2m file, or crashed on a missing key,
+    rather than saying which file it wanted.
+    """
+    stem = (f"{event}_verif_{metric}.nc" if source == "era5"
+            else f"{event}_hrrr_verif_{metric}.nc")
     p = C.OBS_DIR / stem
     if not p.exists():
         raise SystemExit(f"no observed truth at {p}")
     with xr.open_dataset(p) as ds:
-        return ds["t2m_anom"].load()
+        return ds[metric].load()
 
 
 # --------------------------------------------------------------------------- #
@@ -182,7 +191,7 @@ def build_panels(ctx: R.Ctx, d: dict) -> dict:
     """
     ev, peak, metric = ctx.event, ctx.ev.peak, ctx.ev.metric
     box = AI.box_for(ev)
-    obs = truth_field(ev, "era5")
+    obs = truth_field(ev, metric, "era5")
     al = np.asarray(d["realized"]["box"], dtype=float)
     sign = float(d["config"].get("tail_sign", 1.0))
     observed = float(d["observed"])
@@ -218,7 +227,7 @@ def build_panels(ctx: R.Ctx, d: dict) -> dict:
         raise SystemExit("no baseline available at all: need the xres cube, a Gate 3 "
                          "tree, or an FCN3 cube to compare against")
     try:
-        hrrr = truth_field(ev, "hrrr")
+        hrrr = truth_field(ev, metric, "hrrr")
     except SystemExit:
         print("    (no HRRR truth for this event)")
         hrrr = None

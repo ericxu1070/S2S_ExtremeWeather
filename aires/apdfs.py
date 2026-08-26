@@ -89,7 +89,40 @@ WINDOW_FRAMES = 13
 GATE_TOL = 1e-6
 
 # The tail the figure tabulates: a per-grid-point exceedance, not an A_L exceedance.
-TAIL_THRESHOLD = 9.0
+#
+# This was a single module constant, +9 K, for as long as every AI+RES production was a
+# warm high-tail heat dome. It does not survive contact with the rest of the severity
+# ladder: for a cold event it is wrong-SIGNED (a freeze has no grid points above +9 K, so
+# every row of the table would read 0.00000), and for a near-median warm case it is the
+# wrong SCALE (a +0.2 K event's field never approaches +9 K either). So the threshold is
+# now per-event, in the ``aindex.EVENT_BOXES`` idiom: a pinned registry, plus a derived
+# default for anything not in it.
+#
+# PINNED. The four wave-1 events were all drawn with the module constant, and their
+# ``P(point >= 9 K)`` tables are quoted in aires/HANDOFF.md and sit in figures/aires/.
+# Pinning them here is what keeps a regenerated figure bit-identical to the archived one;
+# do not "clean this up" by deriving them.
+PINNED_TAIL_THRESHOLD = 9.0
+EVENT_TAIL_THRESHOLD: dict[str, float] = {
+    "PNW_HeatDome_2021": PINNED_TAIL_THRESHOLD,
+    "SCentral_HeatDome_2023": PINNED_TAIL_THRESHOLD,
+    "California_HeatWave_2022": PINNED_TAIL_THRESHOLD,
+    "Southwest_HeatWave_2020": PINNED_TAIL_THRESHOLD,
+}
+
+# DERIVED, for every event not pinned above: the sign-aware ``TAIL_PERCENTILE``-th
+# percentile of the OBSERVED ERA5 verification-week field over the event box. It is
+# event-intrinsic and scales correctly - a +1 K case gets a +1-ish K threshold, not +9 -
+# and it reads as "what fraction of this population's grid points got as extreme as the
+# most extreme 5% of what actually happened". For a cold event the sign flips it to the
+# 5th percentile, i.e. the coldest 5% of the observed field.
+#
+# It is computed ONCE per event, on the BOX region, in ``build``, and both the box and
+# CONUS figures use that one value - the same discipline the module constant enforced by
+# accident, so the two panels stay comparable to each other. The value and its provenance
+# are written into ``pdf_fields.nc`` attrs (``tail_threshold`` / ``tail_threshold_source``)
+# because otherwise a regenerated figure cannot be told from an archived one.
+TAIL_PERCENTILE = 95.0
 
 # Which populations define the SHARED bin range (the house mean +/- 4 sigma rule, clipped
 # to the data range). The three headline curves only: ERA5, the AI+RES population and the
@@ -254,11 +287,65 @@ def shared_range(pools, nsigma: float = 4.0) -> tuple[float, float]:
             float(min(allv.max(), mu + nsigma * sd)))
 
 
-def tail_probability(points, density, threshold: float = TAIL_THRESHOLD) -> float:
-    """Mass of the binned curve at or above ``threshold``, by bin centre."""
+def tail_probability(points, density, threshold: float = PINNED_TAIL_THRESHOLD,
+                     sign: float = 1.0) -> float:
+    """Mass of the binned curve in the EXTREME tail past ``threshold``, by bin centre.
+
+    ``sign`` is ``aindex.tail_sign``: ``+1`` takes the mass at or above the threshold,
+    ``-1`` the mass at or below it. It defaults to ``+1``, which is the unsigned
+    behaviour every warm-event figure already drawn used.
+    """
     p = np.asarray(points, dtype="float64")
     d = np.asarray(density, dtype="float64")
-    return float(np.nansum(d[p >= float(threshold)]))
+    sign = float(sign)
+    return float(np.nansum(d[sign * p >= sign * float(threshold)]))
+
+
+def default_tail_threshold(values, sign: float, q: float = TAIL_PERCENTILE) -> float:
+    """The ``q``-th percentile of ``values`` on the side ``sign`` calls extreme.
+
+    ``sign = +1`` -> the q-th percentile (the warm tail); ``sign = -1`` -> the
+    ``100 - q``-th (the cold one). ``values`` is meant to be the OBSERVED ERA5 field over
+    the event box - see ``TAIL_PERCENTILE``.
+    """
+    v = np.asarray(values, dtype="float64").ravel()
+    v = v[np.isfinite(v)]
+    if v.size == 0:
+        raise ValueError("no finite values to take a tail threshold from")
+    return float(np.percentile(v, float(q) if float(sign) > 0 else 100.0 - float(q)))
+
+
+def tail_threshold_for(event: str, era5_box_values, sign: float) -> tuple[float, str]:
+    """``(threshold, provenance)`` for ``event``: the pin if it has one, else derived."""
+    if event in EVENT_TAIL_THRESHOLD:
+        return float(EVENT_TAIL_THRESHOLD[event]), "pinned (wave-1 published table)"
+    q = TAIL_PERCENTILE if float(sign) > 0 else 100.0 - TAIL_PERCENTILE
+    return (default_tail_threshold(era5_box_values, sign),
+            f"ERA5 truth over the event box, p{q:g}")
+
+
+def tail_op(sign: float) -> str:
+    """The comparison glyph the tail is stated with: ``>=`` warm, ``<=`` cold."""
+    return ">=" if float(sign) > 0 else "<="
+
+
+def metric_unit(metric: str) -> str:
+    """The metric's own unit, the ``aires.aplots`` idiom (empty where it has none)."""
+    return "K" if metric == "t2m_anom" else (
+        "m s$^{-1}$" if "speed" in metric else ("mm" if metric.startswith("tp") else ""))
+
+
+METRIC_WHAT = {"t2m_anom": "T2m anomaly",
+               "u850_speed": "850 hPa wind speed",
+               "u850_speed_max": "850 hPa wind speed",
+               "tp_total": "12 h precipitation",
+               "tp_max12h": "12 h precipitation"}
+
+
+def _what(ds) -> str:
+    """How the drawn quantity is named in prose, from the intermediate's own metric."""
+    m = str(ds.attrs.get("metric", "t2m_anom"))
+    return METRIC_WHAT.get(m, m)
 
 
 # --------------------------------------------------------------------------- #
@@ -456,8 +543,12 @@ def build(ctx: R.Ctx, *, force: bool = False) -> Path:
     norm = float(result.normalization_check())
 
     box = AI.box_for(ctx.event)
+    # The run's OWN sign, not a re-derivation: compare.json records what the walk was
+    # actually resampled on, and a figure must describe the run that happened.
+    sign = float(d["config"].get("tail_sign", ctx.sign))
     print(f"[apdfs] build: {ctx.event} tag={ctx.tag} metric={ctx.ev.metric} "
-          f"box={box.name} ({box.label})")
+          f"box={box.name} ({box.label})  tail "
+          f"{'HIGH (+1)' if sign > 0 else 'LOW (-1, cold event)'}")
 
     # --- G4: the weights, before anything is read off disk --------------------- #
     g4 = _max_abs("weights", weights, d["weights"])
@@ -494,6 +585,12 @@ def build(ctx: R.Ctx, *, force: bool = False) -> Path:
     gencast_walkers = gate3_fields(ctx)
     fcn3 = (_member_field(ctx, F.cube_path(ctx.ev), "fcn3", "fcn3")
             if F.cube_path(ctx.ev).exists() else None)
+    # The per-event tail threshold, taken ONCE, on the box region, from the observed
+    # field - so both the box and the CONUS figure tabulate the same number.
+    thr, thr_src = tail_threshold_for(ctx.event, AI.crop(era5, box).values, sign)
+    print(f"[apdfs] tail threshold  P(point {tail_op(sign)} {thr:+.4g} "
+          f"{metric_unit(ctx.ev.metric)})   source: {thr_src}")
+
     gencast_xres_source = "xres"
     if gencast_xres is None:
         if gencast_walkers is None:
@@ -575,6 +672,9 @@ def build(ctx: R.Ctx, *, force: bool = False) -> Path:
     ds.attrs = dict(
         event=ctx.event, tag=ctx.tag, metric=ctx.ev.metric,
         n_walkers=int(ctx.n_walkers),
+        tail_sign=float(sign),
+        tail_threshold=float(thr), tail_threshold_source=thr_src,
+        tail_percentile=float(TAIL_PERCENTILE),
         gencast_xres_source=gencast_xres_source,
         log_Z=float(result.log_Z), normalization_check=norm,
         sum_weights=float(weights.sum()), ess_weights=_ess(weights),
@@ -616,8 +716,9 @@ def build(ctx: R.Ctx, *, force: bool = False) -> Path:
     # two can be lined up without opening either file.
     o = ds.attrs["observed_box"]
     if np.isfinite(o):
-        p_self = float(np.sum(weights * (a_box >= o)) / np.sum(weights))
-        print(f"[apdfs] weighted P(A_L >= observed {o:+.5f}) = {p_self:.6f} "
+        p_self = float(np.sum(weights * (sign * a_box >= sign * o)) / np.sum(weights))
+        print(f"[apdfs] weighted P(A_L {tail_op(sign)} observed {o:+.5f}) "
+              f"= {p_self:.6f} "
               f"self-normalized, {p_self * norm:.6f} Z-scaled")
 
     if not (ok_g1 and ok_g4 and ok_g13):
@@ -742,6 +843,16 @@ def plot_pdf(ctx: R.Ctx, ds: xr.Dataset, region_key: str, *, z_scaled: bool = Fa
     entries = curve_entries(ds, region, with_hrrr=with_hrrr)
     by_key = {e["key"]: e for e in entries}
     znorm = float(ds.attrs["normalization_check"])
+    # From the cached intermediate, never re-derived: the threshold is baked in at build
+    # time, so a figure and its pdf_fields.nc always tabulate the same number. The
+    # fallbacks are what let this module still draw an intermediate written before the
+    # threshold became per-event.
+    sign = float(ds.attrs.get("tail_sign", 1.0))
+    thr = float(ds.attrs.get("tail_threshold", PINNED_TAIL_THRESHOLD))
+    thr_src = str(ds.attrs.get("tail_threshold_source", "pinned (wave-1 published table)"))
+    op = tail_op(sign)
+    unit = metric_unit(str(ds.attrs.get("metric", ctx.ev.metric)))
+    u = f" {unit}" if unit else ""
 
     xmin, xmax = shared_range([by_key[k]["values"] for k in BIN_RANGE_SOURCES
                                if k in by_key])
@@ -760,20 +871,27 @@ def plot_pdf(ctx: R.Ctx, ds: xr.Dataset, region_key: str, *, z_scaled: bool = Fa
         # honest "nothing sampled here"; a line at 1e-6 is a probability nobody measured.
         y = np.where(dens > 0, np.clip(dens, YMIN, None), np.nan)
         ax.plot(pts, y, label=e["label"], **st)
-        rows.append((e["tag"], tail_probability(pts, dens), float(np.nansum(dens))))
+        rows.append((e["tag"], tail_probability(pts, dens, thr, sign),
+                     float(np.nansum(dens))))
 
     # Echoed so the run log carries the same numbers the figure does: the shared bin
     # range, each curve's mass inside it (a curve well under 1 is a clipped range) and
     # the tail the table shows.
-    print(f"  {region_key}: {NBINS} shared bins over [{xmin:+.4f}, {xmax:+.4f}] K")
+    print(f"  {region_key}: {NBINS} shared bins over [{xmin:+.4f}, {xmax:+.4f}]{u}")
+    print(f"    tail: P(point {op} {thr:+.4g}{u})   [{thr_src}]")
     for tag, p, m in rows:
         print(f"    {tag:22s} mass {m:.5f}   "
-              f"P(point >= {TAIL_THRESHOLD:g} K) {p:.5f}")
+              f"P(point {op} {thr:+.4g}{u}) {p:.5f}")
 
     obs = float(ds.attrs[f"observed_{region_key}"])
     if np.isfinite(obs):
         ax.axvline(obs, color=OBS_COLOR, lw=1.5, ls="--", zorder=8)
-        ax.text(obs, 0.02, f"  ERA5 observed $A_L$ = {obs:+.2f} K", color=OBS_COLOR,
+        # ha stays "left" for BOTH signs, unlike the horizontal observed-value label in
+        # aires/aplots.py. This text is rotated 90 degrees, so ha aligns it along its own
+        # reading direction (bottom-to-top) rather than choosing a side of the line -
+        # "right" hangs it off the bottom of the axes instead of mirroring it. The axis
+        # inversion above is what puts the label on the correct side of a cold event.
+        ax.text(obs, 0.02, f"  ERA5 observed $A_L$ = {obs:+.2f}{u}", color=OBS_COLOR,
                 fontsize=8.5, transform=ax.get_xaxis_transform(), va="bottom",
                 ha="left", rotation=90)
 
@@ -782,20 +900,25 @@ def plot_pdf(ctx: R.Ctx, ds: xr.Dataset, region_key: str, *, z_scaled: bool = Fa
     ax.set_yscale("log")
     ax.set_ylim(YMIN, 1.0)
     ax.set_xlim(xmin, xmax)
-    ax.set_xlabel("verification-week mean T2m anomaly (K)")
+    # House convention, the same one aires/aplots.py applies to the exceedance curve:
+    # further RIGHT always means more extreme, so a cold event's axis runs the other way.
+    if sign < 0:
+        ax.invert_xaxis()
+    ax.set_xlabel(f"verification-week mean {_what(ds)}"
+                  + (f" ({unit})" if unit else ""))
     ax.set_ylabel("PDF (probability per bin)")
     ax.set_title(
-        f"{ctx.ev.label} ({ctx.tag}): spatial PDF of the verification-week T2m anomaly "
+        f"{ctx.ev.label} ({ctx.tag}): spatial PDF of the verification-week {_what(ds)} "
         f"over {region.name}\n{ds.attrs['window_start']} .. {ds.attrs['window_end']} "
         f"({ds.attrs['window_frames']} frames at {ds.attrs['window_step_h']} h);  "
-        f"{NBINS} shared bins over [{xmin:+.2f}, {xmax:+.2f}] K", fontsize=10.5)
+        f"{NBINS} shared bins over [{xmin:+.2f}, {xmax:+.2f}]{u}", fontsize=10.5)
     ax.legend(fontsize=7.6, loc="upper left", framealpha=0.94)
 
     # The tail the figure is actually about - computed from the curves that were drawn,
     # never hand-typed.
     ref = dict((t, p) for t, p, _m in rows).get("ERA5 truth", float("nan"))
-    lines = [f"P(point >= {TAIL_THRESHOLD:g} K)         p    x ERA5",
-             "-" * 40]
+    head = f"P(point {op} {thr:+.4g}{u})"
+    lines = [f"{head:22s} {'p':>7s}   {'x ERA5':>6s}", "-" * 40]
     for tag, p, _m in rows:
         r = (p / ref) if ref else float("nan")
         lines.append(f"{tag:22s} {p:7.4f}   {r:6.2f}")
@@ -813,14 +936,35 @@ def plot_pdf(ctx: R.Ctx, ds: xr.Dataset, region_key: str, *, z_scaled: bool = Fa
              f"whole curve down by {abs(np.log10(znorm)):.3f} decades (not applied).")
     fig.text(0.5, 0.082, scaled if z_scaled else plain, ha="center", va="bottom",
              ma="center", fontsize=8.2, color="0.25")
+    # MEASURED, not asserted. The generic argument is that resampling tilts towards the
+    # extreme tail, so the estimator has to undo that tilt hardest on the walker it least
+    # selected - which is the LEAST extreme one, i.e. the coldest member of a heat event
+    # and the WARMEST member of a freeze. Reporting the rank the heaviest weight actually
+    # sits at states the true fact for this run instead of restating the mechanism, and
+    # cannot invert when the sign does.
+    a_box = np.asarray(ds["a_box"].values, dtype="float64")
+    wts = np.asarray(ds["weight"].values, dtype="float64")
+    iw = int(np.argmax(wts))
+    rank = int(np.sum(sign * a_box > sign * a_box[iw])) + 1
+    n_w = int(ds.attrs["n_walkers"])
+    flip = ("  The x axis is INVERTED (cold event), so further right is more extreme "
+            "here exactly as it is on the exceedance figure.\n" if sign < 0 else "")
+    # Only claim the mechanism when the measurement agrees with it. Normally the heaviest
+    # weight sits at the least-selected end and the rank is near N; if it does not, say
+    # that instead of asserting a story the numbers contradict.
+    why = ("the end resampling least selected" if rank > n_w / 2 else
+           "INSIDE the tail resampling favoured, which is not the usual pattern")
     fig.text(0.5, 0.008,
              f"Weight ESS is {ds.attrs['ess_weights']:.1f} of "
-             f"{int(ds.attrs['n_walkers'])} walkers and the heaviest weight belongs to "
-             f"the population's coldest member, so the weighted curve's mode\n"
-             f"and left flank are a small-sample artifact - the right tail is what this "
-             f"figure is for.  FCN3's window is 25 six-hourly frames against the\n"
-             f"walkers' 13 twelve-hourly ones, the established repo convention, kept so "
-             f"these numbers stay bit-identical to compare.json.",
+             f"{n_w} walkers and the heaviest weight belongs to the walker ranked "
+             f"{rank}/{n_w} by $A_L$ towards the extreme\n"
+             f"({a_box[iw]:+.2f}{u}) - {why} - so the "
+             f"weighted curve's mode and its flank away from the tail are a\n"
+             f"small-sample artifact; the extreme tail is what this figure is for."
+             f"{flip}"
+             f"  FCN3's window is 25 six-hourly frames against the walkers' 13 "
+             f"twelve-hourly ones, the established repo convention, kept so these "
+             f"numbers stay bit-identical to compare.json.",
              ha="center", va="bottom", ma="center", fontsize=7.6, style="italic",
              color="0.35")
     fig.tight_layout(rect=[0, 0.145, 1, 1])
@@ -846,6 +990,8 @@ def plot_anom_maps(ctx: R.Ctx, ds: xr.Dataset) -> Path:
     box = None if region is AI.CONUS else region
     n_w = int(ds.attrs["n_walkers"])
     ess = float(ds.attrs["ess_weights"])
+    unit = metric_unit(str(ds.attrs.get("metric", ctx.ev.metric)))
+    u = f" {unit}" if unit else ""
 
     fig = plt.figure(figsize=(15.0, 4.9))
     panels = [
@@ -856,11 +1002,12 @@ def plot_anom_maps(ctx: R.Ctx, ds: xr.Dataset) -> Path:
     ]
     for i, (da, title) in enumerate(panels, start=1):
         AT._draw(fig, (1, 3, i), da, title, cmap="RdBu_r", vmin=-lim, vmax=lim,
-                 label="verification-week mean T2m anomaly (K)", ccrs=ccrs, box=box)
+                 label=f"verification-week mean {_what(ds)}"
+                       + (f" ({unit})" if unit else ""), ccrs=ccrs, box=box)
 
     fig.suptitle(
         f"AI+RES pilot - {ctx.event} ({ctx.tag}): the three headline distributions as "
-        f"maps, on one shared symmetric scale (+/-{lim:.1f} K, robust 99.5th pct).\n"
+        f"maps, on one shared symmetric scale (+/-{lim:.1f}{u}, robust 99.5th pct).\n"
         f"Dashed box = the scored region, {region.name} ({region.label}). The composite "
         f"is a weighted MEAN whose ESS is {ess:.1f} of {n_w} walkers - read it as where "
         f"the weight sits, not as a forecast.", fontsize=9.6, y=0.99, va="top")
@@ -869,12 +1016,22 @@ def plot_anom_maps(ctx: R.Ctx, ds: xr.Dataset) -> Path:
 
 
 def figs(ctx: R.Ctx, want, *, z_scaled: bool = False, with_hrrr: bool = False) -> None:
+    from aires import aindex as AI
+
     ds = load_fields(ctx)
     print(f"[apdfs] figs: {ctx.event} tag={ctx.tag}: {', '.join(want)}")
     if "pdf_conus" in want:
         plot_pdf(ctx, ds, "conus", z_scaled=z_scaled, with_hrrr=with_hrrr)
     if "pdf_box" in want:
-        plot_pdf(ctx, ds, "box", z_scaled=z_scaled, with_hrrr=with_hrrr)
+        # The p90 cases have no event box: their index IS the CONUS mean by definition
+        # (p90/cases_meta.json), so `box_for` returns CONUS and the two figures would be
+        # the same picture under two filenames - which reads, in a figure folder, as two
+        # measurements that happen to agree. Say it instead of drawing it twice.
+        if AI.box_for(ctx.event) is AI.CONUS and "pdf_conus" in want:
+            print("  pdf_box: skipped - this event's scored region IS CONUS "
+                  "(no event box registered), so it would duplicate pdf_conus")
+        else:
+            plot_pdf(ctx, ds, "box", z_scaled=z_scaled, with_hrrr=with_hrrr)
     if "anom_maps" in want:
         plot_anom_maps(ctx, ds)
 

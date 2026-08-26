@@ -281,6 +281,14 @@ RES_EVENTS: dict[str, Event] = {
         "California Heat Wave 2022", "xres",
         "xres-native, same as Southwest. See aires/aindex.py for why its box is a "
         "documented choice, not a maximisation."),
+    "WinterStorm_Elliott_2022": Event(
+        "WinterStorm_Elliott_2022", "2022-12-23", "t2m_anom", "cold",
+        "Winter Storm Elliott 2022", "xres",
+        "xres-native (already in xres.xconfig.XRES_EVENTS and COLD_EVENTS): init "
+        "frames, the 24-member 0.25 deg GenCast week-3 cube and the ERA5 truth are all "
+        "on disk. family='cold' is what makes Event.cold true and flips "
+        "aires.aindex.tail_sign to -1 -- the first AI+RES production to exercise the "
+        "negative-tail path end to end."),
 }
 RES_ORDER = tuple(RES_EVENTS)
 
