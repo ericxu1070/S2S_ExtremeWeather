@@ -45,6 +45,21 @@ grid against 0.25 deg in mountainous terrain. That is the scale of the represent
 term, and it is small against the +7.7 K the event itself registers. It is not zero and a
 1 K-level result should not be argued from this cube alone.
 
+How much the coarse grid costs the INDEX, measured on the truth (2026-08-26): push each
+event's ERA5 verification field through CFS's own grid (0.25 -> T126 -> 0.25, the same
+bilinear path ``grib_to_cube`` puts CFS through) and re-score it. Over all nine events the
+round trip moves ``A_L`` by mean +0.010 K, max |0.134| K; the no-regrid estimator (cos-lat
+mean over the native cells in the box) differs by at most 0.167 K. So resolution is worth
+~0.17 K at the very worst, against 2.3-11.6 K gaps on the extreme events - it does not
+explain them. That is a property of THIS index: a 7-day mean over a 6x6 degree box is
+already a brutal spatial smoother, so coarsening a field that is about to be averaged over
+~36 deg^2 barely moves the average. It would NOT hold for a point maximum, a spatial
+percentile or a precipitation extreme. It also does not bound the climatology term above,
+which is the actually-open one; and a coarse model failing to build a sharp ridge is
+forecast skill, not unfairness. On the two mild p90 rungs, where the whole signal is ~1 K,
+the ~0.1 K discretisation term is the same order as the error being measured - quote those
+two with an error bar.
+
 A second, smaller term with the same cause: a 6 deg event box is only ~6.4 CFS cells
 across, so "the box mean" is itself resolution-dependent. Regridding to 0.25 deg and
 averaging there differs from a cos(lat) mean over the native cells whose centres fall in
@@ -69,8 +84,21 @@ every record, and the store honours HTTP range requests - so a 21-day window is 
 ~7 MB prefix read instead of a 95 MB download. Four members per event costs ~27 MB and a
 few seconds.
 
-The AWS mirror (``noaa-cfs-pds``) is NOT usable here: it is a rolling archive that starts
-in 2023 and every event in this experiment except SCentral_HeatDome_2023 predates it.
+NCEI is the archive of record but it is NOT complete. Measured 2026-08-26: the whole of
+2024 and December 2025 return 404 for every cycle - which is every cycle two of the p90
+cases need. NOAA's AWS Open-Data mirror (``noaa-cfs-pds``) carries those, so it is tried
+second, per cycle, whenever NCEI has nothing.
+
+That fallback is a second ADDRESS for one product, not a second data source, and it was
+verified rather than assumed. On 2023-10-16 06Z ``tmp2m``, which both archives hold, they
+agree exactly: identical ``Content-Length`` (91,845,361 B), identical md5 over the 6.9 MB
+window prefix the fetch actually reads, and byte-identical inventories. The mirror is a
+rolling archive starting 2023-04-22, so it cannot help the four events that predate it -
+NCEI covers all four, and between them every event has a source.
+
+They differ in layout and in what they call the inventory sidecar: NCEI REPLACES
+``.grb2`` with ``.inv``, AWS APPENDS ``.idx``. Both are wgrib inventories and
+``parse_inv`` reads either unchanged.
 
 Metrics
 -------
@@ -116,6 +144,10 @@ CFS_BASE = os.environ.get(
     "https://www.ncei.noaa.gov/oa/prod-cfs-operational-forecast")
 CFS_PRODUCT = "time-series"
 CFS_MEMBER = "01"          # the operational time series has one member per cycle
+# NOAA's AWS Open-Data mirror of that same product, tried when NCEI 404s a cycle.
+# ``time_grib_01`` is NCEI's ``time-series`` member 01 under a different prefix.
+AWS_BASE = os.environ.get("AIRES_CFS_AWS_BASE",
+                          "https://noaa-cfs-pds.s3.amazonaws.com")
 CYCLE_H = 6                # CFSv2 runs 00/06/12/18Z
 N_CYCLES = int(os.environ.get("AIRES_CFS_CYCLES", 4))
 LAG_MODE = os.environ.get("AIRES_CFS_LAG", "trailing")   # trailing | sameday
@@ -174,6 +206,34 @@ def cfs_url(cycle: pd.Timestamp, var: str, ext: str = "grb2") -> str:
             f"{var}.{CFS_MEMBER}.{stamp}.daily.{ext}")
 
 
+def aws_url(cycle: pd.Timestamp, var: str, ext: str = "grb2") -> str:
+    """The same object on NOAA's AWS Open-Data mirror.
+
+    Two things differ from ``cfs_url`` and both are load-bearing. The layout is
+    ``cfs.<YYYYMMDD>/<HH>/time_grib_01/`` rather than NCEI's four nested date levels,
+    and the inventory sidecar is ``.idx`` APPENDED to the full ``.grb2`` name - the exact
+    opposite of NCEI's convention, where ``.inv`` replaces the suffix. Getting either
+    backwards yields a 404 against an object that is present.
+
+    The file NAME is identical on both, which is the clue that it is one product.
+    """
+    stamp = cycle.strftime("%Y%m%d%H")
+    name = f"{var}.{CFS_MEMBER}.{stamp}.daily.grb2"
+    if ext == "inv":
+        name += ".idx"
+    elif ext != "grb2":
+        raise ValueError(f"unknown archive extension {ext!r}; want grb2|inv")
+    return (f"{AWS_BASE}/cfs.{cycle:%Y%m%d}/{cycle:%H}/"
+            f"time_grib_{CFS_MEMBER}/{name}")
+
+
+# Tried in this order, per cycle. NCEI first because it is the archive of record and
+# reaches back to 2011; the mirror only starts 2023-04-22 but covers NCEI's 2024 and
+# December 2025 holes. Both serve the identical bytes where they overlap (see the
+# module docstring for the check).
+ARCHIVES = (("NCEI", cfs_url), ("AWS", aws_url))
+
+
 # --------------------------------------------------------------------------- #
 # HTTP with byte ranges
 # --------------------------------------------------------------------------- #
@@ -230,40 +290,58 @@ def parse_inv(text: str) -> list[tuple[int, int, int]]:
     return out
 
 
-def fetch_window(cycle: pd.Timestamp, var: str, max_hours: int, dest: Path) -> Path:
+def fetch_window(cycle: pd.Timestamp, var: str, max_hours: int, dest: Path) -> str:
     """Download only the records at forecast hour <= ``max_hours``, as one range read.
 
     Records are laid out in increasing byte order, so "every record we want" is a byte
     PREFIX of the file - one request, no stitching. The end of that prefix is the offset
     of the first record after the last one we want, which is why the whole inventory is
     parsed rather than just the part below the cut.
+
+    ``ARCHIVES`` are tried in order and the first one actually holding the cycle serves
+    it. Returns the name of that archive so the cube can record which one it came from;
+    raises ``MissingCycle`` only when NO archive has it.
     """
-    url = cfs_url(cycle, var)
-    raw = _get(cfs_url(cycle, var, "inv"), missing_ok=True)
-    if raw is None:
-        # The inventory is a sidecar and the archive is not uniform about shipping it
-        # (tmp2m at 2020-07-25 06Z has the GRIB2 but no .inv). Without offsets there is
-        # no safe prefix to ask for - a guessed range ends mid-message and eccodes reads
-        # garbage - so the whole 9-month run comes down and the extra steps are dropped
-        # on the time subset. ~95 MB instead of ~7, on a handful of cycles.
-        print(f"    no .inv for {cycle:%Y-%m-%d %HZ}; fetching the whole run instead")
-        blob = _get(url)
-    else:
-        inv = parse_inv(raw.decode())
-        wanted = [i for i, (_r, _o, fh) in enumerate(inv) if fh <= max_hours]
-        if not wanted:
-            raise SystemExit(f"{url}: no record at or below forecast hour {max_hours}")
-        last = max(wanted)
-        if inv[last][2] < max_hours:
-            raise SystemExit(
-                f"{url} stops at forecast hour {inv[last][2]} but the verification window "
-                f"needs {max_hours} h. The 9-month run should reach ~7150 h; this file is "
-                f"truncated and must not be scored.")
-        rng = "0-" if last + 1 >= len(inv) else f"0-{inv[last + 1][1] - 1}"
-        blob = _get(url, byte_range=rng)
-    dest.parent.mkdir(parents=True, exist_ok=True)
-    dest.write_bytes(blob)
-    return dest
+    absent = []
+    for name, url_of in ARCHIVES:
+        url = url_of(cycle, var)
+        # A one-byte range probe first: "this archive does not have this cycle" then
+        # costs one small request rather than being discovered partway through a
+        # 95 MB download, and the inventory's absence stays distinguishable from the
+        # payload's.
+        if _get(url, byte_range="0-0", missing_ok=True) is None:
+            absent.append(name)
+            continue
+        if absent:
+            print(f"    {cycle:%Y-%m-%d %HZ}  absent from {'/'.join(absent)}, "
+                  f"served by {name}")
+        raw = _get(url_of(cycle, var, "inv"), missing_ok=True)
+        if raw is None:
+            # The inventory is a sidecar and neither archive is uniform about shipping
+            # it (tmp2m at 2020-07-25 06Z has the GRIB2 but no .inv). Without offsets
+            # there is no safe prefix to ask for - a guessed range ends mid-message and
+            # eccodes reads garbage - so the whole 9-month run comes down and the extra
+            # steps are dropped on the time subset. ~95 MB instead of ~7.
+            print(f"    no inventory for {cycle:%Y-%m-%d %HZ} on {name}; "
+                  f"fetching the whole run instead")
+            blob = _get(url)
+        else:
+            inv = parse_inv(raw.decode())
+            wanted = [i for i, (_r, _o, fh) in enumerate(inv) if fh <= max_hours]
+            if not wanted:
+                raise SystemExit(f"{url}: no record at or below forecast hour {max_hours}")
+            last = max(wanted)
+            if inv[last][2] < max_hours:
+                raise SystemExit(
+                    f"{url} stops at forecast hour {inv[last][2]} but the verification "
+                    f"window needs {max_hours} h. The 9-month run should reach ~7150 h; "
+                    f"this file is truncated and must not be scored.")
+            rng = "0-" if last + 1 >= len(inv) else f"0-{inv[last + 1][1] - 1}"
+            blob = _get(url, byte_range=rng)
+        dest.parent.mkdir(parents=True, exist_ok=True)
+        dest.write_bytes(blob)
+        return name
+    raise MissingCycle(f"{var} {cycle:%Y-%m-%d %HZ} is in none of: {', '.join(absent)}")
 
 
 # --------------------------------------------------------------------------- #
@@ -370,13 +448,13 @@ def build(event: str, *, n_cycles: int = N_CYCLES, mode: str = LAG_MODE,
     work = Path(workdir) if workdir else out.parent / ".grib"
     print(f"[cfs] {event}: {var}, peak {peak.date()}, init {init} ({lead_days:g} d lead)")
 
-    cubes, skipped = [], []
+    cubes, skipped, served = [], [], {}
     for cyc in cycles:
         max_hours = int(round((peak - cyc) / pd.Timedelta(hours=1)))
         grb = work / f"{var}.{cyc:%Y%m%d%H}.grb2"
         if not grb.exists() or force:
             try:
-                fetch_window(cyc, var, max_hours, grb)
+                served[str(cyc)] = fetch_window(cyc, var, max_hours, grb)
             except MissingCycle as e:
                 # One absent cycle must not cost the whole event its baseline. The
                 # ensemble is a lag ensemble, so it degrades to n-1 members cleanly; what
@@ -414,7 +492,12 @@ def build(event: str, *, n_cycles: int = N_CYCLES, mode: str = LAG_MODE,
         raise SystemExit("the assembled CFS cube contains NaN; refusing to cache it")
     AI.check_window(cube, peak, metric, where=f"CFS {event} (assembled)")
     cube.attrs.update(
-        source="NCEP CFSv2 operational 9-month forecast (NCEI time-series product)",
+        source=f"NCEP CFSv2 operational 9-month forecast (time-series member "
+               f"{CFS_MEMBER})",
+        # Which archive each cycle actually came from. NCEI has 2024 and Dec 2025 holes
+        # that the AWS mirror fills, and a reader comparing two events' cubes should not
+        # have to guess which one was served from where.
+        archives=",".join(sorted(set(served.values()))) or "grib already cached",
         url=CFS_BASE, cfs_variable=var, event=event, metric=metric,
         init=str(init), peak=str(peak), lead_days=float(lead_days), lag_mode=mode,
         cycles_requested=len(cycles), cycles_skipped=",".join(skipped) or "none",
