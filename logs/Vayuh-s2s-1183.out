@@ -1,0 +1,55 @@
+Host: nucla3m-a3meganodeset-4
+Start: Tue Aug 25 23:41:03 UTC 2026
+GPU 0: NVIDIA H100 80GB HBM3 (UUID: GPU-8deaf399-5257-44be-de29-dbab5cab2837)
+GPU 1: NVIDIA H100 80GB HBM3 (UUID: GPU-08ce4409-9463-80ec-57ba-eca08d003482)
+GPU 2: NVIDIA H100 80GB HBM3 (UUID: GPU-8d511a9b-a471-736e-637d-a997e0a57717)
+GPU 3: NVIDIA H100 80GB HBM3 (UUID: GPU-ab33084f-509e-82b2-8949-d8815d024cb0)
+GPU 4: NVIDIA H100 80GB HBM3 (UUID: GPU-67dcae5f-2cfd-b933-fa3a-05a8184dccf0)
+GPU 5: NVIDIA H100 80GB HBM3 (UUID: GPU-6f4c5b9e-2690-3130-7cd6-0ff15eee4c02)
+GPU 6: NVIDIA H100 80GB HBM3 (UUID: GPU-5544fb35-a86b-e04c-5eea-201f7515a48a)
+GPU 7: NVIDIA H100 80GB HBM3 (UUID: GPU-5d02916b-f04f-56da-a539-ff7cf9f27b6f)
+AI+RES: event=WinterStorm_Uri_2021 tag=pilot backend=fcn3 shards=8
+AI+RES pilot - WinterStorm_Uri_2021  (init 2021-01-25, peak 2021-02-15, metric t2m_anom)
+WinterStorm_Uri_2021: primary box TX/OK (26-37N, 106W-94W)
+    Texas and Oklahoma - the freeze's footprint and the grid failure's. Cold event: the extreme tail is the NEGATIVE side of A_L.
+  secondary: CONUS (24-50N, 125W-66W)
+
+  N walkers        64
+  score backend    fcn3   M = 6
+  tail             LOW (cold event: clone the most negative A_L)
+  C_k              0, 1, 1.4, 1.8, 2 at 3 d, 6 d, 9 d, 12 d, 15 d
+  legs
+    1: 0 -> 3 d, segments [1], C = 0
+    2: 3 -> 6 d, segments [2], C = 1
+    3: 6 -> 9 d, segments [3], C = 1.4
+    4: 9 -> 12 d, segments [4], C = 1.8
+    5: 12 -> 15 d, segments [5], C = 2
+    6: 15 -> 21 d, segments [6, 7], carry to the horizon (no resampling)
+
+  prerequisites
+    walker init frames  OK   /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/xres/0p25/week3/inputs/WinterStorm_Uri_2021_inputs.nc
+    derived calibration OK   /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/aires/calib/derived_calib.nc
+    xres reference cube OK   /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/xres/0p25/week3/cache/WinterStorm_Uri_2021_cube.nc   (physical check on the first segment; not required)
+
+  cached            32/448 walker segments, 0/256 score cubes (32 states resident)
+
+  budget            walk 2,496 GenCast steps ~36.1 GPU-h (~270 min over 8 GPUs)
+                    score 64,512 FCN3 steps ~25.1 GPU-h (~188 min over 8 GPUs)
+                    total ~61.1 H100-h, ~7.6 h wall on one node
+
+  disk              states 92 GB peak (3 segments resident x 64 x 477 MB, --keep-states 2), diagnostics 16 GB, score cubes 3 GB
+                    ~110 GB needed, 350 GB free
+
+  configuration frozen at /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/aires/WinterStorm_Uri_2021/res/pilot/run.json
+
+  READY: yes
+--- res: Tue Aug 25 23:41:08 UTC 2026 ---
+[res] WinterStorm_Uri_2021 tag=pilot N=64 M=6 backend=fcn3 C=(0.0, 1.0, 1.4, 1.8, 2.0)
+[res] host=nucla3m-a3meganodeset-4 shards=8 visible GPUs=8 seed=20260819
+  [walk] leg 1: 48/64 segment(s) to roll (0 -> 3 d)
+  [walk-leg01] attempt 1/3: 8 shard(s)
+  [walk] leg 1: pool finished in 30.0 min
+  [score] leg 1 (skipped(C=0)): theta over the box mean -3.054, sd 0.630
+  [dmc] step 1: C=0.00 R=1.0000 ESS=64.0/64 killed=0 max_mult=1
+  [walk] leg 2: 48/64 segment(s) to roll (3 -> 6 d)
+  [walk-leg02] attempt 1/3: 8 shard(s)
