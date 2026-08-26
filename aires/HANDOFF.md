@@ -490,13 +490,109 @@ moment `compare.json` exists):
   (`p90_20251224` 0.689, Elliott 0.811, this run 0.704); check > 1 -> it reads LOW (Uri
   1.769). If that holds up it is a usable per-run correction indicator, which open
   problem 5 currently lacks.
-- [ ] job **1186** `p90_20231107` production (submitted 2026-08-26 13:52, as 1184's slot
-  freed). Run 5, the last of the slate: -0.97 sigma, a literal ~0 K anomaly BELOW the
-  ensemble median, direct 21/24.
+- [x] job **1186** `p90_20231107` production: **done** (7 h 25 m), reduced, figures
+  written, states pruned (91 GB). Run 5, the last of the slate: -0.97 sigma, a literal
+  ~0 K anomaly BELOW the ensemble median.
+  **THE ESTIMATOR DEGENERATES AT A BELOW-MEDIAN TARGET. This is the most useful thing the
+  bottom of the ladder produced, and it is a NEGATIVE result.** ERA5 observed +0.211 K;
+  direct sampling puts it at **21/24 = 0.875 [0.676, 0.973]**; AI+RES reports
+  **P = 0.5827**, BELOW the direct CI. The plan predicted ~0.88; the run missed it.
+  The cause is structural and was verified numerically, not inferred. Resampling tilted
+  the whole population warm, so its MINIMUM realized A_L is **+1.498 K**, well above the
+  +0.211 K target: the indicator `1{A_L >= obs}` is identically 1 over all 64 walkers.
+  The DMC estimate is `Z * mean(w * 1{...})`, so with the indicator identically 1 it
+  collapses to `Z * mean(w)` - **exactly the normalization check: 0.582662 vs 0.582662,
+  to every digit printed**. The estimator cannot report a probability above its own
+  normalization check, and here the truth (0.875) is above that ceiling. Self-normalizing
+  is no better: it returns exactly **1.000**, because "every walker reached it" is all the
+  information the population retains. **Neither number is the answer, and nothing inside
+  the run reveals that** - the failure is silent, and a reader of `compare.json` alone
+  would take 0.5827 at face value.
+  The rule this establishes: **AI+RES has no resolution at a target the tilt has already
+  carried the entire population past.** The usable operating range is targets the
+  resampled population still STRADDLES. `p90_20240802` at 0.00 sigma straddles it
+  (population min +0.39 vs target +1.06) and answers correctly; this run at -0.97 sigma
+  does not and returns a pinned value. That boundary is now measured rather than assumed,
+  and it is the honest lower limit of the method.
+  Run health is otherwise the BEST of the wave - log Z -1.0156, 15/64 founders, ESS/N
+  1.00 / 0.41 / **0.62** / 0.53 / 0.53, min 0.41 - which is exactly the point: a healthy
+  sampler can still return a meaningless probability if the target is on the wrong side
+  of the tilt. **Health metrics do not detect this failure.**
+  The spatial PDF shows the over-tilt from the other side: at the derived +3.697 K
+  threshold ERA5 gives 0.0496 and direct GenCast 0.1629, while AI+RES weighted gives
+  **0.1976** and unweighted 0.4131 - weighted is close to direct, but BOTH models are
+  ~3x heavier than the observed field in that tail, which is a forecast-bias statement
+  about the event rather than an AI+RES one.
+- [x] all five productions reduced, drawn and pruned; each run settles at ~19 GB.
+
+**Wave-2 summary (the paper's second table, 2026-08-26).** All week-3, N=64, M=6, frozen
+`C_k = (0, 1.0, 1.4, 1.8, 2.0)`, tag `pilot`. `direct` is the 24-member 0.25 deg xres
+GenCast cube; sigma-depth is `sign * (obs - ens mean) / ens sd` on that cube.
+
+| event | obs box A_L | sigma-depth | direct sampling | AI+RES | weighted P | direct P [95% CI] | norm check | min ESS/N |
+|---|---|---|---|---|---|---|---|---|
+| Winter Storm Elliott 2022 | -14.42 K | **+2.81** | 0/24 (max -9.83) | **20/64** (max -17.04) | **0.0079** | 0.000 [0.000, 0.142] | 0.8108 | 0.29 |
+| Winter Storm Uri 2021 | -7.40 K | **+2.28** | 0/24 (max -6.51) | **32/64** (max -10.20) | **0.0090** | 0.000 [0.000, 0.142] | 1.7688 | 0.30 |
+| p90 2025-12-24 | +3.26 K | **+1.91** | 1/24 (max +3.46) | **46/64** (max +5.12) | **0.0661** | 0.042 [0.001, 0.211] | 0.6890 | 0.32 |
+| p90 2024-08-02 | +1.06 K | **-0.00** | 14/24 (max +1.96) | **63/64** (max +2.37) | **0.649** | 0.583 [0.366, 0.779] | 0.7039 | 0.30 |
+| p90 2023-11-07 | +0.21 K | **-0.97** | 21/24 (max +3.14) | 64/64 (max +4.16) | 0.583 **(pinned)** | 0.875 [0.676, 0.973] | 0.5827 | 0.41 |
+
+What wave 2 establishes, in the order the plan asked the questions:
+
+1. **Regime generality: YES.** The negative-tail path is exercised end to end for the
+   first time and it works. Two cold extremes, both reached and priced, with the frozen
+   `C_k` ported unchanged from four warm heat domes: Uri +2.28 sigma (32/64, P 0.0090)
+   and Elliott +2.81 sigma (20/64, P 0.0079), against 0/24 direct in both.
+   **Elliott at +2.81 sigma is the deepest reach of the entire experiment** - deeper than
+   anything wave 1 managed - and Southwest at +3.3 sigma remains the only miss, so the
+   reach boundary sits between +2.8 and +3.3 sigma and is NOT sign-dependent.
+2. **Calibration against a non-zero direct probability: YES, twice.** `p90_20251224`
+   (+1.91 sigma): AI+RES 0.0661 vs direct 0.042 [0.001, 0.211] - inside. Elliott's FREE
+   CONUS rung (+1.89 sigma, from `aindex.indices()` at no extra GPU cost): AI+RES 0.136
+   vs direct 0.042 [0.007, 0.202] - inside. Both lean high; both agree within the (wide)
+   uncertainty of a 1-in-24 estimate.
+3. **No-harm at the median: YES at 0.00 sigma, NO below it.** `p90_20240802` returns
+   0.649 vs direct 0.583 [0.366, 0.779] - inside - and its spatial PDF matches direct to
+   4% (0.0727 vs 0.0702) where the unweighted population is 2.3x too heavy. But
+   `p90_20231107` at -0.97 sigma returns a PINNED 0.583 against a true 0.875. **The
+   operating range is targets the resampled population still straddles.**
+4. **Sampler health is regime-independent but does NOT certify the answer.** Minimum
+   ESS/N is 0.29-0.41 across all five runs, spanning -0.97 to +2.81 sigma and both signs,
+   against wave 1's 0.11-0.18 on its deeper targets - the frozen schedule self-regulates
+   over this range. Yet the run with the HEALTHIEST sampler (`p90_20231107`, min ESS/N
+   0.41) is the one that returned a meaningless probability.
+5. **Weight honesty is partial and does not track sigma-depth.** Residual of the weighted
+   mean from the direct mean, in ensemble-sd units: Uri **0.045**, Elliott 0.59,
+   `p90_20240802` 0.74, `p90_20251224` 1.05. Uri returns almost exactly; the rest keep a
+   bias TOWARDS the tail of ~0.6-1.0 sd. In `p90_20251224` it is a SUPPORT limitation and
+   not a weighting error at all - resampling killed every walker below +1.25 K, so no
+   reweighting of the survivors could reach the direct mean of +0.248.
+6. **A diagnostic lead for open problem 5 (n = 5, so a lead, not a finding).** The
+   normalization check and the DIRECTION of the mid-curve discrepancy are anti-correlated
+   in every run of this wave: check < 1 -> the weighted curve reads HIGH vs direct
+   (0.689, 0.811, 0.704, 0.583); check > 1 -> it reads LOW (Uri, 1.769). If that holds up
+   it is a usable per-run correction indicator, which open problem 5 currently lacks.
+
+Cost: **~318 H100-h** - 5 x ~62 productions plus ~18 for Uri's Gate 3 - over ~24 h
+elapsed at 2 concurrent nodes (jobs 1181-1186). Uri's Gate 3 seeding saved ~2.8 H100-h.
+- [ ] `python -m aires.alift` has NOT been run over the wave-2 slate. It is another
+  session's in-flight work (`aires/alift.py` + `aires/aclim.py`, written 2026-08-26
+  21:15) and it redraws the whole slate from every `compare.json` it finds, so it will
+  pick up all five new runs whenever its author runs it.
 - [ ] wave 3 (optional): p90_20240802 at N=32 tag `pilot32` as the mild control
 - [ ] after each finished+compared run: `--stage ds`, `--stage compare`, apdfs/aplots/amaps,
   then `PYTHONPATH=. python -m aires.alift` (cross-event, redraws the whole slate from
   every `compare.json` it finds - no per-run argument), then `--stage prune`
+- [ ] **register a new event's box BEFORE its first `alift`, and rebuild the climatology
+  cache with it.** `aires/aclim.py` reduces whatever `aindex.EVENT_BOXES` held when the
+  cache was WRITTEN, so an event added later has a box but no climatology column. That
+  happened to `WinterStorm_Elliott_2022`: its N Plains `A_L` (reaching -17 K) was scored
+  against the CONUS column (spanning +-5 K), reporting a spurious `lift >= 285x` where the
+  honest number is 0.35x. Rebuild is ~10 min on the login node, internet, and reproduces
+  every pre-existing box bit-for-bit:
+  `PYTHONPATH=. python -m aires.aclim --build`. Now pinned by
+  `test_aclim.py::test_the_cache_on_disk_is_not_stale_relative_to_the_registered_boxes`
+  and refused at runtime by `alift.clim_pool`.
 - [x] pruned via the guarded `--stage prune`: PNW pilot states (192 files, 91 GB) and
   Southwest pilot states (192 files, 91 GB) - both only after res_result.json AND
   compare.json existed. 339 GB free after.
