@@ -53,3 +53,58 @@ WinterStorm_Uri_2021: primary box TX/OK (26-37N, 106W-94W)
   [dmc] step 1: C=0.00 R=1.0000 ESS=64.0/64 killed=0 max_mult=1
   [walk] leg 2: 48/64 segment(s) to roll (3 -> 6 d)
   [walk-leg02] attempt 1/3: 8 shard(s)
+  [walk] leg 2: pool finished in 31.2 min
+  [score] leg 2: 64/64 forecast(s) to run (6 x 60 x 6 h from 6 d to the peak; 23,040 FCN3 steps)
+  [score-leg02] attempt 1/3: 8 shard(s)
+  [score] leg 2: pool finished in 71.7 min
+  [score] leg 2 (fcn3): theta over the box mean -0.234, sd 2.305
+  [dmc] step 2: C=1.00 R=1.6498 ESS=25.5/64 killed=24 max_mult=7
+  [walk] pruned walker states at segments <= 1 (30.3 GB freed; --keep-states 2)
+  [walk] leg 3: 64/64 segment(s) to roll (6 -> 9 d)
+  [walk-leg03] attempt 1/3: 8 shard(s)
+  [walk] leg 3: pool finished in 35.8 min
+  [score] leg 3: 64/64 forecast(s) to run (6 x 48 x 6 h from 9 d to the peak; 18,432 FCN3 steps)
+  [score-leg03] attempt 1/3: 8 shard(s)
+  [score] leg 3: pool finished in 55.9 min
+  [score] leg 3 (fcn3): theta over the box mean -1.755, sd 2.753
+  [dmc] step 3: C=1.40 R=0.6587 ESS=27.6/64 killed=23 max_mult=7
+  [walk] pruned walker states at segments <= 2 (30.3 GB freed; --keep-states 2)
+  [walk] leg 4: 64/64 segment(s) to roll (9 -> 12 d)
+  [walk-leg04] attempt 1/3: 8 shard(s)
+  [walk] leg 4: pool finished in 35.9 min
+  [score] leg 4: 64/64 forecast(s) to run (6 x 36 x 6 h from 12 d to the peak; 13,824 FCN3 steps)
+  [score-leg04] attempt 1/3: 8 shard(s)
+  [score] leg 4: pool finished in 43.2 min
+  [score] leg 4 (fcn3): theta over the box mean -3.031, sd 2.474
+  [dmc] step 4: C=1.80 R=0.7406 ESS=26.1/64 killed=29 max_mult=6
+  [walk] pruned walker states at segments <= 3 (30.3 GB freed; --keep-states 2)
+  [walk] leg 5: 64/64 segment(s) to roll (12 -> 15 d)
+  [walk-leg05] attempt 1/3: 8 shard(s)
+  [walk] leg 5: pool finished in 35.3 min
+  [score] leg 5: 64/64 forecast(s) to run (6 x 24 x 6 h from 15 d to the peak; 9,216 FCN3 steps)
+  [score-leg05] attempt 1/3: 8 shard(s)
+  [score] leg 5: pool finished in 30.6 min
+  [score] leg 5 (fcn3): theta over the box mean -4.622, sd 2.304
+  [dmc] step 5: C=2.00 R=0.6335 ESS=19.5/64 killed=30 max_mult=9
+  [walk] pruned walker states at segments <= 4 (30.3 GB freed; --keep-states 2)
+  [walk] leg 6: 128/128 segment(s) to roll (15 -> 21 d)
+  [walk-leg06] attempt 1/3: 8 shard(s)
+  [walk] leg 6: pool finished in 61.0 min
+
+  step   C_k      R_k     ESS  ESS/N  killed  max mult
+     1  0.00   1.0000   64.00   1.00       0         1
+     2  1.00   1.6498   25.50   0.40      24         7
+     3  1.40   0.6587   27.60   0.43      23         7
+     4  1.80   0.7406   26.05   0.41      29         6
+     5  2.00   0.6335   19.45   0.30      30         9
+  log Z = -0.6735   normalization check = 1.7688 (should be ~1)
+  founders surviving: 16/64
+
+[res] finished in 432.1 min -> /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/aires/WinterStorm_Uri_2021/res/pilot/res_result.json
+[res] now reduce on the login node:
+  PYTHONPATH=. python -m aires.run_aires --stage ds --event WinterStorm_Uri_2021
+  PYTHONPATH=. python -m aires.run_aires --stage compare --event WinterStorm_Uri_2021 --tag pilot
+End: Wed Aug 26 06:53:18 UTC 2026
+Now, on the login node in moe:
+  PYTHONPATH=. python -m aires.run_aires --stage ds --event WinterStorm_Uri_2021
+  PYTHONPATH=. python -m aires.run_aires --stage compare --event WinterStorm_Uri_2021 --tag pilot

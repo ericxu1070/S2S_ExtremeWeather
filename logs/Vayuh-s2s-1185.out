@@ -1,0 +1,109 @@
+Host: nucla3m-a3meganodeset-4
+Start: Wed Aug 26 07:00:02 UTC 2026
+GPU 0: NVIDIA H100 80GB HBM3 (UUID: GPU-8deaf399-5257-44be-de29-dbab5cab2837)
+GPU 1: NVIDIA H100 80GB HBM3 (UUID: GPU-08ce4409-9463-80ec-57ba-eca08d003482)
+GPU 2: NVIDIA H100 80GB HBM3 (UUID: GPU-8d511a9b-a471-736e-637d-a997e0a57717)
+GPU 3: NVIDIA H100 80GB HBM3 (UUID: GPU-ab33084f-509e-82b2-8949-d8815d024cb0)
+GPU 4: NVIDIA H100 80GB HBM3 (UUID: GPU-67dcae5f-2cfd-b933-fa3a-05a8184dccf0)
+GPU 5: NVIDIA H100 80GB HBM3 (UUID: GPU-6f4c5b9e-2690-3130-7cd6-0ff15eee4c02)
+GPU 6: NVIDIA H100 80GB HBM3 (UUID: GPU-5544fb35-a86b-e04c-5eea-201f7515a48a)
+GPU 7: NVIDIA H100 80GB HBM3 (UUID: GPU-5d02916b-f04f-56da-a539-ff7cf9f27b6f)
+AI+RES: event=p90_20240802 tag=pilot backend=fcn3 shards=8
+AI+RES pilot - p90_20240802  (init 2024-07-12, peak 2024-08-02, metric t2m_anom)
+p90_20240802: primary box CONUS (24-50N, 125W-66W)
+    the whole verification window; what Gate 2 used
+
+  N walkers        64
+  score backend    fcn3   M = 6
+  tail             HIGH (clone the largest A_L)
+  C_k              0, 1, 1.4, 1.8, 2 at 3 d, 6 d, 9 d, 12 d, 15 d
+  legs
+    1: 0 -> 3 d, segments [1], C = 0
+    2: 3 -> 6 d, segments [2], C = 1
+    3: 6 -> 9 d, segments [3], C = 1.4
+    4: 9 -> 12 d, segments [4], C = 1.8
+    5: 12 -> 15 d, segments [5], C = 2
+    6: 15 -> 21 d, segments [6, 7], carry to the horizon (no resampling)
+
+  prerequisites
+    walker init frames  OK   /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/xres/0p25/week3/inputs/p90_20240802_inputs.nc
+    derived calibration OK   /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/aires/calib/derived_calib.nc
+    xres reference cube OK   /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/xres/0p25/week3/cache/p90_20240802_cube.nc   (physical check on the first segment; not required)
+
+  cached            0/448 walker segments, 0/256 score cubes (0 states resident)
+
+  budget            walk 2,688 GenCast steps ~38.8 GPU-h (~291 min over 8 GPUs)
+                    score 64,512 FCN3 steps ~25.1 GPU-h (~188 min over 8 GPUs)
+                    total ~63.9 H100-h, ~8.0 h wall on one node
+
+  disk              states 92 GB peak (3 segments resident x 64 x 477 MB, --keep-states 2), diagnostics 16 GB, score cubes 3 GB
+                    ~110 GB needed, 350 GB free
+
+  configuration frozen at /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/aires/p90_20240802/res/pilot/run.json
+
+  READY: yes
+--- res: Wed Aug 26 07:00:06 UTC 2026 ---
+[res] p90_20240802 tag=pilot N=64 M=6 backend=fcn3 C=(0.0, 1.0, 1.4, 1.8, 2.0)
+[res] host=nucla3m-a3meganodeset-4 shards=8 visible GPUs=8 seed=20260819
+  [walk] leg 1: 64/64 segment(s) to roll (0 -> 3 d)
+  [walk-leg01] attempt 1/3: 8 shard(s)
+  [walk] leg 1: pool finished in 32.5 min
+  [score] leg 1 (skipped(C=0)): theta over the box mean +2.162, sd 0.195
+  [dmc] step 1: C=0.00 R=1.0000 ESS=64.0/64 killed=0 max_mult=1
+  [walk] leg 2: 64/64 segment(s) to roll (3 -> 6 d)
+  [walk-leg02] attempt 1/3: 8 shard(s)
+  [walk] leg 2: pool finished in 35.1 min
+  [score] leg 2: 64/64 forecast(s) to run (6 x 60 x 6 h from 6 d to the peak; 23,040 FCN3 steps)
+  [score-leg02] attempt 1/3: 8 shard(s)
+  [score] leg 2: pool finished in 71.1 min
+  [score] leg 2 (fcn3): theta over the box mean +1.249, sd 0.306
+  [dmc] step 2: C=1.00 R=1.5496 ESS=34.0/64 killed=22 max_mult=4
+  [walk] pruned walker states at segments <= 1 (30.2 GB freed; --keep-states 2)
+  [walk] leg 3: 64/64 segment(s) to roll (6 -> 9 d)
+  [walk-leg03] attempt 1/3: 8 shard(s)
+  [walk] leg 3: pool finished in 35.2 min
+  [score] leg 3: 64/64 forecast(s) to run (6 x 48 x 6 h from 9 d to the peak; 18,432 FCN3 steps)
+  [score-leg03] attempt 1/3: 8 shard(s)
+  [score] leg 3: pool finished in 55.5 min
+  [score] leg 3 (fcn3): theta over the box mean +1.433, sd 0.385
+  [dmc] step 3: C=1.40 R=0.9421 ESS=23.4/64 killed=26 max_mult=7
+  [walk] pruned walker states at segments <= 2 (30.3 GB freed; --keep-states 2)
+  [walk] leg 4: 64/64 segment(s) to roll (9 -> 12 d)
+  [walk-leg04] attempt 1/3: 8 shard(s)
+  [walk] leg 4: pool finished in 35.3 min
+  [score] leg 4: 64/64 forecast(s) to run (6 x 36 x 6 h from 12 d to the peak; 13,824 FCN3 steps)
+  [score-leg04] attempt 1/3: 8 shard(s)
+  [score] leg 4: pool finished in 43.0 min
+  [score] leg 4 (fcn3): theta over the box mean +1.444, sd 0.330
+  [dmc] step 4: C=1.80 R=0.9520 ESS=19.2/64 killed=31 max_mult=9
+  [walk] pruned walker states at segments <= 3 (30.3 GB freed; --keep-states 2)
+  [walk] leg 5: 64/64 segment(s) to roll (12 -> 15 d)
+  [walk-leg05] attempt 1/3: 8 shard(s)
+  [walk] leg 5: pool finished in 35.3 min
+  [score] leg 5: 64/64 forecast(s) to run (6 x 24 x 6 h from 15 d to the peak; 9,216 FCN3 steps)
+  [score-leg05] attempt 1/3: 8 shard(s)
+  [score] leg 5: pool finished in 30.5 min
+  [score] leg 5 (fcn3): theta over the box mean +1.736, sd 0.239
+  [dmc] step 5: C=2.00 R=0.3924 ESS=25.7/64 killed=26 max_mult=5
+  [walk] pruned walker states at segments <= 4 (30.4 GB freed; --keep-states 2)
+  [walk] leg 6: 128/128 segment(s) to roll (15 -> 21 d)
+  [walk-leg06] attempt 1/3: 8 shard(s)
+  [walk] leg 6: pool finished in 61.1 min
+
+  step   C_k      R_k     ESS  ESS/N  killed  max mult
+     1  0.00   1.0000   64.00   1.00       0         1
+     2  1.00   1.5496   33.95   0.53      22         4
+     3  1.40   0.9421   23.39   0.37      26         7
+     4  1.80   0.9520   19.22   0.30      31         9
+     5  2.00   0.3924   25.69   0.40      26         5
+  log Z = -0.6063   normalization check = 0.7039 (should be ~1)
+  founders surviving: 15/64
+
+[res] finished in 436.2 min -> /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/aires/p90_20240802/res/pilot/res_result.json
+[res] now reduce on the login node:
+  PYTHONPATH=. python -m aires.run_aires --stage ds --event p90_20240802
+  PYTHONPATH=. python -m aires.run_aires --stage compare --event p90_20240802 --tag pilot
+End: Wed Aug 26 14:16:20 UTC 2026
+Now, on the login node in moe:
+  PYTHONPATH=. python -m aires.run_aires --stage ds --event p90_20240802
+  PYTHONPATH=. python -m aires.run_aires --stage compare --event p90_20240802 --tag pilot
