@@ -36,3 +36,23 @@ print(f"-> {out} ({out.stat().st_size/1e6:.2f} MB)")
 #   python scripts/embed_figs.py docs/aires_pilot.html /tmp/embedded.html
 #   PLAYWRIGHT_BROWSERS_PATH=$SCRATCH/pw-browsers \
 #     $SCRATCH/pdfvenv/bin/python scripts/render_pdf.py /tmp/embedded.html docs/aires_pilot.pdf
+
+# Lighter alternative on Derecho (no chromium download; pango/cairo are already on the box).
+# WeasyPrint honours the same print stylesheet and never splits a figure across pages:
+#   python -m venv $SCRATCH/wpenv && $SCRATCH/wpenv/bin/pip install weasyprint
+#   $SCRATCH/wpenv/bin/python -c "from weasyprint import HTML; \
+#     HTML(filename='embedded.html', encoding='utf-8').write_pdf('out.pdf')"
+# Pass encoding='utf-8' explicitly - these pages are body fragments with no <meta charset>,
+# and WeasyPrint otherwise guesses latin-1 and mojibakes every minus sign.
+#
+# The slate page, end to end (30 figures, 35 pages, ~5 MB):
+#   python scripts/embed_slate_figs.py docs/aires_event_slate.html /tmp/slate.html
+#   $SCRATCH/wpenv/bin/python -c "from weasyprint import HTML; \
+#     HTML(filename='/tmp/slate.html', encoding='utf-8').write_pdf('/tmp/slate.pdf')"
+#   gs -sDEVICE=pdfwrite -dNOPAUSE -dBATCH -dQUIET -dDetectDuplicateImages=true \
+#      -dDownsampleColorImages=true -dColorImageDownsampleType=/Bicubic \
+#      -dColorImageResolution=220 -dAutoFilterColorImages=false \
+#      -dColorImageFilter=/DCTEncode -dJPEGQ=90 \
+#      -sOutputFile=figures/aires/aires_event_slate.pdf /tmp/slate.pdf
+# WeasyPrint re-encodes every WebP losslessly, which quadruples the file; the ghostscript
+# pass puts it back (21.5 -> 5.1 MB) and leaves the text vector.

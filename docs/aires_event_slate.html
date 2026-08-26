@@ -1,0 +1,651 @@
+<title>AI+RES Event Slate</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Spectral:wght@500;600&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<style>
+:root{
+  --ground:#f4f6f8; --surface:#ffffff; --surface-2:#eef1f5;
+  --ink:#111b25; --ink-2:#33475a; --muted:#63788b;
+  --line:#d8e0e8; --line-2:#c2cedb;
+  --accent:#1f77b4; --accent-deep:#155582; --accent-wash:#e6f0f8;
+  --obs:#c0392f; --obs-wash:#fbeae8;
+  --heat:#a8511f; --cold:#22698f; --neutral:#5c6f80;
+  --shadow:0 1px 2px rgba(17,27,37,.06), 0 8px 24px rgba(17,27,37,.05);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --ground:#0b1219; --surface:#121c25; --surface-2:#182533;
+    --ink:#e4ecf3; --ink-2:#b3c4d2; --muted:#8298ab;
+    --line:#25333f; --line-2:#33444f;
+    --accent:#5ba7dc; --accent-deep:#8cc4ec; --accent-wash:#132c3f;
+    --obs:#e8756a; --obs-wash:#3a1f1d;
+    --heat:#d99356; --cold:#69b6dd; --neutral:#93a7b8;
+    --shadow:0 1px 2px rgba(0,0,0,.4), 0 8px 24px rgba(0,0,0,.3);
+  }
+}
+:root[data-theme="dark"]{
+  --ground:#0b1219; --surface:#121c25; --surface-2:#182533;
+  --ink:#e4ecf3; --ink-2:#b3c4d2; --muted:#8298ab;
+  --line:#25333f; --line-2:#33444f;
+  --accent:#5ba7dc; --accent-deep:#8cc4ec; --accent-wash:#132c3f;
+  --obs:#e8756a; --obs-wash:#3a1f1d;
+  --heat:#d99356; --cold:#69b6dd; --neutral:#93a7b8;
+  --shadow:0 1px 2px rgba(0,0,0,.4), 0 8px 24px rgba(0,0,0,.3);
+}
+
+*{box-sizing:border-box}
+body{
+  margin:0; background:var(--ground); color:var(--ink);
+  font-family:"IBM Plex Sans",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  font-size:16px; line-height:1.62; -webkit-font-smoothing:antialiased;
+}
+.wrap{max-width:1280px; margin:0 auto; padding:0 28px 96px}
+.measure{max-width:70ch}
+
+h1,h2,h3{font-family:Spectral,Georgia,"Times New Roman",serif; text-wrap:balance;
+  font-weight:600; line-height:1.18; margin:0}
+a{color:var(--accent-deep); text-underline-offset:.18em}
+a:focus-visible,button:focus-visible{outline:2px solid var(--accent); outline-offset:3px}
+code,.mono,.num{font-family:"IBM Plex Mono",ui-monospace,Menlo,monospace;
+  font-variant-numeric:tabular-nums}
+
+/* ---------- masthead ---------- */
+.mast{border-bottom:1px solid var(--line); background:var(--surface);
+  padding:56px 0 40px; margin-bottom:44px}
+.eyebrow{font-family:"IBM Plex Mono",monospace; font-size:11.5px; letter-spacing:.16em;
+  text-transform:uppercase; color:var(--muted); margin:0 0 18px}
+.mast h1{font-size:clamp(34px,5vw,52px); letter-spacing:-.015em}
+.mast .sub{font-size:19px; color:var(--ink-2); margin:18px 0 0; max-width:68ch}
+.defn{margin:34px 0 0; padding:20px 24px; background:var(--surface-2);
+  border-left:3px solid var(--accent); border-radius:2px; max-width:78ch}
+.defn p{margin:0; font-size:15px; color:var(--ink-2)}
+.defn .eq{display:block; margin:10px 0; font-size:15px; color:var(--ink)}
+
+/* ---------- ladder table ---------- */
+.tablewrap{overflow-x:auto; border:1px solid var(--line); border-radius:3px;
+  background:var(--surface); box-shadow:var(--shadow)}
+table{border-collapse:collapse; width:100%; min-width:900px; font-size:14px}
+th,td{padding:11px 14px; text-align:left; border-bottom:1px solid var(--line)}
+thead th{font-family:"IBM Plex Mono",monospace; font-size:10.5px; letter-spacing:.1em;
+  text-transform:uppercase; color:var(--muted); font-weight:500;
+  background:var(--surface-2); border-bottom:1px solid var(--line-2);
+  position:sticky; top:0; white-space:nowrap}
+tbody tr:last-child td{border-bottom:none}
+tbody tr:hover{background:var(--surface-2)}
+td.n{text-align:right; font-family:"IBM Plex Mono",monospace;
+  font-variant-numeric:tabular-nums; white-space:nowrap}
+td.nm a{color:var(--ink); text-decoration:none; font-weight:500}
+td.nm a:hover{color:var(--accent-deep); text-decoration:underline}
+.rung{font-family:"IBM Plex Mono",monospace; color:var(--muted); font-size:12px}
+
+.pill{display:inline-block; padding:2px 9px; border-radius:11px; font-size:11.5px;
+  font-family:"IBM Plex Mono",monospace; letter-spacing:.03em; white-space:nowrap;
+  border:1px solid transparent}
+.pill.hit{color:#fff; background:var(--accent)}
+.pill.miss{color:var(--obs); background:var(--obs-wash); border-color:var(--obs)}
+.pill.anchor,.pill.control{color:var(--ink-2); background:var(--surface-2);
+  border-color:var(--line-2)}
+.pill.pending{color:var(--muted); background:transparent; border-color:var(--line-2);
+  border-style:dashed}
+.pill.pinned{color:var(--obs); background:transparent; border-color:var(--obs)}
+.pill.heat{color:var(--heat); background:transparent; border-color:var(--heat)}
+.pill.cold{color:var(--cold); background:transparent; border-color:var(--cold)}
+.pill.conus{color:var(--neutral); background:transparent; border-color:var(--line-2)}
+
+/* ---------- sections ---------- */
+section{margin:0; padding:64px 0 0; scroll-margin-top:12px}
+.sec-head{display:flex; align-items:baseline; gap:14px; flex-wrap:wrap;
+  border-top:2px solid var(--ink); padding-top:16px}
+.sec-head h2{font-size:clamp(26px,3.2vw,34px); letter-spacing:-.01em}
+.sec-head .when{font-family:"IBM Plex Mono",monospace; font-size:14px; color:var(--muted)}
+.sec-head .rungtag{font-family:"IBM Plex Mono",monospace; font-size:11.5px;
+  letter-spacing:.12em; text-transform:uppercase; color:var(--muted);
+  margin-right:auto; align-self:center}
+
+.lede{font-size:17.5px; color:var(--ink); margin:20px 0 0; max-width:70ch}
+.body{font-size:15.5px; color:var(--ink-2); margin:16px 0 0; max-width:70ch}
+
+/* record card */
+.record{display:grid; gap:1px; background:var(--line);
+  grid-template-columns:repeat(auto-fit,minmax(190px,1fr));
+  border:1px solid var(--line); border-radius:3px; margin:28px 0 0; overflow:hidden}
+.cell{background:var(--surface); padding:13px 16px}
+.cell .k{font-family:"IBM Plex Mono",monospace; font-size:10.5px; letter-spacing:.09em;
+  text-transform:uppercase; color:var(--muted); display:block; margin-bottom:5px}
+.cell .v{font-family:"IBM Plex Mono",monospace; font-size:17px; color:var(--ink);
+  font-variant-numeric:tabular-nums; line-height:1.3}
+.cell .v.big{font-size:21px}
+.cell .v.obs{color:var(--obs)}
+.cell .v.res{color:var(--accent-deep)}
+.cell .note{font-size:11.5px; color:var(--muted); margin-top:4px; line-height:1.45}
+
+.meta{font-family:"IBM Plex Mono",monospace; font-size:12px; color:var(--muted);
+  margin:14px 0 0; line-height:1.75}
+
+/* figures */
+figure{margin:32px 0 0; background:var(--surface); border:1px solid var(--line);
+  border-radius:3px; padding:14px; box-shadow:var(--shadow)}
+figure img{display:block; width:100%; height:auto; border-radius:2px}
+figcaption{font-size:13px; color:var(--muted); margin-top:12px; padding:0 4px;
+  max-width:88ch; line-height:1.6}
+figcaption b{color:var(--ink-2); font-weight:600}
+.placeholder{margin:32px 0 0; border:1px dashed var(--line-2); border-radius:3px;
+  padding:26px; background:transparent; color:var(--muted); font-size:14px;
+  max-width:70ch}
+
+.callout{margin:28px 0 0; padding:18px 22px; border:1px solid var(--line-2);
+  border-left:3px solid var(--obs); border-radius:2px; background:var(--surface);
+  font-size:14.5px; color:var(--ink-2); max-width:78ch}
+.callout b{color:var(--ink)}
+
+.foot{margin-top:76px; padding-top:26px; border-top:1px solid var(--line);
+  font-size:13px; color:var(--muted); max-width:78ch}
+.foot h3{font-size:17px; color:var(--ink); margin-bottom:10px}
+.foot p{margin:0 0 12px}
+.foot code{font-size:12.5px; background:var(--surface-2); padding:1px 5px;
+  border-radius:2px; color:var(--ink-2)}
+
+@media (max-width:720px){
+  .wrap{padding:0 18px 64px}
+  .mast{padding:38px 0 30px}
+  body{font-size:15px}
+}
+@media (prefers-reduced-motion:reduce){*{animation:none!important; transition:none!important}}
+
+/* ---------- print / PDF ---------- */
+@page{size:letter portrait; margin:14mm 13mm 16mm}
+@media print{
+  /* paper always gets the light palette, with backgrounds intact */
+  :root, :root[data-theme="dark"], :root:not([data-theme="light"]){
+    --ground:#ffffff; --surface:#ffffff; --surface-2:#f1f4f7;
+    --ink:#111b25; --ink-2:#33475a; --muted:#5b6f81;
+    --line:#c9d4de; --line-2:#b2c0cd;
+    --accent:#1f77b4; --accent-deep:#155582; --accent-wash:#e6f0f8;
+    --obs:#b8352b; --obs-wash:#fbeae8;
+    --heat:#a8511f; --cold:#22698f; --neutral:#5c6f80;
+    --shadow:none;
+  }
+  html,body{background:#fff}
+  *{-webkit-print-color-adjust:exact; print-color-adjust:exact; box-shadow:none!important}
+  body{font-size:10pt; line-height:1.5}
+  .wrap{max-width:none; padding:0}
+  .noprint{display:none!important}
+
+  /* nothing sticky or side-scrolling survives onto paper */
+  .tablewrap{overflow:visible; border-radius:0}
+  thead th{position:static}
+  thead{display:table-header-group}
+  table{min-width:0; width:100%; font-size:7pt; table-layout:auto}
+  th,td{padding:3px 4px; white-space:normal; overflow-wrap:break-word}
+  thead th{white-space:normal; letter-spacing:.04em; font-size:6.4pt}
+  td.n{white-space:normal}
+  .pill{white-space:normal; padding:1px 5px; font-size:6.6pt}
+  td.nm a{font-size:7.2pt}
+  tbody tr{break-inside:avoid; page-break-inside:avoid}
+  a{color:var(--ink); text-decoration:none}
+
+  /* figures: never split across a page, never taller than the printable area */
+  figure{break-inside:avoid; page-break-inside:avoid; margin:16px 0 0; padding:8px}
+  figure img{display:block; width:auto; height:auto; max-width:100%;
+    max-height:6.3in; margin:0 auto}
+  figcaption{break-inside:avoid; font-size:8.5pt; margin-top:8px; max-width:none}
+  .placeholder,.callout,.defn,.record,.cell{break-inside:avoid; page-break-inside:avoid}
+
+  /* headings stay with what they introduce */
+  h1,h2,h3{break-after:avoid; page-break-after:avoid}
+  .sec-head{break-after:avoid; border-top-width:1.5px}
+  p{orphans:3; widows:3}
+  .lede,.body,.measure,.foot,.defn,.callout{max-width:none}
+
+  /* one event per page */
+  section{break-before:page; page-break-before:always; padding-top:0}
+  .foot{break-before:page; page-break-before:always; margin-top:0; padding-top:0; border-top:none}
+  .mast{padding:0 0 18px; margin-bottom:22px; border-bottom-width:1.5px}
+  .mast h1{font-size:26pt}
+  .mast .sub{font-size:11pt}
+  .record{margin-top:18px}
+}
+
+</style>
+
+<header class="mast">
+  <div class="wrap">
+    <p class="eyebrow">GenCast walkers · FourCastNet 3 score · 21-day lead · N = 64</p>
+    <h1>AI+RES Event Slate</h1>
+    <p class="sub">Nine CONUS cases put through rare-event resampling at week-3 lead, from
+    a heat dome no direct ensemble reaches to an ordinary Friday in August. Each one gets
+    its observed anomaly, how rare that was against 64 years of ERA5, and the probability
+    the run assigns to it.</p>
+    <div class="defn">
+      <p>Every number on this page reduces to one observable:</p>
+      <span class="eq mono">A<sub>L</sub> = cos(lat)-weighted mean, over the event box, of
+      the 7-day-mean 2 m temperature anomaly ending at the event peak</span>
+      <p>GenCast is initialised 21 days before that peak and rolled as 64 walkers. At five
+      barriers FourCastNet 3 scores each walker's expected A<sub>L</sub>, the promising
+      ones are cloned and the rest killed, and a weight w<sub>i</sub> undoes the tilt so
+      the surviving population still estimates GenCast's own probabilities. The C schedule
+      (0, 1.0, 1.4, 1.8, 2.0) was tuned once, on the Pacific Northwest, and has not been
+      re-tuned for any event since.</p>
+    </div>
+  </div>
+</header>
+
+<div class="wrap">
+  <h2 style="font-size:26px">The severity ladder</h2>
+  <p class="body measure" style="margin-bottom:22px">Ordered by how far the observation sat
+  outside GenCast's <em>own</em> week-3 forecast distribution, because that - not the size
+  of the anomaly, and not its climatological rarity - is what predicts whether resampling
+  reaches it. Winter Storm Elliott, at &minus;14.42 K, is reached; the Southwest heat wave
+  at +5.14 K is not, because it sits half a sigma deeper in the model's spread.</p>
+  <div class="tablewrap">
+    <table>
+      <thead><tr>
+        <th>rung</th><th>event</th><th>regime</th>
+        <th style="text-align:right">observed A<sub>L</sub></th>
+        <th style="text-align:right">clim. pct</th>
+        <th style="text-align:right">return period</th>
+        <th style="text-align:right">&sigma;-depth</th>
+        <th style="text-align:right">direct</th>
+        <th style="text-align:right">AI+RES</th>
+        <th style="text-align:right">weighted P</th>
+        <th>outcome</th>
+      </tr></thead>
+      <tbody><tr>
+      <td class="rung">1</td>
+      <td class="nm"><a href="#Southwest_HeatWave_2020-pilot">Southwest Heat Wave</a><br>
+          <span style="font-size:12px;color:var(--muted)">August 2020</span></td>
+      <td><span class="pill heat">heat</span></td>
+      <td class="n">+5.14 K</td>
+      <td class="n">99.96th</td>
+      <td class="n">210 yr</td>
+      <td class="n">+3.3 &sigma;</td>
+      <td class="n">0 / 24</td>
+      <td class="n">0 / 64</td>
+      <td class="n">&lt; 3 × 10⁻⁴</td>
+      <td><span class="pill miss">not reached</span></td>
+    </tr>
+<tr>
+      <td class="rung">2</td>
+      <td class="nm"><a href="#California_HeatWave_2022-pilot">California Heat Wave</a><br>
+          <span style="font-size:12px;color:var(--muted)">September 2022</span></td>
+      <td><span class="pill heat">heat</span></td>
+      <td class="n">+4.71 K</td>
+      <td class="n">99.71th</td>
+      <td class="n">37 yr</td>
+      <td class="n">~+2.9 &sigma;</td>
+      <td class="n">0 / 24</td>
+      <td class="n">25 / 64</td>
+      <td class="n">0.0186</td>
+      <td><span class="pill hit">reached</span></td>
+    </tr>
+<tr>
+      <td class="rung">3</td>
+      <td class="nm"><a href="#WinterStorm_Elliott_2022-pilot">Winter Storm Elliott</a><br>
+          <span style="font-size:12px;color:var(--muted)">December 2022</span></td>
+      <td><span class="pill cold">cold</span></td>
+      <td class="n">−14.42 K</td>
+      <td class="n">98.41th</td>
+      <td class="n">5 yr</td>
+      <td class="n">+2.81 &sigma;</td>
+      <td class="n">0 / 24</td>
+      <td class="n">20 / 64</td>
+      <td class="n">0.0079</td>
+      <td><span class="pill hit">reached</span></td>
+    </tr>
+<tr>
+      <td class="rung">4</td>
+      <td class="nm"><a href="#WinterStorm_Uri_2021-pilot">Winter Storm Uri</a><br>
+          <span style="font-size:12px;color:var(--muted)">February 2021</span></td>
+      <td><span class="pill cold">cold</span></td>
+      <td class="n">−7.40 K</td>
+      <td class="n">96.80th</td>
+      <td class="n">4 yr</td>
+      <td class="n">+2.28 &sigma;</td>
+      <td class="n">0 / 24</td>
+      <td class="n">32 / 64</td>
+      <td class="n">0.0090</td>
+      <td><span class="pill hit">reached</span></td>
+    </tr>
+<tr>
+      <td class="rung">5</td>
+      <td class="nm"><a href="#SCentral_HeatDome_2023-pilot">South-Central Heat Dome</a><br>
+          <span style="font-size:12px;color:var(--muted)">June 2023</span></td>
+      <td><span class="pill heat">heat</span></td>
+      <td class="n">+5.73 K</td>
+      <td class="n">100.00th</td>
+      <td class="n">beyond the record</td>
+      <td class="n">~+2.2 &sigma;</td>
+      <td class="n">0 / 16</td>
+      <td class="n">6 / 64</td>
+      <td class="n">0.00273</td>
+      <td><span class="pill hit">reached</span></td>
+    </tr>
+<tr>
+      <td class="rung">6</td>
+      <td class="nm"><a href="#PNW_HeatDome_2021-pilot">Pacific Northwest Heat Dome</a><br>
+          <span style="font-size:12px;color:var(--muted)">June 2021</span></td>
+      <td><span class="pill heat">heat</span></td>
+      <td class="n">+7.72 K</td>
+      <td class="n">99.60th</td>
+      <td class="n">22 yr</td>
+      <td class="n">+1.98 &sigma;</td>
+      <td class="n">0 / 40</td>
+      <td class="n">42 / 64</td>
+      <td class="n">0.054</td>
+      <td><span class="pill hit">reached</span></td>
+    </tr>
+<tr>
+      <td class="rung">7</td>
+      <td class="nm"><a href="#p90_20251224-pilot">The Nationwide Warm Spell</a><br>
+          <span style="font-size:12px;color:var(--muted)">24 December 2025</span></td>
+      <td><span class="pill conus">CONUS index</span></td>
+      <td class="n">+3.26 K</td>
+      <td class="n">98.78th</td>
+      <td class="n">10 yr</td>
+      <td class="n">+1.91 &sigma;</td>
+      <td class="n">1 / 24</td>
+      <td class="n">46 / 64</td>
+      <td class="n">0.0661</td>
+      <td><span class="pill anchor">anchor</span></td>
+    </tr>
+<tr>
+      <td class="rung">8</td>
+      <td class="nm"><a href="#p90_20240802-pilot">The Normal-Day Test</a><br>
+          <span style="font-size:12px;color:var(--muted)">2 August 2024</span></td>
+      <td><span class="pill conus">CONUS index</span></td>
+      <td class="n">+1.06 K</td>
+      <td class="n">94.08th</td>
+      <td class="n">4 yr</td>
+      <td class="n">0.00 &sigma;</td>
+      <td class="n">14 / 24</td>
+      <td class="n">63 / 64</td>
+      <td class="n">0.649</td>
+      <td><span class="pill control">control</span></td>
+    </tr>
+<tr>
+      <td class="rung">9</td>
+      <td class="nm"><a href="#p90_20231107-pilot">The Below-Median Day</a><br>
+          <span style="font-size:12px;color:var(--muted)">7 November 2023</span></td>
+      <td><span class="pill conus">CONUS index</span></td>
+      <td class="n">+0.21 K</td>
+      <td class="n">60.10th</td>
+      <td class="n">1 yr</td>
+      <td class="n">−0.97 &sigma;</td>
+      <td class="n">21 / 24</td>
+      <td class="n">64 / 64</td>
+      <td class="n">0.583 (pinned)</td>
+      <td><span class="pill pinned">pinned</span></td>
+    </tr></tbody>
+    </table>
+  </div>
+  <p class="body measure" style="font-size:14px">Two different questions live in the two
+  percentile columns and they answer differently on purpose. The <b>climatological
+  percentile</b> is how rare the weather was: the same index computed from 64 years of
+  ERA5, pooled within &plusmn;21 days of the event's calendar position.
+  <b>&sigma;-depth</b> is how hard it was to forecast: where the observation sat in the
+  24-member GenCast ensemble launched three weeks earlier. The South-Central heat dome is
+  the rarest case here and only the fifth-hardest to reach.</p>
+
+<section id="the-population">
+  <div class="sec-head">
+    <h2>The whole population</h2>
+    <span class="when">all ten runs</span>
+    <span class="rungtag">cross-event</span>
+  </div>
+  <p class="lede">Every number in the table above is a sum over the walkers of one run.
+  This is that raw material, one panel per run, in the same hardest-first order: where
+  each of the 64 surviving walkers landed on A<sub>L</sub>, and the probability mass
+  p<sub>i</sub> = Z&middot;w<sub>i</sub>/N it carries. The shaded band is the mass that
+  sums to the headline P.</p>
+  <p class="body">Three things are legible here that a table cannot show. <b>Reach is
+  bought and then charged for:</b> the blue line is 1/N, what a walker would be worth
+  unresampled, and the deepest walkers sit one to two decades below it - the Pacific
+  Northwest's hottest carries 2.5&nbsp;% of what a single direct member is worth.
+  <b>The masses come in tied blocks:</b> walkers cloned at the last barrier inherit their
+  parent's mass exactly, so Uri's 64 walkers hold 34 distinct values and the persistence
+  control's hold 15, and that count - not 64 - is the number of independent pieces of
+  information behind the estimate. <b>Two runs cannot answer their own question:</b>
+  Southwest and the control have nothing in the band, so P is 0 and the honest statement
+  is the deepest level the run resolved (3.2 and 2.6 &times; 10<sup>&minus;4</sup>);
+  7 November 2023 has the opposite failure, its observation below every walker, so the
+  band covers the whole panel and P is just the run's own normalization check.</p>
+  <figure><img src="DATA" alt="Every AI+RES walker across all ten runs"><figcaption>
+  <b>The population, all ten runs.</b> One panel per run, ordered by how far the
+  observation sat outside the direct ensemble's spread. Each dot is a walker, coloured by
+  founder lineage; the brown ticks are the direct-sampling members at their own 1/n; the
+  red dashed line is the observation and the shaded side of it is the mass that sums to P.
+  &sum;p<sub>i</sub> over a whole panel is that run's normalization check, which should be
+  1 and is quoted in each panel's corner alongside the weight ESS.</figcaption></figure>
+  <p class="body">The trajectory panels below now also carry the operational CFSv2
+  forecast at the same 21-day lead, on all nine events rather than the original four. It
+  reaches the observation only on the two mildest rungs - 3 of 4 members on
+  7 November 2023, 2 of 4 on 2 August 2024 - and misses every genuinely extreme one,
+  including the 24 December 2025 warm spell by 4.6 K with its ensemble mean on the wrong
+  side of climatology. That is not a resolution artefact: pushing the ERA5 truth field
+  through CFS's own ~0.94&deg; grid and re-scoring it moves A<sub>L</sub> by at most
+  0.13 K, against gaps of 2.3 to 11.6 K.</p>
+</section>
+
+<section id="Southwest_HeatWave_2020-pilot">
+  <div class="sec-head">
+    <h2>Southwest Heat Wave</h2>
+    <span class="when">August 2020</span>
+    <span class="rungtag">rung 1 of 9</span>
+    <span><span class="pill heat">heat</span> <span class="pill miss">not reached</span></span>
+  </div>
+  <p class="lede">The honest miss. The deepest target relative to GenCast's own spread, and the one run that does not reach it - the observation is +3.3 σ out, where a C ≤ 2, K = 5 tilt moves the population mean about +1.75 K, not +4.4 K.</p>
+  <div class="record"><div class="cell"><span class="k">observed A<sub>L</sub></span><span class="v big obs">+5.14 K</span><span class="note">ERA5, 29-35 N, 109-103 W</span></div><div class="cell"><span class="k">climatological percentile</span><span class="v big">99.96<span style="font-size:13px;color:var(--muted)">th</span></span><span class="note">ERA5 1959-2022 · 100.00th against 1990-2019</span></div><div class="cell"><span class="k">return period</span><span class="v ">210 yr</span><span class="note">1 of 64 - itself years hold a window this extreme</span></div><div class="cell"><span class="k">depth in GenCast's spread</span><span class="v ">+3.3 &sigma;</span><span class="note">week-3 ensemble +0.71 ± 1.33 K</span></div><div class="cell"><span class="k">direct sampling</span><span class="v ">0 / 24</span><span class="note">best member +3.82 K · P = 0.000 [0.000, 0.142]</span></div><div class="cell"><span class="k">AI+RES</span><span class="v res">0 / 64</span><span class="note">most extreme +4.31 K</span></div><div class="cell"><span class="k">weighted P(A<sub>L</sub> beyond observed)</span><span class="v big res">&lt; 3 × 10⁻⁴</span><span class="note">sum of the walker probabilities past the observation</span></div><div class="cell"><span class="k">peak-day anomaly</span><span class="v obs">+4.16 K</span><span class="note">the single day, not the week &middot; 99.1th percentile</span></div><div class="cell"><span class="k">64-year record for this season</span><span class="v ">+5.15 K - this event</span><span class="note">peak 2020-08-16 &middot; init 2020-07-26 (21 d lead)</span></div></div>
+  <p class="meta">box: Southern New Mexico and west Texas (29-35 N, 109-103 W) &nbsp;·&nbsp;
+     registry key <code>Southwest_HeatWave_2020</code> &nbsp;·&nbsp;
+     Slurm job 1176, 7 h 34 m<br>
+     run health: log Z −0.8660 · normalization check 1.0623 · 16/64 founders · ESS/N crashed to 0.11 at step 3 (max multiplicity 23), recovering to 0.25 and 0.37</p>
+  <p class="body">What makes the miss worth as much as the hits is that the curve is still honest where it can be checked: through the range 24 direct members resolve, the weighted exceedance tracks direct sampling inside binomial noise (P(≥ +2.23 K) 0.077 against 0.083; P(≥ +3.03 K) 0.026 against 0.042), then extends about two decades deeper. The weights deflate the tilt as they should - weighted mean +1.24 K against an unweighted +2.47 K.</p>
+  <figure><img src="DATA" alt="AI+RES map comparison for Southwest Heat Wave"><figcaption><b>Map compare.</b> Every panel is the same reduction - the 7-day-mean 2 m temperature anomaly over the verification week ending at the peak, the field whose area mean over the black box <em>is</em> A<sub>L</sub> - on one shared colour scale. ERA5 truth is titled in red; the rest are the AI+RES population and each direct baseline. An area mean can be reached by the wrong field, so this is where you check that a walker that scored the event also looks like it.</figcaption></figure><figure><img src="DATA" alt="AI+RES walker trajectories for Southwest Heat Wave"><figcaption><b>Trajectory.</b> The algorithm happening: A<sub>L</sub> against lead time for every branch the run rolled, grey for lineages that were killed and coloured for the 64 that survived, with the resampling barriers as vertical lines, the 7-day verification window shaded, the observed value in red, and the operational CFSv2 forecast at the same lead in black.</figcaption></figure><figure><img src="DATA" alt="Per-walker anomaly and probability for Southwest Heat Wave"><figcaption><b>Every walker, and what it is worth.</b> Top: all 64 surviving walkers ranked by how extreme they got, against the observed value in red and the best direct-sampling member in brown. Bottom: the probability mass p<sub>i</sub> = Z&middot;w<sub>i</sub>/N each one carries, on a log axis, with the running total &sum;p<sub>i</sub> as the black staircase - the headline probability is where that staircase stands when the ranking crosses the observation. Two reference lines set the scale: 1/n, what a single direct member is worth, and 1/N, what a walker would be worth if nothing had been resampled. Bars at identical height are clones of one parent at the last resampling and carry identical mass by construction, so the count of <em>distinct</em> masses under the panel - not 64 - is how many independent pieces of information the estimate rests on.</figcaption></figure>
+</section>
+
+<section id="California_HeatWave_2022-pilot">
+  <div class="sec-head">
+    <h2>California Heat Wave</h2>
+    <span class="when">September 2022</span>
+    <span class="rungtag">rung 2 of 9</span>
+    <span><span class="pill heat">heat</span> <span class="pill hit">reached</span></span>
+  </div>
+  <p class="lede">A hit at moderate severity. Direct sampling's best member grazed the observation at +4.70 K and never crossed it; 25 of 64 walkers did.</p>
+  <div class="record"><div class="cell"><span class="k">observed A<sub>L</sub></span><span class="v big obs">+4.71 K</span><span class="note">ERA5, 35-41 N, 124-118 W</span></div><div class="cell"><span class="k">climatological percentile</span><span class="v big">99.71<span style="font-size:13px;color:var(--muted)">th</span></span><span class="note">ERA5 1959-2022 · 99.84th against 1990-2019</span></div><div class="cell"><span class="k">return period</span><span class="v ">37 yr</span><span class="note">2 of 64 (2017, 2022) years hold a window this extreme</span></div><div class="cell"><span class="k">depth in GenCast's spread</span><span class="v ">~+2.9 &sigma;</span><span class="note">week-3 ensemble not tabulated</span></div><div class="cell"><span class="k">direct sampling</span><span class="v ">0 / 24</span><span class="note">best member +4.70 K · P = 0.000 [0.000, 0.142]</span></div><div class="cell"><span class="k">AI+RES</span><span class="v res">25 / 64</span><span class="note">most extreme +6.33 K</span></div><div class="cell"><span class="k">weighted P(A<sub>L</sub> beyond observed)</span><span class="v big res">0.0186</span><span class="note">sum of the walker probabilities past the observation</span></div><div class="cell"><span class="k">peak-day anomaly</span><span class="v obs">+7.42 K</span><span class="note">the single day, not the week &middot; 100.0th percentile</span></div><div class="cell"><span class="k">64-year record for this season</span><span class="v ">+6.30 K (2022-09-10)</span><span class="note">peak 2022-09-06 &middot; init 2022-08-16 (21 d lead)</span></div></div>
+  <p class="meta">box: Central and northern California (35-41 N, 124-118 W) &nbsp;·&nbsp;
+     registry key <code>California_HeatWave_2022</code> &nbsp;·&nbsp;
+     Slurm job 1177, 8 h 03 m<br>
+     run health: log Z −1.2488 · normalization check 0.7771 · 16/64 founders · ESS/N 0.22 / 0.18 / 0.25 / 0.47 - the earliest collapse of wave 1</p>
+  <p class="body">Sacramento's all-time 116 °F fell on this peak. The box is the named region, not the week's maximum - the unconstrained maximum for that week is +7.32 K over Idaho and Montana and was deliberately not used, because a box there would score a different event than the one it names. Calibration is clean where direct resolves: P(≥ +2.99 K) 0.114 against 0.125, P(≥ +3.99 K) 0.045 against 0.042, and the curve runs out to 7.7 × 10⁻⁵ at +6.33 K.</p>
+  <figure><img src="DATA" alt="AI+RES map comparison for California Heat Wave"><figcaption><b>Map compare.</b> Every panel is the same reduction - the 7-day-mean 2 m temperature anomaly over the verification week ending at the peak, the field whose area mean over the black box <em>is</em> A<sub>L</sub> - on one shared colour scale. ERA5 truth is titled in red; the rest are the AI+RES population and each direct baseline. An area mean can be reached by the wrong field, so this is where you check that a walker that scored the event also looks like it.</figcaption></figure><figure><img src="DATA" alt="AI+RES walker trajectories for California Heat Wave"><figcaption><b>Trajectory.</b> The algorithm happening: A<sub>L</sub> against lead time for every branch the run rolled, grey for lineages that were killed and coloured for the 64 that survived, with the resampling barriers as vertical lines, the 7-day verification window shaded, the observed value in red, and the operational CFSv2 forecast at the same lead in black.</figcaption></figure><figure><img src="DATA" alt="Per-walker anomaly and probability for California Heat Wave"><figcaption><b>Every walker, and what it is worth.</b> Top: all 64 surviving walkers ranked by how extreme they got, against the observed value in red and the best direct-sampling member in brown. Bottom: the probability mass p<sub>i</sub> = Z&middot;w<sub>i</sub>/N each one carries, on a log axis, with the running total &sum;p<sub>i</sub> as the black staircase - the headline probability is where that staircase stands when the ranking crosses the observation. Two reference lines set the scale: 1/n, what a single direct member is worth, and 1/N, what a walker would be worth if nothing had been resampled. Bars at identical height are clones of one parent at the last resampling and carry identical mass by construction, so the count of <em>distinct</em> masses under the panel - not 64 - is how many independent pieces of information the estimate rests on.</figcaption></figure>
+</section>
+
+<section id="WinterStorm_Elliott_2022-pilot">
+  <div class="sec-head">
+    <h2>Winter Storm Elliott</h2>
+    <span class="when">December 2022</span>
+    <span class="rungtag">rung 3 of 9</span>
+    <span><span class="pill cold">cold</span> <span class="pill hit">reached</span></span>
+  </div>
+  <p class="lede">The deepest reach of the whole experiment, and the second cold hit. The observation sits 0.5 σ deeper in the model's distribution than Southwest, which was missed - and this one is reached, overshooting by 2.6 K.</p>
+  <div class="record"><div class="cell"><span class="k">observed A<sub>L</sub></span><span class="v big obs">−14.42 K</span><span class="note">ERA5, 43-49 N, 106-100 W</span></div><div class="cell"><span class="k">climatological percentile</span><span class="v big">98.41<span style="font-size:13px;color:var(--muted)">th</span></span><span class="note">ERA5 1959-2022 · 99.13th against 1990-2019</span></div><div class="cell"><span class="k">return period</span><span class="v ">5 yr</span><span class="note">11 of 64 years hold a window this extreme</span></div><div class="cell"><span class="k">depth in GenCast's spread</span><span class="v ">+2.81 &sigma;</span><span class="note">week-3 ensemble −0.76 ± 4.87 K</span></div><div class="cell"><span class="k">direct sampling</span><span class="v ">0 / 24</span><span class="note">best member −9.83 K · P = 0.000 [0.000, 0.142]</span></div><div class="cell"><span class="k">AI+RES</span><span class="v res">20 / 64</span><span class="note">most extreme −17.04 K</span></div><div class="cell"><span class="k">weighted P(A<sub>L</sub> beyond observed)</span><span class="v big res">0.0079</span><span class="note">sum of the walker probabilities past the observation</span></div><div class="cell"><span class="k">peak-day anomaly</span><span class="v obs">−19.71 K</span><span class="note">the single day, not the week &middot; 99.0th percentile</span></div><div class="cell"><span class="k">64-year record for this season</span><span class="v ">−21.35 K (1983-12-25)</span><span class="note">peak 2022-12-23 &middot; init 2022-12-02 (21 d lead)</span></div></div>
+  <p class="meta">box: Northern Plains (43-49 N, 106-100 W) &nbsp;·&nbsp;
+     registry key <code>WinterStorm_Elliott_2022</code> &nbsp;·&nbsp;
+     Slurm job 1184, 7 h 26 m<br>
+     run health: log Z −1.1612 · normalization check 0.8108, the closest to 1 of the wave · 14/64 founders · ESS/N 1.00 / 0.39 / 0.29 / 0.33 / 0.59 · weight ESS 8.61</p>
+  <p class="body">The free second rung comes at no extra GPU cost: the run records the CONUS index alongside the box index, giving a second calibration anchor on the cold side at −2.73 K, where direct sampling returns 1/24 = 0.042 [0.007, 0.202] and AI+RES returns 0.136 - inside the interval. The tilt is only partly undone here (unweighted −11.86 K to weighted −3.64 K against a direct mean of −0.76 K), which is the pattern across the wave: the deeper the tilt, the less of it the reweighting recovers.</p>
+  <figure><img src="DATA" alt="AI+RES map comparison for Winter Storm Elliott"><figcaption><b>Map compare.</b> Every panel is the same reduction - the 7-day-mean 2 m temperature anomaly over the verification week ending at the peak, the field whose area mean over the black box <em>is</em> A<sub>L</sub> - on one shared colour scale. ERA5 truth is titled in red; the rest are the AI+RES population and each direct baseline. An area mean can be reached by the wrong field, so this is where you check that a walker that scored the event also looks like it.</figcaption></figure><figure><img src="DATA" alt="AI+RES walker trajectories for Winter Storm Elliott"><figcaption><b>Trajectory.</b> The algorithm happening: A<sub>L</sub> against lead time for every branch the run rolled, grey for lineages that were killed and coloured for the 64 that survived, with the resampling barriers as vertical lines, the 7-day verification window shaded, the observed value in red, and the operational CFSv2 forecast at the same lead in black.</figcaption></figure><figure><img src="DATA" alt="Per-walker anomaly and probability for Winter Storm Elliott"><figcaption><b>Every walker, and what it is worth.</b> Top: all 64 surviving walkers ranked by how extreme they got, against the observed value in red and the best direct-sampling member in brown. Bottom: the probability mass p<sub>i</sub> = Z&middot;w<sub>i</sub>/N each one carries, on a log axis, with the running total &sum;p<sub>i</sub> as the black staircase - the headline probability is where that staircase stands when the ranking crosses the observation. Two reference lines set the scale: 1/n, what a single direct member is worth, and 1/N, what a walker would be worth if nothing had been resampled. Bars at identical height are clones of one parent at the last resampling and carry identical mass by construction, so the count of <em>distinct</em> masses under the panel - not 64 - is how many independent pieces of information the estimate rests on.</figcaption></figure>
+</section>
+
+<section id="WinterStorm_Uri_2021-pilot">
+  <div class="sec-head">
+    <h2>Winter Storm Uri</h2>
+    <span class="when">February 2021</span>
+    <span class="rungtag">rung 4 of 9</span>
+    <span><span class="pill cold">cold</span> <span class="pill hit">reached</span></span>
+  </div>
+  <p class="lede">The first cold hit, and the first clean demonstration that the weights are honest. The frozen schedule, carried unchanged from four warm heat events to a Texas freeze, reaches the observation and prices it.</p>
+  <div class="record"><div class="cell"><span class="k">observed A<sub>L</sub></span><span class="v big obs">−7.40 K</span><span class="note">ERA5, 26-37 N, 106-94 W</span></div><div class="cell"><span class="k">climatological percentile</span><span class="v big">96.80<span style="font-size:13px;color:var(--muted)">th</span></span><span class="note">ERA5 1959-2022 · 98.45th against 1990-2019</span></div><div class="cell"><span class="k">return period</span><span class="v ">4 yr</span><span class="note">19 of 64 years hold a window this extreme</span></div><div class="cell"><span class="k">depth in GenCast's spread</span><span class="v ">+2.28 &sigma;</span><span class="note">week-3 ensemble +0.06 ± 3.27 K</span></div><div class="cell"><span class="k">direct sampling</span><span class="v ">0 / 24</span><span class="note">best member −6.51 K · P = 0.000 [0.000, 0.142]</span></div><div class="cell"><span class="k">AI+RES</span><span class="v res">32 / 64</span><span class="note">most extreme −10.20 K</span></div><div class="cell"><span class="k">weighted P(A<sub>L</sub> beyond observed)</span><span class="v big res">0.0090</span><span class="note">sum of the walker probabilities past the observation</span></div><div class="cell"><span class="k">peak-day anomaly</span><span class="v obs">−19.95 K</span><span class="note">the single day, not the week &middot; 100.0th percentile</span></div><div class="cell"><span class="k">64-year record for this season</span><span class="v ">−14.73 K (2021-02-20)</span><span class="note">peak 2021-02-15 &middot; init 2021-01-25 (21 d lead)</span></div></div>
+  <p class="meta">box: Texas and Oklahoma (26-37 N, 106-94 W) &nbsp;·&nbsp;
+     registry key <code>WinterStorm_Uri_2021</code> &nbsp;·&nbsp;
+     Slurm job 1183, 7 h 12 m<br>
+     run health: log Z −0.6735 · normalization check 1.7688 · 16/64 founders · ESS/N 1.00 / 0.40 / 0.43 / 0.41 / 0.30 · weight ESS only 2.24 of 64, so read the spatial map as shape, not level</p>
+  <p class="body">Three independent direct baselines are empty here - 16 free-running walkers, the 24-member GenCast cube and the 24-member FCN3 ensemble - with the best member 0.9 K short. The tilt is fully undone: an unweighted mean of −6.78 K reweights to +0.21 K against a direct mean of +0.41 K, and the population still covers the bulk (its range reaches +1.57 K). Curve agreement is the best of the wave, leaning slightly low if anything, then extending about two decades past where every direct curve stops. One number here needs reading carefully: a 4-year return period looks mild for the storm that took down the Texas grid, and it is an artefact of the observable, not of Uri. A 6-day box mean over 26-37 N smooths a 3-day collapse across eleven degrees of latitude; the single peak day was -19.95 K, the most extreme mid-February day in the whole 64-year record for that box. What made Uri catastrophic was duration and minimum temperature in a place with no winterisation, and A_L is not built to see either.</p>
+  <figure><img src="DATA" alt="AI+RES map comparison for Winter Storm Uri"><figcaption><b>Map compare.</b> Every panel is the same reduction - the 7-day-mean 2 m temperature anomaly over the verification week ending at the peak, the field whose area mean over the black box <em>is</em> A<sub>L</sub> - on one shared colour scale. ERA5 truth is titled in red; the rest are the AI+RES population and each direct baseline. An area mean can be reached by the wrong field, so this is where you check that a walker that scored the event also looks like it.</figcaption></figure><figure><img src="DATA" alt="AI+RES walker trajectories for Winter Storm Uri"><figcaption><b>Trajectory.</b> The algorithm happening: A<sub>L</sub> against lead time for every branch the run rolled, grey for lineages that were killed and coloured for the 64 that survived, with the resampling barriers as vertical lines, the 7-day verification window shaded, the observed value in red, and the operational CFSv2 forecast at the same lead in black.</figcaption></figure><figure><img src="DATA" alt="Per-walker anomaly and probability for Winter Storm Uri"><figcaption><b>Every walker, and what it is worth.</b> Top: all 64 surviving walkers ranked by how extreme they got, against the observed value in red and the best direct-sampling member in brown. Bottom: the probability mass p<sub>i</sub> = Z&middot;w<sub>i</sub>/N each one carries, on a log axis, with the running total &sum;p<sub>i</sub> as the black staircase - the headline probability is where that staircase stands when the ranking crosses the observation. Two reference lines set the scale: 1/n, what a single direct member is worth, and 1/N, what a walker would be worth if nothing had been resampled. Bars at identical height are clones of one parent at the last resampling and carry identical mass by construction, so the count of <em>distinct</em> masses under the panel - not 64 - is how many independent pieces of information the estimate rests on.</figcaption></figure>
+</section>
+
+<section id="SCentral_HeatDome_2023-pilot">
+  <div class="sec-head">
+    <h2>South-Central Heat Dome</h2>
+    <span class="when">June 2023</span>
+    <span class="rungtag">rung 5 of 9</span>
+    <span><span class="pill heat">heat</span> <span class="pill hit">reached</span></span>
+  </div>
+  <p class="lede">The rarest event on the slate against its own climatology: no window in 64 years of late-June Texas comes within 0.75 K of it. The frozen schedule, ported unchanged into a subtropical-ridge regime, reaches it.</p>
+  <div class="record"><div class="cell"><span class="k">observed A<sub>L</sub></span><span class="v big obs">+5.73 K</span><span class="note">ERA5, 26-32 N, 106-100 W</span></div><div class="cell"><span class="k">climatological percentile</span><span class="v big">100.00<span style="font-size:13px;color:var(--muted)">th</span></span><span class="note">ERA5 1959-2022 · 100.00th against 1990-2019</span></div><div class="cell"><span class="k">return period</span><span class="v ">beyond the record</span><span class="note">0 of 64 years hold a window this extreme</span></div><div class="cell"><span class="k">depth in GenCast's spread</span><span class="v ">~+2.2 &sigma;</span><span class="note">week-3 ensemble not tabulated</span></div><div class="cell"><span class="k">direct sampling</span><span class="v ">0 / 16</span><span class="note">best member +4.19 K · P = 0.000 [0.000, 0.206]</span></div><div class="cell"><span class="k">AI+RES</span><span class="v res">6 / 64</span><span class="note">most extreme +6.19 K</span></div><div class="cell"><span class="k">weighted P(A<sub>L</sub> beyond observed)</span><span class="v big res">0.00273</span><span class="note">sum of the walker probabilities past the observation</span></div><div class="cell"><span class="k">peak-day anomaly</span><span class="v obs">+5.54 K</span><span class="note">the single day, not the week &middot; 100.0th percentile</span></div><div class="cell"><span class="k">64-year record for this season</span><span class="v ">+4.98 K (2011-06-21)</span><span class="note">peak 2023-06-27 &middot; init 2023-06-06 (21 d lead)</span></div></div>
+  <p class="meta">box: South and central Texas, the Rio Grande (26-32 N, 106-100 W) &nbsp;·&nbsp;
+     registry key <code>SCentral_HeatDome_2023</code> &nbsp;·&nbsp;
+     Slurm job 1179, 7 h 13 m<br>
+     run health: log Z −0.7771 · normalization check 1.2672 · 17/64 founders · final ESS/N 0.65</p>
+  <p class="body">This is the generality claim. The C schedule was tuned once, on the Pacific Northwest, and has not been re-tuned for any event since - so a reach in a different regime is evidence the schedule generalises rather than that it was fitted. The weights stay honest: weighted mean +2.35 K against a direct mean of +2.04 K. The dome's core extended well into Mexico, south of the 24 N crop, so like the Pacific Northwest box this one sees the northern part of the event.</p>
+  <figure><img src="DATA" alt="AI+RES map comparison for South-Central Heat Dome"><figcaption><b>Map compare.</b> Every panel is the same reduction - the 7-day-mean 2 m temperature anomaly over the verification week ending at the peak, the field whose area mean over the black box <em>is</em> A<sub>L</sub> - on one shared colour scale. ERA5 truth is titled in red; the rest are the AI+RES population and each direct baseline. An area mean can be reached by the wrong field, so this is where you check that a walker that scored the event also looks like it.</figcaption></figure><figure><img src="DATA" alt="AI+RES walker trajectories for South-Central Heat Dome"><figcaption><b>Trajectory.</b> The algorithm happening: A<sub>L</sub> against lead time for every branch the run rolled, grey for lineages that were killed and coloured for the 64 that survived, with the resampling barriers as vertical lines, the 7-day verification window shaded, the observed value in red, and the operational CFSv2 forecast at the same lead in black.</figcaption></figure><figure><img src="DATA" alt="Per-walker anomaly and probability for South-Central Heat Dome"><figcaption><b>Every walker, and what it is worth.</b> Top: all 64 surviving walkers ranked by how extreme they got, against the observed value in red and the best direct-sampling member in brown. Bottom: the probability mass p<sub>i</sub> = Z&middot;w<sub>i</sub>/N each one carries, on a log axis, with the running total &sum;p<sub>i</sub> as the black staircase - the headline probability is where that staircase stands when the ranking crosses the observation. Two reference lines set the scale: 1/n, what a single direct member is worth, and 1/N, what a walker would be worth if nothing had been resampled. Bars at identical height are clones of one parent at the last resampling and carry identical mass by construction, so the count of <em>distinct</em> masses under the panel - not 64 - is how many independent pieces of information the estimate rests on.</figcaption></figure>
+</section>
+
+<section id="PNW_HeatDome_2021-pilot">
+  <div class="sec-head">
+    <h2>Pacific Northwest Heat Dome</h2>
+    <span class="when">June 2021</span>
+    <span class="rungtag">rung 6 of 9</span>
+    <span><span class="pill heat">heat</span> <span class="pill hit">reached</span></span>
+  </div>
+  <p class="lede">The pilot, and the run every other one is measured against. Forty direct GenCast members initialised three weeks out never reach the dome; 42 of 64 walkers do.</p>
+  <div class="record"><div class="cell"><span class="k">observed A<sub>L</sub></span><span class="v big obs">+7.72 K</span><span class="note">ERA5, 44-50 N, 124-118 W</span></div><div class="cell"><span class="k">climatological percentile</span><span class="v big">99.60<span style="font-size:13px;color:var(--muted)">th</span></span><span class="note">ERA5 1959-2022 · 99.61th against 1990-2019</span></div><div class="cell"><span class="k">return period</span><span class="v ">22 yr</span><span class="note">3 of 64 (1992, 2015, 2021) years hold a window this extreme</span></div><div class="cell"><span class="k">depth in GenCast's spread</span><span class="v ">+1.98 &sigma;</span><span class="note">week-3 ensemble +2.46 ± 2.65 K</span></div><div class="cell"><span class="k">direct sampling</span><span class="v ">0 / 40</span><span class="note">best member +7.49 K · P = 0.000 [0.000, 0.088]</span></div><div class="cell"><span class="k">AI+RES</span><span class="v res">42 / 64</span><span class="note">most extreme +10.29 K</span></div><div class="cell"><span class="k">weighted P(A<sub>L</sub> beyond observed)</span><span class="v big res">0.054</span><span class="note">sum of the walker probabilities past the observation</span></div><div class="cell"><span class="k">peak-day anomaly</span><span class="v obs">+14.38 K</span><span class="note">the single day, not the week &middot; 100.0th percentile</span></div><div class="cell"><span class="k">64-year record for this season</span><span class="v ">+11.11 K - the same dome, 3 d later</span><span class="note">peak 2021-06-28 &middot; init 2021-06-07 (21 d lead)</span></div></div>
+  <p class="meta">box: Oregon and Washington, the dome core (44-50 N, 124-118 W) &nbsp;·&nbsp;
+     registry key <code>PNW_HeatDome_2021</code> &nbsp;·&nbsp;
+     Slurm job 1172, 7 h 45 m<br>
+     run health: log Z −0.9317 · normalization check 0.5684 · 11/64 founders · weight ESS 5.68</p>
+  <p class="body">The observed maximum reached about 52 N into British Columbia, outside the 50 N CONUS crop, so this box sees the southern two thirds of the event. The per-grid-point tail is where the estimate is most striking: the weighted spatial distribution puts P(point ≥ +9 K) at 0.0505 against ERA5's own 0.0848, where 24 direct members give 0.0011.</p>
+  <figure><img src="DATA" alt="AI+RES map comparison for Pacific Northwest Heat Dome"><figcaption><b>Map compare.</b> Every panel is the same reduction - the 7-day-mean 2 m temperature anomaly over the verification week ending at the peak, the field whose area mean over the black box <em>is</em> A<sub>L</sub> - on one shared colour scale. ERA5 truth is titled in red; the rest are the AI+RES population and each direct baseline. An area mean can be reached by the wrong field, so this is where you check that a walker that scored the event also looks like it.</figcaption></figure><figure><img src="DATA" alt="AI+RES walker trajectories for Pacific Northwest Heat Dome"><figcaption><b>Trajectory.</b> The algorithm happening: A<sub>L</sub> against lead time for every branch the run rolled, grey for lineages that were killed and coloured for the 64 that survived, with the resampling barriers as vertical lines, the 7-day verification window shaded, the observed value in red, and the operational CFSv2 forecast at the same lead in black.</figcaption></figure><figure><img src="DATA" alt="Per-walker anomaly and probability for Pacific Northwest Heat Dome"><figcaption><b>Every walker, and what it is worth.</b> Top: all 64 surviving walkers ranked by how extreme they got, against the observed value in red and the best direct-sampling member in brown. Bottom: the probability mass p<sub>i</sub> = Z&middot;w<sub>i</sub>/N each one carries, on a log axis, with the running total &sum;p<sub>i</sub> as the black staircase - the headline probability is where that staircase stands when the ranking crosses the observation. Two reference lines set the scale: 1/n, what a single direct member is worth, and 1/N, what a walker would be worth if nothing had been resampled. Bars at identical height are clones of one parent at the last resampling and carry identical mass by construction, so the count of <em>distinct</em> masses under the panel - not 64 - is how many independent pieces of information the estimate rests on.</figcaption></figure>
+</section>
+
+<section id="p90_20251224-pilot">
+  <div class="sec-head">
+    <h2>The Nationwide Warm Spell</h2>
+    <span class="when">24 December 2025</span>
+    <span class="rungtag">rung 7 of 9</span>
+    <span><span class="pill conus">CONUS index</span> <span class="pill anchor">calibration anchor</span></span>
+  </div>
+  <p class="lede">The calibration anchor: the one rung where direct sampling returns a non-zero probability, so the weighted estimate has something to be checked against. It lands inside the direct interval.</p>
+  <div class="record"><div class="cell"><span class="k">observed A<sub>L</sub></span><span class="v big obs">+3.26 K</span><span class="note">ERA5, 24-50 N, 125-66 W</span></div><div class="cell"><span class="k">climatological percentile</span><span class="v big">98.78<span style="font-size:13px;color:var(--muted)">th</span></span><span class="note">ERA5 1959-2022 · 97.40th against 1990-2019</span></div><div class="cell"><span class="k">return period</span><span class="v ">10 yr</span><span class="note">8 of 64 years hold a window this extreme</span></div><div class="cell"><span class="k">depth in GenCast's spread</span><span class="v ">+1.91 &sigma;</span><span class="note">week-3 ensemble +0.25 ± 1.58 K</span></div><div class="cell"><span class="k">direct sampling</span><span class="v ">1 / 24</span><span class="note">best member +3.46 K · P = 0.042 [0.001, 0.211]</span></div><div class="cell"><span class="k">AI+RES</span><span class="v res">46 / 64</span><span class="note">most extreme +5.12 K</span></div><div class="cell"><span class="k">weighted P(A<sub>L</sub> beyond observed)</span><span class="v big res">0.0661</span><span class="note">sum of the walker probabilities past the observation</span></div><div class="cell"><span class="k">peak-day anomaly</span><span class="v obs">+4.91 K</span><span class="note">the single day, not the week &middot; 99.8th percentile</span></div><div class="cell"><span class="k">64-year record for this season</span><span class="v ">+4.45 K (2015-12-15)</span><span class="note">peak 2025-12-24 &middot; init 2025-12-03 (21 d lead)</span></div></div>
+  <p class="meta">box: Whole CONUS - this case is defined on the national mean (24-50 N, 125-66 W) &nbsp;·&nbsp;
+     registry key <code>p90_20251224</code> &nbsp;·&nbsp;
+     Slurm job 1182, 8 h 42 m<br>
+     run health: log Z −1.1846 · normalization check 0.6890 · 16/64 founders · ESS/N 1.00 / 0.32 / 0.56 / 0.54 / 0.69 - the only run that recovers after every barrier</p>
+  <p class="body">AI+RES gives 0.0661 against direct sampling's 1/24 = 0.0417 [0.0074, 0.202]. No wave-1 run could do this - every one of them had direct at 0/24, so the weighted probability had nothing to be compared with. Two caveats: through the mid-range the weighted curve runs about twice the direct estimate (2.2 to 2.6 binomial standard errors at n = 24), and the weighted mean cannot return to the direct mean here, because resampling killed every lineage below +1.25 K. That is a limit of the surviving population's support, not a weighting error.</p>
+  <figure><img src="DATA" alt="AI+RES map comparison for The Nationwide Warm Spell"><figcaption><b>Map compare.</b> Every panel is the same reduction - the 7-day-mean 2 m temperature anomaly over the verification week ending at the peak, the field whose area mean over the black box <em>is</em> A<sub>L</sub> - on one shared colour scale. ERA5 truth is titled in red; the rest are the AI+RES population and each direct baseline. An area mean can be reached by the wrong field, so this is where you check that a walker that scored the event also looks like it.</figcaption></figure><figure><img src="DATA" alt="AI+RES walker trajectories for The Nationwide Warm Spell"><figcaption><b>Trajectory.</b> The algorithm happening: A<sub>L</sub> against lead time for every branch the run rolled, grey for lineages that were killed and coloured for the 64 that survived, with the resampling barriers as vertical lines, the 7-day verification window shaded, the observed value in red, and the operational CFSv2 forecast at the same lead in black.</figcaption></figure><figure><img src="DATA" alt="Per-walker anomaly and probability for The Nationwide Warm Spell"><figcaption><b>Every walker, and what it is worth.</b> Top: all 64 surviving walkers ranked by how extreme they got, against the observed value in red and the best direct-sampling member in brown. Bottom: the probability mass p<sub>i</sub> = Z&middot;w<sub>i</sub>/N each one carries, on a log axis, with the running total &sum;p<sub>i</sub> as the black staircase - the headline probability is where that staircase stands when the ranking crosses the observation. Two reference lines set the scale: 1/n, what a single direct member is worth, and 1/N, what a walker would be worth if nothing had been resampled. Bars at identical height are clones of one parent at the last resampling and carry identical mass by construction, so the count of <em>distinct</em> masses under the panel - not 64 - is how many independent pieces of information the estimate rests on.</figcaption></figure>
+</section>
+
+<section id="p90_20240802-pilot">
+  <div class="sec-head">
+    <h2>The Normal-Day Test</h2>
+    <span class="when">2 August 2024</span>
+    <span class="rungtag">rung 8 of 9</span>
+    <span><span class="pill conus">CONUS index</span> <span class="pill control">no-harm control</span></span>
+  </div>
+  <p class="lede">The no-harm control. The observation sits exactly at the ensemble median, and a sampler built to push walkers into the tail has to return an ordinary probability for an ordinary day. It returns 0.649 against direct sampling's 0.583.</p>
+  <div class="record"><div class="cell"><span class="k">observed A<sub>L</sub></span><span class="v big obs">+1.06 K</span><span class="note">ERA5, 24-50 N, 125-66 W</span></div><div class="cell"><span class="k">climatological percentile</span><span class="v big">94.08<span style="font-size:13px;color:var(--muted)">th</span></span><span class="note">ERA5 1959-2022 · 91.55th against 1990-2019</span></div><div class="cell"><span class="k">return period</span><span class="v ">4 yr</span><span class="note">20 of 64 years hold a window this extreme</span></div><div class="cell"><span class="k">depth in GenCast's spread</span><span class="v ">0.00 &sigma;</span><span class="note">week-3 ensemble +1.06 ± 0.60 K</span></div><div class="cell"><span class="k">direct sampling</span><span class="v ">14 / 24</span><span class="note">best member +1.96 K · P = 0.583 [0.366, 0.779]</span></div><div class="cell"><span class="k">AI+RES</span><span class="v res">63 / 64</span><span class="note">most extreme +2.37 K</span></div><div class="cell"><span class="k">weighted P(A<sub>L</sub> beyond observed)</span><span class="v big res">0.649</span><span class="note">sum of the walker probabilities past the observation</span></div><div class="cell"><span class="k">peak-day anomaly</span><span class="v obs">+2.40 K</span><span class="note">the single day, not the week &middot; 100.0th percentile</span></div><div class="cell"><span class="k">64-year record for this season</span><span class="v ">+2.06 K (2006-07-20)</span><span class="note">peak 2024-08-02 &middot; init 2024-07-12 (21 d lead)</span></div></div>
+  <p class="meta">box: Whole CONUS - this case is defined on the national mean (24-50 N, 125-66 W) &nbsp;·&nbsp;
+     registry key <code>p90_20240802</code> &nbsp;·&nbsp;
+     Slurm job 1185, 7 h 48 m<br>
+     run health: log Z −0.6063 · normalization check 0.7039 · 15/64 founders · ESS/N 1.00 / 0.53 / 0.37 / 0.30 / 0.40</p>
+  <p class="body">Do not read the reach count as a result: 63 of 64 walkers 'reach' a median target, which says where the tilt pushed the population and nothing else. What matters is that the estimator was built to detect a specific failure - reporting 0.05 for a median target - and does not show it. The spatial evidence is cleaner still: on the per-grid-point tail the weighted population gives 0.0727 against direct GenCast's 0.0702, agreement to 4 %, while the unweighted population gives 0.1627, 2.3 times too heavy.</p>
+  <figure><img src="DATA" alt="AI+RES map comparison for The Normal-Day Test"><figcaption><b>Map compare.</b> Every panel is the same reduction - the 7-day-mean 2 m temperature anomaly over the verification week ending at the peak, the field whose area mean over the black box <em>is</em> A<sub>L</sub> - on one shared colour scale. ERA5 truth is titled in red; the rest are the AI+RES population and each direct baseline. An area mean can be reached by the wrong field, so this is where you check that a walker that scored the event also looks like it.</figcaption></figure><figure><img src="DATA" alt="AI+RES walker trajectories for The Normal-Day Test"><figcaption><b>Trajectory.</b> The algorithm happening: A<sub>L</sub> against lead time for every branch the run rolled, grey for lineages that were killed and coloured for the 64 that survived, with the resampling barriers as vertical lines, the 7-day verification window shaded, the observed value in red, and the operational CFSv2 forecast at the same lead in black.</figcaption></figure><figure><img src="DATA" alt="Per-walker anomaly and probability for The Normal-Day Test"><figcaption><b>Every walker, and what it is worth.</b> Top: all 64 surviving walkers ranked by how extreme they got, against the observed value in red and the best direct-sampling member in brown. Bottom: the probability mass p<sub>i</sub> = Z&middot;w<sub>i</sub>/N each one carries, on a log axis, with the running total &sum;p<sub>i</sub> as the black staircase - the headline probability is where that staircase stands when the ranking crosses the observation. Two reference lines set the scale: 1/n, what a single direct member is worth, and 1/N, what a walker would be worth if nothing had been resampled. Bars at identical height are clones of one parent at the last resampling and carry identical mass by construction, so the count of <em>distinct</em> masses under the panel - not 64 - is how many independent pieces of information the estimate rests on.</figcaption></figure>
+</section>
+
+<section id="p90_20231107-pilot">
+  <div class="sec-head">
+    <h2>The Below-Median Day</h2>
+    <span class="when">7 November 2023</span>
+    <span class="rungtag">rung 9 of 9</span>
+    <span><span class="pill conus">CONUS index</span> <span class="pill pinned">estimator pinned</span></span>
+  </div>
+  <p class="lede">The estimator degenerates here, and finding out where that happens is the most useful thing the bottom of the ladder produced. Direct sampling puts this ordinary November week at 0.875; AI+RES reports 0.583, below the direct interval, and cannot report anything else.</p>
+  <div class="record"><div class="cell"><span class="k">observed A<sub>L</sub></span><span class="v big obs">+0.21 K</span><span class="note">ERA5, 24-50 N, 125-66 W</span></div><div class="cell"><span class="k">climatological percentile</span><span class="v big">60.10<span style="font-size:13px;color:var(--muted)">th</span></span><span class="note">ERA5 1959-2022 · 53.64th against 1990-2019</span></div><div class="cell"><span class="k">return period</span><span class="v ">1 yr</span><span class="note">62 of 64 years hold a window this extreme</span></div><div class="cell"><span class="k">depth in GenCast's spread</span><span class="v ">−0.97 &sigma;</span><span class="note">week-3 ensemble +1.28 ± 1.09 K</span></div><div class="cell"><span class="k">direct sampling</span><span class="v ">21 / 24</span><span class="note">best member +3.14 K · P = 0.875 [0.676, 0.973]</span></div><div class="cell"><span class="k">AI+RES</span><span class="v res">64 / 64</span><span class="note">most extreme +4.16 K</span></div><div class="cell"><span class="k">weighted P(A<sub>L</sub> beyond observed)</span><span class="v big res">0.583 (pinned)</span><span class="note">sum of the walker probabilities past the observation</span></div><div class="cell"><span class="k">peak-day anomaly</span><span class="v obs">+3.01 K</span><span class="note">the single day, not the week &middot; 98.7th percentile</span></div><div class="cell"><span class="k">64-year record for this season</span><span class="v ">+3.38 K (2020-11-10)</span><span class="note">peak 2023-11-07 &middot; init 2023-10-17 (21 d lead)</span></div></div>
+  <p class="meta">box: Whole CONUS - this case is defined on the national mean (24-50 N, 125-66 W) &nbsp;·&nbsp;
+     registry key <code>p90_20231107</code> &nbsp;·&nbsp;
+     Slurm job 1186, 7 h 25 m<br>
+     run health: log Z −1.0156 · normalization check 0.5827 · 15/64 founders · ESS/N 1.00 / 0.41 / 0.62 / 0.53 / 0.53, the healthiest of the wave - which is the point: health metrics do not detect this failure</p>
+  <p class="body">The cause is structural and was checked numerically rather than inferred. Resampling tilted the whole population warm, so its lowest realized A_L is +1.498 K - above the +0.211 K target - and the indicator 1{A_L ≥ observed} is identically 1 across all 64 walkers. The estimate Z·mean(w·1{...}) then collapses to Z·mean(w), which is exactly the normalization check: 0.582662 against 0.582662, to every digit printed. The estimator cannot return a probability above its own normalization check, and the truth sits above that ceiling. Self-normalizing is no better - it returns exactly 1.000, because “every walker reached it” is all the information the population retains. Nothing inside the run reveals any of this: a reader of compare.json alone would take 0.583 at face value. The rule it establishes is that AI+RES has no resolution at a target the tilt has already carried the entire population past, so the usable operating range is targets the resampled population still straddles - which the run one rung up does (its population minimum is +0.39 K against a +1.06 K target) and this one does not.</p>
+  <figure><img src="DATA" alt="AI+RES map comparison for The Below-Median Day"><figcaption><b>Map compare.</b> Every panel is the same reduction - the 7-day-mean 2 m temperature anomaly over the verification week ending at the peak, the field whose area mean over the black box <em>is</em> A<sub>L</sub> - on one shared colour scale. ERA5 truth is titled in red; the rest are the AI+RES population and each direct baseline. An area mean can be reached by the wrong field, so this is where you check that a walker that scored the event also looks like it.</figcaption></figure><figure><img src="DATA" alt="AI+RES walker trajectories for The Below-Median Day"><figcaption><b>Trajectory.</b> The algorithm happening: A<sub>L</sub> against lead time for every branch the run rolled, grey for lineages that were killed and coloured for the 64 that survived, with the resampling barriers as vertical lines, the 7-day verification window shaded, the observed value in red, and the operational CFSv2 forecast at the same lead in black.</figcaption></figure><figure><img src="DATA" alt="Per-walker anomaly and probability for The Below-Median Day"><figcaption><b>Every walker, and what it is worth.</b> Top: all 64 surviving walkers ranked by how extreme they got, against the observed value in red and the best direct-sampling member in brown. Bottom: the probability mass p<sub>i</sub> = Z&middot;w<sub>i</sub>/N each one carries, on a log axis, with the running total &sum;p<sub>i</sub> as the black staircase - the headline probability is where that staircase stands when the ranking crosses the observation. Two reference lines set the scale: 1/n, what a single direct member is worth, and 1/N, what a walker would be worth if nothing had been resampled. Bars at identical height are clones of one parent at the last resampling and carry identical mass by construction, so the count of <em>distinct</em> masses under the panel - not 64 - is how many independent pieces of information the estimate rests on.</figcaption></figure>
+</section>
+
+<section id="persistence-control">
+  <div class="sec-head">
+    <h2>The persistence control</h2>
+    <span class="when">same walkers, same schedule, different score</span>
+    <span class="rungtag">attribution</span>
+    <span><span class="pill miss">not reached</span></span>
+  </div>
+  <p class="lede">Every gain above is attributed to the FCN3 score by this one run. It
+  repeats the Pacific Northwest pilot with the same walkers, the same resampling, the same
+  C schedule and the same seeds, swapping only the function that decides which walkers to
+  clone - from a skilful forecast of the event to &ldquo;who is hottest now&rdquo;.
+  It reaches the observed +7.72 K with <b>0 of 64</b> walkers.</p>
+  <p class="body">The selection is noise at this lead: ESS/N falls to 0.04 and 0.02 at
+  steps 3 and 4 with clone multiplicities of 39 and 49, three of 64 founders survive, the
+  weights span 0.013 to 869, and the normalization check comes out at 8.75 with a weighted
+  mean of +0.29 K - the weights cancel the tilt entirely. Cloning on a skilful forecast of
+  the event beats cloning on the present state, which is exactly what the Gate 3
+  persistence column predicted before any of these runs were made.</p>
+  <p class="meta">Slurm job 1180, 3 h 50 m &nbsp;·&nbsp;
+     most extreme walker +7.33 K against an observed +7.72 K</p>
+  <figure><img src="DATA" alt="Persistence-scored control trajectories"
+     ><figcaption><b>Trajectory.</b> The algorithm happening: A<sub>L</sub> against lead time for every branch the run rolled, grey for lineages that were killed and coloured for the 64 that survived, with the resampling barriers as vertical lines, the 7-day verification window shaded, the observed value in red, and the operational CFSv2 forecast at the same lead in black. Compare the spread of the coloured branches
+      against the Pacific Northwest pilot's: with a persistence score the population never
+      organises into the tail.</figcaption></figure>
+  <figure><img src="DATA" alt="Per-walker anomaly and probability for the persistence control"><figcaption><b>Every walker, and what it is worth.</b> The same panel as each event's, for the control. Nothing lies in the shaded band, so P is 0 and the honest statement is the deepest level the run resolved, 2.6 &times; 10<sup>&minus;4</sup>. Its 64 walkers hold only 15 distinct masses and a weight ESS of 1.0 - one effective sample - which is what a score with no skill at the target does to a population.</figcaption></figure>
+</section>
+
+  <div class="foot">
+    <h3>What is still missing</h3>
+    <p><b>The figures are complete.</b> All nine per-walker panels and the control's are
+    on this page as of 26 August 2026 - the eight that were waiting on a3mega came across
+    with the run reductions, and the cross-event view above replaces the one that was
+    taken off for being unreadable.</p>
+    <p><b>The lift view.</b> The other cross-event figure - the forecast scored against
+    climatology rather than against the direct ensemble - is being rebuilt after it was
+    caught scoring Winter Storm Elliott's Northern Plains index against the CONUS
+    climatology column, which reported a 285&times; lift where the honest number is
+    0.35&times;. It is not on this page until it has been redrawn over the full slate.</p>
+    <p><b>One optional run.</b> A 32-walker repeat of the 2 August 2024 normal-day test,
+    to see whether the no-harm result survives half the population. Nothing on this page
+    depends on it.</p>
+    <h3>Where the method's limits now sit</h3>
+    <p>Two boundaries are measured rather than assumed, and both were found by runs that
+    did not go the way the plan expected. The <b>upper</b> limit is between +2.8 and
+    +3.3 &sigma;: Winter Storm Elliott at +2.81 &sigma; is reached and the Southwest heat
+    wave at +3.3 &sigma; is not, and because one is a freeze and one a heat wave the
+    boundary is not sign-dependent. The <b>lower</b> limit is a target the tilt has
+    already carried the whole population past, where the estimate pins to the run's own
+    normalization check and reports a probability that is silently meaningless. The
+    method's usable range is the span between them: targets the resampled population
+    still straddles, and that direct sampling still misses.</p>
+    <h3>Provenance</h3>
+    <p>Climatology from <code>python -m aires.aclim --report</code>, run on Derecho on
+    26 August 2026 against a freshly built cache: WeatherBench-2 daily-mean 0.25&deg; ERA5
+    for 1959-2023, topped up from ARCO for the post-2023 peaks, anomalies against the same
+    1990-2019 baseline the experiment uses everywhere else. Return periods are a GEV fit to
+    seasonal block maxima and are the softest number on the page - read them as an order of
+    magnitude, not a figure.</p>
+    <p>Run statistics from each production's entry in <code>aires/HANDOFF.md</code>;
+    figures from <code>aires/amaps.py</code> and <code>aires/aplots.py</code> on branch
+    <code>aires</code>. Wave 1 - the four heat events
+    and the persistence control - cost about 232 H100-hours across five runs and a gate;
+    wave 2's five runs were budgeted at 61 to 64 H100-hours each.</p>
+    <p style="color:var(--muted);font-size:12px">A note on the two names without one: the
+    <span class="mono">p90_*</span> cases are days selected by a national-mean anomaly
+    threshold and carry no meteorological name, so they are named here by what they are -
+    a nationwide warm spell at the 99th percentile, a normal-day test at the ensemble
+    median, and a below-median day.</p>
+  </div>
+</div>
