@@ -86,6 +86,7 @@ def test_registered_boxes_are_the_pinned_science_choice():
         "SCentral_HeatDome_2023": ((26.0, 32.0), (254.0, 260.0)),
         "Southwest_HeatWave_2020": ((29.0, 35.0), (251.0, 257.0)),
         "California_HeatWave_2022": ((35.0, 41.0), (236.0, 242.0)),
+        "WinterStorm_Elliott_2022": ((43.0, 49.0), (254.0, 260.0)),
     }
     for name, (lat, lon) in want.items():
         box = AI.EVENT_BOXES[name]
