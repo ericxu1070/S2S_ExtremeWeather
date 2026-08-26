@@ -3,11 +3,14 @@
 
 Four figures, covering the six items `aires.md` lists. Each reads only artifacts that
 `aires/run_aires.py` already wrote (`compare.json`, `res_result.json`, `ds_baseline.json`)
-plus, for the two that need fields rather than indices, the walker diagnostics cubes. No
-GPU, no model, no network.
+plus, for the two that need fields rather than indices, the walker diagnostics cubes, plus
+- for the trajectory figure alone - the cached CFSv2 baseline cube if `aires/cfs.py` has
+built one. No GPU, no model, no network: the CFS cube is READ here and fetched there, and
+a missing one drops that curve with a message rather than failing the figure.
 
     trajectory    the algorithm happening: the observable against lead time, every
-                  branch the pilot rolled, the barriers, the 7-day window
+                  branch the pilot rolled, the barriers, the 7-day window, and what
+                  the operational CFSv2 forecast had at the same lead
     exceedance    the headline: does the RES tail contain the observed event when direct
                   sampling does not?                                     [aires.md fig 1]
     diagnostics   score skill per t_k, and whether N=64 held up          [figs 3, 4]
@@ -57,6 +60,11 @@ DS_STYLE = {
     "fcn3":            ("#9467bd", "FCN3 direct (24-member)"),
 }
 OBS_COLOR = "#d62728"
+# The CFSv2 operational baseline. Black, dashed, deliberately outside the palette every
+# other curve is drawn from: it is the one line on the figure that is not a machine
+# learning model, and it has to stay legible against 64 survivors coloured on a saturated
+# ramp, ~450 grey killed branches and a red observed line.
+CFS_COLOR = "#111111"
 
 
 # --------------------------------------------------------------------------- #
@@ -613,6 +621,19 @@ DEAD_COLOR = "0.72"
 # diagnostics cube is ~35 MB of 12 prognostic variables on 13 levels; 64 of them held at
 # once is 2.2 GB, and Derecho's login node OOM-kills at less than that. Reading only the
 # metric's own variables drops a segment to well under 100 MB.
+def metric_unit(metric: str) -> str:
+    """The metric's own unit, or ``""`` where it has none. One place, not five inline
+    copies of the same conditional - and the thing to extend when a metric is added."""
+    return "K" if metric == "t2m_anom" else (
+        "m s$^{-1}$" if "speed" in metric else ("mm" if metric.startswith("tp") else ""))
+
+
+def unit_suffix(ctx) -> str:
+    """``" K"`` / ``""`` - the unit as it is appended to a formatted number."""
+    u = metric_unit(ctx.ev.metric)
+    return f" {u}" if u else ""
+
+
 METRIC_VARS = {
     "t2m_anom": ("2m_temperature",),
     "u850_speed": ("u_component_of_wind", "v_component_of_wind"),
@@ -855,6 +876,7 @@ def plot_trajectory(ctx: R.Ctx, d: dict, tree: dict | None = None) -> Path:
     cfg = d["config"]
     legs = A.res_legs(cfg["leads"], cfg["horizon_days"], cfg["C"])
     n = int(cfg["n_walkers"])
+    sign = float(cfg.get("tail_sign", ctx.sign))
     tree = tree if tree is not None else trajectory_tree(ctx, d)
 
     lead = np.asarray(tree["lead"], dtype=float)
@@ -872,8 +894,13 @@ def plot_trajectory(ctx: R.Ctx, d: dict, tree: dict | None = None) -> Path:
     cmap = colors.LinearSegmentedColormap.from_list(
         "survivors", base(np.linspace(0.32, 1.0, 256)))
 
+    cfs = _cfs(ctx)
+
     fig = plt.figure(figsize=(15.5, 7.4))
-    gs = fig.add_gridspec(1, 3, width_ratios=[4.6, 1.0, 0.05], wspace=0.06)
+    # The marginal holds one column per method and gains one when CFS is present; a fixed
+    # width ratio would overlap its tick labels rather than shrink the dots.
+    n_cols = 1 + len(d.get("ds", {}) or {}) + (1 if cfs else 0)
+    gs = fig.add_gridspec(1, 3, width_ratios=[4.6, 0.30 * n_cols, 0.05], wspace=0.06)
     ax = fig.add_subplot(gs[0, 0])
     axm = fig.add_subplot(gs[0, 1], sharey=ax)
     cax = fig.add_subplot(gs[0, 2])
@@ -916,6 +943,24 @@ def plot_trajectory(ctx: R.Ctx, d: dict, tree: dict | None = None) -> Path:
         ax.plot(tb(xs), ys, "-", lw=1.0, color=cmap(norm(al[i])), alpha=0.9,
                 zorder=3, solid_capstyle="round")
 
+    # --- the operational baseline -------------------------------------------------- #
+    # Drawn ABOVE the survivors, not below: four black curves under 64 saturated ones are
+    # invisible, and the whole point of the baseline is that it can be read against them.
+    if cfs is not None:
+        for row in cfs["series"]:
+            ax.plot(tb(cfs["lead"]), row, "--", lw=1.05, color=CFS_COLOR, alpha=0.85,
+                    zorder=4.6, dashes=(5, 2.6))
+        # A_L is a MEAN over the shaded window, not the endpoint of a curve, so it is
+        # drawn as a bar spanning exactly that window at exactly that height. Putting the
+        # number anywhere else on this panel would invite reading a curve's last point as
+        # A_L, which it is not.
+        m = float(cfs["box_mean"])
+        ax.plot([tb(w0), tb(w1)], [m, m], "-", lw=2.6, color=CFS_COLOR, zorder=4.8,
+                solid_capstyle="butt")
+        ax.text(tb(w0), m, f"CFSv2 $A_L$ = {m:+.2f}{unit_suffix(ctx)}  ", color=CFS_COLOR,
+                fontsize=8.5, ha="right", va="center", zorder=4.9,
+                bbox=dict(boxstyle="round,pad=0.22", fc="white", ec="none", alpha=0.72))
+
     # --- the barriers ------------------------------------------------------------- #
     for leg, th in zip([l for l in legs if l.resampling],
                        list(theta) + [None] * len(legs)):
@@ -933,9 +978,18 @@ def plot_trajectory(ctx: R.Ctx, d: dict, tree: dict | None = None) -> Path:
 
     if obs is not None:
         ax.axhline(float(obs), color=OBS_COLOR, lw=1.3, ls="--", zorder=5)
-        ax.text(float(tb(0.15)), float(obs),
-                f" ERA5 observed $A_L$ = {float(obs):+.2f} K",
-                color=OBS_COLOR, fontsize=8.5, va="bottom", zorder=6)
+        # Placed at a fixed AXES fraction, clear of the legend box, rather than at a
+        # lead. The legend is anchored upper-left and its height grows with the number of
+        # methods drawn - adding the CFSv2 entry made it a row taller - so on an event
+        # whose observed A_L sits high on the axis (Southwest 2020, +5.14 K) a label
+        # pinned to the left edge lands underneath it. An axes fraction cannot collide
+        # with a legend that never leaves the left third, and the white bbox keeps the
+        # label readable wherever on the y axis the observed value falls.
+        ax.text(0.40, float(obs),
+                f" ERA5 observed $A_L$ = {float(obs):+.2f}{unit_suffix(ctx)}",
+                transform=ax.get_yaxis_transform(), color=OBS_COLOR, fontsize=8.5,
+                ha="left", va="bottom", zorder=6,
+                bbox=dict(boxstyle="round,pad=0.22", fc="white", ec="none", alpha=0.72))
 
     # Reversed limits rather than invert_xaxis(): the marginal panel shares only y, and a
     # single set_xlim keeps the direction with the data instead of as a later mutation.
@@ -953,23 +1007,75 @@ def plot_trajectory(ctx: R.Ctx, d: dict, tree: dict | None = None) -> Path:
         f"{n_kill} lineages killed, {d.get('n_founders', '?')}/{n} founders still "
         f"represented at the peak", fontsize=10.5, pad=26)
     ax.grid(alpha=0.2)
-    ax.legend(handles=[
+    handles = [
         Line2D([], [], color=cmap(0.85), lw=1.4, label="surviving lineage (colored by its $A_L$)"),
         Line2D([], [], color=DEAD_COLOR, lw=1.0,
                label=f"killed branch ({tree['n_dead_nodes']} segments, x where it ends)"),
         Line2D([], [], color="#175d7d", marker="D", ls="none", ms=5,
                label=r"population-mean score $\theta$ at that barrier"),
-    ], fontsize=8, loc="upper left", framealpha=0.92)
+    ]
+    if cfs is not None:
+        lo, hi = min(cfs["member_lead_days"]), max(cfs["member_lead_days"])
+        handles.append(Line2D(
+            [], [], color=CFS_COLOR, lw=1.05, ls="--",
+            label=f"CFSv2 operational, {cfs['n_members']} lagged cycles "
+                  f"({lo:g}-{hi:g} d lead); bar = its $A_L$"))
+    ax.legend(handles=handles, fontsize=8, loc="upper left", framealpha=0.92)
 
     # --- the marginal: where each method's members landed ------------------------ #
-    _marginal(axm, d, al, obs)
+    _marginal(axm, d, al, obs, sign, cfs)
 
     fig.colorbar(cm.ScalarMappable(norm=norm, cmap=cmap), cax=cax,
-                 label=r"realized $A_L$   (K)")
+                 label=r"realized $A_L$" + (f"   ({metric_unit(ctx.ev.metric)})"
+                                            if metric_unit(ctx.ev.metric) else ""))
     fig.suptitle(f"AI+RES pilot - {ctx.event} ({ctx.tag}): the walk itself, barrier by "
                  f"barrier", fontsize=12)
     fig.subplots_adjust(left=0.055, right=0.945, top=0.865, bottom=0.115)
     return _save(fig, _fig_path(ctx, "trajectory"))
+
+
+def _cfs(ctx: R.Ctx) -> dict | None:
+    """The CFSv2 baseline for this event, or ``None`` if it has not been built.
+
+    Returns ``None`` rather than raising, for the same reason ``_init_index_series``
+    does: this figure is the offline stage and must not acquire a network dependency.
+    ``aires/cfs.py`` is what fetches; this only reads what is already cached, says so
+    when there is nothing, and draws the rest of the figure unchanged.
+    """
+    try:
+        from aires import cfs as CFS
+        cube = CFS.load(ctx.event)
+    except (Exception, SystemExit) as e:              # noqa: BLE001 - cfgrib is optional
+        # Two ways this legitimately fails and neither may cost the figure: cfgrib is not
+        # installed (it is a pip add-on, not part of either conda env's definition), and
+        # the event is not in fevents.KNOWN, which is how the unit tests drive this code
+        # with synthetic populations.
+        #
+        # SystemExit is named explicitly because it does NOT inherit from Exception - and
+        # SystemExit is precisely how this repo reports "unknown event" and "no cube", so
+        # a bare `except Exception` here catches the rare case and misses both common ones.
+        print(f"    CFS baseline unavailable ({type(e).__name__}: {e}); skipping")
+        return None
+    if cube is None:
+        print(f"    no CFSv2 cube cached for {ctx.event} - drawing without the "
+              f"operational baseline.\n"
+              f"      build it on the login node: PYTHONPATH=. python -m aires.cfs "
+              f"--event {ctx.event}")
+        return None
+    try:
+        lead, box = CFS.series(ctx.event, cube)
+        out = dict(CFS.indices(ctx.event, cube))
+    except (Exception, SystemExit) as e:              # noqa: BLE001 - see above
+        print(f"    CFS baseline could not be reduced ({type(e).__name__}: {e}); skipping")
+        return None
+    finally:
+        cube.close()
+    # CFS is 6-hourly where the walkers are 12-hourly, so the diurnal filter is the 5-point
+    # trapezoid rather than aplots.daily's 3-point one - same 24 h null, same centring.
+    out["lead"], out["series"] = CFS.daily_mean(lead, box)
+    print(f"    CFSv2 baseline: {out['n_members']} cycles, mean $A_L$ = "
+          f"{out['box_mean']:+.2f}")
+    return out
 
 
 def _window_lead(ctx: R.Ctx, d: dict) -> np.ndarray:
@@ -997,12 +1103,13 @@ def _ylab(ctx: R.Ctx) -> str:
             "u850_speed_max": "850 hPa wind speed",
             "tp_total": "12 h precipitation",
             "tp_max12h": "12 h precipitation"}.get(ctx.ev.metric, ctx.ev.metric)
-    unit = "K" if ctx.ev.metric == "t2m_anom" else (
-        "m s$^{-1}$" if "speed" in ctx.ev.metric else "mm")
-    return f"running index: {box}-box mean {what}, 24 h mean   ({unit})"
+    u = metric_unit(ctx.ev.metric)
+    return (f"running index: {box}-box mean {what}, 24 h mean"
+            + (f"   ({u})" if u else ""))
 
 
-def _marginal(axm, d: dict, al: np.ndarray, obs) -> None:
+def _marginal(axm, d: dict, al: np.ndarray, obs, sign: float = 1.0,
+              cfs: dict | None = None) -> None:
     """Where every method's members ended up, on the main panel's y axis.
 
     The point of the whole pilot in one column of dots: the resampled population sits on
@@ -1018,6 +1125,9 @@ def _marginal(axm, d: dict, al: np.ndarray, obs) -> None:
         if key in ds:
             v = np.asarray(ds[key]["box"], dtype=float)
             cols.append((f"{short.get(key, key)}\nn={v.size}", v, color))
+    if cfs is not None:
+        cols.append((f"CFSv2\noperational\nn={len(cfs['box'])}",
+                     np.asarray(cfs["box"], dtype=float), CFS_COLOR))
 
     rng = np.random.default_rng(0)
     for i, (label, v, color) in enumerate(cols):
@@ -1025,7 +1135,10 @@ def _marginal(axm, d: dict, al: np.ndarray, obs) -> None:
         axm.plot(x, v, "o", ms=3.4, color=color, alpha=0.8, mew=0)
         axm.plot([i - 0.34, i + 0.34], [v.mean()] * 2, "-", color=color, lw=1.8)
         if obs is not None:
-            k = int(np.sum(v >= float(obs)))
+            # Sign-aware, exactly as the exceedance panel counts it (see `exceedance`):
+            # "reaching" is reaching the EXTREME tail, so on a cold event this counts the
+            # members COLDER than the observed freeze, not the ones warmer than it.
+            k = int(np.sum(sign * v >= sign * float(obs)))
             axm.text(i, 1.005, f"{k}/{v.size}", transform=axm.get_xaxis_transform(),
                      ha="center", va="bottom", fontsize=8.5, color=color,
                      fontweight="bold" if k else "normal")
