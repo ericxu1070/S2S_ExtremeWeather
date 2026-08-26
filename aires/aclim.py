@@ -116,6 +116,7 @@ REPORT_EVENTS = (
     "California_HeatWave_2022",
     "Southwest_HeatWave_2020",
     "WinterStorm_Uri_2021",
+    "WinterStorm_Elliott_2022",
     "p90_20231107",
     "p90_20240802",
     "p90_20251224",
