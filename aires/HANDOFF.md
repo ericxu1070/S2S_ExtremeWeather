@@ -581,8 +581,9 @@ elapsed at 2 concurrent nodes (jobs 1181-1186). Uri's Gate 3 seeding saved ~2.8 
   pick up all five new runs whenever its author runs it.
 - [ ] wave 3 (optional): p90_20240802 at N=32 tag `pilot32` as the mild control
 - [ ] after each finished+compared run: `--stage ds`, `--stage compare`, apdfs/aplots/amaps,
-  then `PYTHONPATH=. python -m aires.alift` (cross-event, redraws the whole slate from
-  every `compare.json` it finds - no per-run argument), then `--stage prune`
+  then `PYTHONPATH=. python -m aires.alift` and `PYTHONPATH=. python -m aires.awalkers`
+  (both cross-event, both redraw the whole slate from every `compare.json` they find -
+  no per-run argument), then `--stage prune`
 - [ ] **register a new event's box BEFORE its first `alift`, and rebuild the climatology
   cache with it.** `aires/aclim.py` reduces whatever `aindex.EVENT_BOXES` held when the
   cache was WRITTEN, so an event added later has a box but no climatology column. That
@@ -602,6 +603,49 @@ elapsed at 2 concurrent nodes (jobs 1181-1186). Uri's Gate 3 seeding saved ~2.8 
   '*step0[3-7]/state.nc' -delete` - KEEPS step01/02, which the persistence control
   seeds from), and `rm -rf runs/aires/PNW_HeatDome_2021/res/smoke` (1.3 GB). Not on the
   critical path.
+
+## The population figure - every walker, its anomaly, its `p_i` (2026-08-26)
+
+`aires/awalkers.py` (new, + `aires/tests/test_awalkers.py`, 16 tests). Draws the raw
+material every other figure reduces: all 64 surviving walkers of each run, where each
+landed on `A_L`, and the probability
+
+    p_i = Z * w_i / N ,   so   P(A_L >= a) = sum of p_i over the walkers past a
+                          and  sum_i p_i   = the run's own normalization check
+
+`walker_mass` is IMPORTED from `aires/alift.py` rather than re-derived, so the two
+figures cannot drift apart; `test_awalkers.py` pins the identity against
+`dmc.DMCResult.expectation` and that the import is the same object. Verified against the
+published tables: every headline reproduces (PNW 0.054, CA 0.019, SCentral 0.00273,
+Elliott 0.00790, Uri 0.00895, `p90_20251224` 0.0661, `p90_20240802` 0.649,
+`p90_20231107` 0.583 PINNED), as do the weight ESS values (PNW 5.68, Uri 2.24).
+
+    PYTHONPATH=. python -m aires.awalkers               # slate figure + the CSV
+    PYTHONPATH=. python -m aires.awalkers --per-event   # + one detail figure per run
+
+Writes `figures/aires/aires_walkers.png` (10 panels, hardest target first),
+`figures/aires/<event>/aires_walkers_<event>_<tag>.png` per run, and
+`runs/aires/aires_walkers.csv` - 640 rows, one per walker: `A_L`, `A_L_conus`,
+`weight`, `p_i`, `p_over_direct`, `rank`, `cum_p`, `founder`, `family`, `reached`.
+
+Three things the panels make legible that the tables cannot:
+
+- **The `1/N` line is the price of reach.** A direct-sampling member is worth exactly
+  `1/N`; PNW's hottest walker carries `2.5%` of that (`p_over_direct` 0.025). Reach is
+  bought and then charged for, and the panel shows the exchange rate per walker.
+- **The masses come in tied blocks.** Walkers cloned at the LAST resampling inherit their
+  parent's `V_K` and carry identical mass, so Uri's 64 walkers hold only 34 distinct
+  values (largest family 9) and the persistence control only 15. That is the number of
+  independent pieces of information behind the estimate, and it is why the weight ESS
+  (2.24 for Uri, 1.01 for `persist`) is the right thing to quote next to a `P`.
+- **The pinned failure is visible.** For `p90_20231107` the red line sits below every
+  walker, so the shaded "counts towards P" band covers the whole panel - the estimator
+  is summing everything and returning its own normalization check. `compare.json` alone
+  shows a plausible 0.583.
+
+Southwest and the `persist` control have nothing in the band; their panels report `P = 0`
+plus the deepest level the run resolved (3.2e-04 and 2.6e-04), which is the honest
+statement and matches the wave-1 table's "< 3e-4".
 
 ## The adapter test (branch `adapter-test`) - the open question and how to close it
 
@@ -1787,12 +1831,14 @@ M = 6, N = 64, states pruned to the last 2 segments, no score bought where `C_k 
 | `aires/aplots.py` | the Phase 4 figures: trajectory, exceedance, diagnostics, genealogy, composite |
 | `aires/cfs.py` | the CFSv2 operational baseline: range-fetches NCEI's archive, regrids to the 0.25 deg CONUS grid, reports `A_L` at the 21 d lead. `--event NAME` / `--all`. Needs internet, no GPU |
 | `aires/apdfs.py` | the pilot's PDFs: `--stage {build,figs,all}` - lineage-stitched walker fields, weighted binned PDFs (CONUS + box), the 3-panel map |
+| `aires/awalkers.py` | the population figure: every surviving walker's `A_L` and its mass `p_i = Z w_i/N`, per run and across the slate, + `runs/aires/aires_walkers.csv` |
 | `aires/run_aires.py` | the production driver: `--stage {prep,walk,score,res,ds,compare}`. `res` IS the coordinator and launches both GPU pools itself |
 | `aires/tests/test_adapter.py` | 25 tests incl. the 69-channel bit-exactness check |
 | `aires/tests/test_walker.py` | state contract, batch-from-arbitrary-state, cloning RNG, checkpoint choice |
 | `aires/tests/test_dmc.py` | pivotal sampling, the C=0 identity, OU unbiasedness and variance reduction |
 | `aires/tests/test_ctune.py` | the surrogate reproduces the skill curve and the correlations it was not given |
 | `aires/tests/test_aplots.py` | sibling pairing, the exceedance standard error, weighted quantiles, and that each figure renders |
+| `aires/tests/test_awalkers.py` | that `p_i` is the estimator's own (imported, not re-derived), sums to the normalization check, ranks by the tail sign, and flags a pinned target |
 | `aires/tests/test_run_aires.py` | leg schedule, lineage validation, the replay guard, pruning, the cold-event sign; runs the real DMC loop through the real coordinator on a fake tree |
 | `aires/tests/test_cfs.py` | CFS URL/inventory contracts, the trailing lag ensemble, and the 6-hourly 24 h filter (incl. that it reduces to `aplots.daily` at a 12 h step) |
 | `aires/tests/test_apdfs.py` | weighted_pdf identities: weights=None == `xcombined.PDF_histogram`, ones == None, the Z-scaling constant, mass 1 |
@@ -1808,6 +1854,7 @@ M = 6, N = 64, states pruned to the last 2 segments, no score bought where `C_k 
 | `figures/aires/PNW_HeatDome_2021/ctune_PNW_HeatDome_2021.png` | the C_k schedule replay |
 | `runs/aires/<event>/walkers/`, `/scores/`, `/gate3/` | 16 trajectories, 80 score cubes, the verdict |
 | `runs/aires/<event>/res/<tag>/` | the pilot's own tree - walkers, scores, per-leg manifests, `res_result.json`. DISJOINT from the gate's |
+| `figures/aires/aires_walkers.png`, `runs/aires/aires_walkers.csv` | all 64 walkers per run: anomaly, `p_i`, rank, running total, founder, clone family |
 | `runs/aires/<event>/res/<tag>/pdf/pdf_fields.nc` | the PDF intermediate: 64 walker fields + weights + all baselines (gitignored, ~45 s rebuild) |
 | `figures/aires/PNW_HeatDome_2021/aires_pdf_*_PNW_HeatDome_2021_pilot.png`, `aires_anom_maps_*` | the two binned PDFs (CONUS, box) + the three-map comparison |
 | `runs/aires/<event>/ds_baseline.json` | the direct-sampling baseline (no GPU, tag-independent) |
