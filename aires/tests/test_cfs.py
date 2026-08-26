@@ -4,9 +4,15 @@ The failure modes here are all silent ones - the module talks to an external arc
 hands its output to the same reduction that scores the walkers, so anything it gets wrong
 comes back as a plausible number on a figure rather than as an exception:
 
-* the inventory URL. The sidecar REPLACES ``.grb2`` with ``.inv``; appending instead
-  gives a 404 on a cycle that is perfectly present, which is exactly what happened on the
-  first run and would have been read as "the archive is missing 2021-06-06 06Z".
+* the inventory URL. On NCEI the sidecar REPLACES ``.grb2`` with ``.inv``; appending
+  instead gives a 404 on a cycle that is perfectly present, which is exactly what
+  happened on the first run and would have been read as "the archive is missing
+  2021-06-06 06Z". The AWS mirror's convention is the exact opposite (``.idx`` APPENDED),
+  so both directions are pinned.
+* the archive fallback. NCEI is missing all of 2024 and December 2025, which is every
+  cycle two of the p90 cases need; those events read as "absent from the archive" and
+  lost their baseline entirely until the mirror was tried. The fallback must fire on a
+  404 and must NOT quietly become the primary.
 * the lag ensemble's direction. ``trailing`` must never produce a member at a SHORTER
   lead than the walkers it is a baseline for - that is the whole reason it is the default.
 * the inventory parser, on the multi-field layout (``wnd850`` writes a day of UGRD, then
@@ -55,6 +61,88 @@ def test_url_path_carries_the_cycle_hour():
     u = CFS.cfs_url(pd.Timestamp("2022-12-01 18:00"), "tmp2m")
     assert "/time-series/2022/202212/20221201/2022120118/" in u
     assert "wnd850" not in u
+
+
+# --------------------------------------------------------------------------- #
+# The AWS mirror, tried when NCEI 404s a cycle
+# --------------------------------------------------------------------------- #
+def test_mirror_inventory_url_appends_rather_than_replaces():
+    """The mirror's convention is the EXACT OPPOSITE of NCEI's, and both are live.
+
+    NCEI replaces ``.grb2`` with ``.inv``; AWS appends ``.idx`` to the whole name. Apply
+    either convention to the other archive and you get a 404 against an object that is
+    present - the same misreading the NCEI test above exists to prevent, one archive over.
+    """
+    grb = CFS.aws_url(INIT, "tmp2m")
+    inv = CFS.aws_url(INIT, "tmp2m", "inv")
+    assert grb.endswith("/tmp2m.01.2021060700.daily.grb2")
+    assert inv.endswith("/tmp2m.01.2021060700.daily.grb2.idx")
+    assert not inv.endswith(".daily.idx")
+
+
+def test_mirror_url_carries_the_cycle_hour_as_its_own_level():
+    """``cfs.<YYYYMMDD>/<HH>/time_grib_01/`` - the date and the hour are SEPARATE levels,
+    unlike NCEI where the last level is the full YYYYMMDDHH stamp."""
+    u = CFS.aws_url(pd.Timestamp("2022-12-01 18:00"), "tmp2m")
+    assert "/cfs.20221201/18/time_grib_01/" in u
+
+
+def test_mirror_refuses_an_extension_it_does_not_know():
+    with pytest.raises(ValueError):
+        CFS.aws_url(INIT, "tmp2m", "grib")
+
+
+def test_ncei_is_tried_before_the_mirror():
+    """Order is the contract: NCEI is the archive of record and reaches back to 2011;
+    the mirror is a rolling archive that only starts 2023-04-22."""
+    assert [n for n, _ in CFS.ARCHIVES] == ["NCEI", "AWS"]
+
+
+def _fake_archive(monkeypatch, present: str, payload: bytes = b"GRIB"):
+    """Route ``_get`` to a single archive, 404-ing every other one.
+
+    ``present`` is matched against the host, so the fake is keyed on the thing that
+    actually distinguishes the two archives rather than on call order.
+    """
+    def fake(url, byte_range=None, missing_ok=False):
+        if present not in url:
+            if missing_ok:
+                return None
+            raise CFS.MissingCycle(url)
+        return SINGLE_FIELD.encode() if url.endswith((".inv", ".idx")) else payload
+    monkeypatch.setattr(CFS, "_get", fake)
+
+
+def test_fetch_window_falls_back_to_the_mirror(tmp_path, monkeypatch, capsys):
+    """NCEI's 2024 and Dec-2025 holes are the reason this module has a second archive.
+
+    Without the fallback those cycles read as "absent from the archive" and the event
+    silently loses its baseline - which is what p90_20240802 and p90_20251224 did.
+    """
+    _fake_archive(monkeypatch, "amazonaws.com")
+    dest = tmp_path / "tmp2m.grb2"
+    assert CFS.fetch_window(pd.Timestamp("2024-07-11 06:00"), "tmp2m", 24, dest) == "AWS"
+    assert dest.read_bytes() == b"GRIB"
+    assert "absent from NCEI, served by AWS" in capsys.readouterr().out
+
+
+def test_fetch_window_stays_on_ncei_when_it_has_the_cycle(tmp_path, monkeypatch, capsys):
+    """The fallback must not become the default: NCEI serving normally is silent, and
+    nothing goes to the mirror."""
+    _fake_archive(monkeypatch, "ncei.noaa.gov")
+    dest = tmp_path / "tmp2m.grb2"
+    assert CFS.fetch_window(INIT, "tmp2m", 24, dest) == "NCEI"
+    assert "served by" not in capsys.readouterr().out
+
+
+def test_a_cycle_in_no_archive_is_still_a_missing_cycle(tmp_path, monkeypatch):
+    """``build`` degrades the lag ensemble to n-1 members on ``MissingCycle``. Adding a
+    second archive must not turn a genuinely absent cycle into some other exception that
+    kills the whole event instead."""
+    _fake_archive(monkeypatch, "no-such-host")
+    with pytest.raises(CFS.MissingCycle) as e:
+        CFS.fetch_window(INIT, "tmp2m", 24, tmp_path / "x.grb2")
+    assert "NCEI" in str(e.value) and "AWS" in str(e.value)
 
 
 # --------------------------------------------------------------------------- #

@@ -1461,13 +1461,29 @@ identical 7-day window ending at the peak. Four members, from the four 6-hourly 
 exactly lead-matched to the walkers and no member is at a shorter lead than the thing it
 is a baseline for.
 
-| event | CFS mean A_L | CFS best member | AI+RES mean | observed | CFS members reaching observed |
-|---|---|---|---|---|---|
-| PNW_HeatDome_2021 | +0.30 | +3.42 | +8.24 | +7.72 | 0/4 |
-| SCentral_HeatDome_2023 | -0.14 | +1.19 | +4.10 | +5.73 | 0/4 |
-| Southwest_HeatWave_2020 | +1.05 | +1.60 | +2.47 | +5.14 | 0/4 |
-| California_HeatWave_2022 | +2.41 | +3.68 | +4.11 | +4.71 | 0/4 |
-| WinterStorm_Elliott_2022 | -2.81 | -10.74 | - | - | - |
+**All nine AI+RES events now carry it** (extended 2026-08-26; Elliott's AI+RES column is
+filled in and Uri + the three p90 rungs are new).
+
+| event | CFS mean A_L | CFS best member | AI+RES mean | observed | CFS reaching | AI+RES reaching |
+|---|---|---|---|---|---|---|
+| PNW_HeatDome_2021 | +0.30 | +3.42 | +8.24 | +7.72 | 0/4 | 42/64 |
+| SCentral_HeatDome_2023 | -0.14 | +1.19 | +4.10 | +5.73 | 0/4 | 6/64 |
+| Southwest_HeatWave_2020 | +1.05 | +1.60 | +2.47 | +5.14 | 0/4 | 0/64 |
+| California_HeatWave_2022 | +2.41 | +3.68 | +4.11 | +4.71 | 0/4 | 25/64 |
+| WinterStorm_Elliott_2022 | -2.81 | -10.74 | -11.86 | -14.42 | 0/4 | 20/64 |
+| WinterStorm_Uri_2021 | +0.54 | -3.86 | -6.78 | -7.40 | 0/4 | 32/64 |
+| p90_20231107 | +0.99 | +1.75 | +3.23 | +0.21 | **3/4** | 64/64 |
+| p90_20240802 | +1.05 | +1.35 | +1.93 | +1.06 | **2/4** | 63/64 |
+| p90_20251224 | -1.35 | +0.22 | +3.83 | +3.26 | 0/4 | 46/64 |
+
+"Reaching" is sign-aware, so for the two cold events it means far enough BELOW. The three
+p90 rungs are the useful new information: they are the only cases where CFS reaches the
+observation at all, and they are exactly the mild ones (observed A_L +0.21 and +1.06 K
+over CONUS). That is the severity ladder working as intended from the other end - the
+operational baseline is competitive precisely where the event is not extreme, and
+p90_20240802 is the one case where CFS is effectively perfect (+1.05 vs +1.06 observed).
+p90_20251224 breaks the pattern: a +3.26 K CONUS-mean event that CFS misses by 4.6 K,
+with the ensemble mean on the WRONG SIDE of climatology (-1.35 K).
 
 Read that table with the box in mind - each row's `A_L` is over that event's own box (see
 `aires/aindex.py::EVENT_BOXES`), so the columns compare methods within a row, not events
@@ -1486,6 +1502,59 @@ main panel, and `A_L` as a black bar spanning exactly the shaded 7-day window at
 the ensemble-mean height (a curve's ENDPOINT is not `A_L`, and drawing the number anywhere
 else invites that misreading). The marginal panel gains a `CFSv2 operational` column with
 the same sign-aware `k/n` count as the other methods.
+
+### Is the comparison fair? CFS is on a ~0.94 deg grid (measured 2026-08-26)
+
+The obvious objection to every row of that table: CFS runs on a T126 Gaussian grid
+(190x384, ~0.94 deg) and is bilinearly interpolated up to the 0.25 deg CONUS grid before
+`aindex` scores it. Does the coarse grid damp the event and make `A_L^CFS` too small?
+
+**Measured, on the truth, where the answer is known.** Take each event's ERA5 verification
+field at 0.25 deg, push it through CFS's own grid (0.25 -> T126 -> 0.25, both steps
+bilinear, the identical path `grib_to_cube` puts CFS through) and re-score it:
+
+| event | ERA5 at 0.25 deg | via the CFS grid | delta | native cells | gap to CFS |
+|---|---|---|---|---|---|
+| PNW_HeatDome_2021 | +7.716 | +7.707 | -0.010 | +7.837 | +7.42 |
+| SCentral_HeatDome_2023 | +5.730 | +5.689 | -0.041 | +5.676 | +5.87 |
+| Southwest_HeatWave_2020 | +5.142 | +5.099 | -0.044 | +5.173 | +4.09 |
+| California_HeatWave_2022 | +4.710 | +4.717 | +0.007 | +4.692 | +2.30 |
+| WinterStorm_Elliott_2022 | -14.422 | -14.364 | +0.058 | -14.589 | -11.61 |
+| WinterStorm_Uri_2021 | -7.397 | -7.409 | -0.012 | -7.478 | -7.93 |
+| p90_20231107 | +0.211 | +0.228 | +0.017 | +0.219 | -0.78 |
+| p90_20240802 | +1.057 | +1.039 | -0.018 | +1.046 | +0.01 |
+| p90_20251224 | +3.259 | +3.393 | +0.134 | +3.255 | +4.61 |
+
+Round-trip cost: mean **+0.010 K**, max **|0.134| K**, sd 0.056 K. The "native cells"
+column is the other estimator (cos(lat) mean over the CFS cells whose centres fall in the
+box, no regridding at all); it differs from the 0.25 deg mean by at most 0.167 K. So the
+**largest resolution term anywhere is ~0.17 K**, against gaps of 2.3-11.6 K on the six
+genuinely extreme events. Resolution does not explain those misses; it is 1-3% of them.
+
+**Why it is so small, and when it would not be.** `A_L` is a 7-day mean over a 6x6 degree
+box - the reduction is itself a brutal spatial smoother, and coarsening a field that is
+about to be averaged over ~36 deg^2 barely moves the average. Resolution WOULD matter, a
+lot, for a point maximum, a spatial percentile or a precipitation extreme. It does not
+matter for this index, and that is a property of the index, not a general fact about CFS.
+
+**Where the caveat still bites: the two mild rungs.** `p90_20240802`'s gap is +0.01 K, so
+the ~0.02-0.05 K resolution term is the SAME ORDER as the thing being measured. Do not
+quote "CFS was exactly right on p90_20240802" as a precise result - it is right to within
+a discretisation uncertainty comparable to its own error. The extreme rows are safe; the
+mild ones carry a ~0.1 K error bar that the extreme ones can ignore.
+
+**What this test does NOT cover**, and must not be read as covering: the *climatology*
+mismatch (below). Coarse-grid representation is fair; anomalies taken against the wrong
+climatology are the open term. And a coarse MODEL genuinely failing to build a sharp ridge
+is not unfairness at all - that is forecast skill, which is the thing being measured.
+
+Cross-check on the climatology term: CFS's day-0/1 box anomaly minus the ERA5 init frames'
+is within +-0.56 K on eight of nine events (mean |.| 0.30 K excluding Elliott), consistent
+with the 0.65 K matched-time PNW figure below. Elliott reads -4.27 K, which is NOT a bias:
+`init_anom` covers init+6h..+24h while the ERA5 init frames are at init-12h and init, and
+a front crossed the N Plains box in that half-day gap. The windows do not overlap, so this
+proxy is only good where the pattern is slow - exactly the caveat the `init_anom` docstring
+already makes.
 
 ### Things to know before quoting a number
 
@@ -1514,8 +1583,25 @@ the same sign-aware `k/n` count as the other methods.
   (`tmp2m` at 2020-07-25 06Z has the GRIB and no inventory); the module falls back to the
   whole file. A genuinely absent cycle is skipped with a warning and recorded in the cube
   attrs, not silently dropped.
-- **The AWS mirror `noaa-cfs-pds` is useless here** - it is a rolling archive starting
-  2023-04-22, and four of the five events predate it.
+- **NCEI is incomplete, and the AWS mirror is the fallback** (amended 2026-08-26; the
+  earlier note here said the mirror was useless, which was true of the first five events
+  and false of the experiment). Measured: NCEI 404s **every cycle of 2024 and of December
+  2025**, which is every cycle `p90_20240802` and `p90_20251224` need - both read as
+  "ABSENT from the archive" and got no baseline at all. NOAA's Open-Data mirror
+  `noaa-cfs-pds` carries them. It is a rolling archive starting 2023-04-22, so it cannot
+  serve the four oldest events - but NCEI can, and between them every event has a source.
+  `aires/cfs.py` now tries NCEI first and falls through per cycle; the cube records which
+  archive served it in the `archives` attr.
+- **The two archives are the same bytes where they overlap** - verified, not assumed, on
+  2023-10-16 06Z `tmp2m`: identical `Content-Length` (91,845,361 B), identical md5 over
+  the 6.9 MB window prefix the fetch actually reads, and byte-identical inventories. The
+  fallback is a second ADDRESS for one product, not a second data source.
+- **The two use OPPOSITE inventory conventions.** NCEI REPLACES `.grb2` with `.inv`; AWS
+  APPENDS `.idx` to the whole name. Apply either convention to the other archive and you
+  get a clean 404 against an object that is present - the same trap the `.inv` note
+  above records, one archive over. Both are wgrib inventories that `parse_inv` reads
+  unchanged, and the layout differs too (`cfs.<YYYYMMDD>/<HH>/time_grib_01/` vs NCEI's
+  four nested date levels).
 - **Precip metrics are refused, not guessed.** CFS ships `prate`, a 6 h mean RATE; the
   12 h accumulation `xres.xmetrics` wants is a conversion with nothing here to validate
   it against. `t2m_anom` (`tmp2m`) and `u850_speed*` (`wnd850`) are supported.
