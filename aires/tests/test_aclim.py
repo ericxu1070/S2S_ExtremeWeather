@@ -10,6 +10,7 @@ from __future__ import annotations
 import numpy as np
 import pandas as pd
 import pytest
+import xarray as xr
 
 from aires import aclim as AC
 
@@ -93,3 +94,24 @@ def test_boxes_cover_every_reported_t2m_event():
             assert col == "CONUS"      # the p90 index IS the CONUS mean, by design
         else:
             assert col == name, f"{name} lost its box and would be scored on CONUS"
+
+
+def test_the_cache_on_disk_is_not_stale_relative_to_the_registered_boxes():
+    """``test_boxes_cover_every_reported_t2m_event`` checks ``_boxes()``, which is built
+    from ``EVENT_BOXES`` at call time - so it passes even when the CACHED FILE predates a
+    newly registered box. That is the gap that shipped: `WinterStorm_Elliott_2022` was
+    added to EVENT_BOXES after the cache was built, `daily_anomaly()` had no column for
+    it, and its N Plains ``A_L`` (reaching -17 K) was scored against the CONUS climatology
+    (spanning +-5 K) with no error anywhere. Check the file, not the registry.
+
+    Skipped where the cache has not been built; a rebuild is
+    ``PYTHONPATH=. python -m aires.aclim --build``.
+    """
+    if not AC.CACHE.exists():
+        pytest.skip(f"no climatology cache at {AC.CACHE}")
+    with xr.open_dataset(AC.CACHE) as ds:
+        have = {str(b) for b in ds["box"].values}
+    missing = set(AC._boxes()) - have
+    assert not missing, (f"{AC.CACHE.name} has no column for {sorted(missing)}; those "
+                         f"events would silently be scored on the CONUS mean. Rebuild: "
+                         f"PYTHONPATH=. python -m aires.aclim --build")
