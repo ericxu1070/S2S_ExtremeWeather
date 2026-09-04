@@ -432,6 +432,11 @@ def cache_dataset(event: str, raw: dict, *, source: str, a_l: float,
     # ``units="days since ..."`` would be CF time units and xarray would try to DECODE
     # this axis into datetimes on the way back in, which fails on read. It is an elapsed
     # time, not a date, so the reference belongs in the long name.
+    # A bare ``units="days"`` is NOT safe either, and that is the half of the trap that
+    # bit: xarray reads any bare CF duration unit as a timedelta64, so the axis comes back
+    # in NANOSECONDS and a float cast turns 0.25 d into 2.16e13. The attribute is correct
+    # metadata and stays; ``load`` switches the decoding off instead, which also repairs
+    # every cache file already on disk.
     ds["lead"].attrs.update(units="days", long_name="lead time from the AI+RES init")
     ds.attrs.update(
         event=event, metric=METRIC, source=source, step_h=STEP_H,
@@ -462,7 +467,10 @@ def load(event: str) -> dict | None:
     p = cache_path(event)
     if not p.exists():
         return None
-    with xr.open_dataset(p) as ds:
+    # ``decode_timedelta=False``: ``lead`` carries ``units="days"``, which xarray otherwise
+    # decodes to timedelta64 and the float cast below would read as nanoseconds. See the
+    # note on the attribute in ``cache_dataset``.
+    with xr.open_dataset(p, decode_timedelta=False) as ds:
         a = ds.attrs
         return dict(
             lead=np.asarray(ds["lead"].values, dtype=float),
