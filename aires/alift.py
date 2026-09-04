@@ -165,7 +165,11 @@ def clim_pool(event: str, anom: pd.DataFrame | None = None) -> tuple[np.ndarray,
             f"{event}: seasonal pool for box {col} has {samp.size} windows, expected "
             f"~{expect} ({span} yr x {2 * CL.SEASON_HALF_WIDTH + 1} d). The cache is "
             f"gappy for this box - rebuild it before trusting any rarity from it.")
-    return samp, float(getattr(ev, "tail_sign", 1.0))
+    # `Event` carries `family`, never a `tail_sign` attribute, so a getattr default here
+    # returned +1 for a freeze and would have scored a cold event's rarity off its WARM
+    # tail. `lift_curve` happens to take the sign from `compare.json` instead and so was
+    # never wrong, which is exactly what made this safe to leave and dangerous to keep.
+    return samp, AI.tail_sign(event)
 
 
 def lift_curve(event: str, tag: str, anom: pd.DataFrame | None = None,

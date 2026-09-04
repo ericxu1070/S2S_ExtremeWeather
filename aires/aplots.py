@@ -18,6 +18,8 @@ a missing one drops that curve with a message rather than failing the figure.
     diagnostics   score skill per t_k, and whether N=64 held up          [figs 3, 4]
     genealogy     walker ancestry, and whether clones actually separate  [figs 2, 6]
     composite     what the RES-selected extremes look like               [fig 5]
+    walkers       the population as a list: each walker's realized anomaly next to the
+                  probability mass it carries
 
 Reading the exceedance figure honestly
 --------------------------------------
@@ -68,7 +70,7 @@ from aires import aconfig as A
 from aires import run_aires as R
 from fcn3 import fevents as F
 
-FIGURES = ("trajectory", "exceedance", "diagnostics", "genealogy", "composite")
+FIGURES = ("trajectory", "exceedance", "diagnostics", "genealogy", "composite", "walkers")
 
 RES_COLOR = "#1f77b4"
 DS_STYLE = {
@@ -156,6 +158,34 @@ def res_exceedance_se(values, weights, log_Z: float, thresholds, sign: float = 1
         f = (sign * v >= sign * float(a)).astype("float64") * w
         out.append(Z * float(np.std(f, ddof=1)) / np.sqrt(n) if n > 1 else np.nan)
     return np.array(out)
+
+
+def walker_probabilities(weights, log_Z: float, n: int | None = None) -> np.ndarray:
+    """The probability mass ``p_i`` the run assigns to each surviving walker.
+
+    A resampled walker is not one member of an equally weighted ensemble. It is a
+    trajectory the scheme deliberately over-produced, and the weight ``w_i = e^{-V_K}``
+    is what undoes that tilt. The estimator every exceedance number in this experiment
+    comes from is
+
+        P(A_L >= a)  =  Z * mean_i( 1{A_L_i >= a} * w_i )   with   Z = e^{log Z}
+
+    so the per-walker term of that sum,
+
+        p_i  =  Z * w_i / N,
+
+    IS the probability GenCast assigns to that walker's outcome: sum the ``p_i`` of the
+    walkers past a threshold and the exceedance probability falls out. Summing ALL of them
+    gives ``normalization_check``, which should be 1 and is not (open problem 5), so
+    ``p_i`` is an estimate on the same footing as the curve it builds - not a quantity
+    with an exact interval.
+
+    ``weights`` are the raw ``e^{-V_K}`` values ``compare.json`` stores, and ``n`` defaults
+    to their count.
+    """
+    w = np.asarray(weights, dtype="float64")
+    n = int(w.size if n is None else n)
+    return float(np.exp(log_Z)) * w / n
 
 
 def sibling_pairs(parents) -> list[tuple[int, int]]:
@@ -1598,6 +1628,101 @@ def _marginal(axm, d: dict, al: np.ndarray, obs, sign: float = 1.0,
 
 
 # --------------------------------------------------------------------------- #
+# Figure 7 - the population as a list: what each walker reached, and how likely it is
+# --------------------------------------------------------------------------- #
+def plot_walkers(ctx: R.Ctx, d: dict) -> Path:
+    """One row per walker: the anomaly it reached, and the probability mass it carries.
+
+    The exceedance figure shows the INTEGRAL of this - a curve with the walkers summed
+    away. This one keeps them apart, because the two numbers a reader wants per walker are
+    "how extreme did it get" and "how much does GenCast believe it", and the second is the
+    one a raw ensemble plot cannot show: in a direct ensemble every member carries the same
+    1/n, whereas here the masses span three orders of magnitude and the most extreme walker
+    is usually NOT the most probable one.
+
+    Rows are ordered by how far into the tail the walker got, most extreme at the top, with
+    the tail sign applied - so on a freeze the top row is the coldest walker.
+    """
+    import matplotlib
+    matplotlib.use("Agg")
+    import matplotlib.pyplot as plt
+
+    from aires import aindex as AI
+
+    sign = float(d["config"].get("tail_sign", 1.0))
+    al = np.array(d["realized"]["box"], dtype=float)
+    w = np.array(d["weights"], dtype=float)
+    p = walker_probabilities(w, d["log_Z"], al.size)
+    obs = d.get("observed")
+    unit = unit_suffix(ctx)
+    ds = d.get("ds", {}) or {}
+
+    order = np.argsort(sign * al)[::-1]          # most extreme first
+    al_s, p_s = al[order], p[order]
+    y = np.arange(al.size)
+    reach = (np.full(al.size, False) if obs is None
+             else sign * al_s >= sign * float(obs))
+
+    fig, ax = plt.subplots(1, 2, figsize=(13.6, max(6.4, 0.135 * al.size + 3.0)),
+                           sharey=True, gridspec_kw={"width_ratios": [1.35, 1]})
+
+    # --- (0) what each walker reached --------------------------------------- #
+    a0 = ax[0]
+    a0.barh(y, al_s, height=0.72, color=np.where(reach, OBS_COLOR, RES_COLOR),
+            alpha=0.85, edgecolor="none", zorder=3)
+    if obs is not None:
+        a0.axvline(float(obs), color=OBS_COLOR, lw=1.4, ls="--", zorder=4)
+        a0.text(float(obs), -1.4, " ERA5 observed ", color=OBS_COLOR, fontsize=8.5,
+                ha="left" if sign > 0 else "right", va="bottom")
+    a0.axvline(0.0, color="0.35", lw=0.8, zorder=2)
+    a0.set_xlabel(rf"realized $A_L$   ({unit})" if unit else r"realized $A_L$")
+    a0.set_ylabel("walker, ranked by how far into the tail it got")
+    n_reach = int(reach.sum())
+    a0.set_title(f"what each of the {al.size} walkers reached"
+                 + (f"   -   {n_reach}/{al.size} reach the observed value"
+                    if obs is not None else ""), fontsize=10)
+    a0.grid(alpha=0.25, axis="x")
+    if sign < 0:
+        a0.invert_xaxis()
+
+    # --- (1) the probability mass it carries -------------------------------- #
+    a1 = ax[1]
+    floor = max(p_s[p_s > 0].min() / 3.0, 1e-12) if (p_s > 0).any() else 1e-12
+    a1.hlines(y, floor, np.maximum(p_s, floor), lw=1.1, color="0.6", zorder=2)
+    a1.scatter(np.maximum(p_s, floor), y, s=26,
+               c=np.where(reach, OBS_COLOR, RES_COLOR), zorder=3, edgecolor="none")
+    # Every member of a direct ensemble carries exactly 1/n. Drawn as the reference the
+    # weighted masses are read against: a walker far LEFT of it is one the scheme
+    # over-produced and the weight has taken back.
+    for key, (col, lab) in DS_STYLE.items():
+        if key in ds and ds[key].get("n"):
+            n_ = int(ds[key]["n"])
+            a1.axvline(1.0 / n_, color=col, lw=1.2, ls=":", zorder=4,
+                       label=f"a direct member's 1/{n_}")
+            break
+    a1.set_xscale("log")
+    a1.set_xlim(floor, max(1.0, float(p_s.max()) * 2.0))
+    a1.set_xlabel(r"probability mass $p_i = Z\,w_i/N$")
+    tot = float(p.sum())
+    p_obs = float(p_s[reach].sum()) if obs is not None else float("nan")
+    head = (rf"$P(A_L \geq $ observed$) = \sum p_i = {p_obs:.4f}$" if sign > 0
+            else rf"$P(A_L \leq $ observed$) = \sum p_i = {p_obs:.4f}$")
+    a1.set_title("how likely GenCast says each one is"
+                 + (f"\n{head}" if obs is not None else "")
+                 + f"   -   all {al.size} sum to {tot:.3f}, which would be 1 if the "
+                   f"estimator were unbiased", fontsize=9.5)
+    a1.grid(alpha=0.25, axis="x", which="both")
+    a1.legend(fontsize=8, loc="upper left")
+
+    a0.set_ylim(-2.2, al.size - 0.3)
+    a0.invert_yaxis()
+    fig.suptitle(f"{ctx.ev.label} - every walker's anomaly next to its probability "
+                 f"({AI.box_for(ctx.event).name} box, {ctx.tag})", fontsize=11.5)
+    fig.tight_layout(rect=[0, 0, 1, 0.96])
+    return _save(fig, _fig_path(ctx, "walkers"))
+
+
+# --------------------------------------------------------------------------- #
 def main(argv=None) -> int:
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[0],
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
@@ -1634,6 +1759,8 @@ def main(argv=None) -> int:
         plot_genealogy(ctx, d)
     if "composite" in want:
         plot_composite(ctx, d, top_frac=a.top_frac)
+    if "walkers" in want:
+        plot_walkers(ctx, d)
     return 0
 
 

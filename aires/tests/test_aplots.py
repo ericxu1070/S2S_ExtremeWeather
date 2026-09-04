@@ -196,3 +196,42 @@ def test_a_cold_event_flips_the_exceedance_axis(figdir):
                 base_seed=A.WALKER_BASE_SEED)
     assert ctx.sign == -1.0
     assert P.plot_exceedance(ctx, d).exists()
+
+
+def test_walker_probabilities_are_the_exceedance_estimator_termwise():
+    """``sum p_i`` over a threshold must equal ``Z * mean(1{...} w)`` exactly - the
+    per-walker mass is the estimator's own term, not a separate normalization."""
+    rng = np.random.default_rng(3)
+    w = rng.lognormal(0.0, 1.0, 32)
+    al = rng.normal(0.0, 2.0, 32)
+    log_Z = -0.7
+    p = P.walker_probabilities(w, log_Z)
+    for a in (-1.0, 0.0, 2.0):
+        want = np.exp(log_Z) * np.mean((al >= a) * w)
+        assert p[al >= a].sum() == pytest.approx(want)
+
+
+def test_walker_probabilities_sum_to_the_normalization_check():
+    w = np.array([0.5, 1.0, 2.5, 4.0])
+    p = P.walker_probabilities(w, np.log(1.6))
+    assert p.sum() == pytest.approx(1.6 * w.mean())
+
+
+def test_walkers_figure_renders(figdir):
+    p = P.plot_walkers(_ctx(), _compare_dict())
+    assert p.exists() and p.stat().st_size > 10_000
+
+
+def test_a_cold_event_flips_the_walkers_axis(figdir):
+    """Same house convention as the exceedance figure: further right is more extreme, so
+    a freeze must invert the anomaly axis and rank the COLDEST walker first."""
+    from aires import run_aires as R
+    from fcn3 import fevents as F
+
+    d = _compare_dict()
+    d["config"]["tail_sign"] = -1.0
+    d["observed"] = -0.5
+    ctx = R.Ctx(ev=F.EVENTS["WinterStorm_Uri_2021"], tag="unit", n_walkers=8, members=6,
+                C=(0.0, 1.0), leads=(3.0, 6.0), horizon_days=9.0, dmc_seed=1,
+                base_seed=A.WALKER_BASE_SEED)
+    assert P.plot_walkers(ctx, d).exists()

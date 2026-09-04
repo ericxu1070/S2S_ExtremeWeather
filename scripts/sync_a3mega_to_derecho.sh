@@ -91,6 +91,15 @@ MANIFEST=(
     "runs/aires/gate2/ic/*_adapter_ic.nc|0|Gate 2 adapter initial conditions"
     "runs/aires/gate2/scores/*|0|Gate 2 verdict JSON + per-member CSV"
     "runs/aires/calib/*.nc|0|derived-channel calibration (also rebuildable in ~2 min)"
+    # The per-run reductions: every AI+RES figure is drawn from these four files and
+    # nothing else. ~0.3 MB per run, and without them a Derecho session can read a
+    # verdict out of HANDOFF.md but cannot redraw or re-reduce a single production run
+    # -- the walker states they came from are 91 GB and stay on this box.
+    "runs/aires/*/res/*/compare.json|0|AI+RES reduction: weights, realized A_L, curve, DS baselines"
+    "runs/aires/*/res/*/res_result.json|0|AI+RES run result: DMC steps, ESS, ancestry"
+    "runs/aires/*/res/*/run.json|0|AI+RES run configuration (event, box, C_k, seeds)"
+    "runs/aires/*/res/*/compare_curve.csv|0|AI+RES exceedance curve, tabular"
+    "runs/aires/clim/*.nc|0|climatological A_L box means, 1959-2023 (rebuildable, ~25 min)"
 )
 if [ "$WITH_SHARDS" = 1 ]; then
     MANIFEST+=( "runs/fcn3/week3/shards|0|per-shard zarr intermediates (large, regenerable)" )
