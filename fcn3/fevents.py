@@ -60,7 +60,10 @@ import pandas as pd
 # Experiment constants
 # --------------------------------------------------------------------------- #
 WEEKS = int(os.environ.get("FCN3_WEEKS", 3))          # xres week index -> lead days
-WEEKS_TO_LEAD_DAYS = {2: 14, 3: 21, 4: 28}            # mirrors gencast_s2s.config
+WEEKS_TO_LEAD_DAYS = {2: 14, 3: 21, 4: 28,           # mirrors gencast_s2s.config
+                      6: 42, 8: 56, 10: 70,          # AI+RES stability sweep only
+                      12: 84, 14: 98, 16: 112,       # ...its FCN3-only extension, where
+                      18: 126, 20: 140}              # the walker is not rolled to the peak
 LEAD_DAYS = WEEKS_TO_LEAD_DAYS[WEEKS]
 
 STEP_H = 6                                            # FCN3 native step
@@ -363,11 +366,41 @@ FCN3_TO_GENCAST = {
     "t2m":  ("2m_temperature", None),
     "u850": ("u_component_of_wind", 850),
     "v850": ("v_component_of_wind", 850),
+    # Not produced by any frozen run. z500 exists here for the AI+RES stability sweep's
+    # global diagnostics (aires/astab.py items 4 and 7): the production cube is
+    # CONUS-cropped before it reaches disk and carries no geopotential at all, and a zonal
+    # wavenumber spectrum needs the whole sphere. Reached only via FCN3_EXTRA_VARS.
+    "z500": ("geopotential", 500),
+    # 50 hPa temperature. Same diagnostic-only status as z500, and it exists for a
+    # specific reason: job 1189's two SILENT GenCast divergences were `temperature` at
+    # 50 hPa over Antarctica (1211 K) with a textbook-normal CONUS troposphere. Any claim
+    # that FCN3 stayed physical at long lead has to be tested where GenCast actually
+    # broke, not only where it is convenient to look.
+    "t50": ("temperature", 50),
 }
 
 
 def fcn3_vars(ev: Event) -> list[str]:
-    return list(FCN3_VARS[ev.metric])
+    """The FCN3 channels to write for this event, plus anything ``FCN3_EXTRA_VARS`` asks for.
+
+    Read from the environment at CALL time, not import time -- deliberately unlike
+    ``WEEKS``, which is baked into ``LEAD_DAYS`` and half the paths in this module and
+    therefore cannot change inside a live process. ``FCN3_EXTRA_VARS`` touches only the
+    output variable list, so a driver that sets it mid-process (aires/astab.py does) gets
+    what it asked for instead of silently getting the default.
+
+    Unset by default, so every frozen cube on disk keeps exactly the variables it has.
+    """
+    out = list(FCN3_VARS[ev.metric])
+    for v in (x.strip() for x in os.environ.get("FCN3_EXTRA_VARS", "").split(",")):
+        if not v:
+            continue
+        if v not in FCN3_TO_GENCAST:
+            raise SystemExit(f"FCN3_EXTRA_VARS names {v!r}, which has no GenCast mapping; "
+                             f"known: {', '.join(FCN3_TO_GENCAST)}")
+        if v not in out:
+            out.append(v)
+    return out
 
 
 # --------------------------------------------------------------------------- #
@@ -415,10 +448,16 @@ def shard_zarr_path(ev: Event, shard: int, nshards: int) -> Path:
     return shard_dir() / f"{ev.name}_{shard_tag(shard, nshards)}.zarr"
 
 
-def gencast_cube_path(ev: Event) -> Path:
+def gencast_cube_path(ev: Event, weeks: int | None = None) -> Path:
     """GenCast 0.25deg cube for this event at the comparison lead. Cached already for the
-    xres events; produced by the injected run (see xres_extra_events_spec) for the p90 ones."""
-    return RUNS / "xres" / RES / f"week{WEEKS}" / "cache" / f"{ev.name}_cube.nc"
+    xres events; produced by the injected run (see xres_extra_events_spec) for the p90 ones.
+
+    ``weeks`` overrides the module-level ``WEEKS``, which is resolved from ``FCN3_WEEKS``
+    at IMPORT and so cannot vary inside a process. A caller that spans several leads at
+    once (aires/astab.py) has to pass it; every existing caller omits it and is unchanged.
+    """
+    w = WEEKS if weeks is None else int(weeks)
+    return RUNS / "xres" / RES / f"week{w}" / "cache" / f"{ev.name}_cube.nc"
 
 
 def gencast_inputs_path(ev: Event) -> Path:

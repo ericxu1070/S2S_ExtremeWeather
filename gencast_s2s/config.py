@@ -73,7 +73,23 @@ def ensure_dirs(weeks: int | None = None) -> None:
 # Verification window is always the 7 days ending at the peak, i.e. forecast
 # lead days (lead_days - 6) .. lead_days.
 # --------------------------------------------------------------------------- #
-WEEKS_TO_LEAD_DAYS = {2: 14, 3: 21, 4: 28}
+# 6..20 exist for the AI+RES lead-time stability sweep (the `astab/` package) and for
+# nothing else: no frozen experiment reads them, and 2/3/4 keep the values they have
+# always had. `fcn3/fevents.py` mirrors this dict and the two are pinned in lockstep by
+# `astab/tests/test_astab.py`. Nothing here caps a rollout - GenCast's chunked generator
+# and FCN3's `while True` both run as long as they are asked to - so this dict IS the cap,
+# and widening it is what makes a 140-day forecast expressible.
+#
+# 12..20 were added when the sweep found FCN3 stable through week 10 on EVERY rollout of
+# both arms - i.e. the scorer's limit was never reached, so the question was still open.
+# They are FCN3-side leads: `astab.sconfig.STAB_WALK_WEEKS` decides which of them the
+# GenCast walker is also rolled to the peak at, and that stays 4/6/8/10.
+#
+# One blast radius: `gencast_s2s/download.py` falls back to `list(VALID_WEEKS)` when
+# `--weeks` is absent, so a bare `python -m gencast_s2s.download` now preps ELEVEN weeks'
+# worth of init frames for every event in ALL_EVENTS instead of three.
+WEEKS_TO_LEAD_DAYS = {2: 14, 3: 21, 4: 28, 6: 42, 8: 56, 10: 70,
+                      12: 84, 14: 98, 16: 112, 18: 126, 20: 140}
 VALID_WEEKS = tuple(WEEKS_TO_LEAD_DAYS)
 
 

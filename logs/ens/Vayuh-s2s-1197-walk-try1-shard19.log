@@ -1,0 +1,1041 @@
+[walk] host=nucla3m-a3meganodeset-1 shard 19/32: ['PNW_HeatDome_2021@wk8  m019', 'PNW_HeatDome_2021@wk8  m051', 'PNW_HeatDome_2021@wk8  m083']
+[walk] PNW_HeatDome_2021@wk8  m019: 19 segment(s), 112 steps, init 2021-05-03 00:00:00 -> peak 2021-06-28 00:00:00
+  [walker] w19 step1: 6 x 12 h from 2021-05-03 00:00:00
+  [walker] loading 'GenCast 0p25deg <2019.npz' (0.25 deg)
+[model] serial infer on 1 device(s); ensemble=1 (1 sample(s), one at a time). task pressure levels: 13
+  [walker] model loaded in 7 s
+  [walker] grid-node channels: inputs 176 + targets 504 + forcings 24; 6 step(s) from 2021-05-03 00:00:00
+/home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/third_party/graphcast/graphcast/rollout.py:328: FutureWarning: The return type of `Dataset.dims` will be changed to return a set of dimension names in future, in order to be more consistent with `DataArray.dims`. To access a mapping from dimension names to lengths, please use `Dataset.sizes`.
+  num_target_steps = targets_template.dims["time"]
+/home/ubuntu/miniconda3/envs/moe/lib/python3.12/site-packages/scipy/sparse/_index.py:210: SparseEfficiencyWarning: Changing the sparsity structure of a csr_matrix is expensive. lil and dok are more efficient.
+  self._set_arrayXarray(i, j, x)
+/home/ubuntu/miniconda3/envs/moe/lib/python3.12/site-packages/scipy/sparse/_index.py:210: SparseEfficiencyWarning: Changing the sparsity structure of a csr_matrix is expensive. lil and dok are more efficient.
+  self._set_arrayXarray(i, j, x)
+/home/ubuntu/miniconda3/envs/moe/lib/python3.12/site-packages/jax/_src/compiler.py:833: UserWarning: Error writing persistent compilation cache entry for 'jit_apply_fn': JaxRuntimeError: RESOURCE_EXHAUSTED: Failed to serialize message of type xla.gpu.GpuExecutableProto because its size must be smaller than 2GiB: 4171376162; at byte 0; at uncompressed byte 0; at byte 2909
+	failed to serialize the rest of the fields in GpuExecutableProto split proto (all fields except asm_text, binary, dnn_compiled_graphs, and constants)
+  warnings.warn(
+/home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/third_party/graphcast/graphcast/rollout.py:435: FutureWarning: The return type of `Dataset.dims` will be changed to return a set of dimension names in future, in order to be more consistent with `DataArray.dims`. To access a mapping from dimension names to lengths, please use `Dataset.sizes`.
+  num_inputs = prev_inputs.dims["time"]
+/home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/third_party/graphcast/graphcast/rollout.py:437: FutureWarning: In a future version of xarray the default value for compat will change from compat='equals' to compat='override'. This change will result in the following ValueError: Cannot specify both data_vars='different' and compat='override'. The recommendation is to set compat explicitly for this case.
+  xarray.concat(
+  [walker w19 s1] step 1/6  valid 2021-05-03 12:00:00
+  [walker w19 s1] step 2/6  valid 2021-05-04 00:00:00
+  [walker w19 s1] step 3/6  valid 2021-05-04 12:00:00
+  [walker w19 s1] step 4/6  valid 2021-05-05 00:00:00
+  [walker w19 s1] step 5/6  valid 2021-05-05 12:00:00
+  [walker w19 s1] step 6/6  valid 2021-05-06 00:00:00
+  [walker] wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/astab/PNW_HeatDome_2021/ens/wk08/m019/step01/state.nc (472 MB), valid 2021-05-06 00:00:00
+  [walker] wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/astab/PNW_HeatDome_2021/ens/wk08/m019/step01/diag.nc (34 MB, 6 steps)
+[walk] physics PNW_HeatDome_2021@wk8  m019 step1 @ 2021-05-06 00:00:00: CONUS-mean T2m 292.08 K vs ERA5 292.36 K (-0.29 K; gate 6 K at 3 d lead, skill-bearing)
+  [walk] slimmed PNW_HeatDome_2021@wk8  m019 step1 diag to ['2m_temperature'] (34 -> 0.4 MB)
+  [walker] w19 step2: 6 x 12 h from 2021-05-06 00:00:00
+  [walker] grid-node channels: inputs 176 + targets 504 + forcings 24; 6 step(s) from 2021-05-06 00:00:00
+/home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/third_party/graphcast/graphcast/rollout.py:328: FutureWarning: The return type of `Dataset.dims` will be changed to return a set of dimension names in future, in order to be more consistent with `DataArray.dims`. To access a mapping from dimension names to lengths, please use `Dataset.sizes`.
+  num_target_steps = targets_template.dims["time"]
+/home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/third_party/graphcast/graphcast/rollout.py:435: FutureWarning: The return type of `Dataset.dims` will be changed to return a set of dimension names in future, in order to be more consistent with `DataArray.dims`. To access a mapping from dimension names to lengths, please use `Dataset.sizes`.
+  num_inputs = prev_inputs.dims["time"]
+/home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/third_party/graphcast/graphcast/rollout.py:437: FutureWarning: In a future version of xarray the default value for compat will change from compat='equals' to compat='override'. This change will result in the following ValueError: Cannot specify both data_vars='different' and compat='override'. The recommendation is to set compat explicitly for this case.
+  xarray.concat(
+  [walker w19 s2] step 1/6  valid 2021-05-06 12:00:00
+  [walker w19 s2] step 2/6  valid 2021-05-07 00:00:00
+  [walker w19 s2] step 3/6  valid 2021-05-07 12:00:00
+  [walker w19 s2] step 4/6  valid 2021-05-08 00:00:00
+  [walker w19 s2] step 5/6  valid 2021-05-08 12:00:00
+  [walker w19 s2] step 6/6  valid 2021-05-09 00:00:00
+  [walker] wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/astab/PNW_HeatDome_2021/ens/wk08/m019/step02/state.nc (473 MB), valid 2021-05-09 00:00:00
+  [walker] wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/astab/PNW_HeatDome_2021/ens/wk08/m019/step02/diag.nc (35 MB, 6 steps)
+  [walk] slimmed PNW_HeatDome_2021@wk8  m019 step2 diag to ['2m_temperature'] (35 -> 0.3 MB)
+  [walker] w19 step3: 6 x 12 h from 2021-05-09 00:00:00
+  [walker] grid-node channels: inputs 176 + targets 504 + forcings 24; 6 step(s) from 2021-05-09 00:00:00
+/home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/third_party/graphcast/graphcast/rollout.py:328: FutureWarning: The return type of `Dataset.dims` will be changed to return a set of dimension names in future, in order to be more consistent with `DataArray.dims`. To access a mapping from dimension names to lengths, please use `Dataset.sizes`.
+  num_target_steps = targets_template.dims["time"]
+/home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/third_party/graphcast/graphcast/rollout.py:435: FutureWarning: The return type of `Dataset.dims` will be changed to return a set of dimension names in future, in order to be more consistent with `DataArray.dims`. To access a mapping from dimension names to lengths, please use `Dataset.sizes`.
+  num_inputs = prev_inputs.dims["time"]
+/home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/third_party/graphcast/graphcast/rollout.py:437: FutureWarning: In a future version of xarray the default value for compat will change from compat='equals' to compat='override'. This change will result in the following ValueError: Cannot specify both data_vars='different' and compat='override'. The recommendation is to set compat explicitly for this case.
+  xarray.concat(
+  [walker w19 s3] step 1/6  valid 2021-05-09 12:00:00
+  [walker w19 s3] step 2/6  valid 2021-05-10 00:00:00
+  [walker w19 s3] step 3/6  valid 2021-05-10 12:00:00
+  [walker w19 s3] step 4/6  valid 2021-05-11 00:00:00
+  [walker w19 s3] step 5/6  valid 2021-05-11 12:00:00
+  [walker w19 s3] step 6/6  valid 2021-05-12 00:00:00
+  [walker] wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/astab/PNW_HeatDome_2021/ens/wk08/m019/step03/state.nc (473 MB), valid 2021-05-12 00:00:00
+  [walker] wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/astab/PNW_HeatDome_2021/ens/wk08/m019/step03/diag.nc (35 MB, 6 steps)
+  [walk] slimmed PNW_HeatDome_2021@wk8  m019 step3 diag to ['2m_temperature'] (35 -> 0.3 MB)
+  [walk] pruned PNW_HeatDome_2021@wk8  m019 step1 state (0.47 GB)
+  [walker] w19 step4: 6 x 12 h from 2021-05-12 00:00:00
+  [walker] grid-node channels: inputs 176 + targets 504 + forcings 24; 6 step(s) from 2021-05-12 00:00:00
+/home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/third_party/graphcast/graphcast/rollout.py:328: FutureWarning: The return type of `Dataset.dims` will be changed to return a set of dimension names in future, in order to be more consistent with `DataArray.dims`. To access a mapping from dimension names to lengths, please use `Dataset.sizes`.
+  num_target_steps = targets_template.dims["time"]
+/home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/third_party/graphcast/graphcast/rollout.py:435: FutureWarning: The return type of `Dataset.dims` will be changed to return a set of dimension names in future, in order to be more consistent with `DataArray.dims`. To access a mapping from dimension names to lengths, please use `Dataset.sizes`.
+  num_inputs = prev_inputs.dims["time"]
+/home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/third_party/graphcast/graphcast/rollout.py:437: FutureWarning: In a future version of xarray the default value for compat will change from compat='equals' to compat='override'. This change will result in the following ValueError: Cannot specify both data_vars='different' and compat='override'. The recommendation is to set compat explicitly for this case.
+  xarray.concat(
+  [walker w19 s4] step 1/6  valid 2021-05-12 12:00:00
+  [walker w19 s4] step 2/6  valid 2021-05-13 00:00:00
+  [walker w19 s4] step 3/6  valid 2021-05-13 12:00:00
+  [walker w19 s4] step 4/6  valid 2021-05-14 00:00:00
+  [walker w19 s4] step 5/6  valid 2021-05-14 12:00:00
+  [walker w19 s4] step 6/6  valid 2021-05-15 00:00:00
+  [walker] wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/astab/PNW_HeatDome_2021/ens/wk08/m019/step04/state.nc (473 MB), valid 2021-05-15 00:00:00
+  [walker] wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/astab/PNW_HeatDome_2021/ens/wk08/m019/step04/diag.nc (35 MB, 6 steps)
+  [walk] slimmed PNW_HeatDome_2021@wk8  m019 step4 diag to ['2m_temperature'] (35 -> 0.4 MB)
+  [walk] pruned PNW_HeatDome_2021@wk8  m019 step2 state (0.47 GB)
+  [walker] w19 step5: 6 x 12 h from 2021-05-15 00:00:00
+  [walker] grid-node channels: inputs 176 + targets 504 + forcings 24; 6 step(s) from 2021-05-15 00:00:00
+/home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/third_party/graphcast/graphcast/rollout.py:328: FutureWarning: The return type of `Dataset.dims` will be changed to return a set of dimension names in future, in order to be more consistent with `DataArray.dims`. To access a mapping from dimension names to lengths, please use `Dataset.sizes`.
+  num_target_steps = targets_template.dims["time"]
+/home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/third_party/graphcast/graphcast/rollout.py:435: FutureWarning: The return type of `Dataset.dims` will be changed to return a set of dimension names in future, in order to be more consistent with `DataArray.dims`. To access a mapping from dimension names to lengths, please use `Dataset.sizes`.
+  num_inputs = prev_inputs.dims["time"]
+/home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/third_party/graphcast/graphcast/rollout.py:437: FutureWarning: In a future version of xarray the default value for compat will change from compat='equals' to compat='override'. This change will result in the following ValueError: Cannot specify both data_vars='different' and compat='override'. The recommendation is to set compat explicitly for this case.
+  xarray.concat(
+  [walker w19 s5] step 1/6  valid 2021-05-15 12:00:00
+  [walker w19 s5] step 2/6  valid 2021-05-16 00:00:00
+  [walker w19 s5] step 3/6  valid 2021-05-16 12:00:00
+  [walker w19 s5] step 4/6  valid 2021-05-17 00:00:00
+  [walker w19 s5] step 5/6  valid 2021-05-17 12:00:00
+  [walker w19 s5] step 6/6  valid 2021-05-18 00:00:00
+  [walker] wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/astab/PNW_HeatDome_2021/ens/wk08/m019/step05/state.nc (474 MB), valid 2021-05-18 00:00:00
+  [walker] wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/astab/PNW_HeatDome_2021/ens/wk08/m019/step05/diag.nc (35 MB, 6 steps)
+  [walk] slimmed PNW_HeatDome_2021@wk8  m019 step5 diag to ['2m_temperature'] (35 -> 0.4 MB)
+  [walk] pruned PNW_HeatDome_2021@wk8  m019 step3 state (0.47 GB)
+  [walker] w19 step6: 6 x 12 h from 2021-05-18 00:00:00
+  [walker] grid-node channels: inputs 176 + targets 504 + forcings 24; 6 step(s) from 2021-05-18 00:00:00
+/home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/third_party/graphcast/graphcast/rollout.py:328: FutureWarning: The return type of `Dataset.dims` will be changed to return a set of dimension names in future, in order to be more consistent with `DataArray.dims`. To access a mapping from dimension names to lengths, please use `Dataset.sizes`.
+  num_target_steps = targets_template.dims["time"]
+/home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/third_party/graphcast/graphcast/rollout.py:435: FutureWarning: The return type of `Dataset.dims` will be changed to return a set of dimension names in future, in order to be more consistent with `DataArray.dims`. To access a mapping from dimension names to lengths, please use `Dataset.sizes`.
+  num_inputs = prev_inputs.dims["time"]
+/home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/third_party/graphcast/graphcast/rollout.py:437: FutureWarning: In a future version of xarray the default value for compat will change from compat='equals' to compat='override'. This change will result in the following ValueError: Cannot specify both data_vars='different' and compat='override'. The recommendation is to set compat explicitly for this case.
+  xarray.concat(
+  [walker w19 s6] step 1/6  valid 2021-05-18 12:00:00
+  [walker w19 s6] step 2/6  valid 2021-05-19 00:00:00
+  [walker w19 s6] step 3/6  valid 2021-05-19 12:00:00
+  [walker w19 s6] step 4/6  valid 2021-05-20 00:00:00
+  [walker w19 s6] step 5/6  valid 2021-05-20 12:00:00
+  [walker w19 s6] step 6/6  valid 2021-05-21 00:00:00
+  [walker] wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/astab/PNW_HeatDome_2021/ens/wk08/m019/step06/state.nc (474 MB), valid 2021-05-21 00:00:00
+  [walker] wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/astab/PNW_HeatDome_2021/ens/wk08/m019/step06/diag.nc (35 MB, 6 steps)
+  [walk] slimmed PNW_HeatDome_2021@wk8  m019 step6 diag to ['2m_temperature'] (35 -> 0.4 MB)
+  [walk] pruned PNW_HeatDome_2021@wk8  m019 step4 state (0.47 GB)
+  [walker] w19 step7: 6 x 12 h from 2021-05-21 00:00:00
+  [walker] grid-node channels: inputs 176 + targets 504 + forcings 24; 6 step(s) from 2021-05-21 00:00:00
+/home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/third_party/graphcast/graphcast/rollout.py:328: FutureWarning: The return type of `Dataset.dims` will be changed to return a set of dimension names in future, in order to be more consistent with `DataArray.dims`. To access a mapping from dimension names to lengths, please use `Dataset.sizes`.
+  num_target_steps = targets_template.dims["time"]
+/home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/third_party/graphcast/graphcast/rollout.py:435: FutureWarning: The return type of `Dataset.dims` will be changed to return a set of dimension names in future, in order to be more consistent with `DataArray.dims`. To access a mapping from dimension names to lengths, please use `Dataset.sizes`.
+  num_inputs = prev_inputs.dims["time"]
+/home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/third_party/graphcast/graphcast/rollout.py:437: FutureWarning: In a future version of xarray the default value for compat will change from compat='equals' to compat='override'. This change will result in the following ValueError: Cannot specify both data_vars='different' and compat='override'. The recommendation is to set compat explicitly for this case.
+  xarray.concat(
+  [walker w19 s7] step 1/6  valid 2021-05-21 12:00:00
+  [walker w19 s7] step 2/6  valid 2021-05-22 00:00:00
+  [walker w19 s7] step 3/6  valid 2021-05-22 12:00:00
+  [walker w19 s7] step 4/6  valid 2021-05-23 00:00:00
+  [walker w19 s7] step 5/6  valid 2021-05-23 12:00:00
+  [walker w19 s7] step 6/6  valid 2021-05-24 00:00:00
+  [walker] wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/astab/PNW_HeatDome_2021/ens/wk08/m019/step07/state.nc (474 MB), valid 2021-05-24 00:00:00
+  [walker] wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/astab/PNW_HeatDome_2021/ens/wk08/m019/step07/diag.nc (35 MB, 6 steps)
+  [walk] slimmed PNW_HeatDome_2021@wk8  m019 step7 diag to ['2m_temperature'] (35 -> 0.4 MB)
+  [walk] pruned PNW_HeatDome_2021@wk8  m019 step5 state (0.47 GB)
+  [walker] w19 step8: 6 x 12 h from 2021-05-24 00:00:00
+  [walker] grid-node channels: inputs 176 + targets 504 + forcings 24; 6 step(s) from 2021-05-24 00:00:00
+/home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/third_party/graphcast/graphcast/rollout.py:328: FutureWarning: The return type of `Dataset.dims` will be changed to return a set of dimension names in future, in order to be more consistent with `DataArray.dims`. To access a mapping from dimension names to lengths, please use `Dataset.sizes`.
+  num_target_steps = targets_template.dims["time"]
+/home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/third_party/graphcast/graphcast/rollout.py:435: FutureWarning: The return type of `Dataset.dims` will be changed to return a set of dimension names in future, in order to be more consistent with `DataArray.dims`. To access a mapping from dimension names to lengths, please use `Dataset.sizes`.
+  num_inputs = prev_inputs.dims["time"]
+/home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/third_party/graphcast/graphcast/rollout.py:437: FutureWarning: In a future version of xarray the default value for compat will change from compat='equals' to compat='override'. This change will result in the following ValueError: Cannot specify both data_vars='different' and compat='override'. The recommendation is to set compat explicitly for this case.
+  xarray.concat(
+  [walker w19 s8] step 1/6  valid 2021-05-24 12:00:00
+  [walker w19 s8] step 2/6  valid 2021-05-25 00:00:00
+  [walker w19 s8] step 3/6  valid 2021-05-25 12:00:00
+  [walker w19 s8] step 4/6  valid 2021-05-26 00:00:00
+  [walker w19 s8] step 5/6  valid 2021-05-26 12:00:00
+  [walker w19 s8] step 6/6  valid 2021-05-27 00:00:00
+  [walker] wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/astab/PNW_HeatDome_2021/ens/wk08/m019/step08/state.nc (474 MB), valid 2021-05-27 00:00:00
+  [walker] wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/astab/PNW_HeatDome_2021/ens/wk08/m019/step08/diag.nc (35 MB, 6 steps)
+  [walk] slimmed PNW_HeatDome_2021@wk8  m019 step8 diag to ['2m_temperature'] (35 -> 0.4 MB)
+  [walk] pruned PNW_HeatDome_2021@wk8  m019 step6 state (0.47 GB)
+  [walker] w19 step9: 6 x 12 h from 2021-05-27 00:00:00
+  [walker] grid-node channels: inputs 176 + targets 504 + forcings 24; 6 step(s) from 2021-05-27 00:00:00
+/home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/third_party/graphcast/graphcast/rollout.py:328: FutureWarning: The return type of `Dataset.dims` will be changed to return a set of dimension names in future, in order to be more consistent with `DataArray.dims`. To access a mapping from dimension names to lengths, please use `Dataset.sizes`.
+  num_target_steps = targets_template.dims["time"]
+/home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/third_party/graphcast/graphcast/rollout.py:435: FutureWarning: The return type of `Dataset.dims` will be changed to return a set of dimension names in future, in order to be more consistent with `DataArray.dims`. To access a mapping from dimension names to lengths, please use `Dataset.sizes`.
+  num_inputs = prev_inputs.dims["time"]
+/home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/third_party/graphcast/graphcast/rollout.py:437: FutureWarning: In a future version of xarray the default value for compat will change from compat='equals' to compat='override'. This change will result in the following ValueError: Cannot specify both data_vars='different' and compat='override'. The recommendation is to set compat explicitly for this case.
+  xarray.concat(
+  [walker w19 s9] step 1/6  valid 2021-05-27 12:00:00
+  [walker w19 s9] step 2/6  valid 2021-05-28 00:00:00
+  [walker w19 s9] step 3/6  valid 2021-05-28 12:00:00
+  [walker w19 s9] step 4/6  valid 2021-05-29 00:00:00
+  [walker w19 s9] step 5/6  valid 2021-05-29 12:00:00
+  [walker w19 s9] step 6/6  valid 2021-05-30 00:00:00
+  [walker] wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/astab/PNW_HeatDome_2021/ens/wk08/m019/step09/state.nc (474 MB), valid 2021-05-30 00:00:00
+  [walker] wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/astab/PNW_HeatDome_2021/ens/wk08/m019/step09/diag.nc (35 MB, 6 steps)
+  [walk] slimmed PNW_HeatDome_2021@wk8  m019 step9 diag to ['2m_temperature'] (35 -> 0.4 MB)
+  [walk] pruned PNW_HeatDome_2021@wk8  m019 step7 state (0.47 GB)
+  [walker] w19 step10: 6 x 12 h from 2021-05-30 00:00:00
+  [walker] grid-node channels: inputs 176 + targets 504 + forcings 24; 6 step(s) from 2021-05-30 00:00:00
+/home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/third_party/graphcast/graphcast/rollout.py:328: FutureWarning: The return type of `Dataset.dims` will be changed to return a set of dimension names in future, in order to be more consistent with `DataArray.dims`. To access a mapping from dimension names to lengths, please use `Dataset.sizes`.
+  num_target_steps = targets_template.dims["time"]
+/home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/third_party/graphcast/graphcast/rollout.py:435: FutureWarning: The return type of `Dataset.dims` will be changed to return a set of dimension names in future, in order to be more consistent with `DataArray.dims`. To access a mapping from dimension names to lengths, please use `Dataset.sizes`.
+  num_inputs = prev_inputs.dims["time"]
+/home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/third_party/graphcast/graphcast/rollout.py:437: FutureWarning: In a future version of xarray the default value for compat will change from compat='equals' to compat='override'. This change will result in the following ValueError: Cannot specify both data_vars='different' and compat='override'. The recommendation is to set compat explicitly for this case.
+  xarray.concat(
+  [walker w19 s10] step 1/6  valid 2021-05-30 12:00:00
+  [walker w19 s10] step 2/6  valid 2021-05-31 00:00:00
+  [walker w19 s10] step 3/6  valid 2021-05-31 12:00:00
+  [walker w19 s10] step 4/6  valid 2021-06-01 00:00:00
+  [walker w19 s10] step 5/6  valid 2021-06-01 12:00:00
+  [walker w19 s10] step 6/6  valid 2021-06-02 00:00:00
+  [walker] wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/astab/PNW_HeatDome_2021/ens/wk08/m019/step10/state.nc (474 MB), valid 2021-06-02 00:00:00
+  [walker] wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/astab/PNW_HeatDome_2021/ens/wk08/m019/step10/diag.nc (35 MB, 6 steps)
+  [walk] slimmed PNW_HeatDome_2021@wk8  m019 step10 diag to ['2m_temperature'] (35 -> 0.4 MB)
+  [walk] pruned PNW_HeatDome_2021@wk8  m019 step8 state (0.47 GB)
+  [walker] w19 step11: 6 x 12 h from 2021-06-02 00:00:00
+  [walker] grid-node channels: inputs 176 + targets 504 + forcings 24; 6 step(s) from 2021-06-02 00:00:00
+/home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/third_party/graphcast/graphcast/rollout.py:328: FutureWarning: The return type of `Dataset.dims` will be changed to return a set of dimension names in future, in order to be more consistent with `DataArray.dims`. To access a mapping from dimension names to lengths, please use `Dataset.sizes`.
+  num_target_steps = targets_template.dims["time"]
+/home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/third_party/graphcast/graphcast/rollout.py:435: FutureWarning: The return type of `Dataset.dims` will be changed to return a set of dimension names in future, in order to be more consistent with `DataArray.dims`. To access a mapping from dimension names to lengths, please use `Dataset.sizes`.
+  num_inputs = prev_inputs.dims["time"]
+/home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/third_party/graphcast/graphcast/rollout.py:437: FutureWarning: In a future version of xarray the default value for compat will change from compat='equals' to compat='override'. This change will result in the following ValueError: Cannot specify both data_vars='different' and compat='override'. The recommendation is to set compat explicitly for this case.
+  xarray.concat(
+  [walker w19 s11] step 1/6  valid 2021-06-02 12:00:00
+  [walker w19 s11] step 2/6  valid 2021-06-03 00:00:00
+  [walker w19 s11] step 3/6  valid 2021-06-03 12:00:00
+  [walker w19 s11] step 4/6  valid 2021-06-04 00:00:00
+  [walker w19 s11] step 5/6  valid 2021-06-04 12:00:00
+  [walker w19 s11] step 6/6  valid 2021-06-05 00:00:00
+  [walker] wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/astab/PNW_HeatDome_2021/ens/wk08/m019/step11/state.nc (474 MB), valid 2021-06-05 00:00:00
+  [walker] wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/astab/PNW_HeatDome_2021/ens/wk08/m019/step11/diag.nc (35 MB, 6 steps)
+  [walk] slimmed PNW_HeatDome_2021@wk8  m019 step11 diag to ['2m_temperature'] (35 -> 0.4 MB)
+  [walk] pruned PNW_HeatDome_2021@wk8  m019 step9 state (0.47 GB)
+  [walker] w19 step12: 6 x 12 h from 2021-06-05 00:00:00
+  [walker] grid-node channels: inputs 176 + targets 504 + forcings 24; 6 step(s) from 2021-06-05 00:00:00
+/home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/third_party/graphcast/graphcast/rollout.py:328: FutureWarning: The return type of `Dataset.dims` will be changed to return a set of dimension names in future, in order to be more consistent with `DataArray.dims`. To access a mapping from dimension names to lengths, please use `Dataset.sizes`.
+  num_target_steps = targets_template.dims["time"]
+/home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/third_party/graphcast/graphcast/rollout.py:435: FutureWarning: The return type of `Dataset.dims` will be changed to return a set of dimension names in future, in order to be more consistent with `DataArray.dims`. To access a mapping from dimension names to lengths, please use `Dataset.sizes`.
+  num_inputs = prev_inputs.dims["time"]
+/home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/third_party/graphcast/graphcast/rollout.py:437: FutureWarning: In a future version of xarray the default value for compat will change from compat='equals' to compat='override'. This change will result in the following ValueError: Cannot specify both data_vars='different' and compat='override'. The recommendation is to set compat explicitly for this case.
+  xarray.concat(
+  [walker w19 s12] step 1/6  valid 2021-06-05 12:00:00
+  [walker w19 s12] step 2/6  valid 2021-06-06 00:00:00
+  [walker w19 s12] step 3/6  valid 2021-06-06 12:00:00
+  [walker w19 s12] step 4/6  valid 2021-06-07 00:00:00
+  [walker w19 s12] step 5/6  valid 2021-06-07 12:00:00
+  [walker w19 s12] step 6/6  valid 2021-06-08 00:00:00
+  [walker] wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/astab/PNW_HeatDome_2021/ens/wk08/m019/step12/state.nc (474 MB), valid 2021-06-08 00:00:00
+  [walker] wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/astab/PNW_HeatDome_2021/ens/wk08/m019/step12/diag.nc (35 MB, 6 steps)
+  [walk] slimmed PNW_HeatDome_2021@wk8  m019 step12 diag to ['2m_temperature'] (35 -> 0.4 MB)
+  [walk] pruned PNW_HeatDome_2021@wk8  m019 step10 state (0.47 GB)
+  [walker] w19 step13: 6 x 12 h from 2021-06-08 00:00:00
+  [walker] grid-node channels: inputs 176 + targets 504 + forcings 24; 6 step(s) from 2021-06-08 00:00:00
+/home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/third_party/graphcast/graphcast/rollout.py:328: FutureWarning: The return type of `Dataset.dims` will be changed to return a set of dimension names in future, in order to be more consistent with `DataArray.dims`. To access a mapping from dimension names to lengths, please use `Dataset.sizes`.
+  num_target_steps = targets_template.dims["time"]
+/home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/third_party/graphcast/graphcast/rollout.py:435: FutureWarning: The return type of `Dataset.dims` will be changed to return a set of dimension names in future, in order to be more consistent with `DataArray.dims`. To access a mapping from dimension names to lengths, please use `Dataset.sizes`.
+  num_inputs = prev_inputs.dims["time"]
+/home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/third_party/graphcast/graphcast/rollout.py:437: FutureWarning: In a future version of xarray the default value for compat will change from compat='equals' to compat='override'. This change will result in the following ValueError: Cannot specify both data_vars='different' and compat='override'. The recommendation is to set compat explicitly for this case.
+  xarray.concat(
+  [walker w19 s13] step 1/6  valid 2021-06-08 12:00:00
+  [walker w19 s13] step 2/6  valid 2021-06-09 00:00:00
+  [walker w19 s13] step 3/6  valid 2021-06-09 12:00:00
+  [walker w19 s13] step 4/6  valid 2021-06-10 00:00:00
+  [walker w19 s13] step 5/6  valid 2021-06-10 12:00:00
+  [walker w19 s13] step 6/6  valid 2021-06-11 00:00:00
+  [walker] wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/astab/PNW_HeatDome_2021/ens/wk08/m019/step13/state.nc (474 MB), valid 2021-06-11 00:00:00
+  [walker] wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/astab/PNW_HeatDome_2021/ens/wk08/m019/step13/diag.nc (35 MB, 6 steps)
+  [walk] slimmed PNW_HeatDome_2021@wk8  m019 step13 diag to ['2m_temperature'] (35 -> 0.4 MB)
+  [walk] pruned PNW_HeatDome_2021@wk8  m019 step11 state (0.47 GB)
+  [walker] w19 step14: 6 x 12 h from 2021-06-11 00:00:00
+  [walker] grid-node channels: inputs 176 + targets 504 + forcings 24; 6 step(s) from 2021-06-11 00:00:00
+/home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/third_party/graphcast/graphcast/rollout.py:328: FutureWarning: The return type of `Dataset.dims` will be changed to return a set of dimension names in future, in order to be more consistent with `DataArray.dims`. To access a mapping from dimension names to lengths, please use `Dataset.sizes`.
+  num_target_steps = targets_template.dims["time"]
+/home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/third_party/graphcast/graphcast/rollout.py:435: FutureWarning: The return type of `Dataset.dims` will be changed to return a set of dimension names in future, in order to be more consistent with `DataArray.dims`. To access a mapping from dimension names to lengths, please use `Dataset.sizes`.
+  num_inputs = prev_inputs.dims["time"]
+/home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/third_party/graphcast/graphcast/rollout.py:437: FutureWarning: In a future version of xarray the default value for compat will change from compat='equals' to compat='override'. This change will result in the following ValueError: Cannot specify both data_vars='different' and compat='override'. The recommendation is to set compat explicitly for this case.
+  xarray.concat(
+  [walker w19 s14] step 1/6  valid 2021-06-11 12:00:00
+  [walker w19 s14] step 2/6  valid 2021-06-12 00:00:00
+  [walker w19 s14] step 3/6  valid 2021-06-12 12:00:00
+  [walker w19 s14] step 4/6  valid 2021-06-13 00:00:00
+  [walker w19 s14] step 5/6  valid 2021-06-13 12:00:00
+  [walker w19 s14] step 6/6  valid 2021-06-14 00:00:00
+  [walker] wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/astab/PNW_HeatDome_2021/ens/wk08/m019/step14/state.nc (474 MB), valid 2021-06-14 00:00:00
+  [walker] wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/astab/PNW_HeatDome_2021/ens/wk08/m019/step14/diag.nc (35 MB, 6 steps)
+  [walk] slimmed PNW_HeatDome_2021@wk8  m019 step14 diag to ['2m_temperature'] (35 -> 0.3 MB)
+  [walk] pruned PNW_HeatDome_2021@wk8  m019 step12 state (0.47 GB)
+  [walker] w19 step15: 6 x 12 h from 2021-06-14 00:00:00
+  [walker] grid-node channels: inputs 176 + targets 504 + forcings 24; 6 step(s) from 2021-06-14 00:00:00
+/home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/third_party/graphcast/graphcast/rollout.py:328: FutureWarning: The return type of `Dataset.dims` will be changed to return a set of dimension names in future, in order to be more consistent with `DataArray.dims`. To access a mapping from dimension names to lengths, please use `Dataset.sizes`.
+  num_target_steps = targets_template.dims["time"]
+/home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/third_party/graphcast/graphcast/rollout.py:435: FutureWarning: The return type of `Dataset.dims` will be changed to return a set of dimension names in future, in order to be more consistent with `DataArray.dims`. To access a mapping from dimension names to lengths, please use `Dataset.sizes`.
+  num_inputs = prev_inputs.dims["time"]
+/home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/third_party/graphcast/graphcast/rollout.py:437: FutureWarning: In a future version of xarray the default value for compat will change from compat='equals' to compat='override'. This change will result in the following ValueError: Cannot specify both data_vars='different' and compat='override'. The recommendation is to set compat explicitly for this case.
+  xarray.concat(
+  [walker w19 s15] step 1/6  valid 2021-06-14 12:00:00
+  [walker w19 s15] step 2/6  valid 2021-06-15 00:00:00
+  [walker w19 s15] step 3/6  valid 2021-06-15 12:00:00
+  [walker w19 s15] step 4/6  valid 2021-06-16 00:00:00
+  [walker w19 s15] step 5/6  valid 2021-06-16 12:00:00
+  [walker w19 s15] step 6/6  valid 2021-06-17 00:00:00
+  [walker] wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/astab/PNW_HeatDome_2021/ens/wk08/m019/step15/state.nc (474 MB), valid 2021-06-17 00:00:00
+  [walker] wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/astab/PNW_HeatDome_2021/ens/wk08/m019/step15/diag.nc (35 MB, 6 steps)
+  [walk] slimmed PNW_HeatDome_2021@wk8  m019 step15 diag to ['2m_temperature'] (35 -> 0.3 MB)
+  [walk] pruned PNW_HeatDome_2021@wk8  m019 step13 state (0.47 GB)
+  [walker] w19 step16: 6 x 12 h from 2021-06-17 00:00:00
+  [walker] grid-node channels: inputs 176 + targets 504 + forcings 24; 6 step(s) from 2021-06-17 00:00:00
+/home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/third_party/graphcast/graphcast/rollout.py:328: FutureWarning: The return type of `Dataset.dims` will be changed to return a set of dimension names in future, in order to be more consistent with `DataArray.dims`. To access a mapping from dimension names to lengths, please use `Dataset.sizes`.
+  num_target_steps = targets_template.dims["time"]
+/home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/third_party/graphcast/graphcast/rollout.py:435: FutureWarning: The return type of `Dataset.dims` will be changed to return a set of dimension names in future, in order to be more consistent with `DataArray.dims`. To access a mapping from dimension names to lengths, please use `Dataset.sizes`.
+  num_inputs = prev_inputs.dims["time"]
+/home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/third_party/graphcast/graphcast/rollout.py:437: FutureWarning: In a future version of xarray the default value for compat will change from compat='equals' to compat='override'. This change will result in the following ValueError: Cannot specify both data_vars='different' and compat='override'. The recommendation is to set compat explicitly for this case.
+  xarray.concat(
+  [walker w19 s16] step 1/6  valid 2021-06-17 12:00:00
+  [walker w19 s16] step 2/6  valid 2021-06-18 00:00:00
+  [walker w19 s16] step 3/6  valid 2021-06-18 12:00:00
+  [walker w19 s16] step 4/6  valid 2021-06-19 00:00:00
+  [walker w19 s16] step 5/6  valid 2021-06-19 12:00:00
+  [walker w19 s16] step 6/6  valid 2021-06-20 00:00:00
+  [walker] wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/astab/PNW_HeatDome_2021/ens/wk08/m019/step16/state.nc (474 MB), valid 2021-06-20 00:00:00
+  [walker] wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/astab/PNW_HeatDome_2021/ens/wk08/m019/step16/diag.nc (35 MB, 6 steps)
+  [walk] slimmed PNW_HeatDome_2021@wk8  m019 step16 diag to ['2m_temperature'] (35 -> 0.3 MB)
+  [walk] pruned PNW_HeatDome_2021@wk8  m019 step14 state (0.47 GB)
+  [walker] w19 step17: 6 x 12 h from 2021-06-20 00:00:00
+  [walker] grid-node channels: inputs 176 + targets 504 + forcings 24; 6 step(s) from 2021-06-20 00:00:00
+/home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/third_party/graphcast/graphcast/rollout.py:328: FutureWarning: The return type of `Dataset.dims` will be changed to return a set of dimension names in future, in order to be more consistent with `DataArray.dims`. To access a mapping from dimension names to lengths, please use `Dataset.sizes`.
+  num_target_steps = targets_template.dims["time"]
+/home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/third_party/graphcast/graphcast/rollout.py:435: FutureWarning: The return type of `Dataset.dims` will be changed to return a set of dimension names in future, in order to be more consistent with `DataArray.dims`. To access a mapping from dimension names to lengths, please use `Dataset.sizes`.
+  num_inputs = prev_inputs.dims["time"]
+/home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/third_party/graphcast/graphcast/rollout.py:437: FutureWarning: In a future version of xarray the default value for compat will change from compat='equals' to compat='override'. This change will result in the following ValueError: Cannot specify both data_vars='different' and compat='override'. The recommendation is to set compat explicitly for this case.
+  xarray.concat(
+  [walker w19 s17] step 1/6  valid 2021-06-20 12:00:00
+  [walker w19 s17] step 2/6  valid 2021-06-21 00:00:00
+  [walker w19 s17] step 3/6  valid 2021-06-21 12:00:00
+  [walker w19 s17] step 4/6  valid 2021-06-22 00:00:00
+  [walker w19 s17] step 5/6  valid 2021-06-22 12:00:00
+  [walker w19 s17] step 6/6  valid 2021-06-23 00:00:00
+  [walker] wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/astab/PNW_HeatDome_2021/ens/wk08/m019/step17/state.nc (474 MB), valid 2021-06-23 00:00:00
+  [walker] wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/astab/PNW_HeatDome_2021/ens/wk08/m019/step17/diag.nc (35 MB, 6 steps)
+  [walk] slimmed PNW_HeatDome_2021@wk8  m019 step17 diag to ['2m_temperature'] (35 -> 0.3 MB)
+  [walk] pruned PNW_HeatDome_2021@wk8  m019 step15 state (0.47 GB)
+  [walker] w19 step18: 6 x 12 h from 2021-06-23 00:00:00
+  [walker] grid-node channels: inputs 176 + targets 504 + forcings 24; 6 step(s) from 2021-06-23 00:00:00
+/home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/third_party/graphcast/graphcast/rollout.py:328: FutureWarning: The return type of `Dataset.dims` will be changed to return a set of dimension names in future, in order to be more consistent with `DataArray.dims`. To access a mapping from dimension names to lengths, please use `Dataset.sizes`.
+  num_target_steps = targets_template.dims["time"]
+/home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/third_party/graphcast/graphcast/rollout.py:435: FutureWarning: The return type of `Dataset.dims` will be changed to return a set of dimension names in future, in order to be more consistent with `DataArray.dims`. To access a mapping from dimension names to lengths, please use `Dataset.sizes`.
+  num_inputs = prev_inputs.dims["time"]
+/home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/third_party/graphcast/graphcast/rollout.py:437: FutureWarning: In a future version of xarray the default value for compat will change from compat='equals' to compat='override'. This change will result in the following ValueError: Cannot specify both data_vars='different' and compat='override'. The recommendation is to set compat explicitly for this case.
+  xarray.concat(
+  [walker w19 s18] step 1/6  valid 2021-06-23 12:00:00
+  [walker w19 s18] step 2/6  valid 2021-06-24 00:00:00
+  [walker w19 s18] step 3/6  valid 2021-06-24 12:00:00
+  [walker w19 s18] step 4/6  valid 2021-06-25 00:00:00
+  [walker w19 s18] step 5/6  valid 2021-06-25 12:00:00
+  [walker w19 s18] step 6/6  valid 2021-06-26 00:00:00
+  [walker] wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/astab/PNW_HeatDome_2021/ens/wk08/m019/step18/state.nc (474 MB), valid 2021-06-26 00:00:00
+  [walker] wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/astab/PNW_HeatDome_2021/ens/wk08/m019/step18/diag.nc (35 MB, 6 steps)
+  [walk] slimmed PNW_HeatDome_2021@wk8  m019 step18 diag to ['2m_temperature'] (35 -> 0.3 MB)
+  [walk] pruned PNW_HeatDome_2021@wk8  m019 step16 state (0.47 GB)
+  [walker] w19 step19: 4 x 12 h from 2021-06-26 00:00:00
+  [walker] grid-node channels: inputs 176 + targets 336 + forcings 16; 4 step(s) from 2021-06-26 00:00:00
+/home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/third_party/graphcast/graphcast/rollout.py:328: FutureWarning: The return type of `Dataset.dims` will be changed to return a set of dimension names in future, in order to be more consistent with `DataArray.dims`. To access a mapping from dimension names to lengths, please use `Dataset.sizes`.
+  num_target_steps = targets_template.dims["time"]
+/home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/third_party/graphcast/graphcast/rollout.py:435: FutureWarning: The return type of `Dataset.dims` will be changed to return a set of dimension names in future, in order to be more consistent with `DataArray.dims`. To access a mapping from dimension names to lengths, please use `Dataset.sizes`.
+  num_inputs = prev_inputs.dims["time"]
+/home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/third_party/graphcast/graphcast/rollout.py:437: FutureWarning: In a future version of xarray the default value for compat will change from compat='equals' to compat='override'. This change will result in the following ValueError: Cannot specify both data_vars='different' and compat='override'. The recommendation is to set compat explicitly for this case.
+  xarray.concat(
+  [walker w19 s19] step 1/4  valid 2021-06-26 12:00:00
+  [walker w19 s19] step 2/4  valid 2021-06-27 00:00:00
+  [walker w19 s19] step 3/4  valid 2021-06-27 12:00:00
+  [walker w19 s19] step 4/4  valid 2021-06-28 00:00:00
+  [walker] wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/astab/PNW_HeatDome_2021/ens/wk08/m019/step19/state.nc (474 MB), valid 2021-06-28 00:00:00
+  [walker] wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/astab/PNW_HeatDome_2021/ens/wk08/m019/step19/diag.nc (23 MB, 4 steps)
+  [walk] slimmed PNW_HeatDome_2021@wk8  m019 step19 diag to ['2m_temperature'] (23 -> 0.2 MB)
+  [walk] pruned PNW_HeatDome_2021@wk8  m019 step17 state (0.47 GB)
+[walk] PNW_HeatDome_2021@wk8  m019: complete, landed exactly on the peak 2021-06-28 00:00:00 (4912 s elapsed on this shard)
+  [walk] released PNW_HeatDome_2021@wk8  m019 states (0.95 GB)
+[walk] m019: complete; never left bounds
+[walk] PNW_HeatDome_2021@wk8  m051: 19 segment(s), 112 steps, init 2021-05-03 00:00:00 -> peak 2021-06-28 00:00:00
+  [walker] w51 step1: 6 x 12 h from 2021-05-03 00:00:00
+  [walker] grid-node channels: inputs 176 + targets 504 + forcings 24; 6 step(s) from 2021-05-03 00:00:00
+/home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/third_party/graphcast/graphcast/rollout.py:328: FutureWarning: The return type of `Dataset.dims` will be changed to return a set of dimension names in future, in order to be more consistent with `DataArray.dims`. To access a mapping from dimension names to lengths, please use `Dataset.sizes`.
+  num_target_steps = targets_template.dims["time"]
+/home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/third_party/graphcast/graphcast/rollout.py:435: FutureWarning: The return type of `Dataset.dims` will be changed to return a set of dimension names in future, in order to be more consistent with `DataArray.dims`. To access a mapping from dimension names to lengths, please use `Dataset.sizes`.
+  num_inputs = prev_inputs.dims["time"]
+/home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/third_party/graphcast/graphcast/rollout.py:437: FutureWarning: In a future version of xarray the default value for compat will change from compat='equals' to compat='override'. This change will result in the following ValueError: Cannot specify both data_vars='different' and compat='override'. The recommendation is to set compat explicitly for this case.
+  xarray.concat(
+  [walker w51 s1] step 1/6  valid 2021-05-03 12:00:00
+  [walker w51 s1] step 2/6  valid 2021-05-04 00:00:00
+  [walker w51 s1] step 3/6  valid 2021-05-04 12:00:00
+  [walker w51 s1] step 4/6  valid 2021-05-05 00:00:00
+  [walker w51 s1] step 5/6  valid 2021-05-05 12:00:00
+  [walker w51 s1] step 6/6  valid 2021-05-06 00:00:00
+  [walker] wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/astab/PNW_HeatDome_2021/ens/wk08/m051/step01/state.nc (472 MB), valid 2021-05-06 00:00:00
+  [walker] wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/astab/PNW_HeatDome_2021/ens/wk08/m051/step01/diag.nc (34 MB, 6 steps)
+[walk] physics PNW_HeatDome_2021@wk8  m051 step1 @ 2021-05-06 00:00:00: CONUS-mean T2m 292.04 K vs ERA5 292.36 K (-0.33 K; gate 6 K at 3 d lead, skill-bearing)
+  [walk] slimmed PNW_HeatDome_2021@wk8  m051 step1 diag to ['2m_temperature'] (34 -> 0.4 MB)
+  [walker] w51 step2: 6 x 12 h from 2021-05-06 00:00:00
+  [walker] grid-node channels: inputs 176 + targets 504 + forcings 24; 6 step(s) from 2021-05-06 00:00:00
+/home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/third_party/graphcast/graphcast/rollout.py:328: FutureWarning: The return type of `Dataset.dims` will be changed to return a set of dimension names in future, in order to be more consistent with `DataArray.dims`. To access a mapping from dimension names to lengths, please use `Dataset.sizes`.
+  num_target_steps = targets_template.dims["time"]
+/home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/third_party/graphcast/graphcast/rollout.py:435: FutureWarning: The return type of `Dataset.dims` will be changed to return a set of dimension names in future, in order to be more consistent with `DataArray.dims`. To access a mapping from dimension names to lengths, please use `Dataset.sizes`.
+  num_inputs = prev_inputs.dims["time"]
+/home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/third_party/graphcast/graphcast/rollout.py:437: FutureWarning: In a future version of xarray the default value for compat will change from compat='equals' to compat='override'. This change will result in the following ValueError: Cannot specify both data_vars='different' and compat='override'. The recommendation is to set compat explicitly for this case.
+  xarray.concat(
+  [walker w51 s2] step 1/6  valid 2021-05-06 12:00:00
+  [walker w51 s2] step 2/6  valid 2021-05-07 00:00:00
+  [walker w51 s2] step 3/6  valid 2021-05-07 12:00:00
+  [walker w51 s2] step 4/6  valid 2021-05-08 00:00:00
+  [walker w51 s2] step 5/6  valid 2021-05-08 12:00:00
+  [walker w51 s2] step 6/6  valid 2021-05-09 00:00:00
+  [walker] wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/astab/PNW_HeatDome_2021/ens/wk08/m051/step02/state.nc (473 MB), valid 2021-05-09 00:00:00
+  [walker] wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/astab/PNW_HeatDome_2021/ens/wk08/m051/step02/diag.nc (34 MB, 6 steps)
+  [walk] slimmed PNW_HeatDome_2021@wk8  m051 step2 diag to ['2m_temperature'] (34 -> 0.3 MB)
+  [walker] w51 step3: 6 x 12 h from 2021-05-09 00:00:00
+  [walker] grid-node channels: inputs 176 + targets 504 + forcings 24; 6 step(s) from 2021-05-09 00:00:00
+/home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/third_party/graphcast/graphcast/rollout.py:328: FutureWarning: The return type of `Dataset.dims` will be changed to return a set of dimension names in future, in order to be more consistent with `DataArray.dims`. To access a mapping from dimension names to lengths, please use `Dataset.sizes`.
+  num_target_steps = targets_template.dims["time"]
+/home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/third_party/graphcast/graphcast/rollout.py:435: FutureWarning: The return type of `Dataset.dims` will be changed to return a set of dimension names in future, in order to be more consistent with `DataArray.dims`. To access a mapping from dimension names to lengths, please use `Dataset.sizes`.
+  num_inputs = prev_inputs.dims["time"]
+/home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/third_party/graphcast/graphcast/rollout.py:437: FutureWarning: In a future version of xarray the default value for compat will change from compat='equals' to compat='override'. This change will result in the following ValueError: Cannot specify both data_vars='different' and compat='override'. The recommendation is to set compat explicitly for this case.
+  xarray.concat(
+  [walker w51 s3] step 1/6  valid 2021-05-09 12:00:00
+  [walker w51 s3] step 2/6  valid 2021-05-10 00:00:00
+  [walker w51 s3] step 3/6  valid 2021-05-10 12:00:00
+  [walker w51 s3] step 4/6  valid 2021-05-11 00:00:00
+  [walker w51 s3] step 5/6  valid 2021-05-11 12:00:00
+  [walker w51 s3] step 6/6  valid 2021-05-12 00:00:00
+  [walker] wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/astab/PNW_HeatDome_2021/ens/wk08/m051/step03/state.nc (473 MB), valid 2021-05-12 00:00:00
+  [walker] wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/astab/PNW_HeatDome_2021/ens/wk08/m051/step03/diag.nc (35 MB, 6 steps)
+  [walk] slimmed PNW_HeatDome_2021@wk8  m051 step3 diag to ['2m_temperature'] (35 -> 0.3 MB)
+  [walk] pruned PNW_HeatDome_2021@wk8  m051 step1 state (0.47 GB)
+  [walker] w51 step4: 6 x 12 h from 2021-05-12 00:00:00
+  [walker] grid-node channels: inputs 176 + targets 504 + forcings 24; 6 step(s) from 2021-05-12 00:00:00
+/home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/third_party/graphcast/graphcast/rollout.py:328: FutureWarning: The return type of `Dataset.dims` will be changed to return a set of dimension names in future, in order to be more consistent with `DataArray.dims`. To access a mapping from dimension names to lengths, please use `Dataset.sizes`.
+  num_target_steps = targets_template.dims["time"]
+/home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/third_party/graphcast/graphcast/rollout.py:435: FutureWarning: The return type of `Dataset.dims` will be changed to return a set of dimension names in future, in order to be more consistent with `DataArray.dims`. To access a mapping from dimension names to lengths, please use `Dataset.sizes`.
+  num_inputs = prev_inputs.dims["time"]
+/home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/third_party/graphcast/graphcast/rollout.py:437: FutureWarning: In a future version of xarray the default value for compat will change from compat='equals' to compat='override'. This change will result in the following ValueError: Cannot specify both data_vars='different' and compat='override'. The recommendation is to set compat explicitly for this case.
+  xarray.concat(
+  [walker w51 s4] step 1/6  valid 2021-05-12 12:00:00
+  [walker w51 s4] step 2/6  valid 2021-05-13 00:00:00
+  [walker w51 s4] step 3/6  valid 2021-05-13 12:00:00
+  [walker w51 s4] step 4/6  valid 2021-05-14 00:00:00
+  [walker w51 s4] step 5/6  valid 2021-05-14 12:00:00
+  [walker w51 s4] step 6/6  valid 2021-05-15 00:00:00
+  [walker] wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/astab/PNW_HeatDome_2021/ens/wk08/m051/step04/state.nc (473 MB), valid 2021-05-15 00:00:00
+  [walker] wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/astab/PNW_HeatDome_2021/ens/wk08/m051/step04/diag.nc (35 MB, 6 steps)
+  [walk] slimmed PNW_HeatDome_2021@wk8  m051 step4 diag to ['2m_temperature'] (35 -> 0.3 MB)
+  [walk] pruned PNW_HeatDome_2021@wk8  m051 step2 state (0.47 GB)
+  [walker] w51 step5: 6 x 12 h from 2021-05-15 00:00:00
+  [walker] grid-node channels: inputs 176 + targets 504 + forcings 24; 6 step(s) from 2021-05-15 00:00:00
+/home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/third_party/graphcast/graphcast/rollout.py:328: FutureWarning: The return type of `Dataset.dims` will be changed to return a set of dimension names in future, in order to be more consistent with `DataArray.dims`. To access a mapping from dimension names to lengths, please use `Dataset.sizes`.
+  num_target_steps = targets_template.dims["time"]
+/home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/third_party/graphcast/graphcast/rollout.py:435: FutureWarning: The return type of `Dataset.dims` will be changed to return a set of dimension names in future, in order to be more consistent with `DataArray.dims`. To access a mapping from dimension names to lengths, please use `Dataset.sizes`.
+  num_inputs = prev_inputs.dims["time"]
+/home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/third_party/graphcast/graphcast/rollout.py:437: FutureWarning: In a future version of xarray the default value for compat will change from compat='equals' to compat='override'. This change will result in the following ValueError: Cannot specify both data_vars='different' and compat='override'. The recommendation is to set compat explicitly for this case.
+  xarray.concat(
+  [walker w51 s5] step 1/6  valid 2021-05-15 12:00:00
+  [walker w51 s5] step 2/6  valid 2021-05-16 00:00:00
+  [walker w51 s5] step 3/6  valid 2021-05-16 12:00:00
+  [walker w51 s5] step 4/6  valid 2021-05-17 00:00:00
+  [walker w51 s5] step 5/6  valid 2021-05-17 12:00:00
+  [walker w51 s5] step 6/6  valid 2021-05-18 00:00:00
+  [walker] wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/astab/PNW_HeatDome_2021/ens/wk08/m051/step05/state.nc (474 MB), valid 2021-05-18 00:00:00
+  [walker] wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/astab/PNW_HeatDome_2021/ens/wk08/m051/step05/diag.nc (35 MB, 6 steps)
+  [walk] slimmed PNW_HeatDome_2021@wk8  m051 step5 diag to ['2m_temperature'] (35 -> 0.3 MB)
+  [walk] pruned PNW_HeatDome_2021@wk8  m051 step3 state (0.47 GB)
+  [walker] w51 step6: 6 x 12 h from 2021-05-18 00:00:00
+  [walker] grid-node channels: inputs 176 + targets 504 + forcings 24; 6 step(s) from 2021-05-18 00:00:00
+/home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/third_party/graphcast/graphcast/rollout.py:328: FutureWarning: The return type of `Dataset.dims` will be changed to return a set of dimension names in future, in order to be more consistent with `DataArray.dims`. To access a mapping from dimension names to lengths, please use `Dataset.sizes`.
+  num_target_steps = targets_template.dims["time"]
+/home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/third_party/graphcast/graphcast/rollout.py:435: FutureWarning: The return type of `Dataset.dims` will be changed to return a set of dimension names in future, in order to be more consistent with `DataArray.dims`. To access a mapping from dimension names to lengths, please use `Dataset.sizes`.
+  num_inputs = prev_inputs.dims["time"]
+/home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/third_party/graphcast/graphcast/rollout.py:437: FutureWarning: In a future version of xarray the default value for compat will change from compat='equals' to compat='override'. This change will result in the following ValueError: Cannot specify both data_vars='different' and compat='override'. The recommendation is to set compat explicitly for this case.
+  xarray.concat(
+  [walker w51 s6] step 1/6  valid 2021-05-18 12:00:00
+  [walker w51 s6] step 2/6  valid 2021-05-19 00:00:00
+  [walker w51 s6] step 3/6  valid 2021-05-19 12:00:00
+  [walker w51 s6] step 4/6  valid 2021-05-20 00:00:00
+  [walker w51 s6] step 5/6  valid 2021-05-20 12:00:00
+  [walker w51 s6] step 6/6  valid 2021-05-21 00:00:00
+  [walker] wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/astab/PNW_HeatDome_2021/ens/wk08/m051/step06/state.nc (474 MB), valid 2021-05-21 00:00:00
+  [walker] wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/astab/PNW_HeatDome_2021/ens/wk08/m051/step06/diag.nc (35 MB, 6 steps)
+  [walk] slimmed PNW_HeatDome_2021@wk8  m051 step6 diag to ['2m_temperature'] (35 -> 0.3 MB)
+  [walk] pruned PNW_HeatDome_2021@wk8  m051 step4 state (0.47 GB)
+  [walker] w51 step7: 6 x 12 h from 2021-05-21 00:00:00
+  [walker] grid-node channels: inputs 176 + targets 504 + forcings 24; 6 step(s) from 2021-05-21 00:00:00
+/home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/third_party/graphcast/graphcast/rollout.py:328: FutureWarning: The return type of `Dataset.dims` will be changed to return a set of dimension names in future, in order to be more consistent with `DataArray.dims`. To access a mapping from dimension names to lengths, please use `Dataset.sizes`.
+  num_target_steps = targets_template.dims["time"]
+/home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/third_party/graphcast/graphcast/rollout.py:435: FutureWarning: The return type of `Dataset.dims` will be changed to return a set of dimension names in future, in order to be more consistent with `DataArray.dims`. To access a mapping from dimension names to lengths, please use `Dataset.sizes`.
+  num_inputs = prev_inputs.dims["time"]
+/home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/third_party/graphcast/graphcast/rollout.py:437: FutureWarning: In a future version of xarray the default value for compat will change from compat='equals' to compat='override'. This change will result in the following ValueError: Cannot specify both data_vars='different' and compat='override'. The recommendation is to set compat explicitly for this case.
+  xarray.concat(
+  [walker w51 s7] step 1/6  valid 2021-05-21 12:00:00
+  [walker w51 s7] step 2/6  valid 2021-05-22 00:00:00
+  [walker w51 s7] step 3/6  valid 2021-05-22 12:00:00
+  [walker w51 s7] step 4/6  valid 2021-05-23 00:00:00
+  [walker w51 s7] step 5/6  valid 2021-05-23 12:00:00
+  [walker w51 s7] step 6/6  valid 2021-05-24 00:00:00
+  [walker] wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/astab/PNW_HeatDome_2021/ens/wk08/m051/step07/state.nc (474 MB), valid 2021-05-24 00:00:00
+  [walker] wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/astab/PNW_HeatDome_2021/ens/wk08/m051/step07/diag.nc (35 MB, 6 steps)
+  [walk] slimmed PNW_HeatDome_2021@wk8  m051 step7 diag to ['2m_temperature'] (35 -> 0.4 MB)
+  [walk] pruned PNW_HeatDome_2021@wk8  m051 step5 state (0.47 GB)
+  [walker] w51 step8: 6 x 12 h from 2021-05-24 00:00:00
+  [walker] grid-node channels: inputs 176 + targets 504 + forcings 24; 6 step(s) from 2021-05-24 00:00:00
+/home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/third_party/graphcast/graphcast/rollout.py:328: FutureWarning: The return type of `Dataset.dims` will be changed to return a set of dimension names in future, in order to be more consistent with `DataArray.dims`. To access a mapping from dimension names to lengths, please use `Dataset.sizes`.
+  num_target_steps = targets_template.dims["time"]
+/home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/third_party/graphcast/graphcast/rollout.py:435: FutureWarning: The return type of `Dataset.dims` will be changed to return a set of dimension names in future, in order to be more consistent with `DataArray.dims`. To access a mapping from dimension names to lengths, please use `Dataset.sizes`.
+  num_inputs = prev_inputs.dims["time"]
+/home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/third_party/graphcast/graphcast/rollout.py:437: FutureWarning: In a future version of xarray the default value for compat will change from compat='equals' to compat='override'. This change will result in the following ValueError: Cannot specify both data_vars='different' and compat='override'. The recommendation is to set compat explicitly for this case.
+  xarray.concat(
+  [walker w51 s8] step 1/6  valid 2021-05-24 12:00:00
+  [walker w51 s8] step 2/6  valid 2021-05-25 00:00:00
+  [walker w51 s8] step 3/6  valid 2021-05-25 12:00:00
+  [walker w51 s8] step 4/6  valid 2021-05-26 00:00:00
+  [walker w51 s8] step 5/6  valid 2021-05-26 12:00:00
+  [walker w51 s8] step 6/6  valid 2021-05-27 00:00:00
+  [walker] wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/astab/PNW_HeatDome_2021/ens/wk08/m051/step08/state.nc (473 MB), valid 2021-05-27 00:00:00
+  [walker] wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/astab/PNW_HeatDome_2021/ens/wk08/m051/step08/diag.nc (35 MB, 6 steps)
+  [walk] slimmed PNW_HeatDome_2021@wk8  m051 step8 diag to ['2m_temperature'] (35 -> 0.4 MB)
+  [walk] pruned PNW_HeatDome_2021@wk8  m051 step6 state (0.47 GB)
+  [walker] w51 step9: 6 x 12 h from 2021-05-27 00:00:00
+  [walker] grid-node channels: inputs 176 + targets 504 + forcings 24; 6 step(s) from 2021-05-27 00:00:00
+/home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/third_party/graphcast/graphcast/rollout.py:328: FutureWarning: The return type of `Dataset.dims` will be changed to return a set of dimension names in future, in order to be more consistent with `DataArray.dims`. To access a mapping from dimension names to lengths, please use `Dataset.sizes`.
+  num_target_steps = targets_template.dims["time"]
+/home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/third_party/graphcast/graphcast/rollout.py:435: FutureWarning: The return type of `Dataset.dims` will be changed to return a set of dimension names in future, in order to be more consistent with `DataArray.dims`. To access a mapping from dimension names to lengths, please use `Dataset.sizes`.
+  num_inputs = prev_inputs.dims["time"]
+/home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/third_party/graphcast/graphcast/rollout.py:437: FutureWarning: In a future version of xarray the default value for compat will change from compat='equals' to compat='override'. This change will result in the following ValueError: Cannot specify both data_vars='different' and compat='override'. The recommendation is to set compat explicitly for this case.
+  xarray.concat(
+  [walker w51 s9] step 1/6  valid 2021-05-27 12:00:00
+  [walker w51 s9] step 2/6  valid 2021-05-28 00:00:00
+  [walker w51 s9] step 3/6  valid 2021-05-28 12:00:00
+  [walker w51 s9] step 4/6  valid 2021-05-29 00:00:00
+  [walker w51 s9] step 5/6  valid 2021-05-29 12:00:00
+  [walker w51 s9] step 6/6  valid 2021-05-30 00:00:00
+  [walker] wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/astab/PNW_HeatDome_2021/ens/wk08/m051/step09/state.nc (474 MB), valid 2021-05-30 00:00:00
+  [walker] wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/astab/PNW_HeatDome_2021/ens/wk08/m051/step09/diag.nc (35 MB, 6 steps)
+  [walk] slimmed PNW_HeatDome_2021@wk8  m051 step9 diag to ['2m_temperature'] (35 -> 0.4 MB)
+  [walk] pruned PNW_HeatDome_2021@wk8  m051 step7 state (0.47 GB)
+  [walker] w51 step10: 6 x 12 h from 2021-05-30 00:00:00
+  [walker] grid-node channels: inputs 176 + targets 504 + forcings 24; 6 step(s) from 2021-05-30 00:00:00
+/home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/third_party/graphcast/graphcast/rollout.py:328: FutureWarning: The return type of `Dataset.dims` will be changed to return a set of dimension names in future, in order to be more consistent with `DataArray.dims`. To access a mapping from dimension names to lengths, please use `Dataset.sizes`.
+  num_target_steps = targets_template.dims["time"]
+/home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/third_party/graphcast/graphcast/rollout.py:435: FutureWarning: The return type of `Dataset.dims` will be changed to return a set of dimension names in future, in order to be more consistent with `DataArray.dims`. To access a mapping from dimension names to lengths, please use `Dataset.sizes`.
+  num_inputs = prev_inputs.dims["time"]
+/home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/third_party/graphcast/graphcast/rollout.py:437: FutureWarning: In a future version of xarray the default value for compat will change from compat='equals' to compat='override'. This change will result in the following ValueError: Cannot specify both data_vars='different' and compat='override'. The recommendation is to set compat explicitly for this case.
+  xarray.concat(
+  [walker w51 s10] step 1/6  valid 2021-05-30 12:00:00
+  [walker w51 s10] step 2/6  valid 2021-05-31 00:00:00
+  [walker w51 s10] step 3/6  valid 2021-05-31 12:00:00
+  [walker w51 s10] step 4/6  valid 2021-06-01 00:00:00
+  [walker w51 s10] step 5/6  valid 2021-06-01 12:00:00
+  [walker w51 s10] step 6/6  valid 2021-06-02 00:00:00
+  [walker] wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/astab/PNW_HeatDome_2021/ens/wk08/m051/step10/state.nc (474 MB), valid 2021-06-02 00:00:00
+  [walker] wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/astab/PNW_HeatDome_2021/ens/wk08/m051/step10/diag.nc (35 MB, 6 steps)
+  [walk] slimmed PNW_HeatDome_2021@wk8  m051 step10 diag to ['2m_temperature'] (35 -> 0.4 MB)
+  [walk] pruned PNW_HeatDome_2021@wk8  m051 step8 state (0.47 GB)
+  [walker] w51 step11: 6 x 12 h from 2021-06-02 00:00:00
+  [walker] grid-node channels: inputs 176 + targets 504 + forcings 24; 6 step(s) from 2021-06-02 00:00:00
+/home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/third_party/graphcast/graphcast/rollout.py:328: FutureWarning: The return type of `Dataset.dims` will be changed to return a set of dimension names in future, in order to be more consistent with `DataArray.dims`. To access a mapping from dimension names to lengths, please use `Dataset.sizes`.
+  num_target_steps = targets_template.dims["time"]
+/home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/third_party/graphcast/graphcast/rollout.py:435: FutureWarning: The return type of `Dataset.dims` will be changed to return a set of dimension names in future, in order to be more consistent with `DataArray.dims`. To access a mapping from dimension names to lengths, please use `Dataset.sizes`.
+  num_inputs = prev_inputs.dims["time"]
+/home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/third_party/graphcast/graphcast/rollout.py:437: FutureWarning: In a future version of xarray the default value for compat will change from compat='equals' to compat='override'. This change will result in the following ValueError: Cannot specify both data_vars='different' and compat='override'. The recommendation is to set compat explicitly for this case.
+  xarray.concat(
+  [walker w51 s11] step 1/6  valid 2021-06-02 12:00:00
+  [walker w51 s11] step 2/6  valid 2021-06-03 00:00:00
+  [walker w51 s11] step 3/6  valid 2021-06-03 12:00:00
+  [walker w51 s11] step 4/6  valid 2021-06-04 00:00:00
+  [walker w51 s11] step 5/6  valid 2021-06-04 12:00:00
+  [walker w51 s11] step 6/6  valid 2021-06-05 00:00:00
+  [walker] wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/astab/PNW_HeatDome_2021/ens/wk08/m051/step11/state.nc (474 MB), valid 2021-06-05 00:00:00
+  [walker] wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/astab/PNW_HeatDome_2021/ens/wk08/m051/step11/diag.nc (35 MB, 6 steps)
+  [walk] slimmed PNW_HeatDome_2021@wk8  m051 step11 diag to ['2m_temperature'] (35 -> 0.4 MB)
+  [walk] pruned PNW_HeatDome_2021@wk8  m051 step9 state (0.47 GB)
+  [walker] w51 step12: 6 x 12 h from 2021-06-05 00:00:00
+  [walker] grid-node channels: inputs 176 + targets 504 + forcings 24; 6 step(s) from 2021-06-05 00:00:00
+/home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/third_party/graphcast/graphcast/rollout.py:328: FutureWarning: The return type of `Dataset.dims` will be changed to return a set of dimension names in future, in order to be more consistent with `DataArray.dims`. To access a mapping from dimension names to lengths, please use `Dataset.sizes`.
+  num_target_steps = targets_template.dims["time"]
+/home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/third_party/graphcast/graphcast/rollout.py:435: FutureWarning: The return type of `Dataset.dims` will be changed to return a set of dimension names in future, in order to be more consistent with `DataArray.dims`. To access a mapping from dimension names to lengths, please use `Dataset.sizes`.
+  num_inputs = prev_inputs.dims["time"]
+/home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/third_party/graphcast/graphcast/rollout.py:437: FutureWarning: In a future version of xarray the default value for compat will change from compat='equals' to compat='override'. This change will result in the following ValueError: Cannot specify both data_vars='different' and compat='override'. The recommendation is to set compat explicitly for this case.
+  xarray.concat(
+  [walker w51 s12] step 1/6  valid 2021-06-05 12:00:00
+  [walker w51 s12] step 2/6  valid 2021-06-06 00:00:00
+  [walker w51 s12] step 3/6  valid 2021-06-06 12:00:00
+  [walker w51 s12] step 4/6  valid 2021-06-07 00:00:00
+  [walker w51 s12] step 5/6  valid 2021-06-07 12:00:00
+  [walker w51 s12] step 6/6  valid 2021-06-08 00:00:00
+  [walker] wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/astab/PNW_HeatDome_2021/ens/wk08/m051/step12/state.nc (475 MB), valid 2021-06-08 00:00:00
+  [walker] wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/astab/PNW_HeatDome_2021/ens/wk08/m051/step12/diag.nc (35 MB, 6 steps)
+  [walk] slimmed PNW_HeatDome_2021@wk8  m051 step12 diag to ['2m_temperature'] (35 -> 0.4 MB)
+  [walk] pruned PNW_HeatDome_2021@wk8  m051 step10 state (0.47 GB)
+  [walker] w51 step13: 6 x 12 h from 2021-06-08 00:00:00
+  [walker] grid-node channels: inputs 176 + targets 504 + forcings 24; 6 step(s) from 2021-06-08 00:00:00
+/home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/third_party/graphcast/graphcast/rollout.py:328: FutureWarning: The return type of `Dataset.dims` will be changed to return a set of dimension names in future, in order to be more consistent with `DataArray.dims`. To access a mapping from dimension names to lengths, please use `Dataset.sizes`.
+  num_target_steps = targets_template.dims["time"]
+/home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/third_party/graphcast/graphcast/rollout.py:435: FutureWarning: The return type of `Dataset.dims` will be changed to return a set of dimension names in future, in order to be more consistent with `DataArray.dims`. To access a mapping from dimension names to lengths, please use `Dataset.sizes`.
+  num_inputs = prev_inputs.dims["time"]
+/home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/third_party/graphcast/graphcast/rollout.py:437: FutureWarning: In a future version of xarray the default value for compat will change from compat='equals' to compat='override'. This change will result in the following ValueError: Cannot specify both data_vars='different' and compat='override'. The recommendation is to set compat explicitly for this case.
+  xarray.concat(
+  [walker w51 s13] step 1/6  valid 2021-06-08 12:00:00
+  [walker w51 s13] step 2/6  valid 2021-06-09 00:00:00
+  [walker w51 s13] step 3/6  valid 2021-06-09 12:00:00
+  [walker w51 s13] step 4/6  valid 2021-06-10 00:00:00
+  [walker w51 s13] step 5/6  valid 2021-06-10 12:00:00
+  [walker w51 s13] step 6/6  valid 2021-06-11 00:00:00
+  [walker] wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/astab/PNW_HeatDome_2021/ens/wk08/m051/step13/state.nc (474 MB), valid 2021-06-11 00:00:00
+  [walker] wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/astab/PNW_HeatDome_2021/ens/wk08/m051/step13/diag.nc (35 MB, 6 steps)
+  [walk] slimmed PNW_HeatDome_2021@wk8  m051 step13 diag to ['2m_temperature'] (35 -> 0.3 MB)
+  [walk] pruned PNW_HeatDome_2021@wk8  m051 step11 state (0.47 GB)
+  [walker] w51 step14: 6 x 12 h from 2021-06-11 00:00:00
+  [walker] grid-node channels: inputs 176 + targets 504 + forcings 24; 6 step(s) from 2021-06-11 00:00:00
+/home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/third_party/graphcast/graphcast/rollout.py:328: FutureWarning: The return type of `Dataset.dims` will be changed to return a set of dimension names in future, in order to be more consistent with `DataArray.dims`. To access a mapping from dimension names to lengths, please use `Dataset.sizes`.
+  num_target_steps = targets_template.dims["time"]
+/home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/third_party/graphcast/graphcast/rollout.py:435: FutureWarning: The return type of `Dataset.dims` will be changed to return a set of dimension names in future, in order to be more consistent with `DataArray.dims`. To access a mapping from dimension names to lengths, please use `Dataset.sizes`.
+  num_inputs = prev_inputs.dims["time"]
+/home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/third_party/graphcast/graphcast/rollout.py:437: FutureWarning: In a future version of xarray the default value for compat will change from compat='equals' to compat='override'. This change will result in the following ValueError: Cannot specify both data_vars='different' and compat='override'. The recommendation is to set compat explicitly for this case.
+  xarray.concat(
+  [walker w51 s14] step 1/6  valid 2021-06-11 12:00:00
+  [walker w51 s14] step 2/6  valid 2021-06-12 00:00:00
+  [walker w51 s14] step 3/6  valid 2021-06-12 12:00:00
+  [walker w51 s14] step 4/6  valid 2021-06-13 00:00:00
+  [walker w51 s14] step 5/6  valid 2021-06-13 12:00:00
+  [walker w51 s14] step 6/6  valid 2021-06-14 00:00:00
+  [walker] wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/astab/PNW_HeatDome_2021/ens/wk08/m051/step14/state.nc (474 MB), valid 2021-06-14 00:00:00
+  [walker] wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/astab/PNW_HeatDome_2021/ens/wk08/m051/step14/diag.nc (35 MB, 6 steps)
+  [walk] slimmed PNW_HeatDome_2021@wk8  m051 step14 diag to ['2m_temperature'] (35 -> 0.3 MB)
+  [walk] pruned PNW_HeatDome_2021@wk8  m051 step12 state (0.47 GB)
+  [walker] w51 step15: 6 x 12 h from 2021-06-14 00:00:00
+  [walker] grid-node channels: inputs 176 + targets 504 + forcings 24; 6 step(s) from 2021-06-14 00:00:00
+/home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/third_party/graphcast/graphcast/rollout.py:328: FutureWarning: The return type of `Dataset.dims` will be changed to return a set of dimension names in future, in order to be more consistent with `DataArray.dims`. To access a mapping from dimension names to lengths, please use `Dataset.sizes`.
+  num_target_steps = targets_template.dims["time"]
+/home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/third_party/graphcast/graphcast/rollout.py:435: FutureWarning: The return type of `Dataset.dims` will be changed to return a set of dimension names in future, in order to be more consistent with `DataArray.dims`. To access a mapping from dimension names to lengths, please use `Dataset.sizes`.
+  num_inputs = prev_inputs.dims["time"]
+/home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/third_party/graphcast/graphcast/rollout.py:437: FutureWarning: In a future version of xarray the default value for compat will change from compat='equals' to compat='override'. This change will result in the following ValueError: Cannot specify both data_vars='different' and compat='override'. The recommendation is to set compat explicitly for this case.
+  xarray.concat(
+  [walker w51 s15] step 1/6  valid 2021-06-14 12:00:00
+  [walker w51 s15] step 2/6  valid 2021-06-15 00:00:00
+  [walker w51 s15] step 3/6  valid 2021-06-15 12:00:00
+  [walker w51 s15] step 4/6  valid 2021-06-16 00:00:00
+  [walker w51 s15] step 5/6  valid 2021-06-16 12:00:00
+  [walker w51 s15] step 6/6  valid 2021-06-17 00:00:00
+  [walker] wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/astab/PNW_HeatDome_2021/ens/wk08/m051/step15/state.nc (474 MB), valid 2021-06-17 00:00:00
+  [walker] wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/astab/PNW_HeatDome_2021/ens/wk08/m051/step15/diag.nc (35 MB, 6 steps)
+  [walk] slimmed PNW_HeatDome_2021@wk8  m051 step15 diag to ['2m_temperature'] (35 -> 0.3 MB)
+  [walk] pruned PNW_HeatDome_2021@wk8  m051 step13 state (0.47 GB)
+  [walker] w51 step16: 6 x 12 h from 2021-06-17 00:00:00
+  [walker] grid-node channels: inputs 176 + targets 504 + forcings 24; 6 step(s) from 2021-06-17 00:00:00
+/home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/third_party/graphcast/graphcast/rollout.py:328: FutureWarning: The return type of `Dataset.dims` will be changed to return a set of dimension names in future, in order to be more consistent with `DataArray.dims`. To access a mapping from dimension names to lengths, please use `Dataset.sizes`.
+  num_target_steps = targets_template.dims["time"]
+/home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/third_party/graphcast/graphcast/rollout.py:435: FutureWarning: The return type of `Dataset.dims` will be changed to return a set of dimension names in future, in order to be more consistent with `DataArray.dims`. To access a mapping from dimension names to lengths, please use `Dataset.sizes`.
+  num_inputs = prev_inputs.dims["time"]
+/home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/third_party/graphcast/graphcast/rollout.py:437: FutureWarning: In a future version of xarray the default value for compat will change from compat='equals' to compat='override'. This change will result in the following ValueError: Cannot specify both data_vars='different' and compat='override'. The recommendation is to set compat explicitly for this case.
+  xarray.concat(
+  [walker w51 s16] step 1/6  valid 2021-06-17 12:00:00
+  [walker w51 s16] step 2/6  valid 2021-06-18 00:00:00
+  [walker w51 s16] step 3/6  valid 2021-06-18 12:00:00
+  [walker w51 s16] step 4/6  valid 2021-06-19 00:00:00
+  [walker w51 s16] step 5/6  valid 2021-06-19 12:00:00
+  [walker w51 s16] step 6/6  valid 2021-06-20 00:00:00
+  [walker] wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/astab/PNW_HeatDome_2021/ens/wk08/m051/step16/state.nc (474 MB), valid 2021-06-20 00:00:00
+  [walker] wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/astab/PNW_HeatDome_2021/ens/wk08/m051/step16/diag.nc (35 MB, 6 steps)
+  [walk] slimmed PNW_HeatDome_2021@wk8  m051 step16 diag to ['2m_temperature'] (35 -> 0.3 MB)
+  [walk] pruned PNW_HeatDome_2021@wk8  m051 step14 state (0.47 GB)
+  [walker] w51 step17: 6 x 12 h from 2021-06-20 00:00:00
+  [walker] grid-node channels: inputs 176 + targets 504 + forcings 24; 6 step(s) from 2021-06-20 00:00:00
+/home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/third_party/graphcast/graphcast/rollout.py:328: FutureWarning: The return type of `Dataset.dims` will be changed to return a set of dimension names in future, in order to be more consistent with `DataArray.dims`. To access a mapping from dimension names to lengths, please use `Dataset.sizes`.
+  num_target_steps = targets_template.dims["time"]
+/home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/third_party/graphcast/graphcast/rollout.py:435: FutureWarning: The return type of `Dataset.dims` will be changed to return a set of dimension names in future, in order to be more consistent with `DataArray.dims`. To access a mapping from dimension names to lengths, please use `Dataset.sizes`.
+  num_inputs = prev_inputs.dims["time"]
+/home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/third_party/graphcast/graphcast/rollout.py:437: FutureWarning: In a future version of xarray the default value for compat will change from compat='equals' to compat='override'. This change will result in the following ValueError: Cannot specify both data_vars='different' and compat='override'. The recommendation is to set compat explicitly for this case.
+  xarray.concat(
+  [walker w51 s17] step 1/6  valid 2021-06-20 12:00:00
+  [walker w51 s17] step 2/6  valid 2021-06-21 00:00:00
+  [walker w51 s17] step 3/6  valid 2021-06-21 12:00:00
+  [walker w51 s17] step 4/6  valid 2021-06-22 00:00:00
+  [walker w51 s17] step 5/6  valid 2021-06-22 12:00:00
+  [walker w51 s17] step 6/6  valid 2021-06-23 00:00:00
+  [walker] wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/astab/PNW_HeatDome_2021/ens/wk08/m051/step17/state.nc (474 MB), valid 2021-06-23 00:00:00
+  [walker] wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/astab/PNW_HeatDome_2021/ens/wk08/m051/step17/diag.nc (35 MB, 6 steps)
+  [walk] slimmed PNW_HeatDome_2021@wk8  m051 step17 diag to ['2m_temperature'] (35 -> 0.3 MB)
+  [walk] pruned PNW_HeatDome_2021@wk8  m051 step15 state (0.47 GB)
+  [walker] w51 step18: 6 x 12 h from 2021-06-23 00:00:00
+  [walker] grid-node channels: inputs 176 + targets 504 + forcings 24; 6 step(s) from 2021-06-23 00:00:00
+/home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/third_party/graphcast/graphcast/rollout.py:328: FutureWarning: The return type of `Dataset.dims` will be changed to return a set of dimension names in future, in order to be more consistent with `DataArray.dims`. To access a mapping from dimension names to lengths, please use `Dataset.sizes`.
+  num_target_steps = targets_template.dims["time"]
+/home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/third_party/graphcast/graphcast/rollout.py:435: FutureWarning: The return type of `Dataset.dims` will be changed to return a set of dimension names in future, in order to be more consistent with `DataArray.dims`. To access a mapping from dimension names to lengths, please use `Dataset.sizes`.
+  num_inputs = prev_inputs.dims["time"]
+/home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/third_party/graphcast/graphcast/rollout.py:437: FutureWarning: In a future version of xarray the default value for compat will change from compat='equals' to compat='override'. This change will result in the following ValueError: Cannot specify both data_vars='different' and compat='override'. The recommendation is to set compat explicitly for this case.
+  xarray.concat(
+  [walker w51 s18] step 1/6  valid 2021-06-23 12:00:00
+  [walker w51 s18] step 2/6  valid 2021-06-24 00:00:00
+  [walker w51 s18] step 3/6  valid 2021-06-24 12:00:00
+  [walker w51 s18] step 4/6  valid 2021-06-25 00:00:00
+  [walker w51 s18] step 5/6  valid 2021-06-25 12:00:00
+  [walker w51 s18] step 6/6  valid 2021-06-26 00:00:00
+  [walker] wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/astab/PNW_HeatDome_2021/ens/wk08/m051/step18/state.nc (474 MB), valid 2021-06-26 00:00:00
+  [walker] wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/astab/PNW_HeatDome_2021/ens/wk08/m051/step18/diag.nc (35 MB, 6 steps)
+  [walk] slimmed PNW_HeatDome_2021@wk8  m051 step18 diag to ['2m_temperature'] (35 -> 0.3 MB)
+  [walk] pruned PNW_HeatDome_2021@wk8  m051 step16 state (0.47 GB)
+  [walker] w51 step19: 4 x 12 h from 2021-06-26 00:00:00
+  [walker] grid-node channels: inputs 176 + targets 336 + forcings 16; 4 step(s) from 2021-06-26 00:00:00
+/home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/third_party/graphcast/graphcast/rollout.py:328: FutureWarning: The return type of `Dataset.dims` will be changed to return a set of dimension names in future, in order to be more consistent with `DataArray.dims`. To access a mapping from dimension names to lengths, please use `Dataset.sizes`.
+  num_target_steps = targets_template.dims["time"]
+/home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/third_party/graphcast/graphcast/rollout.py:435: FutureWarning: The return type of `Dataset.dims` will be changed to return a set of dimension names in future, in order to be more consistent with `DataArray.dims`. To access a mapping from dimension names to lengths, please use `Dataset.sizes`.
+  num_inputs = prev_inputs.dims["time"]
+/home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/third_party/graphcast/graphcast/rollout.py:437: FutureWarning: In a future version of xarray the default value for compat will change from compat='equals' to compat='override'. This change will result in the following ValueError: Cannot specify both data_vars='different' and compat='override'. The recommendation is to set compat explicitly for this case.
+  xarray.concat(
+  [walker w51 s19] step 1/4  valid 2021-06-26 12:00:00
+  [walker w51 s19] step 2/4  valid 2021-06-27 00:00:00
+  [walker w51 s19] step 3/4  valid 2021-06-27 12:00:00
+  [walker w51 s19] step 4/4  valid 2021-06-28 00:00:00
+  [walker] wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/astab/PNW_HeatDome_2021/ens/wk08/m051/step19/state.nc (474 MB), valid 2021-06-28 00:00:00
+  [walker] wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/astab/PNW_HeatDome_2021/ens/wk08/m051/step19/diag.nc (23 MB, 4 steps)
+  [walk] slimmed PNW_HeatDome_2021@wk8  m051 step19 diag to ['2m_temperature'] (23 -> 0.2 MB)
+  [walk] pruned PNW_HeatDome_2021@wk8  m051 step17 state (0.47 GB)
+[walk] PNW_HeatDome_2021@wk8  m051: complete, landed exactly on the peak 2021-06-28 00:00:00 (8656 s elapsed on this shard)
+  [walk] released PNW_HeatDome_2021@wk8  m051 states (0.95 GB)
+[walk] m051: complete; never left bounds
+[walk] PNW_HeatDome_2021@wk8  m083: 19 segment(s), 112 steps, init 2021-05-03 00:00:00 -> peak 2021-06-28 00:00:00
+  [walker] w83 step1: 6 x 12 h from 2021-05-03 00:00:00
+  [walker] grid-node channels: inputs 176 + targets 504 + forcings 24; 6 step(s) from 2021-05-03 00:00:00
+/home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/third_party/graphcast/graphcast/rollout.py:328: FutureWarning: The return type of `Dataset.dims` will be changed to return a set of dimension names in future, in order to be more consistent with `DataArray.dims`. To access a mapping from dimension names to lengths, please use `Dataset.sizes`.
+  num_target_steps = targets_template.dims["time"]
+/home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/third_party/graphcast/graphcast/rollout.py:435: FutureWarning: The return type of `Dataset.dims` will be changed to return a set of dimension names in future, in order to be more consistent with `DataArray.dims`. To access a mapping from dimension names to lengths, please use `Dataset.sizes`.
+  num_inputs = prev_inputs.dims["time"]
+/home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/third_party/graphcast/graphcast/rollout.py:437: FutureWarning: In a future version of xarray the default value for compat will change from compat='equals' to compat='override'. This change will result in the following ValueError: Cannot specify both data_vars='different' and compat='override'. The recommendation is to set compat explicitly for this case.
+  xarray.concat(
+  [walker w83 s1] step 1/6  valid 2021-05-03 12:00:00
+  [walker w83 s1] step 2/6  valid 2021-05-04 00:00:00
+  [walker w83 s1] step 3/6  valid 2021-05-04 12:00:00
+  [walker w83 s1] step 4/6  valid 2021-05-05 00:00:00
+  [walker w83 s1] step 5/6  valid 2021-05-05 12:00:00
+  [walker w83 s1] step 6/6  valid 2021-05-06 00:00:00
+  [walker] wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/astab/PNW_HeatDome_2021/ens/wk08/m083/step01/state.nc (472 MB), valid 2021-05-06 00:00:00
+  [walker] wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/astab/PNW_HeatDome_2021/ens/wk08/m083/step01/diag.nc (34 MB, 6 steps)
+[walk] physics PNW_HeatDome_2021@wk8  m083 step1 @ 2021-05-06 00:00:00: CONUS-mean T2m 292.26 K vs ERA5 292.36 K (-0.11 K; gate 6 K at 3 d lead, skill-bearing)
+  [walk] slimmed PNW_HeatDome_2021@wk8  m083 step1 diag to ['2m_temperature'] (34 -> 0.4 MB)
+  [walker] w83 step2: 6 x 12 h from 2021-05-06 00:00:00
+  [walker] grid-node channels: inputs 176 + targets 504 + forcings 24; 6 step(s) from 2021-05-06 00:00:00
+/home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/third_party/graphcast/graphcast/rollout.py:328: FutureWarning: The return type of `Dataset.dims` will be changed to return a set of dimension names in future, in order to be more consistent with `DataArray.dims`. To access a mapping from dimension names to lengths, please use `Dataset.sizes`.
+  num_target_steps = targets_template.dims["time"]
+/home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/third_party/graphcast/graphcast/rollout.py:435: FutureWarning: The return type of `Dataset.dims` will be changed to return a set of dimension names in future, in order to be more consistent with `DataArray.dims`. To access a mapping from dimension names to lengths, please use `Dataset.sizes`.
+  num_inputs = prev_inputs.dims["time"]
+/home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/third_party/graphcast/graphcast/rollout.py:437: FutureWarning: In a future version of xarray the default value for compat will change from compat='equals' to compat='override'. This change will result in the following ValueError: Cannot specify both data_vars='different' and compat='override'. The recommendation is to set compat explicitly for this case.
+  xarray.concat(
+  [walker w83 s2] step 1/6  valid 2021-05-06 12:00:00
+  [walker w83 s2] step 2/6  valid 2021-05-07 00:00:00
+  [walker w83 s2] step 3/6  valid 2021-05-07 12:00:00
+  [walker w83 s2] step 4/6  valid 2021-05-08 00:00:00
+  [walker w83 s2] step 5/6  valid 2021-05-08 12:00:00
+  [walker w83 s2] step 6/6  valid 2021-05-09 00:00:00
+  [walker] wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/astab/PNW_HeatDome_2021/ens/wk08/m083/step02/state.nc (473 MB), valid 2021-05-09 00:00:00
+  [walker] wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/astab/PNW_HeatDome_2021/ens/wk08/m083/step02/diag.nc (34 MB, 6 steps)
+  [walk] slimmed PNW_HeatDome_2021@wk8  m083 step2 diag to ['2m_temperature'] (34 -> 0.3 MB)
+  [walker] w83 step3: 6 x 12 h from 2021-05-09 00:00:00
+  [walker] grid-node channels: inputs 176 + targets 504 + forcings 24; 6 step(s) from 2021-05-09 00:00:00
+/home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/third_party/graphcast/graphcast/rollout.py:328: FutureWarning: The return type of `Dataset.dims` will be changed to return a set of dimension names in future, in order to be more consistent with `DataArray.dims`. To access a mapping from dimension names to lengths, please use `Dataset.sizes`.
+  num_target_steps = targets_template.dims["time"]
+/home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/third_party/graphcast/graphcast/rollout.py:435: FutureWarning: The return type of `Dataset.dims` will be changed to return a set of dimension names in future, in order to be more consistent with `DataArray.dims`. To access a mapping from dimension names to lengths, please use `Dataset.sizes`.
+  num_inputs = prev_inputs.dims["time"]
+/home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/third_party/graphcast/graphcast/rollout.py:437: FutureWarning: In a future version of xarray the default value for compat will change from compat='equals' to compat='override'. This change will result in the following ValueError: Cannot specify both data_vars='different' and compat='override'. The recommendation is to set compat explicitly for this case.
+  xarray.concat(
+  [walker w83 s3] step 1/6  valid 2021-05-09 12:00:00
+  [walker w83 s3] step 2/6  valid 2021-05-10 00:00:00
+  [walker w83 s3] step 3/6  valid 2021-05-10 12:00:00
+  [walker w83 s3] step 4/6  valid 2021-05-11 00:00:00
+  [walker w83 s3] step 5/6  valid 2021-05-11 12:00:00
+  [walker w83 s3] step 6/6  valid 2021-05-12 00:00:00
+  [walker] wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/astab/PNW_HeatDome_2021/ens/wk08/m083/step03/state.nc (473 MB), valid 2021-05-12 00:00:00
+  [walker] wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/astab/PNW_HeatDome_2021/ens/wk08/m083/step03/diag.nc (35 MB, 6 steps)
+  [walk] slimmed PNW_HeatDome_2021@wk8  m083 step3 diag to ['2m_temperature'] (35 -> 0.3 MB)
+  [walk] pruned PNW_HeatDome_2021@wk8  m083 step1 state (0.47 GB)
+  [walker] w83 step4: 6 x 12 h from 2021-05-12 00:00:00
+  [walker] grid-node channels: inputs 176 + targets 504 + forcings 24; 6 step(s) from 2021-05-12 00:00:00
+/home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/third_party/graphcast/graphcast/rollout.py:328: FutureWarning: The return type of `Dataset.dims` will be changed to return a set of dimension names in future, in order to be more consistent with `DataArray.dims`. To access a mapping from dimension names to lengths, please use `Dataset.sizes`.
+  num_target_steps = targets_template.dims["time"]
+/home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/third_party/graphcast/graphcast/rollout.py:435: FutureWarning: The return type of `Dataset.dims` will be changed to return a set of dimension names in future, in order to be more consistent with `DataArray.dims`. To access a mapping from dimension names to lengths, please use `Dataset.sizes`.
+  num_inputs = prev_inputs.dims["time"]
+/home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/third_party/graphcast/graphcast/rollout.py:437: FutureWarning: In a future version of xarray the default value for compat will change from compat='equals' to compat='override'. This change will result in the following ValueError: Cannot specify both data_vars='different' and compat='override'. The recommendation is to set compat explicitly for this case.
+  xarray.concat(
+  [walker w83 s4] step 1/6  valid 2021-05-12 12:00:00
+  [walker w83 s4] step 2/6  valid 2021-05-13 00:00:00
+  [walker w83 s4] step 3/6  valid 2021-05-13 12:00:00
+  [walker w83 s4] step 4/6  valid 2021-05-14 00:00:00
+  [walker w83 s4] step 5/6  valid 2021-05-14 12:00:00
+  [walker w83 s4] step 6/6  valid 2021-05-15 00:00:00
+  [walker] wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/astab/PNW_HeatDome_2021/ens/wk08/m083/step04/state.nc (473 MB), valid 2021-05-15 00:00:00
+  [walker] wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/astab/PNW_HeatDome_2021/ens/wk08/m083/step04/diag.nc (35 MB, 6 steps)
+  [walk] slimmed PNW_HeatDome_2021@wk8  m083 step4 diag to ['2m_temperature'] (35 -> 0.4 MB)
+  [walk] pruned PNW_HeatDome_2021@wk8  m083 step2 state (0.47 GB)
+  [walker] w83 step5: 6 x 12 h from 2021-05-15 00:00:00
+  [walker] grid-node channels: inputs 176 + targets 504 + forcings 24; 6 step(s) from 2021-05-15 00:00:00
+/home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/third_party/graphcast/graphcast/rollout.py:328: FutureWarning: The return type of `Dataset.dims` will be changed to return a set of dimension names in future, in order to be more consistent with `DataArray.dims`. To access a mapping from dimension names to lengths, please use `Dataset.sizes`.
+  num_target_steps = targets_template.dims["time"]
+/home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/third_party/graphcast/graphcast/rollout.py:435: FutureWarning: The return type of `Dataset.dims` will be changed to return a set of dimension names in future, in order to be more consistent with `DataArray.dims`. To access a mapping from dimension names to lengths, please use `Dataset.sizes`.
+  num_inputs = prev_inputs.dims["time"]
+/home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/third_party/graphcast/graphcast/rollout.py:437: FutureWarning: In a future version of xarray the default value for compat will change from compat='equals' to compat='override'. This change will result in the following ValueError: Cannot specify both data_vars='different' and compat='override'. The recommendation is to set compat explicitly for this case.
+  xarray.concat(
+  [walker w83 s5] step 1/6  valid 2021-05-15 12:00:00
+  [walker w83 s5] step 2/6  valid 2021-05-16 00:00:00
+  [walker w83 s5] step 3/6  valid 2021-05-16 12:00:00
+  [walker w83 s5] step 4/6  valid 2021-05-17 00:00:00
+  [walker w83 s5] step 5/6  valid 2021-05-17 12:00:00
+  [walker w83 s5] step 6/6  valid 2021-05-18 00:00:00
+  [walker] wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/astab/PNW_HeatDome_2021/ens/wk08/m083/step05/state.nc (473 MB), valid 2021-05-18 00:00:00
+  [walker] wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/astab/PNW_HeatDome_2021/ens/wk08/m083/step05/diag.nc (35 MB, 6 steps)
+  [walk] slimmed PNW_HeatDome_2021@wk8  m083 step5 diag to ['2m_temperature'] (35 -> 0.3 MB)
+  [walk] pruned PNW_HeatDome_2021@wk8  m083 step3 state (0.47 GB)
+  [walker] w83 step6: 6 x 12 h from 2021-05-18 00:00:00
+  [walker] grid-node channels: inputs 176 + targets 504 + forcings 24; 6 step(s) from 2021-05-18 00:00:00
+/home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/third_party/graphcast/graphcast/rollout.py:328: FutureWarning: The return type of `Dataset.dims` will be changed to return a set of dimension names in future, in order to be more consistent with `DataArray.dims`. To access a mapping from dimension names to lengths, please use `Dataset.sizes`.
+  num_target_steps = targets_template.dims["time"]
+/home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/third_party/graphcast/graphcast/rollout.py:435: FutureWarning: The return type of `Dataset.dims` will be changed to return a set of dimension names in future, in order to be more consistent with `DataArray.dims`. To access a mapping from dimension names to lengths, please use `Dataset.sizes`.
+  num_inputs = prev_inputs.dims["time"]
+/home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/third_party/graphcast/graphcast/rollout.py:437: FutureWarning: In a future version of xarray the default value for compat will change from compat='equals' to compat='override'. This change will result in the following ValueError: Cannot specify both data_vars='different' and compat='override'. The recommendation is to set compat explicitly for this case.
+  xarray.concat(
+  [walker w83 s6] step 1/6  valid 2021-05-18 12:00:00
+  [walker w83 s6] step 2/6  valid 2021-05-19 00:00:00
+  [walker w83 s6] step 3/6  valid 2021-05-19 12:00:00
+  [walker w83 s6] step 4/6  valid 2021-05-20 00:00:00
+  [walker w83 s6] step 5/6  valid 2021-05-20 12:00:00
+  [walker w83 s6] step 6/6  valid 2021-05-21 00:00:00
+  [walker] wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/astab/PNW_HeatDome_2021/ens/wk08/m083/step06/state.nc (474 MB), valid 2021-05-21 00:00:00
+  [walker] wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/astab/PNW_HeatDome_2021/ens/wk08/m083/step06/diag.nc (35 MB, 6 steps)
+  [walk] slimmed PNW_HeatDome_2021@wk8  m083 step6 diag to ['2m_temperature'] (35 -> 0.4 MB)
+  [walk] pruned PNW_HeatDome_2021@wk8  m083 step4 state (0.47 GB)
+  [walker] w83 step7: 6 x 12 h from 2021-05-21 00:00:00
+  [walker] grid-node channels: inputs 176 + targets 504 + forcings 24; 6 step(s) from 2021-05-21 00:00:00
+/home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/third_party/graphcast/graphcast/rollout.py:328: FutureWarning: The return type of `Dataset.dims` will be changed to return a set of dimension names in future, in order to be more consistent with `DataArray.dims`. To access a mapping from dimension names to lengths, please use `Dataset.sizes`.
+  num_target_steps = targets_template.dims["time"]
+/home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/third_party/graphcast/graphcast/rollout.py:435: FutureWarning: The return type of `Dataset.dims` will be changed to return a set of dimension names in future, in order to be more consistent with `DataArray.dims`. To access a mapping from dimension names to lengths, please use `Dataset.sizes`.
+  num_inputs = prev_inputs.dims["time"]
+/home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/third_party/graphcast/graphcast/rollout.py:437: FutureWarning: In a future version of xarray the default value for compat will change from compat='equals' to compat='override'. This change will result in the following ValueError: Cannot specify both data_vars='different' and compat='override'. The recommendation is to set compat explicitly for this case.
+  xarray.concat(
+  [walker w83 s7] step 1/6  valid 2021-05-21 12:00:00
+  [walker w83 s7] step 2/6  valid 2021-05-22 00:00:00
+  [walker w83 s7] step 3/6  valid 2021-05-22 12:00:00
+  [walker w83 s7] step 4/6  valid 2021-05-23 00:00:00
+  [walker w83 s7] step 5/6  valid 2021-05-23 12:00:00
+  [walker w83 s7] step 6/6  valid 2021-05-24 00:00:00
+  [walker] wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/astab/PNW_HeatDome_2021/ens/wk08/m083/step07/state.nc (474 MB), valid 2021-05-24 00:00:00
+  [walker] wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/astab/PNW_HeatDome_2021/ens/wk08/m083/step07/diag.nc (35 MB, 6 steps)
+  [walk] slimmed PNW_HeatDome_2021@wk8  m083 step7 diag to ['2m_temperature'] (35 -> 0.4 MB)
+  [walk] pruned PNW_HeatDome_2021@wk8  m083 step5 state (0.47 GB)
+  [walker] w83 step8: 6 x 12 h from 2021-05-24 00:00:00
+  [walker] grid-node channels: inputs 176 + targets 504 + forcings 24; 6 step(s) from 2021-05-24 00:00:00
+/home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/third_party/graphcast/graphcast/rollout.py:328: FutureWarning: The return type of `Dataset.dims` will be changed to return a set of dimension names in future, in order to be more consistent with `DataArray.dims`. To access a mapping from dimension names to lengths, please use `Dataset.sizes`.
+  num_target_steps = targets_template.dims["time"]
+/home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/third_party/graphcast/graphcast/rollout.py:435: FutureWarning: The return type of `Dataset.dims` will be changed to return a set of dimension names in future, in order to be more consistent with `DataArray.dims`. To access a mapping from dimension names to lengths, please use `Dataset.sizes`.
+  num_inputs = prev_inputs.dims["time"]
+/home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/third_party/graphcast/graphcast/rollout.py:437: FutureWarning: In a future version of xarray the default value for compat will change from compat='equals' to compat='override'. This change will result in the following ValueError: Cannot specify both data_vars='different' and compat='override'. The recommendation is to set compat explicitly for this case.
+  xarray.concat(
+  [walker w83 s8] step 1/6  valid 2021-05-24 12:00:00
+  [walker w83 s8] step 2/6  valid 2021-05-25 00:00:00
+  [walker w83 s8] step 3/6  valid 2021-05-25 12:00:00
+  [walker w83 s8] step 4/6  valid 2021-05-26 00:00:00
+  [walker w83 s8] step 5/6  valid 2021-05-26 12:00:00
+  [walker w83 s8] step 6/6  valid 2021-05-27 00:00:00
+  [walker] wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/astab/PNW_HeatDome_2021/ens/wk08/m083/step08/state.nc (474 MB), valid 2021-05-27 00:00:00
+  [walker] wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/astab/PNW_HeatDome_2021/ens/wk08/m083/step08/diag.nc (35 MB, 6 steps)
+  [walk] slimmed PNW_HeatDome_2021@wk8  m083 step8 diag to ['2m_temperature'] (35 -> 0.4 MB)
+  [walk] pruned PNW_HeatDome_2021@wk8  m083 step6 state (0.47 GB)
+  [walker] w83 step9: 6 x 12 h from 2021-05-27 00:00:00
+  [walker] grid-node channels: inputs 176 + targets 504 + forcings 24; 6 step(s) from 2021-05-27 00:00:00
+/home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/third_party/graphcast/graphcast/rollout.py:328: FutureWarning: The return type of `Dataset.dims` will be changed to return a set of dimension names in future, in order to be more consistent with `DataArray.dims`. To access a mapping from dimension names to lengths, please use `Dataset.sizes`.
+  num_target_steps = targets_template.dims["time"]
+/home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/third_party/graphcast/graphcast/rollout.py:435: FutureWarning: The return type of `Dataset.dims` will be changed to return a set of dimension names in future, in order to be more consistent with `DataArray.dims`. To access a mapping from dimension names to lengths, please use `Dataset.sizes`.
+  num_inputs = prev_inputs.dims["time"]
+/home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/third_party/graphcast/graphcast/rollout.py:437: FutureWarning: In a future version of xarray the default value for compat will change from compat='equals' to compat='override'. This change will result in the following ValueError: Cannot specify both data_vars='different' and compat='override'. The recommendation is to set compat explicitly for this case.
+  xarray.concat(
+  [walker w83 s9] step 1/6  valid 2021-05-27 12:00:00
+  [walker w83 s9] step 2/6  valid 2021-05-28 00:00:00
+  [walker w83 s9] step 3/6  valid 2021-05-28 12:00:00
+  [walker w83 s9] step 4/6  valid 2021-05-29 00:00:00
+  [walker w83 s9] step 5/6  valid 2021-05-29 12:00:00
+  [walker w83 s9] step 6/6  valid 2021-05-30 00:00:00
+  [walker] wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/astab/PNW_HeatDome_2021/ens/wk08/m083/step09/state.nc (474 MB), valid 2021-05-30 00:00:00
+  [walker] wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/astab/PNW_HeatDome_2021/ens/wk08/m083/step09/diag.nc (35 MB, 6 steps)
+  [walk] slimmed PNW_HeatDome_2021@wk8  m083 step9 diag to ['2m_temperature'] (35 -> 0.3 MB)
+  [walk] pruned PNW_HeatDome_2021@wk8  m083 step7 state (0.47 GB)
+  [walker] w83 step10: 6 x 12 h from 2021-05-30 00:00:00
+  [walker] grid-node channels: inputs 176 + targets 504 + forcings 24; 6 step(s) from 2021-05-30 00:00:00
+/home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/third_party/graphcast/graphcast/rollout.py:328: FutureWarning: The return type of `Dataset.dims` will be changed to return a set of dimension names in future, in order to be more consistent with `DataArray.dims`. To access a mapping from dimension names to lengths, please use `Dataset.sizes`.
+  num_target_steps = targets_template.dims["time"]
+/home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/third_party/graphcast/graphcast/rollout.py:435: FutureWarning: The return type of `Dataset.dims` will be changed to return a set of dimension names in future, in order to be more consistent with `DataArray.dims`. To access a mapping from dimension names to lengths, please use `Dataset.sizes`.
+  num_inputs = prev_inputs.dims["time"]
+/home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/third_party/graphcast/graphcast/rollout.py:437: FutureWarning: In a future version of xarray the default value for compat will change from compat='equals' to compat='override'. This change will result in the following ValueError: Cannot specify both data_vars='different' and compat='override'. The recommendation is to set compat explicitly for this case.
+  xarray.concat(
+  [walker w83 s10] step 1/6  valid 2021-05-30 12:00:00
+  [walker w83 s10] step 2/6  valid 2021-05-31 00:00:00
+  [walker w83 s10] step 3/6  valid 2021-05-31 12:00:00
+  [walker w83 s10] step 4/6  valid 2021-06-01 00:00:00
+  [walker w83 s10] step 5/6  valid 2021-06-01 12:00:00
+  [walker w83 s10] step 6/6  valid 2021-06-02 00:00:00
+  [walker] wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/astab/PNW_HeatDome_2021/ens/wk08/m083/step10/state.nc (474 MB), valid 2021-06-02 00:00:00
+  [walker] wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/astab/PNW_HeatDome_2021/ens/wk08/m083/step10/diag.nc (35 MB, 6 steps)
+  [walk] slimmed PNW_HeatDome_2021@wk8  m083 step10 diag to ['2m_temperature'] (35 -> 0.3 MB)
+  [walk] pruned PNW_HeatDome_2021@wk8  m083 step8 state (0.47 GB)
+  [walker] w83 step11: 6 x 12 h from 2021-06-02 00:00:00
+  [walker] grid-node channels: inputs 176 + targets 504 + forcings 24; 6 step(s) from 2021-06-02 00:00:00
+/home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/third_party/graphcast/graphcast/rollout.py:328: FutureWarning: The return type of `Dataset.dims` will be changed to return a set of dimension names in future, in order to be more consistent with `DataArray.dims`. To access a mapping from dimension names to lengths, please use `Dataset.sizes`.
+  num_target_steps = targets_template.dims["time"]
+/home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/third_party/graphcast/graphcast/rollout.py:435: FutureWarning: The return type of `Dataset.dims` will be changed to return a set of dimension names in future, in order to be more consistent with `DataArray.dims`. To access a mapping from dimension names to lengths, please use `Dataset.sizes`.
+  num_inputs = prev_inputs.dims["time"]
+/home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/third_party/graphcast/graphcast/rollout.py:437: FutureWarning: In a future version of xarray the default value for compat will change from compat='equals' to compat='override'. This change will result in the following ValueError: Cannot specify both data_vars='different' and compat='override'. The recommendation is to set compat explicitly for this case.
+  xarray.concat(
+  [walker w83 s11] step 1/6  valid 2021-06-02 12:00:00
+  [walker w83 s11] step 2/6  valid 2021-06-03 00:00:00
+  [walker w83 s11] step 3/6  valid 2021-06-03 12:00:00
+  [walker w83 s11] step 4/6  valid 2021-06-04 00:00:00
+  [walker w83 s11] step 5/6  valid 2021-06-04 12:00:00
+  [walker w83 s11] step 6/6  valid 2021-06-05 00:00:00
+  [walker] wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/astab/PNW_HeatDome_2021/ens/wk08/m083/step11/state.nc (474 MB), valid 2021-06-05 00:00:00
+  [walker] wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/astab/PNW_HeatDome_2021/ens/wk08/m083/step11/diag.nc (35 MB, 6 steps)
+  [walk] slimmed PNW_HeatDome_2021@wk8  m083 step11 diag to ['2m_temperature'] (35 -> 0.4 MB)
+  [walk] pruned PNW_HeatDome_2021@wk8  m083 step9 state (0.47 GB)
+  [walker] w83 step12: 6 x 12 h from 2021-06-05 00:00:00
+  [walker] grid-node channels: inputs 176 + targets 504 + forcings 24; 6 step(s) from 2021-06-05 00:00:00
+/home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/third_party/graphcast/graphcast/rollout.py:328: FutureWarning: The return type of `Dataset.dims` will be changed to return a set of dimension names in future, in order to be more consistent with `DataArray.dims`. To access a mapping from dimension names to lengths, please use `Dataset.sizes`.
+  num_target_steps = targets_template.dims["time"]
+/home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/third_party/graphcast/graphcast/rollout.py:435: FutureWarning: The return type of `Dataset.dims` will be changed to return a set of dimension names in future, in order to be more consistent with `DataArray.dims`. To access a mapping from dimension names to lengths, please use `Dataset.sizes`.
+  num_inputs = prev_inputs.dims["time"]
+/home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/third_party/graphcast/graphcast/rollout.py:437: FutureWarning: In a future version of xarray the default value for compat will change from compat='equals' to compat='override'. This change will result in the following ValueError: Cannot specify both data_vars='different' and compat='override'. The recommendation is to set compat explicitly for this case.
+  xarray.concat(
+  [walker w83 s12] step 1/6  valid 2021-06-05 12:00:00
+  [walker w83 s12] step 2/6  valid 2021-06-06 00:00:00
+  [walker w83 s12] step 3/6  valid 2021-06-06 12:00:00
+  [walker w83 s12] step 4/6  valid 2021-06-07 00:00:00
+  [walker w83 s12] step 5/6  valid 2021-06-07 12:00:00
+  [walker w83 s12] step 6/6  valid 2021-06-08 00:00:00
+  [walker] wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/astab/PNW_HeatDome_2021/ens/wk08/m083/step12/state.nc (474 MB), valid 2021-06-08 00:00:00
+  [walker] wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/astab/PNW_HeatDome_2021/ens/wk08/m083/step12/diag.nc (35 MB, 6 steps)
+  [walk] slimmed PNW_HeatDome_2021@wk8  m083 step12 diag to ['2m_temperature'] (35 -> 0.3 MB)
+  [walk] pruned PNW_HeatDome_2021@wk8  m083 step10 state (0.47 GB)
+  [walker] w83 step13: 6 x 12 h from 2021-06-08 00:00:00
+  [walker] grid-node channels: inputs 176 + targets 504 + forcings 24; 6 step(s) from 2021-06-08 00:00:00
+/home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/third_party/graphcast/graphcast/rollout.py:328: FutureWarning: The return type of `Dataset.dims` will be changed to return a set of dimension names in future, in order to be more consistent with `DataArray.dims`. To access a mapping from dimension names to lengths, please use `Dataset.sizes`.
+  num_target_steps = targets_template.dims["time"]
+/home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/third_party/graphcast/graphcast/rollout.py:435: FutureWarning: The return type of `Dataset.dims` will be changed to return a set of dimension names in future, in order to be more consistent with `DataArray.dims`. To access a mapping from dimension names to lengths, please use `Dataset.sizes`.
+  num_inputs = prev_inputs.dims["time"]
+/home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/third_party/graphcast/graphcast/rollout.py:437: FutureWarning: In a future version of xarray the default value for compat will change from compat='equals' to compat='override'. This change will result in the following ValueError: Cannot specify both data_vars='different' and compat='override'. The recommendation is to set compat explicitly for this case.
+  xarray.concat(
+  [walker w83 s13] step 1/6  valid 2021-06-08 12:00:00
+  [walker w83 s13] step 2/6  valid 2021-06-09 00:00:00
+  [walker w83 s13] step 3/6  valid 2021-06-09 12:00:00
+  [walker w83 s13] step 4/6  valid 2021-06-10 00:00:00
+  [walker w83 s13] step 5/6  valid 2021-06-10 12:00:00
+  [walker w83 s13] step 6/6  valid 2021-06-11 00:00:00
+  [walker] wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/astab/PNW_HeatDome_2021/ens/wk08/m083/step13/state.nc (474 MB), valid 2021-06-11 00:00:00
+  [walker] wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/astab/PNW_HeatDome_2021/ens/wk08/m083/step13/diag.nc (35 MB, 6 steps)
+  [walk] slimmed PNW_HeatDome_2021@wk8  m083 step13 diag to ['2m_temperature'] (35 -> 0.4 MB)
+  [walk] pruned PNW_HeatDome_2021@wk8  m083 step11 state (0.47 GB)
+  [walker] w83 step14: 6 x 12 h from 2021-06-11 00:00:00
+  [walker] grid-node channels: inputs 176 + targets 504 + forcings 24; 6 step(s) from 2021-06-11 00:00:00
+/home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/third_party/graphcast/graphcast/rollout.py:328: FutureWarning: The return type of `Dataset.dims` will be changed to return a set of dimension names in future, in order to be more consistent with `DataArray.dims`. To access a mapping from dimension names to lengths, please use `Dataset.sizes`.
+  num_target_steps = targets_template.dims["time"]
+/home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/third_party/graphcast/graphcast/rollout.py:435: FutureWarning: The return type of `Dataset.dims` will be changed to return a set of dimension names in future, in order to be more consistent with `DataArray.dims`. To access a mapping from dimension names to lengths, please use `Dataset.sizes`.
+  num_inputs = prev_inputs.dims["time"]
+/home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/third_party/graphcast/graphcast/rollout.py:437: FutureWarning: In a future version of xarray the default value for compat will change from compat='equals' to compat='override'. This change will result in the following ValueError: Cannot specify both data_vars='different' and compat='override'. The recommendation is to set compat explicitly for this case.
+  xarray.concat(
+  [walker w83 s14] step 1/6  valid 2021-06-11 12:00:00
+  [walker w83 s14] step 2/6  valid 2021-06-12 00:00:00
+  [walker w83 s14] step 3/6  valid 2021-06-12 12:00:00
+  [walker w83 s14] step 4/6  valid 2021-06-13 00:00:00
+  [walker w83 s14] step 5/6  valid 2021-06-13 12:00:00
+  [walker w83 s14] step 6/6  valid 2021-06-14 00:00:00
+  [walker] wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/astab/PNW_HeatDome_2021/ens/wk08/m083/step14/state.nc (474 MB), valid 2021-06-14 00:00:00
+  [walker] wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/astab/PNW_HeatDome_2021/ens/wk08/m083/step14/diag.nc (35 MB, 6 steps)
+  [walk] slimmed PNW_HeatDome_2021@wk8  m083 step14 diag to ['2m_temperature'] (35 -> 0.4 MB)
+  [walk] pruned PNW_HeatDome_2021@wk8  m083 step12 state (0.47 GB)
+  [walker] w83 step15: 6 x 12 h from 2021-06-14 00:00:00
+  [walker] grid-node channels: inputs 176 + targets 504 + forcings 24; 6 step(s) from 2021-06-14 00:00:00
+/home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/third_party/graphcast/graphcast/rollout.py:328: FutureWarning: The return type of `Dataset.dims` will be changed to return a set of dimension names in future, in order to be more consistent with `DataArray.dims`. To access a mapping from dimension names to lengths, please use `Dataset.sizes`.
+  num_target_steps = targets_template.dims["time"]
+/home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/third_party/graphcast/graphcast/rollout.py:435: FutureWarning: The return type of `Dataset.dims` will be changed to return a set of dimension names in future, in order to be more consistent with `DataArray.dims`. To access a mapping from dimension names to lengths, please use `Dataset.sizes`.
+  num_inputs = prev_inputs.dims["time"]
+/home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/third_party/graphcast/graphcast/rollout.py:437: FutureWarning: In a future version of xarray the default value for compat will change from compat='equals' to compat='override'. This change will result in the following ValueError: Cannot specify both data_vars='different' and compat='override'. The recommendation is to set compat explicitly for this case.
+  xarray.concat(
+  [walker w83 s15] step 1/6  valid 2021-06-14 12:00:00
+  [walker w83 s15] step 2/6  valid 2021-06-15 00:00:00
+  [walker w83 s15] step 3/6  valid 2021-06-15 12:00:00
+  [walker w83 s15] step 4/6  valid 2021-06-16 00:00:00
+  [walker w83 s15] step 5/6  valid 2021-06-16 12:00:00
+  [walker w83 s15] step 6/6  valid 2021-06-17 00:00:00
+  [walker] wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/astab/PNW_HeatDome_2021/ens/wk08/m083/step15/state.nc (474 MB), valid 2021-06-17 00:00:00
+  [walker] wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/astab/PNW_HeatDome_2021/ens/wk08/m083/step15/diag.nc (35 MB, 6 steps)
+  [walk] slimmed PNW_HeatDome_2021@wk8  m083 step15 diag to ['2m_temperature'] (35 -> 0.3 MB)
+  [walk] pruned PNW_HeatDome_2021@wk8  m083 step13 state (0.47 GB)
+  [walker] w83 step16: 6 x 12 h from 2021-06-17 00:00:00
+  [walker] grid-node channels: inputs 176 + targets 504 + forcings 24; 6 step(s) from 2021-06-17 00:00:00
+/home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/third_party/graphcast/graphcast/rollout.py:328: FutureWarning: The return type of `Dataset.dims` will be changed to return a set of dimension names in future, in order to be more consistent with `DataArray.dims`. To access a mapping from dimension names to lengths, please use `Dataset.sizes`.
+  num_target_steps = targets_template.dims["time"]
+/home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/third_party/graphcast/graphcast/rollout.py:435: FutureWarning: The return type of `Dataset.dims` will be changed to return a set of dimension names in future, in order to be more consistent with `DataArray.dims`. To access a mapping from dimension names to lengths, please use `Dataset.sizes`.
+  num_inputs = prev_inputs.dims["time"]
+/home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/third_party/graphcast/graphcast/rollout.py:437: FutureWarning: In a future version of xarray the default value for compat will change from compat='equals' to compat='override'. This change will result in the following ValueError: Cannot specify both data_vars='different' and compat='override'. The recommendation is to set compat explicitly for this case.
+  xarray.concat(
+  [walker w83 s16] step 1/6  valid 2021-06-17 12:00:00
+  [walker w83 s16] step 2/6  valid 2021-06-18 00:00:00
+  [walker w83 s16] step 3/6  valid 2021-06-18 12:00:00
+  [walker w83 s16] step 4/6  valid 2021-06-19 00:00:00
+  [walker w83 s16] step 5/6  valid 2021-06-19 12:00:00
+  [walker w83 s16] step 6/6  valid 2021-06-20 00:00:00
+  [walker] wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/astab/PNW_HeatDome_2021/ens/wk08/m083/step16/state.nc (475 MB), valid 2021-06-20 00:00:00
+  [walker] wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/astab/PNW_HeatDome_2021/ens/wk08/m083/step16/diag.nc (35 MB, 6 steps)
+  [walk] slimmed PNW_HeatDome_2021@wk8  m083 step16 diag to ['2m_temperature'] (35 -> 0.4 MB)
+  [walk] pruned PNW_HeatDome_2021@wk8  m083 step14 state (0.47 GB)
+  [walker] w83 step17: 6 x 12 h from 2021-06-20 00:00:00
+  [walker] grid-node channels: inputs 176 + targets 504 + forcings 24; 6 step(s) from 2021-06-20 00:00:00
+/home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/third_party/graphcast/graphcast/rollout.py:328: FutureWarning: The return type of `Dataset.dims` will be changed to return a set of dimension names in future, in order to be more consistent with `DataArray.dims`. To access a mapping from dimension names to lengths, please use `Dataset.sizes`.
+  num_target_steps = targets_template.dims["time"]
+/home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/third_party/graphcast/graphcast/rollout.py:435: FutureWarning: The return type of `Dataset.dims` will be changed to return a set of dimension names in future, in order to be more consistent with `DataArray.dims`. To access a mapping from dimension names to lengths, please use `Dataset.sizes`.
+  num_inputs = prev_inputs.dims["time"]
+/home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/third_party/graphcast/graphcast/rollout.py:437: FutureWarning: In a future version of xarray the default value for compat will change from compat='equals' to compat='override'. This change will result in the following ValueError: Cannot specify both data_vars='different' and compat='override'. The recommendation is to set compat explicitly for this case.
+  xarray.concat(
+  [walker w83 s17] step 1/6  valid 2021-06-20 12:00:00
+  [walker w83 s17] step 2/6  valid 2021-06-21 00:00:00
+  [walker w83 s17] step 3/6  valid 2021-06-21 12:00:00
+  [walker w83 s17] step 4/6  valid 2021-06-22 00:00:00
+  [walker w83 s17] step 5/6  valid 2021-06-22 12:00:00
+  [walker w83 s17] step 6/6  valid 2021-06-23 00:00:00
+  [walker] wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/astab/PNW_HeatDome_2021/ens/wk08/m083/step17/state.nc (479 MB), valid 2021-06-23 00:00:00
+  [walker] wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/astab/PNW_HeatDome_2021/ens/wk08/m083/step17/diag.nc (35 MB, 6 steps)
+  [walk] slimmed PNW_HeatDome_2021@wk8  m083 step17 diag to ['2m_temperature'] (35 -> 0.3 MB)
+  [walk] pruned PNW_HeatDome_2021@wk8  m083 step15 state (0.47 GB)
+  [walker] w83 step18: 6 x 12 h from 2021-06-23 00:00:00
+  [walker] grid-node channels: inputs 176 + targets 504 + forcings 24; 6 step(s) from 2021-06-23 00:00:00
+/home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/third_party/graphcast/graphcast/rollout.py:328: FutureWarning: The return type of `Dataset.dims` will be changed to return a set of dimension names in future, in order to be more consistent with `DataArray.dims`. To access a mapping from dimension names to lengths, please use `Dataset.sizes`.
+  num_target_steps = targets_template.dims["time"]
+/home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/third_party/graphcast/graphcast/rollout.py:435: FutureWarning: The return type of `Dataset.dims` will be changed to return a set of dimension names in future, in order to be more consistent with `DataArray.dims`. To access a mapping from dimension names to lengths, please use `Dataset.sizes`.
+  num_inputs = prev_inputs.dims["time"]
+/home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/third_party/graphcast/graphcast/rollout.py:437: FutureWarning: In a future version of xarray the default value for compat will change from compat='equals' to compat='override'. This change will result in the following ValueError: Cannot specify both data_vars='different' and compat='override'. The recommendation is to set compat explicitly for this case.
+  xarray.concat(
+  [walker w83 s18] step 1/6  valid 2021-06-23 12:00:00
+  [walker w83 s18] step 2/6  valid 2021-06-24 00:00:00
+  [walker w83 s18] step 3/6  valid 2021-06-24 12:00:00
+  [walker w83 s18] step 4/6  valid 2021-06-25 00:00:00
+  [walker w83 s18] step 5/6  valid 2021-06-25 12:00:00
+  [walker w83 s18] step 6/6  valid 2021-06-26 00:00:00
+  [walker] wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/astab/PNW_HeatDome_2021/ens/wk08/m083/step18/state.nc (487 MB), valid 2021-06-26 00:00:00
+  [walker] wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/astab/PNW_HeatDome_2021/ens/wk08/m083/step18/diag.nc (35 MB, 6 steps)
+  [walk] slimmed PNW_HeatDome_2021@wk8  m083 step18 diag to ['2m_temperature'] (35 -> 0.4 MB)
+  [walk] pruned PNW_HeatDome_2021@wk8  m083 step16 state (0.47 GB)
+  [walker] w83 step19: 4 x 12 h from 2021-06-26 00:00:00
+  [walker] grid-node channels: inputs 176 + targets 336 + forcings 16; 4 step(s) from 2021-06-26 00:00:00
+/home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/third_party/graphcast/graphcast/rollout.py:328: FutureWarning: The return type of `Dataset.dims` will be changed to return a set of dimension names in future, in order to be more consistent with `DataArray.dims`. To access a mapping from dimension names to lengths, please use `Dataset.sizes`.
+  num_target_steps = targets_template.dims["time"]
+/home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/third_party/graphcast/graphcast/rollout.py:435: FutureWarning: The return type of `Dataset.dims` will be changed to return a set of dimension names in future, in order to be more consistent with `DataArray.dims`. To access a mapping from dimension names to lengths, please use `Dataset.sizes`.
+  num_inputs = prev_inputs.dims["time"]
+/home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/third_party/graphcast/graphcast/rollout.py:437: FutureWarning: In a future version of xarray the default value for compat will change from compat='equals' to compat='override'. This change will result in the following ValueError: Cannot specify both data_vars='different' and compat='override'. The recommendation is to set compat explicitly for this case.
+  xarray.concat(
+  [walker w83 s19] step 1/4  valid 2021-06-26 12:00:00
+  [walker w83 s19] step 2/4  valid 2021-06-27 00:00:00
+  [walker w83 s19] step 3/4  valid 2021-06-27 12:00:00
+  [walker w83 s19] step 4/4  valid 2021-06-28 00:00:00
+  [walker] wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/astab/PNW_HeatDome_2021/ens/wk08/m083/step19/state.nc (491 MB), valid 2021-06-28 00:00:00
+  [walker] wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/astab/PNW_HeatDome_2021/ens/wk08/m083/step19/diag.nc (24 MB, 4 steps)
+  [walk] slimmed PNW_HeatDome_2021@wk8  m083 step19 diag to ['2m_temperature'] (24 -> 0.3 MB)
+  [walk] pruned PNW_HeatDome_2021@wk8  m083 step17 state (0.48 GB)
+[walk] PNW_HeatDome_2021@wk8  m083: complete, landed exactly on the peak 2021-06-28 00:00:00 (12375 s elapsed on this shard)
+  [walk] released PNW_HeatDome_2021@wk8  m083 states (0.98 GB)
+[walk] m083: complete; left bounds 54 d (specific_humidity @ 850 hPa 3.6% past); DIVERGED 54 d (loud, band extrapolated); worst 6% at 56 d (specific_humidity)
+[walk] shard 19: 57 segment(s) rolled, 12375 s total

@@ -1,0 +1,22 @@
+=================== xres prep week 6  Thu Aug 27 00:43:01 UTC 2026 ===================
+[era5-truth] cached: PNW_HeatDome_2021_verif_t2m_anom.nc
+[era5-truth] cached: WinterStorm_Uri_2021_verif_t2m_anom.nc
+[hrrr-truth] HRRR archive not found at /glade/derecho/scratch/mdarman/hrrr_work/hrrr_nc_v3; skipping HRRR
+[inputs 0p25 week6] PNW_HeatDome_2021: init=peak-42d -> PNW_HeatDome_2021_inputs.nc
+[inputs 0p25 week6] WinterStorm_Uri_2021: init=peak-42d -> WinterStorm_Uri_2021_inputs.nc
+--- week 6 rc=0 ---
+=================== xres prep week 8  Thu Aug 27 00:49:13 UTC 2026 ===================
+[era5-truth] cached: PNW_HeatDome_2021_verif_t2m_anom.nc
+[era5-truth] cached: WinterStorm_Uri_2021_verif_t2m_anom.nc
+[hrrr-truth] HRRR archive not found at /glade/derecho/scratch/mdarman/hrrr_work/hrrr_nc_v3; skipping HRRR
+[inputs 0p25 week8] PNW_HeatDome_2021: init=peak-56d -> PNW_HeatDome_2021_inputs.nc
+[inputs 0p25 week8] WinterStorm_Uri_2021: init=peak-56d -> WinterStorm_Uri_2021_inputs.nc
+--- week 8 rc=0 ---
+=================== xres prep week 10  Thu Aug 27 00:54:26 UTC 2026 ===================
+[era5-truth] cached: PNW_HeatDome_2021_verif_t2m_anom.nc
+[era5-truth] cached: WinterStorm_Uri_2021_verif_t2m_anom.nc
+[hrrr-truth] HRRR archive not found at /glade/derecho/scratch/mdarman/hrrr_work/hrrr_nc_v3; skipping HRRR
+[inputs 0p25 week10] PNW_HeatDome_2021: init=peak-70d -> PNW_HeatDome_2021_inputs.nc
+[inputs 0p25 week10] WinterStorm_Uri_2021: init=peak-70d -> WinterStorm_Uri_2021_inputs.nc
+--- week 10 rc=0 ---
+=================== xres prep DONE Thu Aug 27 00:59:13 UTC 2026 ===================

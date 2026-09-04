@@ -1,0 +1,2 @@
+[walk] host=nucla3m-a3meganodeset-4 shard 1/8: []
+[walk] SMOKE: chains truncated to 1 segment(s). This does NOT reach the peak and produces no verdict - it exercises the loop.

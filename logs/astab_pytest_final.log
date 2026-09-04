@@ -1,0 +1,25 @@
+........................................................................ [ 19%]
+........................................................................ [ 39%]
+........................................................................ [ 59%]
+........................................................................ [ 79%]
+.................................................................s...... [ 99%]
+..                                                                       [100%]
+=============================== warnings summary ===============================
+aires/tests/test_apdfs.py::test_unweighted_reproduces_the_house_pdf_histogram
+  /home/ubuntu/miniconda3/envs/moe/lib/python3.12/site-packages/haiku/_src/jaxpr_info.py:45: DeprecationWarning: jax.core.DropVar is deprecated. Use jax.extend.core.DropVar.
+    DropVar: TypeAlias = jax.core.DropVar
+
+aires/tests/test_apdfs.py::test_unweighted_reproduces_the_house_pdf_histogram
+  /home/ubuntu/miniconda3/envs/moe/lib/python3.12/site-packages/dinosaur/spherical_harmonic.py:292: DeprecationWarning: jax.experimental.shard_map is deprecated in v0.8.0. Used jax.shard_map instead.
+    shmap = shard_map.shard_map
+
+aires/tests/test_walker.py::test_float16_would_overflow_geopotential
+  /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/aires/tests/test_walker.py:124: RuntimeWarning: overflow encountered in cast
+    assert z_top > np.finfo(np.float16).max, z_top
+
+aires/tests/test_walker.py::test_float16_would_overflow_geopotential
+  /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/aires/tests/test_walker.py:125: RuntimeWarning: overflow encountered in cast
+    assert np.isinf(np.float16(z_top))
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+361 passed, 1 skipped, 4 warnings in 165.87s (0:02:45)

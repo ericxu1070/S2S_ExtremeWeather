@@ -1,0 +1,3 @@
+ERROR: walk shard 0 failed -- logs/Vayuh-s2s-1194-walk-try1-shard0.log
+ERROR: walk shard 1 failed -- logs/Vayuh-s2s-1194-walk-try1-shard1.log
+ERROR: walk shard 6 failed -- logs/Vayuh-s2s-1194-walk-try1-shard6.log

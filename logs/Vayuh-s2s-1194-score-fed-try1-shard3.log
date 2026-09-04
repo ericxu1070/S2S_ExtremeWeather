@@ -1,0 +1,3 @@
+[score] host=nucla3m-a3meganodeset-4 shard 3/8 arm=fed: ['PNW_HeatDome_2021@wk10', 'WinterStorm_Uri_2021@wk8 ']
+[score] PNW_HeatDome_2021@wk10 fed: cached w03_lead03_cube.nc, skip
+[score] WinterStorm_Uri_2021@wk8  fed: cached w02_lead03_cube.nc, skip

@@ -1,0 +1,21 @@
+--- ERA5 (WB2), global, at chain dates ---
+  2021-04-19  T2m [207.5, 310.8] K   MSLP [945, 1041] hPa
+  2021-05-31  T2m [202.2, 315.5] K   MSLP [961, 1037] hPa
+  2021-06-28  T2m [201.0, 320.5] K   MSLP [937, 1045] hPa
+  2020-12-07  T2m [221.1, 310.2] K   MSLP [935, 1052] hPa
+  2021-01-18  T2m [214.4, 309.6] K   MSLP [949, 1051] hPa
+  2021-02-15  T2m [216.2, 307.5] K   MSLP [950, 1045] hPa
+  ERA5 global T2m min over these dates: 201.0 K, max 320.5 K
+  ERA5 global MSLP: [935, 1052] hPa
+
+--- Gate 3 walker states, global ---
+  over 18 known-good global states:
+    10m_u_component_of_wind      [      -34.19,        25.84]   bound (-200.0, 200.0)
+    10m_v_component_of_wind      [      -27.92,        29.39]   bound (-200.0, 200.0)
+    2m_temperature               [       194.4,          324]   bound (200.0, 330.0)  <-- OUT OF BOUNDS
+    geopotential                 [       -5501,    2.077e+05]   bound (-10000.0, 500000.0)
+    mean_sea_level_pressure      [   9.308e+04,    1.064e+05]   bound (87000.0, 109000.0)
+    specific_humidity            [    -0.00128,      0.02837]   bound (-0.005, 0.1)
+    temperature                  [       181.1,        324.9]   bound (150.0, 350.0)
+    u_component_of_wind          [       -54.9,        109.5]   bound (-200.0, 200.0)
+    v_component_of_wind          [      -84.94,        86.52]   bound (-200.0, 200.0)

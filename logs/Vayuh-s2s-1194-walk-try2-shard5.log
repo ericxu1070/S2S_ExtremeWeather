@@ -1,0 +1,6 @@
+[walk] host=nucla3m-a3meganodeset-4 shard 5/8: ['PNW_HeatDome_2021@wk14', 'WinterStorm_Uri_2021@wk12']
+[walk] PNW_HeatDome_2021@wk14: 1 segment(s), 6 steps, init 2021-03-22 00:00:00 -> the 3 d launch state 2021-03-25 00:00:00 (FCN3-extension lead; the peak 2021-06-28 00:00:00 is FCN3's to reach)
+[walk] PNW_HeatDome_2021@wk14: complete, landed on its 3 d launch state; FCN3 carries the remaining 95 d to the peak 2021-03-25 00:00:00 (0 s elapsed on this shard)
+[walk] WinterStorm_Uri_2021@wk12: 1 segment(s), 6 steps, init 2020-11-23 00:00:00 -> the 3 d launch state 2020-11-26 00:00:00 (FCN3-extension lead; the peak 2021-02-15 00:00:00 is FCN3's to reach)
+[walk] WinterStorm_Uri_2021@wk12: complete, landed on its 3 d launch state; FCN3 carries the remaining 81 d to the peak 2020-11-26 00:00:00 (0 s elapsed on this shard)
+[walk] shard 5: 0 segment(s) rolled, 0 s total

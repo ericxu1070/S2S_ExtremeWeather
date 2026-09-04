@@ -1,0 +1,58 @@
+[walk] host=nucla3m-a3meganodeset-4 shard 0/8: ['PNW_HeatDome_2021@wk8  m000']
+[walk] SMOKE: chains truncated to 1 segment(s). This does NOT reach the peak and produces no verdict - it exercises the loop.
+[walk] PNW_HeatDome_2021@wk8  m000: 1 segment(s), 6 steps, init 2021-05-03 00:00:00 -> peak 2021-06-28 00:00:00
+  [walker] w00 step1: 6 x 12 h from 2021-05-03 00:00:00
+  [walker] loading 'GenCast 0p25deg <2019.npz' (0.25 deg)
+E0903 21:20:42.219342 3257093 platform_util.cc:271] Failed to create stream executor for device CUDA:0: : CUDA_ERROR_OUT_OF_MEMORY: out of memory
+Traceback (most recent call last):
+  File "/home/ubuntu/miniconda3/envs/moe/lib/python3.12/site-packages/jax/_src/xla_bridge.py", line 839, in backends
+    backend = _init_backend(platform)
+              ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ubuntu/miniconda3/envs/moe/lib/python3.12/site-packages/jax/_src/xla_bridge.py", line 923, in _init_backend
+    backend = registration.factory()
+              ^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ubuntu/miniconda3/envs/moe/lib/python3.12/site-packages/jax/_src/xla_bridge.py", line 576, in make_pjrt_c_api_client
+    return xla_client.make_c_api_client(plugin_name, updated_options, None)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ubuntu/miniconda3/envs/moe/lib/python3.12/site-packages/jaxlib/xla_client.py", line 160, in make_c_api_client
+    return _xla.get_c_api_client(
+           ^^^^^^^^^^^^^^^^^^^^^^
+jax.errors.JaxRuntimeError: INTERNAL: no supported devices found for platform CUDA
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/astab/stages.py", line 800, in stage_walk
+    if _walk_one(ch):
+       ^^^^^^^^^^^^^
+  File "/home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/astab/stages.py", line 718, in _walk_one
+    W.run_segment(get_bundle, ch.event, ch.seed, k, n_steps,
+  File "/home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/aires/walker.py", line 346, in run_segment
+    nxt, cube = roll_segment(get_bundle(), state, n_steps,
+                             ^^^^^^^^^^^^
+  File "/home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/aires/walker.py", line 401, in get_bundle
+    box["b"] = load_bundle(n_members, res)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/aires/walker.py", line 386, in load_bundle
+    return M.load_gencast(n_members=n_members, **kw)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/gencast_s2s/model.py", line 74, in load_gencast
+    devices = list(jax.local_devices())
+                   ^^^^^^^^^^^^^^^^^^^
+  File "/home/ubuntu/miniconda3/envs/moe/lib/python3.12/site-packages/jax/_src/xla_bridge.py", line 1107, in local_devices
+    process_index = get_backend(backend).process_index()
+                    ^^^^^^^^^^^^^^^^^^^^
+  File "/home/ubuntu/miniconda3/envs/moe/lib/python3.12/site-packages/jax/_src/xla_bridge.py", line 973, in get_backend
+    return _get_backend_uncached(platform)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ubuntu/miniconda3/envs/moe/lib/python3.12/site-packages/jax/_src/xla_bridge.py", line 952, in _get_backend_uncached
+    bs = backends()
+         ^^^^^^^^^^
+  File "/home/ubuntu/miniconda3/envs/moe/lib/python3.12/site-packages/jax/_src/xla_bridge.py", line 855, in backends
+    raise RuntimeError(err_msg)
+RuntimeError: Unable to initialize backend 'cuda': INTERNAL: no supported devices found for platform CUDA (you may need to uninstall the failing plugin package, or set JAX_PLATFORMS=cpu to skip this backend.)
+[walk] FAILED PNW_HeatDome_2021@wk8  m000: RuntimeError: Unable to initialize backend 'cuda': INTERNAL: no supported devices found for platform CUDA (you may need to uninstall the failing plugin package, or set JAX_PLATFORMS=cpu to skip this backend.)
+[walk] shard 0: 0 segment(s) rolled, 14 s total
+[walk] shard 0: 1 member chain(s) FAILED and 0 finished:
+[walk]   PNW_HeatDome_2021@wk8  m000: RuntimeError: Unable to initialize backend 'cuda': INTERNAL: no supported devices found for platform CUDA (you may need to uninstall the failing plugin package, or set JAX_PLATFORMS=cpu to skip this backend.)
+[walk] The finished members are on disk and complete. Re-walk the failed ones with --ens-members <indices>; the reduce stage names any member it has no record for rather than mixing it into the denominator.

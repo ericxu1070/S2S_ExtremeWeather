@@ -1,0 +1,3 @@
+[score] host=nucla3m-a3meganodeset-4 shard 2/8 arm=free: ['PNW_HeatDome_2021@wk8 ', 'WinterStorm_Uri_2021@wk6 ']
+[score] PNW_HeatDome_2021@wk8  free: cached PNW_HeatDome_2021_shard00of01_cube.nc, skip
+[score] WinterStorm_Uri_2021@wk6  free: cached WinterStorm_Uri_2021_shard00of01_cube.nc, skip

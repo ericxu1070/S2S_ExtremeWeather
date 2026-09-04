@@ -1,0 +1,34 @@
+Host: nucla3m-a3meganodeset-4
+Start: Thu Aug 27 04:06:30 UTC 2026
+GPU 0: NVIDIA H100 80GB HBM3 (UUID: GPU-8deaf399-5257-44be-de29-dbab5cab2837)
+GPU 1: NVIDIA H100 80GB HBM3 (UUID: GPU-08ce4409-9463-80ec-57ba-eca08d003482)
+GPU 2: NVIDIA H100 80GB HBM3 (UUID: GPU-8d511a9b-a471-736e-637d-a997e0a57717)
+GPU 3: NVIDIA H100 80GB HBM3 (UUID: GPU-ab33084f-509e-82b2-8949-d8815d024cb0)
+GPU 4: NVIDIA H100 80GB HBM3 (UUID: GPU-67dcae5f-2cfd-b933-fa3a-05a8184dccf0)
+GPU 5: NVIDIA H100 80GB HBM3 (UUID: GPU-6f4c5b9e-2690-3130-7cd6-0ff15eee4c02)
+GPU 6: NVIDIA H100 80GB HBM3 (UUID: GPU-5544fb35-a86b-e04c-5eea-201f7515a48a)
+GPU 7: NVIDIA H100 80GB HBM3 (UUID: GPU-5d02916b-f04f-56da-a539-ff7cf9f27b6f)
+astab: events=PNW_HeatDome_2021,WinterStorm_Uri_2021 weeks=4,6,8,10 gpus=8 phase=score members=1
+CPU: 26 cores / 8 shards -> OMP_NUM_THREADS=26 per shard
+--- score phase, adapter-free arm: Thu Aug 27 04:06:36 UTC 2026 ---
+  score-free: attempt 1/3
+  launched score-free shard 0 on GPU 0 (pid 2950926)
+  launched score-free shard 1 on GPU 1 (pid 2950927)
+  launched score-free shard 2 on GPU 2 (pid 2950928)
+  launched score-free shard 3 on GPU 3 (pid 2950929)
+  launched score-free shard 4 on GPU 4 (pid 2950930)
+  launched score-free shard 5 on GPU 5 (pid 2950931)
+  launched score-free shard 6 on GPU 6 (pid 2950932)
+  launched score-free shard 7 on GPU 7 (pid 2950933)
+--- score phase, adapter-fed arm: Thu Aug 27 04:18:03 UTC 2026 ---
+  score-fed: attempt 1/3
+  launched score-fed shard 0 on GPU 0 (pid 2952567)
+  launched score-fed shard 1 on GPU 1 (pid 2952568)
+  launched score-fed shard 2 on GPU 2 (pid 2952569)
+  launched score-fed shard 3 on GPU 3 (pid 2952570)
+  launched score-fed shard 4 on GPU 4 (pid 2952571)
+  launched score-fed shard 5 on GPU 5 (pid 2952572)
+  launched score-fed shard 6 on GPU 6 (pid 2952573)
+  launched score-fed shard 7 on GPU 7 (pid 2952574)
+  score-fed: attempt 1 failed; waiting 300s before retrying
+  (cached work is skipped, so a retry only redoes what is missing)

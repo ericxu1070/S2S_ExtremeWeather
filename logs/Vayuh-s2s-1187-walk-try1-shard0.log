@@ -1,0 +1,12 @@
+[walk] host=nucla3m-a3meganodeset-4 shard 0/1: ['PNW_HeatDome_2021@wk4 ']
+[walk] SMOKE: chains truncated to 2 segment(s). This does NOT reach the peak and produces no verdict - it exercises the loop.
+[walk] PNW_HeatDome_2021@wk4 : 2 segment(s), 12 steps, init 2021-05-31 00:00:00 -> peak 2021-06-28 00:00:00
+  [walker] w00 step1: 6 x 12 h from 2021-06-07 00:00:00
+  [walker] loading 'GenCast 0p25deg <2019.npz' (0.25 deg)
+[model] serial infer on 1 device(s); ensemble=1 (1 sample(s), one at a time). task pressure levels: 13
+  [walker] model loaded in 13 s
+  [walker] grid-node channels: inputs 176 + targets 504 + forcings 24; 6 step(s) from 2021-06-07 00:00:00
+/home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/third_party/graphcast/graphcast/rollout.py:328: FutureWarning: The return type of `Dataset.dims` will be changed to return a set of dimension names in future, in order to be more consistent with `DataArray.dims`. To access a mapping from dimension names to lengths, please use `Dataset.sizes`.
+  num_target_steps = targets_template.dims["time"]
+/home/ubuntu/miniconda3/envs/moe/lib/python3.12/site-packages/scipy/sparse/_index.py:210: SparseEfficiencyWarning: Changing the sparsity structure of a csr_matrix is expensive. lil and dok are more efficient.
+  self._set_arrayXarray(i, j, x)

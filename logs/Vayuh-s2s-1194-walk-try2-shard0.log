@@ -1,0 +1,53 @@
+[walk] host=nucla3m-a3meganodeset-4 shard 0/8: ['PNW_HeatDome_2021@wk4 ', 'PNW_HeatDome_2021@wk20', 'WinterStorm_Uri_2021@wk18']
+[walk] PNW_HeatDome_2021@wk4 : 10 segment(s), 56 steps, init 2021-05-31 00:00:00 -> peak 2021-06-28 00:00:00
+[walk] PNW_HeatDome_2021@wk4 : final state pruned; landing verified from stab.json
+[walk] PNW_HeatDome_2021@wk4 : complete, landed exactly on the peak 2021-06-28 00:00:00 (0 s elapsed on this shard)
+[walk] PNW_HeatDome_2021@wk20: 1 segment(s), 6 steps, init 2021-02-08 00:00:00 -> the 3 d launch state 2021-02-11 00:00:00 (FCN3-extension lead; the peak 2021-06-28 00:00:00 is FCN3's to reach)
+  [walker] w08 step1: 6 x 12 h from 2021-02-08 00:00:00
+  [walker] loading 'GenCast 0p25deg <2019.npz' (0.25 deg)
+[model] serial infer on 1 device(s); ensemble=1 (1 sample(s), one at a time). task pressure levels: 13
+  [walker] model loaded in 10 s
+  [walker] grid-node channels: inputs 176 + targets 504 + forcings 24; 6 step(s) from 2021-02-08 00:00:00
+/home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/third_party/graphcast/graphcast/rollout.py:328: FutureWarning: The return type of `Dataset.dims` will be changed to return a set of dimension names in future, in order to be more consistent with `DataArray.dims`. To access a mapping from dimension names to lengths, please use `Dataset.sizes`.
+  num_target_steps = targets_template.dims["time"]
+/home/ubuntu/miniconda3/envs/moe/lib/python3.12/site-packages/scipy/sparse/_index.py:210: SparseEfficiencyWarning: Changing the sparsity structure of a csr_matrix is expensive. lil and dok are more efficient.
+  self._set_arrayXarray(i, j, x)
+/home/ubuntu/miniconda3/envs/moe/lib/python3.12/site-packages/scipy/sparse/_index.py:210: SparseEfficiencyWarning: Changing the sparsity structure of a csr_matrix is expensive. lil and dok are more efficient.
+  self._set_arrayXarray(i, j, x)
+/home/ubuntu/miniconda3/envs/moe/lib/python3.12/site-packages/jax/_src/compiler.py:833: UserWarning: Error writing persistent compilation cache entry for 'jit_apply_fn': JaxRuntimeError: RESOURCE_EXHAUSTED: Failed to serialize message of type xla.gpu.GpuExecutableProto because its size must be smaller than 2GiB: 4171376105; at byte 0; at uncompressed byte 0; at byte 2909
+	failed to serialize the rest of the fields in GpuExecutableProto split proto (all fields except asm_text, binary, dnn_compiled_graphs, and constants)
+  warnings.warn(
+/home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/third_party/graphcast/graphcast/rollout.py:435: FutureWarning: The return type of `Dataset.dims` will be changed to return a set of dimension names in future, in order to be more consistent with `DataArray.dims`. To access a mapping from dimension names to lengths, please use `Dataset.sizes`.
+  num_inputs = prev_inputs.dims["time"]
+/home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/third_party/graphcast/graphcast/rollout.py:437: FutureWarning: In a future version of xarray the default value for compat will change from compat='equals' to compat='override'. This change will result in the following ValueError: Cannot specify both data_vars='different' and compat='override'. The recommendation is to set compat explicitly for this case.
+  xarray.concat(
+  [walker w08 s1] step 1/6  valid 2021-02-08 12:00:00
+  [walker w08 s1] step 2/6  valid 2021-02-09 00:00:00
+  [walker w08 s1] step 3/6  valid 2021-02-09 12:00:00
+  [walker w08 s1] step 4/6  valid 2021-02-10 00:00:00
+  [walker w08 s1] step 5/6  valid 2021-02-10 12:00:00
+  [walker w08 s1] step 6/6  valid 2021-02-11 00:00:00
+  [walker] wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/astab/PNW_HeatDome_2021/walkers/w08/step01/state.nc (473 MB), valid 2021-02-11 00:00:00
+  [walker] wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/astab/PNW_HeatDome_2021/walkers/w08/step01/diag.nc (34 MB, 6 steps)
+[walk] physics PNW_HeatDome_2021@wk20 step1 @ 2021-02-11 00:00:00: CONUS-mean T2m 278.84 K vs ERA5 278.56 K (+0.27 K; gate 6 K at 3 d lead, skill-bearing)
+[walk] PNW_HeatDome_2021@wk20: complete, landed on its 3 d launch state; FCN3 carries the remaining 137 d to the peak 2021-02-11 00:00:00 (570 s elapsed on this shard)
+[walk] WinterStorm_Uri_2021@wk18: 1 segment(s), 6 steps, init 2020-10-12 00:00:00 -> the 3 d launch state 2020-10-15 00:00:00 (FCN3-extension lead; the peak 2021-02-15 00:00:00 is FCN3's to reach)
+  [walker] w07 step1: 6 x 12 h from 2020-10-12 00:00:00
+  [walker] grid-node channels: inputs 176 + targets 504 + forcings 24; 6 step(s) from 2020-10-12 00:00:00
+/home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/third_party/graphcast/graphcast/rollout.py:328: FutureWarning: The return type of `Dataset.dims` will be changed to return a set of dimension names in future, in order to be more consistent with `DataArray.dims`. To access a mapping from dimension names to lengths, please use `Dataset.sizes`.
+  num_target_steps = targets_template.dims["time"]
+/home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/third_party/graphcast/graphcast/rollout.py:435: FutureWarning: The return type of `Dataset.dims` will be changed to return a set of dimension names in future, in order to be more consistent with `DataArray.dims`. To access a mapping from dimension names to lengths, please use `Dataset.sizes`.
+  num_inputs = prev_inputs.dims["time"]
+/home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/third_party/graphcast/graphcast/rollout.py:437: FutureWarning: In a future version of xarray the default value for compat will change from compat='equals' to compat='override'. This change will result in the following ValueError: Cannot specify both data_vars='different' and compat='override'. The recommendation is to set compat explicitly for this case.
+  xarray.concat(
+  [walker w07 s1] step 1/6  valid 2020-10-12 12:00:00
+  [walker w07 s1] step 2/6  valid 2020-10-13 00:00:00
+  [walker w07 s1] step 3/6  valid 2020-10-13 12:00:00
+  [walker w07 s1] step 4/6  valid 2020-10-14 00:00:00
+  [walker w07 s1] step 5/6  valid 2020-10-14 12:00:00
+  [walker w07 s1] step 6/6  valid 2020-10-15 00:00:00
+  [walker] wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/astab/WinterStorm_Uri_2021/walkers/w07/step01/state.nc (473 MB), valid 2020-10-15 00:00:00
+  [walker] wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/astab/WinterStorm_Uri_2021/walkers/w07/step01/diag.nc (35 MB, 6 steps)
+[walk] physics WinterStorm_Uri_2021@wk18 step1 @ 2020-10-15 00:00:00: CONUS-mean T2m 293.39 K vs ERA5 293.11 K (+0.27 K; gate 6 K at 3 d lead, skill-bearing)
+[walk] WinterStorm_Uri_2021@wk18: complete, landed on its 3 d launch state; FCN3 carries the remaining 123 d to the peak 2020-10-15 00:00:00 (767 s elapsed on this shard)
+[walk] shard 0: 2 segment(s) rolled, 767 s total

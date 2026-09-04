@@ -1,0 +1,137 @@
+Host: nucla3m-a3meganodeset-4
+Start: Fri Aug 28 00:08:10 UTC 2026
+GPU 0: NVIDIA H100 80GB HBM3 (UUID: GPU-8deaf399-5257-44be-de29-dbab5cab2837)
+GPU 1: NVIDIA H100 80GB HBM3 (UUID: GPU-08ce4409-9463-80ec-57ba-eca08d003482)
+GPU 2: NVIDIA H100 80GB HBM3 (UUID: GPU-8d511a9b-a471-736e-637d-a997e0a57717)
+GPU 3: NVIDIA H100 80GB HBM3 (UUID: GPU-ab33084f-509e-82b2-8949-d8815d024cb0)
+GPU 4: NVIDIA H100 80GB HBM3 (UUID: GPU-67dcae5f-2cfd-b933-fa3a-05a8184dccf0)
+GPU 5: NVIDIA H100 80GB HBM3 (UUID: GPU-6f4c5b9e-2690-3130-7cd6-0ff15eee4c02)
+GPU 6: NVIDIA H100 80GB HBM3 (UUID: GPU-5544fb35-a86b-e04c-5eea-201f7515a48a)
+GPU 7: NVIDIA H100 80GB HBM3 (UUID: GPU-5d02916b-f04f-56da-a539-ff7cf9f27b6f)
+astab: events=PNW_HeatDome_2021,WinterStorm_Uri_2021 weeks=4,6,8,10,12,14,16,18,20 gpus=8 phase=all members=1
+AI+RES lead-time stability sweep  (tag 'stab')
+  18 chain(s): 2 event(s) x 9 lead(s), 1 walker member, 1 FCN3 member each
+  walker to the peak at week(s) [4, 6, 8, 10]; FCN3-only extension at week(s) [12, 14, 16, 18, 20] (walker rolls 3 d there, to launch the adapter-fed arm)
+
+                         chain        init       peak   walk segs steps tail   fcn3  cached
+        PNW_HeatDome_2021@wk4   2021-05-31 2021-06-28    28d   10    56    2    112  10/10
+        PNW_HeatDome_2021@wk6   2021-05-17 2021-06-28    42d   14    84    0    168  14/14
+        PNW_HeatDome_2021@wk8   2021-05-03 2021-06-28    56d   19   112    4    224  19/19
+        PNW_HeatDome_2021@wk10  2021-04-19 2021-06-28    70d   24   140    2    280  24/24
+        PNW_HeatDome_2021@wk12  2021-04-05 2021-06-28     3d    1     6    0    336  0/1
+        PNW_HeatDome_2021@wk14  2021-03-22 2021-06-28     3d    1     6    0    392  0/1
+        PNW_HeatDome_2021@wk16  2021-03-08 2021-06-28     3d    1     6    0    448  0/1
+        PNW_HeatDome_2021@wk18  2021-02-22 2021-06-28     3d    1     6    0    504  0/1
+        PNW_HeatDome_2021@wk20  2021-02-08 2021-06-28     3d    1     6    0    560  0/1
+     WinterStorm_Uri_2021@wk4   2021-01-18 2021-02-15    28d   10    56    2    112  10/10
+     WinterStorm_Uri_2021@wk6   2021-01-04 2021-02-15    42d   14    84    0    168  14/14
+     WinterStorm_Uri_2021@wk8   2020-12-21 2021-02-15    56d   19   112    4    224  19/19
+     WinterStorm_Uri_2021@wk10  2020-12-07 2021-02-15    70d   24   140    2    280  24/24
+     WinterStorm_Uri_2021@wk12  2020-11-23 2021-02-15     3d    1     6    0    336  0/1
+     WinterStorm_Uri_2021@wk14  2020-11-09 2021-02-15     3d    1     6    0    392  0/1
+     WinterStorm_Uri_2021@wk16  2020-10-26 2021-02-15     3d    1     6    0    448  0/1
+     WinterStorm_Uri_2021@wk18  2020-10-12 2021-02-15     3d    1     6    0    504  0/1
+     WinterStorm_Uri_2021@wk20  2020-09-28 2021-02-15     3d    1     6    0    560  0/1
+
+  prerequisites
+    PNW_HeatDome_2021@wk4   walker init frames  OK   /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/xres/0p25/week4/inputs/PNW_HeatDome_2021_inputs.nc
+    PNW_HeatDome_2021@wk4   FCN3 ERA5 IC       OK   /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/fcn3/week4/ic/PNW_HeatDome_2021_ic.nc
+    PNW_HeatDome_2021@wk6   walker init frames  OK   /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/xres/0p25/week6/inputs/PNW_HeatDome_2021_inputs.nc
+    PNW_HeatDome_2021@wk6   FCN3 ERA5 IC       OK   /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/fcn3/week6/ic/PNW_HeatDome_2021_ic.nc
+    PNW_HeatDome_2021@wk8   walker init frames  OK   /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/xres/0p25/week8/inputs/PNW_HeatDome_2021_inputs.nc
+    PNW_HeatDome_2021@wk8   FCN3 ERA5 IC       OK   /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/fcn3/week8/ic/PNW_HeatDome_2021_ic.nc
+    PNW_HeatDome_2021@wk10  walker init frames  OK   /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/xres/0p25/week10/inputs/PNW_HeatDome_2021_inputs.nc
+    PNW_HeatDome_2021@wk10  FCN3 ERA5 IC       OK   /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/fcn3/week10/ic/PNW_HeatDome_2021_ic.nc
+    PNW_HeatDome_2021@wk12  walker init frames  OK   /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/xres/0p25/week12/inputs/PNW_HeatDome_2021_inputs.nc
+    PNW_HeatDome_2021@wk12  FCN3 ERA5 IC       OK   /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/fcn3/week12/ic/PNW_HeatDome_2021_ic.nc
+    PNW_HeatDome_2021@wk14  walker init frames  OK   /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/xres/0p25/week14/inputs/PNW_HeatDome_2021_inputs.nc
+    PNW_HeatDome_2021@wk14  FCN3 ERA5 IC       OK   /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/fcn3/week14/ic/PNW_HeatDome_2021_ic.nc
+    PNW_HeatDome_2021@wk16  walker init frames  OK   /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/xres/0p25/week16/inputs/PNW_HeatDome_2021_inputs.nc
+    PNW_HeatDome_2021@wk16  FCN3 ERA5 IC       OK   /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/fcn3/week16/ic/PNW_HeatDome_2021_ic.nc
+    PNW_HeatDome_2021@wk18  walker init frames  OK   /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/xres/0p25/week18/inputs/PNW_HeatDome_2021_inputs.nc
+    PNW_HeatDome_2021@wk18  FCN3 ERA5 IC       OK   /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/fcn3/week18/ic/PNW_HeatDome_2021_ic.nc
+    PNW_HeatDome_2021@wk20  walker init frames  OK   /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/xres/0p25/week20/inputs/PNW_HeatDome_2021_inputs.nc
+    PNW_HeatDome_2021@wk20  FCN3 ERA5 IC       OK   /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/fcn3/week20/ic/PNW_HeatDome_2021_ic.nc
+    WinterStorm_Uri_2021@wk4   walker init frames  OK   /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/xres/0p25/week4/inputs/WinterStorm_Uri_2021_inputs.nc
+    WinterStorm_Uri_2021@wk4   FCN3 ERA5 IC       OK   /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/fcn3/week4/ic/WinterStorm_Uri_2021_ic.nc
+    WinterStorm_Uri_2021@wk6   walker init frames  OK   /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/xres/0p25/week6/inputs/WinterStorm_Uri_2021_inputs.nc
+    WinterStorm_Uri_2021@wk6   FCN3 ERA5 IC       OK   /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/fcn3/week6/ic/WinterStorm_Uri_2021_ic.nc
+    WinterStorm_Uri_2021@wk8   walker init frames  OK   /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/xres/0p25/week8/inputs/WinterStorm_Uri_2021_inputs.nc
+    WinterStorm_Uri_2021@wk8   FCN3 ERA5 IC       OK   /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/fcn3/week8/ic/WinterStorm_Uri_2021_ic.nc
+    WinterStorm_Uri_2021@wk10  walker init frames  OK   /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/xres/0p25/week10/inputs/WinterStorm_Uri_2021_inputs.nc
+    WinterStorm_Uri_2021@wk10  FCN3 ERA5 IC       OK   /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/fcn3/week10/ic/WinterStorm_Uri_2021_ic.nc
+    WinterStorm_Uri_2021@wk12  walker init frames  OK   /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/xres/0p25/week12/inputs/WinterStorm_Uri_2021_inputs.nc
+    WinterStorm_Uri_2021@wk12  FCN3 ERA5 IC       OK   /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/fcn3/week12/ic/WinterStorm_Uri_2021_ic.nc
+    WinterStorm_Uri_2021@wk14  walker init frames  OK   /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/xres/0p25/week14/inputs/WinterStorm_Uri_2021_inputs.nc
+    WinterStorm_Uri_2021@wk14  FCN3 ERA5 IC       OK   /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/fcn3/week14/ic/WinterStorm_Uri_2021_ic.nc
+    WinterStorm_Uri_2021@wk16  walker init frames  OK   /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/xres/0p25/week16/inputs/WinterStorm_Uri_2021_inputs.nc
+    WinterStorm_Uri_2021@wk16  FCN3 ERA5 IC       OK   /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/fcn3/week16/ic/WinterStorm_Uri_2021_ic.nc
+    WinterStorm_Uri_2021@wk18  walker init frames  OK   /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/xres/0p25/week18/inputs/WinterStorm_Uri_2021_inputs.nc
+    WinterStorm_Uri_2021@wk18  FCN3 ERA5 IC       OK   /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/fcn3/week18/ic/WinterStorm_Uri_2021_ic.nc
+    WinterStorm_Uri_2021@wk20  walker init frames  OK   /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/xres/0p25/week20/inputs/WinterStorm_Uri_2021_inputs.nc
+    WinterStorm_Uri_2021@wk20  FCN3 ERA5 IC       OK   /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/fcn3/week20/ic/WinterStorm_Uri_2021_ic.nc
+                                  derived calibration  OK   /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/aires/calib/derived_calib.nc
+                                  measured bands       OK   /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/astab/refs/bands.json
+               PNW_HeatDome_2021  ERA5 reference     OK   /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/astab/refs/PNW_HeatDome_2021_era5_ref.nc
+               PNW_HeatDome_2021  week-4 anchor cube OK   /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/xres/0p25/week4/cache/PNW_HeatDome_2021_cube.nc   (the same-init physics gate)
+            WinterStorm_Uri_2021  ERA5 reference     OK   /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/astab/refs/WinterStorm_Uri_2021_era5_ref.nc
+            WinterStorm_Uri_2021  week-4 anchor cube OK   /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/xres/0p25/week4/cache/WinterStorm_Uri_2021_cube.nc   (the same-init physics gate)
+                                  climatology grid   OK   {'hour': 4, 'dayofyear': 366, 'lat': 105, 'lon': 237}   (expect lat=105 lon=237; CLAUDE.md's stale-2deg trap)
+
+  budget
+    walker          60 GenCast steps  ~  0.9 GPU-h  (52 s/step, run_aires.SECONDS_PER_GENCAST_STEP)
+    scorer       8,840 FCN3 steps     ~  3.4 GPU-h  (1.40 s/step, job 1161)
+    wall clock  walk: the longest chain left to roll, 6 steps at 28-52 s = 0.0-0.1 h, plus ~15 min model load and 1-2 XLA compiles
+                score: the longest rollout, 560 FCN3 steps at 1.40 s = 0.2 h, plus a ~9 min model load per pool
+    disk        states ~16.2 GB retained (34 state(s)), diag ~0.4 GB, FCN3 Zarrs ~51.3 GB until --stage prune
+    free        288 GB on /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/astab
+
+  shards      18 chain(s) over 8 GPU(s): [3, 3, 2, 2, 2, 2, 2, 2]
+
+  READY: yes
+--- walk phase: Fri Aug 28 00:08:24 UTC 2026 ---
+  walk: attempt 1/3
+  launched walk shard 0 on GPU 0 (pid 3040954)
+  launched walk shard 1 on GPU 1 (pid 3040955)
+  launched walk shard 2 on GPU 2 (pid 3040956)
+  launched walk shard 3 on GPU 3 (pid 3040957)
+  launched walk shard 4 on GPU 4 (pid 3040958)
+  launched walk shard 5 on GPU 5 (pid 3040959)
+  launched walk shard 6 on GPU 6 (pid 3040960)
+  launched walk shard 7 on GPU 7 (pid 3040961)
+  walk: attempt 1 failed; waiting 300s before retrying
+  (cached work is skipped, so a retry only redoes what is missing)
+  walk: attempt 2/3
+  launched walk shard 0 on GPU 0 (pid 3049348)
+  launched walk shard 1 on GPU 1 (pid 3049349)
+  launched walk shard 2 on GPU 2 (pid 3049350)
+  launched walk shard 3 on GPU 3 (pid 3049351)
+  launched walk shard 4 on GPU 4 (pid 3049352)
+  launched walk shard 5 on GPU 5 (pid 3049353)
+  launched walk shard 6 on GPU 6 (pid 3049354)
+  launched walk shard 7 on GPU 7 (pid 3049355)
+CPU: 26 cores / 8 shards -> OMP_NUM_THREADS=26 per shard
+--- score phase, adapter-free arm: Fri Aug 28 00:39:38 UTC 2026 ---
+  score-free: attempt 1/3
+  launched score-free shard 0 on GPU 0 (pid 3054889)
+  launched score-free shard 1 on GPU 1 (pid 3054890)
+  launched score-free shard 2 on GPU 2 (pid 3054891)
+  launched score-free shard 3 on GPU 3 (pid 3054892)
+  launched score-free shard 4 on GPU 4 (pid 3054893)
+  launched score-free shard 5 on GPU 5 (pid 3054894)
+  launched score-free shard 6 on GPU 6 (pid 3054895)
+  launched score-free shard 7 on GPU 7 (pid 3054896)
+--- score phase, adapter-fed arm: Fri Aug 28 01:11:26 UTC 2026 ---
+  score-fed: attempt 1/3
+  launched score-fed shard 0 on GPU 0 (pid 3057215)
+  launched score-fed shard 1 on GPU 1 (pid 3057216)
+  launched score-fed shard 2 on GPU 2 (pid 3057217)
+  launched score-fed shard 3 on GPU 3 (pid 3057218)
+  launched score-fed shard 4 on GPU 4 (pid 3057219)
+  launched score-fed shard 5 on GPU 5 (pid 3057220)
+  launched score-fed shard 6 on GPU 6 (pid 3057221)
+  launched score-fed shard 7 on GPU 7 (pid 3057222)
+End: Fri Aug 28 02:24:32 UTC 2026
+Now reduce on the login node in moe:
+  PYTHONPATH=. python -m astab.run --stage reduce --stage figs --stage maps --events PNW_HeatDome_2021,WinterStorm_Uri_2021 --weeks 4,6,8,10,12,14,16,18,20
+  PYTHONPATH=. python -m astab.run --stage prune  --events PNW_HeatDome_2021,WinterStorm_Uri_2021 --weeks 4,6,8,10,12,14,16,18,20

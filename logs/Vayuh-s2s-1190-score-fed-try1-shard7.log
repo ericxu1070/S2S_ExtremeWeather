@@ -1,0 +1,3 @@
+[score] host=nucla3m-a3meganodeset-4 shard 7/8 arm=fed: ['WinterStorm_Uri_2021@wk10']
+[score] ERROR: walker state(s) absent, e.g. /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/aires/WinterStorm_Uri_2021/res/stab/walkers/w03/step01/state.nc
+        Run the walk phase first.

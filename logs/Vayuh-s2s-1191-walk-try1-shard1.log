@@ -1,0 +1,5 @@
+[walk] host=nucla3m-a3meganodeset-4 shard 1/8: ['PNW_HeatDome_2021@wk6 ']
+[walk] SMOKE: chains truncated to 1 segment(s). This does NOT reach the peak and produces no verdict - it exercises the loop.
+[walk] PNW_HeatDome_2021@wk6 : 1 segment(s), 6 steps, init 2021-05-17 00:00:00 -> peak 2021-06-28 00:00:00
+[walk] PNW_HeatDome_2021@wk6 : SMOKE complete (1 segment(s), lead 3 d of 42 d). Not checked against the peak - a truncated chain is not supposed to reach it.
+[walk] shard 1: 0 segment(s) rolled, 0 s total

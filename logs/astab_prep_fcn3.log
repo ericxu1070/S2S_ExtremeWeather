@@ -1,0 +1,97 @@
+=================== fcn3 prep week 4  Thu Aug 27 00:45:34 UTC 2026 ===================
+Warp CUDA error 100: no CUDA-capable device is detected (in function init_cuda_driver, /builds/omniverse/warp/warp/native/cuda_util.cpp:319)
+[prep] 2 event(s), 72 FCN3 variables per IC, week4 (28 d lead)
+[prep] 1/2 PNW_HeatDome_2021: fetching IC at 2021-05-31T00:00:00 (peak 2021-06-28)
+Fetching ARCO data:   0%|          | 0/12 [00:00<?, ?it/s]Fetching ARCO data:   8%|▊         | 1/12 [00:00<00:03,  2.87it/s]Fetching ARCO data:  33%|███▎      | 4/12 [00:00<00:00, 10.33it/s]Fetching ARCO data:  67%|██████▋   | 8/12 [00:05<00:03,  1.23it/s]Fetching ARCO data:  75%|███████▌  | 9/12 [00:06<00:02,  1.12it/s]Fetching ARCO data: 100%|██████████| 12/12 [00:06<00:00,  1.89it/s]Fetching ARCO data: 100%|██████████| 12/12 [00:06<00:00,  1.72it/s]
+[prep]   IC {'time': 1, 'variable': 72, 'lat': 721, 'lon': 1440} lat[90.0..-90.0] lon[0.0..359.75]
+[prep]   wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/fcn3/week4/ic/PNW_HeatDome_2021_ic.nc
+[prep] 2/2 WinterStorm_Uri_2021: fetching IC at 2021-01-18T00:00:00 (peak 2021-02-15)
+Fetching ARCO data:   0%|          | 0/12 [00:00<?, ?it/s]Fetching ARCO data:   8%|▊         | 1/12 [00:00<00:04,  2.37it/s]Fetching ARCO data:  25%|██▌       | 3/12 [00:00<00:01,  5.40it/s]Fetching ARCO data:  33%|███▎      | 4/12 [00:00<00:01,  5.90it/s]Fetching ARCO data:  67%|██████▋   | 8/12 [00:02<00:01,  2.97it/s]Fetching ARCO data:  83%|████████▎ | 10/12 [00:03<00:00,  2.40it/s]Fetching ARCO data:  92%|█████████▏| 11/12 [00:03<00:00,  2.53it/s]Fetching ARCO data: 100%|██████████| 12/12 [00:03<00:00,  3.06it/s]
+[prep]   IC {'time': 1, 'variable': 72, 'lat': 721, 'lon': 1440} lat[90.0..-90.0] lon[0.0..359.75]
+[prep]   wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/fcn3/week4/ic/WinterStorm_Uri_2021_ic.nc
+[prep] pre-downloading FCN3 checkpoint files (no model build) ...
+[prep]   cached config.json -> /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/fcn3/.cache/e2s/fcn3/config.json
+[prep]   cached metadata.json -> /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/fcn3/.cache/e2s/fcn3/metadata.json
+[prep]   cached orography.nc -> /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/fcn3/.cache/e2s/fcn3/orography.nc
+[prep]   cached land_mask.nc -> /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/fcn3/.cache/e2s/fcn3/land_mask.nc
+[prep]   cached global_means.npy -> /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/fcn3/.cache/e2s/fcn3/global_means.npy
+[prep]   cached global_stds.npy -> /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/fcn3/.cache/e2s/fcn3/global_stds.npy
+[prep]   cached mins.npy -> /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/fcn3/.cache/e2s/fcn3/mins.npy
+[prep]   cached maxs.npy -> /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/fcn3/.cache/e2s/fcn3/maxs.npy
+[prep]   cached weights -> /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/fcn3/.cache/e2s/fcn3/best_ckpt_mp0.tar (2.84 GB)
+[check] torch-harmonics DISCO CUDA extension: PRESENT -> FCN3 runs bf16
+[prep] DONE: wrote 2 IC(s); cache /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/fcn3/.cache/e2s
+--- week 4 rc=0 ---
+=================== fcn3 prep week 6  Thu Aug 27 00:47:44 UTC 2026 ===================
+Warp CUDA error 100: no CUDA-capable device is detected (in function init_cuda_driver, /builds/omniverse/warp/warp/native/cuda_util.cpp:319)
+[prep] 2 event(s), 72 FCN3 variables per IC, week6 (42 d lead)
+[prep] 1/2 PNW_HeatDome_2021: fetching IC at 2021-05-17T00:00:00 (peak 2021-06-28)
+Fetching ARCO data:   0%|          | 0/12 [00:00<?, ?it/s]Fetching ARCO data:   8%|▊         | 1/12 [00:00<00:05,  2.15it/s]Fetching ARCO data:  17%|█▋        | 2/12 [00:00<00:02,  3.34it/s]Fetching ARCO data:  25%|██▌       | 3/12 [00:00<00:02,  3.87it/s]Fetching ARCO data:  67%|██████▋   | 8/12 [00:04<00:02,  1.52it/s]Fetching ARCO data:  75%|███████▌  | 9/12 [00:05<00:01,  1.54it/s]Fetching ARCO data: 100%|██████████| 12/12 [00:06<00:00,  2.17it/s]Fetching ARCO data: 100%|██████████| 12/12 [00:06<00:00,  2.00it/s]
+[prep]   IC {'time': 1, 'variable': 72, 'lat': 721, 'lon': 1440} lat[90.0..-90.0] lon[0.0..359.75]
+[prep]   wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/fcn3/week6/ic/PNW_HeatDome_2021_ic.nc
+[prep] 2/2 WinterStorm_Uri_2021: fetching IC at 2021-01-04T00:00:00 (peak 2021-02-15)
+Fetching ARCO data:   0%|          | 0/12 [00:00<?, ?it/s]Fetching ARCO data:   8%|▊         | 1/12 [00:00<00:05,  1.98it/s]Fetching ARCO data:  17%|█▋        | 2/12 [00:00<00:02,  3.70it/s]Fetching ARCO data:  33%|███▎      | 4/12 [00:00<00:01,  7.13it/s]Fetching ARCO data:  67%|██████▋   | 8/12 [00:02<00:01,  2.49it/s]Fetching ARCO data:  75%|███████▌  | 9/12 [00:05<00:02,  1.30it/s]Fetching ARCO data:  83%|████████▎ | 10/12 [00:05<00:01,  1.33it/s]Fetching ARCO data: 100%|██████████| 12/12 [00:05<00:00,  2.01it/s]
+[prep]   IC {'time': 1, 'variable': 72, 'lat': 721, 'lon': 1440} lat[90.0..-90.0] lon[0.0..359.75]
+[prep]   wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/fcn3/week6/ic/WinterStorm_Uri_2021_ic.nc
+[prep] pre-downloading FCN3 checkpoint files (no model build) ...
+[prep]   cached config.json -> /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/fcn3/.cache/e2s/fcn3/config.json
+[prep]   cached metadata.json -> /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/fcn3/.cache/e2s/fcn3/metadata.json
+[prep]   cached orography.nc -> /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/fcn3/.cache/e2s/fcn3/orography.nc
+[prep]   cached land_mask.nc -> /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/fcn3/.cache/e2s/fcn3/land_mask.nc
+[prep]   cached global_means.npy -> /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/fcn3/.cache/e2s/fcn3/global_means.npy
+[prep]   cached global_stds.npy -> /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/fcn3/.cache/e2s/fcn3/global_stds.npy
+[prep]   cached mins.npy -> /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/fcn3/.cache/e2s/fcn3/mins.npy
+[prep]   cached maxs.npy -> /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/fcn3/.cache/e2s/fcn3/maxs.npy
+[prep]   cached weights -> /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/fcn3/.cache/e2s/fcn3/best_ckpt_mp0.tar (2.84 GB)
+[check] torch-harmonics DISCO CUDA extension: PRESENT -> FCN3 runs bf16
+[prep] DONE: wrote 2 IC(s); cache /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/fcn3/.cache/e2s
+--- week 6 rc=0 ---
+=================== fcn3 prep week 8  Thu Aug 27 00:49:09 UTC 2026 ===================
+Warp CUDA error 100: no CUDA-capable device is detected (in function init_cuda_driver, /builds/omniverse/warp/warp/native/cuda_util.cpp:319)
+[prep] 2 event(s), 72 FCN3 variables per IC, week8 (56 d lead)
+[prep] 1/2 PNW_HeatDome_2021: fetching IC at 2021-05-03T00:00:00 (peak 2021-06-28)
+Fetching ARCO data:   0%|          | 0/12 [00:00<?, ?it/s]Fetching ARCO data:   8%|▊         | 1/12 [00:00<00:03,  2.85it/s]Fetching ARCO data:  42%|████▏     | 5/12 [00:00<00:00, 12.83it/s]Fetching ARCO data:  67%|██████▋   | 8/12 [00:01<00:01,  3.77it/s]Fetching ARCO data:  83%|████████▎ | 10/12 [00:03<00:00,  2.72it/s]Fetching ARCO data:  92%|█████████▏| 11/12 [00:04<00:00,  2.05it/s]Fetching ARCO data: 100%|██████████| 12/12 [00:04<00:00,  2.28it/s]Fetching ARCO data: 100%|██████████| 12/12 [00:04<00:00,  2.76it/s]
+[prep]   IC {'time': 1, 'variable': 72, 'lat': 721, 'lon': 1440} lat[90.0..-90.0] lon[0.0..359.75]
+[prep]   wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/fcn3/week8/ic/PNW_HeatDome_2021_ic.nc
+[prep] 2/2 WinterStorm_Uri_2021: fetching IC at 2020-12-21T00:00:00 (peak 2021-02-15)
+Fetching ARCO data:   0%|          | 0/12 [00:00<?, ?it/s]Fetching ARCO data:   8%|▊         | 1/12 [00:00<00:03,  3.14it/s]Fetching ARCO data:  50%|█████     | 6/12 [00:00<00:00, 17.02it/s]Fetching ARCO data:  75%|███████▌  | 9/12 [00:03<00:01,  2.40it/s]Fetching ARCO data:  92%|█████████▏| 11/12 [00:04<00:00,  2.07it/s]Fetching ARCO data: 100%|██████████| 12/12 [00:04<00:00,  2.73it/s]
+[prep]   IC {'time': 1, 'variable': 72, 'lat': 721, 'lon': 1440} lat[90.0..-90.0] lon[0.0..359.75]
+[prep]   wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/fcn3/week8/ic/WinterStorm_Uri_2021_ic.nc
+[prep] pre-downloading FCN3 checkpoint files (no model build) ...
+[prep]   cached config.json -> /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/fcn3/.cache/e2s/fcn3/config.json
+[prep]   cached metadata.json -> /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/fcn3/.cache/e2s/fcn3/metadata.json
+[prep]   cached orography.nc -> /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/fcn3/.cache/e2s/fcn3/orography.nc
+[prep]   cached land_mask.nc -> /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/fcn3/.cache/e2s/fcn3/land_mask.nc
+[prep]   cached global_means.npy -> /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/fcn3/.cache/e2s/fcn3/global_means.npy
+[prep]   cached global_stds.npy -> /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/fcn3/.cache/e2s/fcn3/global_stds.npy
+[prep]   cached mins.npy -> /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/fcn3/.cache/e2s/fcn3/mins.npy
+[prep]   cached maxs.npy -> /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/fcn3/.cache/e2s/fcn3/maxs.npy
+[prep]   cached weights -> /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/fcn3/.cache/e2s/fcn3/best_ckpt_mp0.tar (2.84 GB)
+[check] torch-harmonics DISCO CUDA extension: PRESENT -> FCN3 runs bf16
+[prep] DONE: wrote 2 IC(s); cache /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/fcn3/.cache/e2s
+--- week 8 rc=0 ---
+=================== fcn3 prep week 10  Thu Aug 27 00:50:21 UTC 2026 ===================
+Warp CUDA error 100: no CUDA-capable device is detected (in function init_cuda_driver, /builds/omniverse/warp/warp/native/cuda_util.cpp:319)
+[prep] 2 event(s), 72 FCN3 variables per IC, week10 (70 d lead)
+[prep] 1/2 PNW_HeatDome_2021: fetching IC at 2021-04-19T00:00:00 (peak 2021-06-28)
+Fetching ARCO data:   0%|          | 0/12 [00:00<?, ?it/s]Fetching ARCO data:   8%|▊         | 1/12 [00:00<00:04,  2.61it/s]Fetching ARCO data:  67%|██████▋   | 8/12 [00:03<00:01,  2.64it/s]Fetching ARCO data:  75%|███████▌  | 9/12 [00:03<00:01,  2.85it/s]Fetching ARCO data:  83%|████████▎ | 10/12 [00:04<00:00,  2.23it/s]Fetching ARCO data:  92%|█████████▏| 11/12 [00:04<00:00,  2.51it/s]Fetching ARCO data: 100%|██████████| 12/12 [00:04<00:00,  2.77it/s]
+[prep]   IC {'time': 1, 'variable': 72, 'lat': 721, 'lon': 1440} lat[90.0..-90.0] lon[0.0..359.75]
+[prep]   wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/fcn3/week10/ic/PNW_HeatDome_2021_ic.nc
+[prep] 2/2 WinterStorm_Uri_2021: fetching IC at 2020-12-07T00:00:00 (peak 2021-02-15)
+Fetching ARCO data:   0%|          | 0/12 [00:00<?, ?it/s]Fetching ARCO data:   8%|▊         | 1/12 [00:00<00:03,  3.19it/s]Fetching ARCO data:  42%|████▏     | 5/12 [00:00<00:00, 13.47it/s]Fetching ARCO data:  67%|██████▋   | 8/12 [00:03<00:01,  2.16it/s]Fetching ARCO data:  83%|████████▎ | 10/12 [00:05<00:01,  1.40it/s]Fetching ARCO data: 100%|██████████| 12/12 [00:05<00:00,  2.13it/s]
+[prep]   IC {'time': 1, 'variable': 72, 'lat': 721, 'lon': 1440} lat[90.0..-90.0] lon[0.0..359.75]
+[prep]   wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/fcn3/week10/ic/WinterStorm_Uri_2021_ic.nc
+[prep] pre-downloading FCN3 checkpoint files (no model build) ...
+[prep]   cached config.json -> /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/fcn3/.cache/e2s/fcn3/config.json
+[prep]   cached metadata.json -> /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/fcn3/.cache/e2s/fcn3/metadata.json
+[prep]   cached orography.nc -> /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/fcn3/.cache/e2s/fcn3/orography.nc
+[prep]   cached land_mask.nc -> /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/fcn3/.cache/e2s/fcn3/land_mask.nc
+[prep]   cached global_means.npy -> /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/fcn3/.cache/e2s/fcn3/global_means.npy
+[prep]   cached global_stds.npy -> /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/fcn3/.cache/e2s/fcn3/global_stds.npy
+[prep]   cached mins.npy -> /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/fcn3/.cache/e2s/fcn3/mins.npy
+[prep]   cached maxs.npy -> /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/fcn3/.cache/e2s/fcn3/maxs.npy
+[prep]   cached weights -> /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/fcn3/.cache/e2s/fcn3/best_ckpt_mp0.tar (2.84 GB)
+[check] torch-harmonics DISCO CUDA extension: PRESENT -> FCN3 runs bf16
+[prep] DONE: wrote 2 IC(s); cache /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/fcn3/.cache/e2s
+--- week 10 rc=0 ---
+=================== fcn3 prep DONE Thu Aug 27 00:51:37 UTC 2026 ===================

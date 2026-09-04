@@ -128,7 +128,10 @@ def test_float16_would_overflow_geopotential(state):
 # --------------------------------------------------------------------------- #
 # Batch construction from an ARBITRARY state
 # --------------------------------------------------------------------------- #
-@pytest.mark.parametrize("n_steps", [1, 2, 6])
+# 4 is the 56-day stability chain's ragged tail (aires/astab.py) and the only segment
+# shape in the sweep that no production run has ever built. Login-node-safe, and it
+# reuses this fixture rather than costing a GPU to discover after an allocation.
+@pytest.mark.parametrize("n_steps", [1, 2, 4, 6])
 def test_build_batch_from_event_init(state, n_steps):
     full, init = W.build_batch(state, n_steps)
     assert init == W.valid_time(state)

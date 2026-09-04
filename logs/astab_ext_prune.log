@@ -1,0 +1,23 @@
+[prune] removed /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/fcn3/week12/shards/PNW_HeatDome_2021_shard00of01.zarr
+[prune] removed /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/astab/PNW_HeatDome_2021/scores/w04_lead03.zarr
+[prune] removed /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/fcn3/week14/shards/PNW_HeatDome_2021_shard00of01.zarr
+[prune] removed /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/astab/PNW_HeatDome_2021/scores/w05_lead03.zarr
+[prune] removed /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/fcn3/week16/shards/PNW_HeatDome_2021_shard00of01.zarr
+[prune] removed /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/astab/PNW_HeatDome_2021/scores/w06_lead03.zarr
+[prune] removed /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/fcn3/week18/shards/PNW_HeatDome_2021_shard00of01.zarr
+[prune] removed /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/astab/PNW_HeatDome_2021/scores/w07_lead03.zarr
+[prune] removed /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/fcn3/week20/shards/PNW_HeatDome_2021_shard00of01.zarr
+[prune] removed /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/astab/PNW_HeatDome_2021/scores/w08_lead03.zarr
+[prune] removed /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/fcn3/week12/shards/WinterStorm_Uri_2021_shard00of01.zarr
+[prune] removed /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/astab/WinterStorm_Uri_2021/scores/w04_lead03.zarr
+[prune] removed /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/fcn3/week14/shards/WinterStorm_Uri_2021_shard00of01.zarr
+[prune] removed /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/astab/WinterStorm_Uri_2021/scores/w05_lead03.zarr
+[prune] removed /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/fcn3/week16/shards/WinterStorm_Uri_2021_shard00of01.zarr
+[prune] removed /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/astab/WinterStorm_Uri_2021/scores/w06_lead03.zarr
+[prune] removed /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/fcn3/week18/shards/WinterStorm_Uri_2021_shard00of01.zarr
+[prune] removed /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/astab/WinterStorm_Uri_2021/scores/w07_lead03.zarr
+[prune] removed /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/fcn3/week20/shards/WinterStorm_Uri_2021_shard00of01.zarr
+[prune] removed /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/astab/WinterStorm_Uri_2021/scores/w08_lead03.zarr
+[prune] released 115.1 GB. diag.nc and stab.json are never pruned - every diagnostic in the sweep is derived from them.
+    free        283 GB on /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/astab
+RC=0
