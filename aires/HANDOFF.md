@@ -38,6 +38,9 @@ Visual summaries:
 | 4b - rebuild the pilot's probabilities as binned PDFs vs ERA5 | **done**, job **1174** (45 s, debug CPU node). The weighted spatial PDF reaches ERA5's tail: box P(point >= +9 K) = 0.0505 vs ERA5's 0.0848, where 24 direct members give 0.0011. See "The pilot's probabilities as binned PDFs" |
 | 5 | not started |
 | follow-up - adapter skill vs truth, 6 events + 4 null controls (branch `adapter-test`) | **DONE.** 10/10 cases rolled and scored (jobs 1162, 1167, 1171). Pooled effect **+0.23% [-5.20, +5.65]**, sign 6/10, extreme-vs-null contrast p 0.505 - no effect detectable at +-5.4%, no regime dependence. See "The adapter test" below |
+| 5-scoping - lead-time stability sweep (weeks 4/6/8/10) | **DONE**, job **1189** (1 h 47 m, one node). **GenCast stable through week 6 (42 d) on every chain; FCN3 through week 10 (70 d) on every rollout, both arms.** 3 of 8 GenCast chains diverged, not monotonically in lead - and TWO of the three did so in the polar stratosphere (1211 K at 50 hPa) while CONUS stayed normal, invisible to every calibrated CONUS diagnostic. See "The lead-time stability sweep" below |
+| 5-scoping - FCN3-only extension to 20 weeks (140 d) | **DONE**, job **1194** (2 h 16 m, one node, 2026-08-28). **FCN3 stable through week 14 (98 d) on every rollout of both arms.** At week 16 and beyond the PNW rollouts diverge (ERA5-IC arm at 75 d of the 112-d chain and 129 d of the 140-d one; adapter-fed arm at 105-111 d on all three) while every Uri rollout is clean to 140 d. No GenCast verdict at these leads, by design. See "The FCN3-only extension" below |
+| 5-scoping - 100-member GenCast ensemble at week 8 (PNW) | **DONE**, job **1197** (4 nodes, 32 shards, 4 h 34 m, 113 GPU-h). **9 of 100 members diverged by 56 d (9%, Wilson 95% 5-16%); 100% clean through 36 d.** All nine loud, all starting on negative 850 hPa humidity at 39-54 d and growing into the stratospheric winds. Member 2 did NOT reproduce job 1189's 45 d blow-up on the same noise stream. See "The ensemble follow-up" below |
 | 4c - multi-event extension: 3 heat events + controls | **IN FLIGHT** (2026-08-24). Registry/boxes/tests landed; productions running for Southwest_HeatWave_2020 (job **1176**) and California_HeatWave_2022 (job **1177**); Gate 3 for SCentral_HeatDome_2023 (job **1178**). See "The multi-event extension (wave log)" below |
 
 **Phases 1-4 are complete.** All three gates pass, the RES core is validated, the
@@ -647,6 +650,729 @@ Southwest and the `persist` control have nothing in the band; their panels repor
 plus the deepest level the run resolved (3.2e-04 and 2.6e-04), which is the honest
 statement and matches the wave-1 table's "< 3e-4".
 
+## The lead-time stability sweep - weeks 4/6/8/10 (the `astab/` package) - 2026-08-27
+
+*(Everything below is job 1189, the eight-chain run. The scorer was extended to week
+20 the same day - see "The FCN3-only extension to 20 weeks" further down; that
+section supersedes this one wherever the two disagree about chain counts, the week
+dicts, or `ref_times`.)*
+
+Every AI+RES run so far - the pilot, wave 1, wave 2, all three gates - sits at **week-3
+lead (21 d)**. Before committing GPU hours to a longer-lead experiment, this asks the one
+question that has to come first:
+
+> At what rollout length does the GenCast walker or the FCN3 score function stop producing
+> a physical atmosphere?
+
+**Numerical stability only.** It does not, and cannot, say whether the score still *ranks*
+usefully out there - that needs a rank correlation, which needs an ensemble, which one
+member cannot produce. See "Stable is not useful" below; sizing that follow-up is the whole
+point of running this first. Nothing about the frozen week-3 experiment changes: new tree,
+new tag (`stab`), new module.
+
+### What was actually in the way
+
+**Neither model caps rollout length in code.** GenCast's
+`rollout.chunked_prediction_generator*` just divides `num_target_steps` by a chunk size;
+FCN3's `_default_generator` is a bare `while True`. The only cap in the entire stack was a
+three-entry dict in two mirrored copies - `gencast_s2s/config.py:WEEKS_TO_LEAD_DAYS` and
+`fcn3/fevents.py:WEEKS_TO_LEAD_DAYS` - which this run widened to
+`{2: 14, 3: 21, 4: 28, 6: 42, 8: 56, 10: 70}` and the FCN3 extension widened again, to 20
+weeks (140 d). Purely additive both times; 2/3/4 keep the values they have always had, and
+`test_astab.py::test_the_frozen_weeks_are_untouched` pins that.
+
+**One blast radius to know about:** `gencast_s2s/download.py:140` falls back to
+`list(C.VALID_WEEKS)` when `--weeks` is absent, so a bare `python -m gencast_s2s.download`
+now preps **eleven** weeks of init frames for every event in `ALL_EVENTS` instead of three.
+Nothing in this sweep invokes it.
+
+### The schedule, and the two off-by-ones in it
+
+Each chain is initialised at `peak - lead` and rolled **to the peak** in 6-step (3-day)
+segments, so a worker pays one XLA compile. Ending at the peak rather than free-running a
+fixed span is what makes this the real AI+RES configuration at each lead: `A_L` is a 7-day
+mean *ending* at the peak and is undefined for a chain that stops short.
+
+| lead | segments | tail | scoring checkpoints |
+|---|---|---|---|
+| 28 d (wk 4) | 9x6 + **2** = 10 | 2 steps | 3 .. 27 d (9) |
+| 42 d (wk 6) | 14x6 = 14 | **0** | 3 .. 39 d (13) |
+| 56 d (wk 8) | 18x6 + **4** = 19 | 4 steps | 3 .. 54 d (18) |
+| 70 d (wk 10) | 23x6 + **2** = 24 | 2 steps | 3 .. 69 d (23) |
+
+- **The tail table is `{4: 2, 6: 0, 8: 4, 10: 2}` steps.** Only 42 d divides evenly. 70 is
+  the trap: a multiple of 7 *and* of 14, so it reads as though it should divide by 3, and
+  it does not. `chain_schedule()` is pure arithmetic on `horizon % 3` with **no per-chain
+  special-casing**, and `stage_walk` hard-asserts that the final state's `valid_time` IS
+  the event peak - nothing else downstream checks that, so a chain landing a day short
+  would go unnoticed until `A_L` came out of a window that does not exist.
+- **The horizon is never a scoring checkpoint.** The 42-day chain's last full segment lands
+  exactly on the peak, so scoring there would ask FCN3 for a zero-step rollout, which
+  `score.nsteps_for` rejects (`n <= 0`). Excluded for every chain, not just the one where
+  it bites.
+
+The ragged tail is placed **last** so every intermediate boundary stays on the 3-day grid
+`aconfig.segment_for_lead` is defined on.
+
+### One tag, four walker slots
+
+`WEEKS_TO_WALKER = {4: 0, 6: 1, 8: 2, 10: 3}` - **not four tags**, because `score.tasks()`
+enumerates `for w in range(walkers)` and cannot discover non-contiguous indices. One tag
+means the coupled scoring arm is a single command per event, and no new path helper was
+needed: everything goes through `A.res_state_path(event, w, step, "stab")` and
+`A.res_score_cube_path(...)`.
+
+### The two scorer arms
+
+- **adapter-free** - FCN3 from the ERA5 IC at each chain's own init, rolled to the peak
+  (112/168/224/280 6-h steps). Isolates the scorer's stability from the walker's drift.
+  `fcn3/run_fcn3.py --stage infer` unmodified, one process per lead (`FCN3_WEEKS` is read
+  at MODULE IMPORT).
+- **adapter-fed** - FCN3 from each chain's **lead-3 d** state, through `aires/adapter.py`.
+  Lead 3 is `segment_for_lead(3.0) == 1` for every chain regardless of horizon, so it is
+  one command for all four *and* the longest coupled rollout available at each lead.
+  `score.run_task`, the same unit Gate 3 and the DMC loop use.
+
+### The diagnostic panel, and the bands it is judged against
+
+Anchored on the one **measured** failure on record (the wrong-checkpoint incident, jobs
+1155/1156): CONUS-mean T2m lost its diurnal cycle inside the first 3-day segment (00Z equal
+to 12Z to 0.03 K), drifted 26 K cold over 21 days, and z500 finished 1780 m2 s-2 low.
+
+| # | diagnostic | domain | detects |
+|---|---|---|---|
+| 1 | non-finite fraction, per variable | global + CONUS | terminal blow-up. **Hard fail, no tuning** |
+| 2 | physical bounds (T2m 180-340 K, MSLP 870-1090 hPa, q >= -5e-3, wind < 200 m/s, finite geopotential; every one measured, see below) | global + CONUS | gross divergence before it reaches NaN |
+| 3 | CONUS T2m anomaly vs climatology, and drift from the chain's own start | CONUS, 12 h | the -26 K signature |
+| 4 | global-mean T2m and z500 vs the ERA5 reference series | global, 3 d | a runaway outside CONUS that item 3 cannot see. **Reported, not gated** - no in-repo baseline exists |
+| 5 | diurnal amplitude / the climatology's own 12Z-00Z difference | CONUS | the 0.03 K collapse. The best-grounded item: a ratio against a real seasonal reference, so it self-calibrates across April-June and December-February |
+| 6 | spatial sd of CONUS T2m | CONUS, 12 h | homogenisation or grid-scale checkerboarding |
+| 7 | zonal z500 power above wavenumber 20, 30-60 N in 5 deg bands | **global only** | high-wavenumber pile-up, the classic AI-weather instability signature |
+
+Item 7 **must** read `state.nc`, not `diag.nc`: the CONUS crop spans 59 degrees of
+longitude, far too little for a zonal wavenumber decomposition.
+`zonal_high_wavenumber_fraction` raises rather than returning the plausible-looking number
+a partial-domain FFT would give.
+
+**The bands are measured, not guessed** (`--stage calibrate`, CPU, free, ~12 min). The Gate
+3 tree already holds 16 free-running, physically-validated 21-day walkers per event, so the
+whole panel was run over **224 known-good segments** before any GPU was booked:
+
+| metric | PNW p05 / p50 / p95 | PNW band | Uri p05 / p50 / p95 | Uri band |
+|---|---|---|---|---|
+| `t2m_anom_conus` (K) | 0.077 / 1.892 / 2.956 | [-2.67, 4.68] | -2.584 / 0.624 / 2.963 | [-6.46, 6.69] |
+| `t2m_conus_drift` (K) | -0.470 / 0.636 / 1.711 | [-3.31, 3.42] | -1.032 / 1.703 / 4.569 | [-5.06, 8.84] |
+| `diurnal_ratio` | 0.935 / 1.061 / 1.216 | [0.704, 1.401] | 0.773 / 0.964 / 1.280 | [0.558, 1.518] |
+| `conus_t2m_sd` (K) | 5.687 / 6.409 / 7.095 | [4.20, 7.99] | 8.918 / 10.719 / 13.141 | [6.53, 15.99] |
+| `z500_hi_wavenumber_frac` | 0.002 / 0.003 / 0.005 | [0.001, 0.007] | 0.001 / 0.002 / 0.003 | [0.000, 0.005] |
+
+Two things that fall straight out of these numbers:
+
+- **The bands actually separate the known failure.** A healthy walker reproduces the
+  climatological diurnal amplitude to within about +-30% (ratio 0.70-1.40). The job-1155
+  collapse sits at a ratio of ~0.004 - roughly 200x outside. Its -26 K drift is ~8x outside
+  the widest drift band measured here.
+- **ERA5 independently corroborates item 7.** The ERA5 reference series, built with the
+  *same* reduction, gives a high-wavenumber fraction of **0.0019-0.0056** for PNW's dates
+  and **0.0011-0.0046** for Uri's - sitting on top of the walkers' own measured bands. The
+  walkers' spectra are ERA5's spectra. That is a real reference for item 7, not an
+  extrapolation.
+
+**Measured to 21 d only.** Beyond that every band is an EXTRAPOLATION, and the CSV carries
+an `extrapolated` column and the figure says so in the panel annotation and the suptitle.
+
+### The physics gate, in two forms
+
+- **week-4 chains**: `gate3.check_against_reference`'s comparison as-is, pointed at the
+  tag's tree. A 24-member 0.25 deg week-4 cube exists for **both** events - same init, same
+  checkpoint - and that is the strongest anchor available anywhere in the repo.
+- **week-6/8/10 chains**: no same-init ensemble exists, and reusing the week-3 cube would
+  **false-fail** (a walker 21+ days diverged legitimately sits many sd from a fresh week-3
+  ensemble mean). Gated against **ERA5 at the day-3 valid time** instead: at 3 d lead
+  GenCast is genuinely skillful, so CONUS-mean T2m within 6 K of ERA5 is a sound statement,
+  and the 26 K wrong-checkpoint drift fails it instantly.
+
+All eight chains draw their bundle from the single `walker.load_bundle` call site, so one
+passing week-4 check already covers the wrong-checkpoint class for the whole job; the ERA5
+gate is the per-chain backstop.
+
+**All eight fired within ~15 min of job 1189 starting, and all eight passed:**
+
+| chain | reference | walker | reference value | offset |
+|---|---|---|---|---|
+| PNW @ wk4, 3 d | same-init xres, 24 members | 297.42 K | 297.24 +- 0.123 K | **1.5 sd** |
+| PNW @ wk4, 9 d | same-init xres, 24 members | 296.88 K | 297.60 +- 0.428 K | **1.7 sd** |
+| Uri @ wk4, 3 d | same-init xres, 24 members | 281.31 K | 281.18 +- 0.174 K | **0.8 sd** |
+| PNW @ wk6, 3 d | ERA5 | 294.68 K | 294.36 K | **+0.32 K** |
+| PNW @ wk8, 3 d | ERA5 | 292.14 K | 292.36 K | **-0.22 K** |
+| PNW @ wk10, 3 d | ERA5 | 287.64 K | 287.36 K | **+0.29 K** |
+| Uri @ wk6, 3 d | ERA5 | 282.16 K | 281.75 K | **+0.41 K** |
+| Uri @ wk8, 3 d | ERA5 | 281.15 K | 281.34 K | **-0.18 K** |
+| Uri @ wk10, 3 d | ERA5 | 285.01 K | 284.68 K | **+0.33 K** |
+
+Every long-lead chain lands within 0.41 K of ERA5 at 3 d, against a 6 K gate, and the two
+week-4 chains sit inside their own same-init ensemble's spread. That is a much stronger
+result than the gate needed, and it doubles as an independent check on the ERA5 reference
+series itself: the series was built with a hand-rolled zarr reader (see below), and it
+agrees with an independent GenCast rollout to a few tenths of a Kelvin.
+
+### Two thresholds that were wrong until they were measured
+
+Both were specified in the plan, both looked unarguable, and both fired on a **perfectly
+healthy** walker. They are recorded because the pattern is the point - this is
+CLAUDE.md's "measure the noise floor before setting a threshold" applied to bounds nobody
+thought needed measuring.
+
+- **`q >= 0` is not a bound.** Measured over 18 known-good Gate 3 global states (both
+  events, walkers 0/5/15, leads 3/12/21 d), healthy GenCast reaches **-1.28e-3 kg/kg**
+  with up to 0.19% of points negative, from the FIRST segment, not growing with lead - the
+  ordinary small-negative-humidity artifact of an ML weather model. An absolute zero floor
+  is an alarm that is always on. Now `-5e-3`, about 4x the worst measured value.
+- **T2m in [200, 330] K is a CONUS range applied to a GLOBAL field.** ERA5's *own* global
+  minimum over these chains' dates is **201.0 K** (2021-06-28, Antarctic plateau in austral
+  winter) and healthy walkers reach **194.4 K**. The smoke run tripped the 200 K floor at
+  6 d lead with a global minimum of 197.8 K. Now `[180, 340]`, which clears the worst
+  measured walker by 14 K and ERA5 by 21 K.
+
+Measured global ranges over those 18 known-good states, for the record:
+
+| variable | measured | bound |
+|---|---|---|
+| `2m_temperature` | [194.4, 324.0] K | [180, 340] |
+| `temperature` | [181.1, 324.9] K | [150, 350] |
+| `mean_sea_level_pressure` | [93080, 106400] Pa | [87000, 109000] |
+| `specific_humidity` | [-1.28e-3, 2.84e-2] | [-5e-3, 0.1] |
+| `u`/`v`, 10 m and upper | [-84.9, 109.5] m/s | [-200, 200] |
+| `geopotential` | [-5501, **2.08e+5**] m2 s-2 | [-1e4, 5e5] |
+
+That geopotential maximum is where CLAUDE.md's float16 trap lives: float16's ceiling is
+65504, so a narrowed archive stores `inf` for the top of every column, silently and on
+write.
+
+Item 2 is deliberately **not** what catches the job-1155 failure - a 26 K cold CONUS mean
+leaves the field minima far inside these bounds. Items 3 and 5 catch that, by 8x and 200x
+respectively. Item 2 is the coarse net for genuine blow-up.
+
+### Item 1 had the same problem, for a different reason
+
+`sea_surface_temperature` is NaN over land by construction - measured at **exactly 0.3389**
+of the global grid on every one of those 18 states, bit-identical across both events, three
+walkers and three leads, plus a further 0.004225 of the OCEAN points (coastal and ice-edge
+cells the source ERA5 mask leaves empty). Gating item 1 on "any non-finite value" marked the
+smoke run's healthy lead-3 d segment as diverged and would have reported *GenCast stable
+through week (none)* for all eight chains. `NONFINITE_STATIC` gates those variables on
+**growth against the chain's own first segment** instead, which still catches a real NaN
+blow-up; everything else fails outright on the first non-finite value.
+
+### Thresholds are applied at REDUCE time, never baked into an artifact
+
+The per-segment record stores `ranges_global` / `ranges_conus` - the measured min/max per
+variable - and `--stage reduce` applies `BOUNDS` to them. The smoke run made the reason
+concrete: `BOUNDS["specific_humidity"]` was corrected *after* the segments were written,
+and records that had stored a pre-computed verdict kept reporting a healthy chain as
+diverged. **A measurement is durable; a verdict on it is not.**
+
+### The ragged tail costs nothing, and the reason matters
+
+The plan budgeted "a second XLA compile per ragged chain, ~5 min each" for three of the
+four leads. Measured on job 1189, from the never-pruned `diag.nc` mtimes:
+
+| segment | steps | wall |
+|---|---|---|
+| a normal segment (any chain, any lead) | 6 | **197-199 s** |
+| the 56-day chain's tail | 4 | **141 s** |
+| the 28-day chains' tails | 2 | **83-84 s** |
+
+Two points fit it exactly: **28.6 s per GenCast step plus 26.3 s of fixed per-segment
+overhead** (read the parent, build the batch, write a 475 MB compressed state and its
+diag). That predicts 140.7 s for the 4-step tail against 141 s measured. There is **no
+second compile at all** - the ragged tail is simply a shorter loop.
+
+The reason is `roll_segment`'s `num_steps_per_chunk=1`: GenCast's jitted function is
+compiled for ONE step, so `n_steps` never enters the compiled shape and only changes how
+many times the generator iterates. This is worth stating because
+`aconfig.GATE3_SEG_STEPS`'s own comment gives a different reason - "keeping the segment
+shape constant guarantees one XLA compile per worker rather than one per distinct segment
+length". The **conclusion** is right and the constant is still worth keeping for other
+reasons; the stated **mechanism** is not what produces it, and anyone sizing a run with a
+non-uniform schedule should not pay a compile penalty they will not be charged.
+
+For sizing the follow-up: 28.6 s/step here is close to `fevents.GENCAST_A3MEGA_S_PER_STEP`
+(28.0) and nowhere near `run_aires.SECONDS_PER_GENCAST_STEP` (52.0). The 52 figure is a
+PRODUCTION DMC leg, where 8 shards write N=64 states at once and the zlib pass plus the NFS
+write costs as much as the rollout; this sweep writes one state per chain per ~3 min, so
+that contention never arises. **Budget 28-33 s/step for a free-running walker pool and 52
+for a resampling one.**
+
+### Two more traps, unrelated to thresholds
+
+1. **`data.open_anon` cannot be used on this login node.** It is
+   `xr.open_zarr(..., chunks={"time": 1})`, which builds a dask graph with one task per
+   timestep per variable. The WB2 surface store has 93,544 timesteps and 66 arrays and
+   reached **4 GB of RSS just to open**; the 1-hourly 37-level store (561,264 timesteps)
+   took the whole 15 GB box, three times. `astab._wb2_frame` reads it the way
+   `data.arco_read` reads ARCO - raw zarr, no xarray, no dask - and the same 58-timestep
+   loop then runs in ~90 s at **0.32 GB**. Everything needed lives in the 6-hourly store
+   (all chain boundaries are 00Z), whose geopotential chunk is 13 levels rather than 37.
+   **This login node has 15 GB of RAM**, which is worth knowing before any prep is written.
+2. **Drift must be phase-matched.** Frames alternate 00Z and 12Z and the CONUS diurnal
+   range is ~8 K, so a raw last-minus-first carries a +-4 K offset decided by nothing but
+   whether the series has an odd or an even number of frames - on a diagnostic whose signal
+   of record is 26 K. `drift_from_start` compares against the first frame sharing the last
+   frame's hour, and `test_drift_is_phase_matched_against_the_diurnal_cycle` pins it.
+
+### The bug the smoke run caught (job 1187)
+
+`walker.run_segment(parent_state=None)` falls back to `walker.initial_state`, which
+resolves the init frames through `aconfig.WALKER_WEEKS` - i.e. the `AIRES_WEEKS` env var,
+**3 by default**. This sweep spans four leads in ONE process, so every chain silently
+started from the week-3 init: the log printed `init 2021-05-31` and then rolled
+`from 2021-06-07`, a whole week late.
+
+The default is 3, which is not one of the four leads here, so **all eight chains were
+wrong**, and every one of them would have produced a clean-looking 28/42/56/70-day rollout
+from the wrong initial condition. `_segment_status` does catch it one segment later (the
+valid time misses the schedule), but a guard that fires after a five-minute XLA compile is
+not where this belongs. `stage_walk` now names segment 1's parent explicitly, and
+`test_a_chain_reads_its_own_weeks_init_frames` pins it for all four leads.
+
+This is the same family as the checkpoint bug: structurally valid, physically wrong, and
+invisible to every existing check.
+
+### State (2026-08-27)
+
+Prep is complete and gated on **artifacts, not exit codes**:
+
+| artifact | state |
+|---|---|
+| `runs/xres/0p25/week{4,6,8,10}/inputs/*_inputs.nc` | **8/8**, 706 MB each |
+| `runs/fcn3/week{4,6,8,10}/ic/*_ic.nc` | **8/8**, 299 MB each |
+| `runs/astab/refs/{PNW_HeatDome_2021,WinterStorm_Uri_2021}_era5_ref.nc` | **built**, 58 times each, covering every chain valid time |
+| `runs/astab/refs/*_era5_t2m.nc` | **built**, 58 x 105 x 237 each (3.2 MB), the truth row of every map |
+| `runs/astab/refs/bands.json` + `gate3_panel.csv` | **built**, 224 samples, 32 walkers, 2 events |
+| `--check` over all 8 chains, incl. both ragged tails (2 and 4 steps) | **OK**, no GPU |
+| `--stage plan` | **READY: yes** |
+| `pytest aires/tests/ astab/tests/` | **281 + 101 passed** (`astab/tests/`: 83 in `test_astab.py`, 18 in `test_maps.py`) |
+
+Budget confirmed by `--stage plan`: 784 GenCast steps (~11.3 GPU-h) + 3,040 FCN3 steps
+(~1.2 GPU-h), 8 chains one per GPU on one node, ~11 GB of retained states + ~4.7 GB of
+diagnostics + ~18 GB of retained pre-crop Zarrs (released by `--stage prune`), against
+309 GB free.
+
+### The result - job 1189, COMPLETED in 1 h 47 m on one 8xH100 node
+(plus 1190/1192/1193, the scorer re-run with `t50` after the prune incident below;
+1187/1188 were the smoke. Total ~2 h 20 m of one node.)
+
+Walk: 784 GenCast steps, 8 chains, **every one landed exactly on its event peak** (the
+hard assertion in `stage_walk`), longest chain 87 min. Score: 8 adapter-free rollouts
+(112/168/224/280 x 6 h) and 8 adapter-fed (100/156/212/268 x 6 h), all rc=0, 52.9 GB peak
+GPU. Zero retries, zero failed shards.
+
+> **GenCast stable through week 6 (42 d) - every chain.
+> FCN3 stable through week 10 (70 d) - every rollout, both arms.**
+
+FCN3 is the clean half, and it is checked **where GenCast actually broke** - the arms carry
+`t50` and `z500` as extra global channels precisely so the claim does not rest on a
+CONUS-only panel:
+
+| FCN3, all 16 rollouts, 248 checkpoints to 69 d | measured | for comparison |
+|---|---|---|
+| global-mean 50 hPa temperature | **210.1 - 212.1 K** (a 2 K range over 70 d) | GenCast reached **1211 K** at this level |
+| global z500 power above k = 20 | **0.0008 - 0.0065** | ERA5 itself: 0.0011 - 0.0056 |
+| bound violations | **zero** | |
+| non-finite values | **zero** | |
+
+FCN3 stays on ERA5's own spectral distribution for seventy days. Item 1 never fired for
+either model, anywhere.
+
+GenCast diverged on **3 of 8 chains**:
+
+| chain | first out of bounds | via | diverged | worst |
+|---|---|---|---|---|
+| PNW @ wk4, wk6, wk10 | never | - | - | - |
+| Uri @ wk4, wk6 | never | - | - | - |
+| PNW @ wk8 | 42 d (0.5% past, **marginal**) | `specific_humidity` | 45 d | 64% past, `u_component_of_wind` |
+| Uri @ wk8 | 51 d (4.1% past) | `temperature` | 51 d | 124% past, `temperature` |
+| Uri @ wk10 | 30 d (33.1% past) | `temperature` | 30 d | 431% past, `temperature` |
+
+**Divergence is not monotonic in lead.** PNW's 70-day chain never leaves bounds, while
+Uri's leaves at 30 d and *both* 56-day chains fail. With n = 1 member per lead this run
+cannot separate "that lead is unstable" from "that member diverged" - and it was never able
+to. **The follow-up needs an ensemble for the STABILITY question too, not only for the
+skill one.** That is a finding about the experiment's design, not a caveat on its result,
+and it was not anticipated in the plan.
+
+### Two failure modes, and only one of them is the one everybody expects
+
+This is the part worth carrying forward.
+
+**LOUD - PNW @ wk8.** Every diagnostic fires together from 42 d, exactly as designed:
+
+| lead | T2m anom | diurnal ratio | hi-k fraction |
+|---|---|---|---|
+| 39 d | -0.1 K | 0.85 | 0.003 |
+| 42 d | **-6.3 K** | **0.32** | **0.035** |
+| 45 d | **-12.3 K** | **-0.01** | **0.150** |
+| 48 d | **-16.9 K** | 0.03 | **0.312** |
+| 56 d | -23.7 K | 0.00 | **0.60** |
+
+The plan bet that item 7 (high-wavenumber pile-up) would be "likely the first thing to
+fire". For this mode it was right: the zonal power fraction above k = 20 goes from ERA5's
+own 0.003 to **0.60** - over half the z500 power at grid scale. z500 drift crosses the
+-181 m broken-run line at ~50 d and reaches -410 m. It is the job-1155 signature, reproduced
+at long lead by a *correct* checkpoint.
+
+**SILENT - Uri @ wk8 and @ wk10.** The bounds check climbs monotonically (0.33 -> 4.31 of
+the bound span from 30 d to 70 d) and **every other diagnostic stays normal the whole way**:
+T2m anomaly within +-3.6 K, diurnal ratio 0.90-1.49, hi-k fraction 0.001-0.003, spatial sd
+8.6-16.6 K. Opening the final state says why:
+
+```
+Uri @ wk10, lead 70 d, temperature by level
+    50 hPa    95.3 .. 1211.2 K       <- 1211 K at lat -85.5, lon 113.5 (Antarctica)
+   100 hPa    82.3 ..  289.9 K
+   150 hPa  -141.6 ..  234.2 K
+   ...
+  1000 hPa   136.5 ..  315.1 K
+same field cropped to CONUS:  50 hPa [203.3, 218.1] K,  T2m [252.0, 301.5] K   -- normal
+```
+
+The walker is producing a textbook CONUS troposphere on top of a polar stratosphere at
+**1211 K**. Items 3, 5 and 6 are CONUS; item 7 is z500 over 30-60 N. None of them can see
+it. The only diagnostic that caught it is item 2 - the crude global bounds check the plan
+called "the coarse net" and that I noted "is deliberately NOT what catches the job-1155
+failure".
+
+**So the sophisticated, carefully calibrated panel caught 1 of 3 divergences and the crude
+one caught 3 of 3.** The difference is not sophistication, it is DOMAIN: item 2 is the only
+item evaluated globally and on every variable and level.
+
+Three consequences:
+
+1. Any longer-lead panel needs at least one **global, all-level** diagnostic. A CONUS-only
+   panel, however well calibrated, is blind to two thirds of what actually went wrong here.
+2. **AI+RES's own observable would not have noticed.** `A_L` is a CONUS box T2m mean. A
+   resampling run at 70-day lead would have scored, cloned and reported Uri @ wk10 as a
+   perfectly good walker while its stratosphere was at 1211 K. Any long-lead production
+   MUST gate on the global state, not on the observable.
+3. The figure marks each divergence with a red X **on every panel**, including the panels
+   whose own metric never moved - without it, panel 4 reads as "all eight chains healthy to
+   70 d", which is false.
+
+### `--stage prune` is one-way, and it now says so
+
+Two things stop working after a prune, both discovered by doing them during this run's
+analysis:
+
+* **The adapter-fed arm cannot be re-run.** It launches from each chain's lead-3 d
+  `state.nc`, and prune deletes even the pinned states. Re-scoring then needs those
+  segments re-walked - `--stage walk --max-segments 1`, ~13 min on 8 GPUs. Cheap, but not
+  obvious from the "walker state(s) absent" error. `stage_prune` now REFUSES while any
+  score cube is missing.
+  (A useful thing fell out of the repair: the re-walked segments reproduced the originals
+  to the digit - 297.43 K vs 297.42 K CONUS-mean - confirming `segment_key(walker, step)`
+  makes a segment deterministic and re-derivable, which is what makes a lost state a
+  15-minute problem rather than a lost experiment.)
+* **The FCN3 global items have no other source than the pre-crop Zarrs.** Re-running
+  `reduce` after prune silently dropped 362 CSV rows and erased `global_z500` and
+  `z500_hi_wavenumber_frac` for both scorer arms. `reduce` now MERGES with the previous
+  panel (`_merge_panels`): a value it can no longer compute is carried forward, a value it
+  can compute always wins. Measured once, kept.
+
+A second thing came out of that: the FCN3 arms' first pass carried only `t2m` and `z500`,
+so **every hard-fail check on the scorer was CONUS-only or z500-only** - precisely the
+blind spot this run had just documented for GenCast. "FCN3 stable through week 10" could
+not have been supported by that panel. The arms were re-run with `t50` added
+(`FCN3_EXTRA_VARS=z500,t50`), so the scorer is now checked at 50 hPa, where the walker
+actually broke. A claim about one model has to be tested where the other one failed.
+
+### What this settles for the follow-up
+
+The mini-Gate-3 sizing in the plan (16 walkers x ~6,300 GenCast steps ~ 91 H100-h) is
+unchanged in shape but its per-step cost is now measured, not assumed: **28.6 s/step for a
+free-running pool**, not the 52 s of a resampling leg (see "The ragged tail costs nothing").
+That is ~50 H100-h for the walker half, not 91.
+
+What changed is what the follow-up has to measure. It cannot just ask "does the score still
+rank?" at 4/6/8/10 weeks - it must also establish, with an ensemble, **what fraction of
+walkers survive each lead**, because this run showed that fraction is neither 0 nor 1 and
+is not ordered by lead. A resampling scheme that clones a diverged walker is worse than
+useless: divergence is exactly the kind of extreme the score function is built to select
+for.
+
+### Stable is not useful
+
+Gate 2 measured FCN3's rank-equivalence horizon at **~8.5 d** and Gate 3 measured score
+skill rho_s = 0.797 at 9 d and 0.959 at 12 d against a 0.5 threshold. If both models stay
+stable to 70 d, that is **permission** to run AI+RES out there, not a reason to: past the
+predictability horizon the score function ranks chaos, resampling adds no information, and
+the frozen schedule (C_k at 3/6/9/12/15 d) would leave a 55-day free-running carry leg that
+washes out any tilt it did apply.
+
+Establishing the **useful** horizon needs a rank correlation, which needs an ensemble. The
+natural follow-up is a mini-Gate-3 at each lead: 16 walkers x (56+84+112+140) steps
+~ 6,300 GenCast steps ~ **91 H100-h**, plus FCN3 scoring - 2-3 nodes over ~12 h. Sizing
+that is what this run is for.
+
+Nothing here is compared to ERA5 as if agreement were expected past ~12 d; beyond that,
+ERA5 enters only as a magnitude/sign sanity descriptor, never as "error" or "skill".
+
+## The FCN3-only extension to 20 weeks (140 d) - built 2026-08-27, RUN as job 1194 on 2026-08-28
+
+Job 1189 closed one of the sweep's two questions and left the other open:
+
+* **GenCast**: diverged on 3 of 8 chains by week 6. A measured limit.
+* **FCN3**: clean at week 10 on **every** rollout of **both** arms. That is a FLOOR, not a
+  limit - the sweep stopped before the scorer did, so "stable through week 10" is a
+  statement about how far it was asked to go.
+
+Weeks **12/14/16/18/20** (84/98/112/126/140 d) extend the sweep on the **scorer only**. At
+those leads the GenCast walker rolls ONE 3-day segment - the adapter-fed arm's launch state
+- and both FCN3 arms roll the full horizon. Eighteen chains now: 2 events x 9 leads.
+
+Why FCN3-only: the open question is the scorer's, and the closed one costs 46x more.
+Extending the walker to 140 d is 280 GenCast steps per chain (~4 h of one H100); the FCN3
+rollout of the same span is ~13 min. `--stage plan` prices the whole extension at **60
+GenCast steps (~0.9 GPU-h) + 8,840 FCN3 steps (~3.4 GPU-h)**.
+
+### The one thing that could have gone wrong, and what stops it
+
+An extension chain's walker panel is ONE clean checkpoint at 3 d. Counted naively that
+reads as a clean chain, `_all_clean_through` walks straight past week 10, and the headline
+reports **"GenCast stable through week 20" off three days of rollout**.
+
+Every CSV row now carries **`reached_peak`**; `reduce._model_survival` drops the
+(model, week) pairs where it is 0 - neither clean nor failed, simply not tested - and
+`reduce.untested_weeks` is the single rule the printed headline, `stability.png` and the
+map stage all consume. The headline prints what each verdict covers ("tested to the peak:
+GenCast week(s) [...], FCN3 week(s) [...]"), the figure does not draw the walker at an
+extension lead, and no walker map is written there.
+`test_a_lead_the_walker_never_reached_is_not_a_gencast_verdict` pins it; a CSV from before
+the extension (no such column) still reduces, and means "everything was walked", which is
+what was true then.
+
+### What changed in the code
+
+| | |
+|---|---|
+| `gencast_s2s/config.py`, `fcn3/fevents.py` | `WEEKS_TO_LEAD_DAYS` now 2..20 (`{... 12: 84, 14: 98, 16: 112, 18: 126, 20: 140}`), still mirrored, still additive - 2/3/4 untouched |
+| `astab/sconfig.py` | `STAB_WEEKS` = 9 leads (**append-only** - 4/6/8/10 keep walker slots 0..3, so every artifact job 1189 wrote stays addressable); new `STAB_WALK_WEEKS` + `walks_to_peak()` |
+| `astab/schedule.py` | a chain now has TWO horizons: `horizon_days` (init->peak, what FCN3 rolls) and `walk_days` (what the walker rolls). `Chain.schedule` is the WALK schedule; `full_schedule`/`checkpoints`/`walk_end` are new |
+| `astab/stages.py` | plan prints both horizons and prices them separately; walk lands on `walk_end`, not the peak; **a pruned chain's landing is verified from its `stab.json`** so a resubmit over finished chains costs seconds instead of failing the pool |
+| `astab/reduce.py` | `reached_peak` per row, `untested_weeks()`, survival gated on it |
+| `astab/plots.py`, `astab/maps.py` | the walker is not drawn where it was not rolled |
+| `astab/refs.py` | `ref_times` reads `full_schedule` - **128 times per event**, not 58; off `schedule` it would build 3 days of ERA5 truth for a 140-day chain |
+| tests | 190 in `astab/tests/` (was 101); `aires/tests/` unchanged at 281 |
+
+`AIRES_STAB_WALK_WEEKS=4,6,8,10,12,14,16,18,20` turns the extension leads into full walker
+chains and nothing else in the package changes. Price it with `--stage plan` first.
+
+### Prerequisites (login node, CPU + internet)
+
+```bash
+for W in 12 14 16 18 20; do XRES_EVENTS_SEL=PNW_HeatDome_2021,WinterStorm_Uri_2021 \
+    XRES_PREP_SKIP_MODELS=1 python run_xres.py --stage prep --res 0p25 --weeks $W; done
+for W in 12 14 16 18 20; do FCN3_WEEKS=$W \
+    FCN3_EVENTS=PNW_HeatDome_2021,WinterStorm_Uri_2021 \
+    bash slurm/aires_env.sh fcn3 python fcn3/run_fcn3.py --stage prep; done
+PYTHONPATH=. python -m astab.run --stage refs          # REBUILDS: 58 -> 128 times/event
+PYTHONPATH=. python -m astab.run --check --weeks 12,14,16,18,20
+PYTHONPATH=. python -m astab.run --stage plan          # must print READY: yes
+```
+
+One PROCESS per week (`FCN3_WEEKS` is read at import) and the **`fcn3` env** for that
+loop only - `stage_prep` imports earth2studio, which `moe` does not have; the xres prep and
+every `astab` stage are `moe`.
+
+10 x 706 MB of init frames + 10 x 299 MB of FCN3 ICs ~ 10 GB. The earliest init in the
+sweep is now **Uri week-20 at 2020-09-28**, still well inside WB2.
+
+Then `sbatch slurm/aires_stab.slurm` - its default `WEEKS` is all nine leads, and the eight
+finished chains skip in seconds.
+
+### Disk - the constraint to watch
+
+The retained pre-crop Zarrs scale with FCN3 **steps**, not chains: **~51 GB** for the
+extension (a week-20 rollout is twice a week-10 one) against **303 GB free** on this
+98%-full filesystem. Run `--stage reduce` and then `--stage prune` before adding leads.
+
+### Result - job 1194, COMPLETED in 2 h 16 m on one 8xH100 node (2026-08-28)
+
+`sbatch slurm/aires_stab.slurm` over all nine leads; the eight finished chains skipped in
+seconds. Walk 31 min, adapter-free scoring 32 min, adapter-fed scoring 73 min. Three walk
+shards lost attempt 1 to CUDA out-of-memory during their first compile - three cards on
+that node were not fully ours at that moment, the pattern documented under "GPU
+contention" below - and attempt 2 rolled everything that was missing, which is what the
+retry exists for. Reduce, figures and maps ran on the login node
+(`logs/astab_ext_reduce.log`); the retained Zarrs were pruned afterwards
+(`logs/astab_ext_prune.log`, 115 GB released).
+
+**FCN3 stable through week 14 (98 d) - every rollout, both arms.** The scorer's limit is
+now measured rather than floored, and it is event-dependent:
+
+| chain | ERA5-IC arm | adapter-fed arm |
+|---|---|---|
+| PNW week 16 (112 d) | diverged at 75 d (non-finite field, `inf` severity) | diverged at 108 d |
+| PNW week 18 (126 d) | clean to 126 d | diverged at 111 d |
+| PNW week 20 (140 d) | diverged at 129 d | diverged at 105 d |
+| Uri weeks 12-20 (84-140 d) | clean, every lead | clean, every lead |
+
+Two things to read off it. First, FCN3's divergence is not monotonic in lead either: the
+ERA5-IC arm survives 126 d at week 18 and fails at 75 d of the week-16 chain - the same
+n = 1 ambiguity the walker showed at weeks 8/10. Second, the adapter-fed arm fails at a
+consistent 105-111 d on all three PNW chains while the ERA5-IC onsets scatter
+(75 / never / 129 d), which is at least consistent with the adapter-fed launch state
+carrying something the ERA5 IC does not; three chains cannot establish it. `stability.csv`
+(12,274 rows) and `stability.png` now carry all 18 chains.
+
+The caveat is unchanged and sharper out here: Gate 2 put FCN3's rank-equivalence horizon
+at ~8.5 d, so a 140-day rollout is ~16x past the lead at which the score was last shown to
+rank. This measures whether the scorer still makes an atmosphere, and nothing else.
+
+## The ensemble follow-up: 100 GenCast members at week 8 (PNW) - 2026-09-03/04, job 1197, DONE
+
+Job 1189 rolled ONE member per lead and found divergence non-monotonic in lead - PNW@wk8
+blew up at 45 d while PNW@wk10 never left bounds - which with n = 1 cannot separate "that
+lead is unstable" from "that member diverged". This run puts an ensemble on the STABILITY
+question: **100 members of the GenCast 0.25 deg walker, PNW_HeatDome_2021, init
+2021-05-03 -> peak 2021-06-28 (56 d), GenCast only, no FCN3 arm.** Members differ only in
+their diffusion noise stream (`walker.segment_key(member, step)`, the same family `xres`
+and `gencast_s2s` use for their ensembles); member 2 shares job 1189's stream at the same
+init and is a determinism control, counted once. Deliverable: the survival curve - the
+fraction inside the physical bounds at each of the 19 three-day checkpoints, with a 95%
+Wilson interval - plus the loud/silent and worst-variable/level breakdown, as
+`figures/astab/ensemble_PNW_HeatDome_2021_wk08.png` and
+`runs/astab/ensemble_PNW_HeatDome_2021_wk08{,_members}.csv` + `.json`. The same mechanism
+runs at another lead with only `--weeks` changed, which is how the longest STABLE lead
+gets found before an AI+RES production is booked there. Plan:
+`/home/ubuntu/.claude/plans/can-you-run-gencast-lovely-pillow.md`; design in
+`astab/__init__.py` and `astab/ensemble.py`.
+
+### What landed in code (2026-09-03; 264 tests in `astab/tests/`, 293 in `aires/tests/`, green)
+
+| | |
+|---|---|
+| `astab/sconfig.py` | the `ens_*` tree - `runs/astab/<event>/ens/wk<NN>/m<MMM>/stepKK/`, keyed by WEEK then MEMBER, never by walker slot; `ENS_DIAG_VARS` (T2m-only slim); `ENS_KEEP_STATE_MEMBERS` (member 2's final state survives the release) |
+| `astab/schedule.py` | `Chain.member` (LAST field, default None - the frozen 18 are `Chain(e, w)` unchanged), `Chain.seed`, `Chain.segment_dir`; every path dispatches on `member`, and the FCN3 path helpers RAISE for a member chain rather than alias the frozen cubes |
+| `astab/record.py` | `member`, `seed`, `diag_vars`, `ranges_global_levels`, `extremes_global` (last frame) - with no states retained these are the only surviving attribution of WHERE a member left its bounds |
+| `astab/stages.py` | walk passes `ch.seed` to `run_segment` and `ch.segment_dir` to the stale/partial rmtree (a week-8 member's walker SLOT is 2, so the slot-built path was job 1189's `walkers/w02/`); `_slim_diag` runs after `ensure_record(force=True)` and the physics gate, `_release_states` after the landing assertion; member chains fail one at a time; `stage_plan` prints the ensemble budget |
+| `astab/ensemble.py` | `wilson`, `member_summary` (fate precedence diverged > marginal > incomplete > clean; first-out-of-bounds and diverged are different dates), `survival_curve` (members AT RISK per checkpoint, never the run size), `stage_ens_reduce` (tolerates in-flight members - it is the mid-flight monitor), `stage_ens_figs` |
+| `astab/run.py` | `--ens N`, `--ens-members`; refuses `score`/`prune`/`maps` and any non-`STAB_WALK_WEEKS` lead; `check` runs once on the member-free chain; reduce/figs dispatch on the FLAG |
+| `slurm/aires_stab_ens.slurm` | a Slurm ARRAY, one exclusive node per task; `NSHARDS = AIRES_ENS_NODES x 8`, never the array count (a one-task redo would otherwise select zero members and exit 0); launches staggered 20 s; the 3-attempt cache-aware retry |
+
+### Run log
+
+- **Prereqs** (login node, `moe`): both suites green;
+  `python -m astab.run --stage plan --ens 100 --event PNW_HeatDome_2021 --weeks 8 --nshards 64`
+  printed READY: yes - 11,200 GenCast steps, ~89 GPU-h at the measured 28.6 s/step and
+  ~162 at the 52 s ceiling; slim diag ~1.1 GB, records 0.02 GB, transient states
+  <= 2 x 477 MB per live worker; `--check --ens 100 ...` OK (19 segments tile the 56 d
+  walk exactly, landing on 2021-06-28).
+- **Job 1195** (smoke, 1 node): landed on node 4 and died in 14 s - `Unable to initialize
+  backend 'cuda'` - because every card on that node was held by a teammate's non-Slurm
+  `inkling` probe at 80.6 of 81.5 GB. Cancelled. A survey over SSH found FIVE of the eight
+  nodes in that state while `sinfo` showed all eight idle; see "GPU contention" below.
+- **Job 1196** (smoke, pinned to clean node 1): COMPLETED in 22 min. One member, one
+  segment: physics gate -0.07 K vs ERA5 at 3 d; diag slimmed 34 -> 0.4 MB; the record
+  carries member/seed/diag_vars/ranges_global_levels/extremes_global; the frozen sweep's
+  317 files byte-identical before and after. **Startup measured 21.5 min** for model load +
+  XLA compile + the first 6-step segment, against the 13 min budgeted from job 1189.
+- **Job 1197** (production): `sbatch --array=0-3 --exclude=nucla3m-a3meganodeset-[0,4,5,7]
+  --export=ALL,AIRES_ENS_NODES=4 slurm/aires_stab_ens.slurm` at 21:46 UTC - nodes 1, 2, 3,
+  6 (node 3 had freed up between the survey and the submit), 32 shards, 3-4 members each,
+  every task READY: yes. Eight nodes were asked for; four was every node the cluster had
+  free of foreign processes. The reduce and figure stages were exercised on the smoke's
+  one segment while the run was in flight (RC 0, figure and CSVs written).
+
+### RESULT - job 1197, COMPLETED 2026-09-04 02:21 UTC (tasks 3 h 18 m to 4 h 34 m, no retries)
+
+**9 of 100 members diverged by 56 d (9%, Wilson 95% 5-16%); 91 never left the bounds.
+Every member was clean through 36 d.** The survival curve (never past 2% of a bound span):
+100% to 36 d, 99% at 39 d, 97% at 42-45 d, 95% at 48 d, 93% at 51 d, 92% at 54 d, 91% at
+56 d. Onsets 39-56 d, median 48 d; no member recovered.
+
+| member | left bounds (first variable, % of span past) | diverged | worst at 56 d |
+|---|---|---|---|
+| m034 | 39 d (q, 5.0%) | 39 d | u-wind 100 hPa, 101% past |
+| m004 | 39 d (q, 0.9%) | 42 d | u-wind 100 hPa, 95% |
+| m046 | 39 d (q, 0.9%) | 42 d | u-wind 50 hPa, 89% |
+| m008 | 48 d (q, 3.7%) | 48 d | temperature 100 hPa, 32% |
+| m069 | 45 d (q, 0.8%) | 48 d | u-wind 50 hPa, 43% |
+| m022 | 51 d (q, 4.7%) | 51 d | u-wind 50 hPa, 18% |
+| m075 | 48 d (q, 1.8%) | 51 d | u-wind 50 hPa, 29% |
+| m083 | 54 d (q, 3.6%) | 54 d | specific humidity 850 hPa, 6% |
+| m013 | 54 d (q, 1.1%) | 56 d | specific humidity 850 hPa, 4% |
+
+**One failure mode, nine times.** Every one of the nine first left the bounds on specific
+humidity - NEGATIVE q at 850 hPa, -0.006 to -0.010 kg/kg at a mid-latitude grid point,
+against a floor of -0.005 that `astab/diag.py` set 4x below the healthy walkers' -0.0013 -
+at 39-54 d in; and every one then grew into the stratospheric winds (u at 50 or 100 hPa,
+6 of 9) or temperature at 100 hPa (1), with the two latest onsets (54 d) still on humidity
+at 56 d because they had no time to grow. Once past 2% an excursion never came back: the
+severity climbs monotonically to 18-101% of a bound span by 56 d (panel B).
+
+**All nine were LOUD, none silent.** Every CONUS diagnostic fired on every one, and the
+CONUS-mean T2m anomaly of a diverging member collapses by 10-25 K within ~9 d of its onset
+(panel C) - so AI+RES's own observable `A_L` would have seen each of these. That is the
+opposite of job 1189's Uri chains (1211 K polar stratosphere over a normal CONUS). It says
+the silent mode is not the only one, not that it is absent: one event and one lead cannot
+show that, and the CLAUDE.md rule - gate a long-lead production on the GLOBAL state, not
+on the observable - stands.
+
+**Member 2 did not reproduce job 1189.** Same noise stream, same init, same checkpoint:
+1189 left the bounds at 42 d and diverged at 45 d; here member 2 never left them.
+bf16/XLA non-reproducibility (the 1189 re-walk already gave 297.43 vs 297.42 K) is enough
+to move a member across the divergence boundary at 6 weeks - a single chain's fate at this
+lead is not a property of its seed. That is the strongest form of the sweep's own finding
+that n = 1 cannot separate the lead from the member: the same member cannot separate them
+either.
+
+**Cost, measured.** 1,900 segments = 11,200 GenCast steps in **113 GPU-h** of worker time
+(startup included) on 32 workers over 4 nodes; wall **4 h 34 m** for the four shards that
+held 4 members, 3 h 18 m for a 3-member shard. Per member **62.4 min median** (61.8-70.2)
+= **33.4 s/step** with 8 concurrent bf16 workers per node, against the 28.6 s/step budgeted
+from job 1189; the first member on each worker took 72 min median (67-116) including its
+startup. No pool retry fired (4 attempts, one per task). Disk: `ens/wk08/` is **1.1 GB**
+at the end - 1,900 records, 1,900 T2m-only diagnostics, member 2's final state (474 MB) -
+and free space returned to 266 GB; the peak was 67 transient states (~32 GB). The frozen
+sweep's 317 files are byte-identical before and after.
+
+Artifacts: `figures/astab/ensemble_PNW_HeatDome_2021_wk08.png`;
+`runs/astab/ensemble_PNW_HeatDome_2021_wk08.csv` (long, per checkpoint),
+`..._wk08_members.csv` (one row per member), `..._wk08.json` (curve, headline, provenance,
+caveats); shard logs `logs/ens/Vayuh-s2s-1197-walk-try1-shard*.log`.
+
+**The figure was redrawn on 2026-09-04** (same path, `astab/ensemble.py::_fig_one`) to say
+the same thing in fewer words and in kelvin as well as percent. Panel A is the survival
+curve as before. B is the excursion past a bound in % of the bound's span (log axis, "0" on
+the floor) and C sits directly under it on the same lead axis with the CONUS-mean T2m
+anomaly in K, a dot on every diverged trajectory at its first checkpoint past 2% in both,
+so the crossing and the collapse are read as one lead. D plots kelvin against percent for
+every checkpoint that was past a bound at all (hollow below 2%, filled at or past it):
+every filled point sits below the coldest checkpoint of any clean member (-2.3 K) and every
+path runs down and to the right - at the first checkpoint past 2% the CONUS mean is already
+-4 to -10 K, which is what makes 2% a threshold and not a nuisance. The reference for
+"cold" is now the run's own 91 clean members at every checkpoint, not the Gate 3 band
+(which was measured to 21 d and extrapolated beyond; it still decides loud/silent in the
+CSV and JSON). The 2%-in-units note (3.2 K T2m, 4 K T aloft, 8 m/s wind, 2.1 g/kg q) is
+computed from `BOUNDS`, and job 1189's single chain is drawn dashed through B-D, summarised
+by the same `member_summary` as the members. The heatmap panel is gone; its "which
+variable" content is the table above and `_members.csv`.
+
+**What it means for the next step.** At this event and lead the 0.25 deg walker survives
+56 d with probability ~0.91 [0.84, 0.95], and every failure declared itself through the
+CONUS observable within a segment or two of onset. The 56-d curve is also a first-order
+S(L) for every shorter lead from THIS init: 100% through 36 d (Wilson lower bound 96.3%),
+so week 4 (28 d) sits well inside the clean window and week 6 (42 d) sits on the first
+onsets (97% [91.5, 99.0] never diverged at 42 d) - to be confirmed from those leads' own
+inits, which is `--weeks 6` / `--weeks 4` with no code change. For an AI+RES production at
+week 6 or 8 the resampler must be able to KILL a diverging walker rather than clone it,
+and with loud failures at a 9% rate a global bounds check at each resampling time is
+sufficient here. Whether the lead is USEFUL is the other question (see "Stable is not
+useful"). The companion runs that would make this general: Uri at week 8 (the silent
+mode's event) and PNW at week 10 from its own init (`--weeks 10`, 24 segments,
+~129 GPU-h).
+
 ## The adapter test (branch `adapter-test`) - the open question and how to close it
 
 Gate 2 established that an adapter IC forecasts *like* a native one. Scoring both ensembles
@@ -884,6 +1610,18 @@ PYTHONPATH=. python -m aires.gate3 --stage plan            # Gate 3 readiness + 
 PYTHONPATH=. python -m aires.gate3 --stage reduce          # Gate 3 verdict, once it has run
 PYTHONPATH=. python -m aires.run_aires --stage prep        # Phase 3: pilot readiness + budget
 PYTHONPATH=. python -m aires.run_aires --stage ds          # the direct-sampling baseline
+
+# the lead-time stability sweep (the astab/ package) -- all CPU except `walk`/`score`
+PYTHONPATH=. python -m astab.run --stage plan               # readiness + budget; must say READY: yes
+PYTHONPATH=. python -m astab.run --check                    # every segment SHAPE, incl. both
+                                                            #   ragged tails. Isolated per chain:
+                                                            #   this login node has 15 GB of RAM
+PYTHONPATH=. python -m astab.run --stage refs               # ERA5 scalar series + the T2m truth
+                                                            #   fields the maps need. Needs internet
+PYTHONPATH=. python -m astab.run --stage calibrate          # re-measure the bands on the Gate 3
+                                                            #   walkers already on disk (~12 min)
+PYTHONPATH=. python -m astab.run --stage reduce --stage figs --stage maps
+column -s, -t runs/astab/stability.csv | head -30           # first FAIL row per chain, one query
 ```
 
 The test suite is CPU-only and needs no GPU; it takes ~100 s because the batch-shape tests
@@ -1750,6 +2488,23 @@ already on disk and only redoes what is missing; a real bug still fails every at
 long sweep is running on the cluster this is a workaround, not a fix - check for foreign
 processes before blaming the code.
 
+**Survey the cards before booking nodes; `sinfo` cannot see this.** Slurm reported all
+eight a3mega nodes idle on 2026-09-03 while FIVE of them were unusable: teammates'
+non-Slurm processes held 63-81 GB on every card of nodes 0, 3, 4 and 5 (`inkling` probes,
+`continuum/`) and two cards of node 7 (vLLM workers, plus whisper/pyannote servers on the
+rest). The ensemble smoke (job 1195) landed on node 4 and died in 14 s with JAX unable to
+initialise CUDA. The nodes accept SSH from the login node, so the check is one loop:
+
+```bash
+for n in 0 1 2 3 4 5 6 7; do h=nucla3m-a3meganodeset-$n; printf "%s: " $h
+  ssh -o BatchMode=yes -o ConnectTimeout=5 $h 'nvidia-smi --query-gpu=memory.used \
+      --format=csv,noheader,nounits | tr "\n" " "; echo'; done
+# then: sbatch --exclude=nucla3m-a3meganodeset-[0,3,4,5,7] ...   (or --nodelist=... for one node)
+```
+
+A card is usable for the 0.25 deg walker only if it has ~70 GB free (the checkpoint takes
+~64 GB). Never kill what you find - it is not yours - route around it with `--exclude`.
+
 ## `aires/walker.py` - written, tested, and rolled on a GPU
 
 Gate 3 needs a walker that can be stopped, checkpointed and restarted, and whose checkpoint
@@ -1918,6 +2673,16 @@ M = 6, N = 64, states pruned to the last 2 segments, no score bought where `C_k 
 | `aires/cfs.py` | the CFSv2 operational baseline: range-fetches NCEI's archive, regrids to the 0.25 deg CONUS grid, reports `A_L` at the 21 d lead. `--event NAME` / `--all`. Needs internet, no GPU |
 | `aires/apdfs.py` | the pilot's PDFs: `--stage {build,figs,all}` - lineage-stitched walker fields, weighted binned PDFs (CONUS + box), the 3-panel map |
 | `aires/awalkers.py` | the population figure: every surviving walker's `A_L` and its mass `p_i = Z w_i/N`, per run and across the slate, + `runs/aires/aires_walkers.csv` |
+| `astab/` | the lead-time stability sweep, **its own package and its own tree since 2026-08-27** (it was `aires/astab.py` writing into the `stab` tag of `runs/aires/<event>/res/`). Driver `python -m astab.run --stage {plan,check,refs,calibrate,walk,score,reduce,figs,maps,prune}`. See `astab/__init__.py` |
+| `astab/sconfig.py` | the only place the tree is decided; `AIRES_STAB_RUNS`/`AIRES_STAB_FIGS` move either root |
+| `astab/schedule.py` | `chain_schedule` is pure arithmetic on `horizon % 3` - no per-chain tail table |
+| `astab/refs.py` | ERA5: the scalar series AND the CONUS T2m truth fields. `_wb2_frame` reads WeatherBench-2 through raw zarr because `data.open_anon` does not fit in this login node's 15 GB |
+| `astab/maps.py` | the lead-by-lead T2m maps: forecast / ERA5 / difference, one figure per (event, model, init). Fixed scales - +-12 K difference everywhere, one absolute scale per event - so figures are comparable |
+| `astab/tests/` | 101 tests: the tail table, the horizon exclusion, the prune rule, the job-1155 signature on a synthetic cube, the measured bounds, that a chain reads its OWN week's init frames, and that the maps refuse a grid mismatch rather than aligning it |
+| `slurm/aires_stab.slurm` | the sweep: walk (moe) + score free/fed (fcn3) on ONE allocation, 8 GPUs, retried; `AIRES_STAB_MAX_SEGMENTS` is the smoke path |
+| `runs/astab/refs/` | `bands.json` (measured operating ranges), `gate3_panel.csv` (the 224 samples behind them), `<event>_era5_ref.nc` (scalar series), `<event>_era5_t2m.nc` (the truth fields) |
+| `runs/astab/stability.csv`, `figures/astab/stability.png` | the sweep's long table and its four panels |
+| `figures/astab/maps/<event>/<model>_wk<NN>.png` | 24 figures: 2 events x 3 models x 4 leads |
 | `aires/run_aires.py` | the production driver: `--stage {prep,walk,score,res,ds,compare}`. `res` IS the coordinator and launches both GPU pools itself |
 | `aires/tests/test_adapter.py` | 25 tests incl. the 69-channel bit-exactness check |
 | `aires/tests/test_walker.py` | state contract, batch-from-arbitrary-state, cloning RNG, checkpoint choice |

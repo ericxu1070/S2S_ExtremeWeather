@@ -1,0 +1,9 @@
+ERROR: score-fed shard 0 failed -- logs/Vayuh-s2s-1190-score-fed-try1-shard0.log
+ERROR: score-fed shard 1 failed -- logs/Vayuh-s2s-1190-score-fed-try1-shard1.log
+ERROR: score-fed shard 2 failed -- logs/Vayuh-s2s-1190-score-fed-try1-shard2.log
+ERROR: score-fed shard 3 failed -- logs/Vayuh-s2s-1190-score-fed-try1-shard3.log
+ERROR: score-fed shard 4 failed -- logs/Vayuh-s2s-1190-score-fed-try1-shard4.log
+ERROR: score-fed shard 5 failed -- logs/Vayuh-s2s-1190-score-fed-try1-shard5.log
+ERROR: score-fed shard 6 failed -- logs/Vayuh-s2s-1190-score-fed-try1-shard6.log
+ERROR: score-fed shard 7 failed -- logs/Vayuh-s2s-1190-score-fed-try1-shard7.log
+[2026-08-27T04:20:03.832] error: *** JOB 1190 ON nucla3m-a3meganodeset-4 CANCELLED AT 2026-08-27T04:20:03 DUE to SIGNAL Terminated ***

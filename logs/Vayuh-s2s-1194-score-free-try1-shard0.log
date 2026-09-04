@@ -1,0 +1,1118 @@
+[score] host=nucla3m-a3meganodeset-4 shard 0/8 arm=free: ['PNW_HeatDome_2021@wk4 ', 'PNW_HeatDome_2021@wk20', 'WinterStorm_Uri_2021@wk18']
+[score] PNW_HeatDome_2021@wk4  free: cached PNW_HeatDome_2021_shard00of01_cube.nc, skip
+[score] PNW_HeatDome_2021@wk20 free: 1 member(s) x 560 x 6 h from the ERA5 IC at 2021-02-08 00:00:00 -> peak 2021-06-28 00:00:00
+[check] torch-harmonics DISCO CUDA extension: PRESENT -> FCN3 runs bf16
+[infer] CPU threads: torch=26 OMP_NUM_THREADS=26
+[infer] host=nucla3m-a3meganodeset-4 shard=0/1: members 0..0 (1 of 1) over 1 event(s)
+[infer] device=cuda; torch 2.11.0+cu128 (cuda build 12.8)
+[infer] GPU: NVIDIA H100 80GB HBM3  85 GB
+[model] loaded cache fcn3_model_2.11.0+cu128_th0.8.1_a305be3ecd79.pt in 7.1 s
+[infer] PNW_HeatDome_2021: rolling 1 member(s) x 560 steps (init 2021-02-08T00:00:00, vars=['t2m', 'z500', 't50'], seed=333) ...
+[32m2026-08-28 00:41:57.702[0m | [1mINFO    [0m | [36mearth2studio.run[0m:[36mensemble[0m:[36m400[0m - [1mRunning ensemble inference![0m
+[32m2026-08-28 00:41:57.702[0m | [1mINFO    [0m | [36mearth2studio.run[0m:[36mensemble[0m:[36m407[0m - [1mInference device: cuda[0m
+[32m2026-08-28 00:42:02.448[0m | [32m[1mSUCCESS [0m | [36mearth2studio.run[0m:[36mensemble[0m:[36m428[0m - [32m[1mFetched data from LocalIC[0m
+[32m2026-08-28 00:42:02.893[0m | [1mINFO    [0m | [36mearth2studio.run[0m:[36mensemble[0m:[36m472[0m - [1mStarting 1 Member Ensemble Inference with             1 number of batches.[0m
+
+
+Total Ensemble Batches:   0%|          | 0/1 [00:00<?, ?it/s][A[A
+Running batch 0 inference:   0%|          | 0/561 [00:00<?, ?it/s][A
+Running batch 0 inference:   0%|          | 1/561 [00:00<07:43,  1.21it/s][A
+Running batch 0 inference:   0%|          | 2/561 [00:21<1:57:30, 12.61s/it][A
+Running batch 0 inference:   1%|          | 3/561 [00:23<1:12:50,  7.83s/it][A
+Running batch 0 inference:   1%|          | 4/561 [00:26<52:11,  5.62s/it]  [A
+Running batch 0 inference:   1%|          | 5/561 [00:28<40:13,  4.34s/it][A
+Running batch 0 inference:   1%|          | 6/561 [00:30<32:55,  3.56s/it][A
+Running batch 0 inference:   1%|          | 7/561 [00:32<28:45,  3.12s/it][A
+Running batch 0 inference:   1%|▏         | 8/561 [00:34<26:11,  2.84s/it][A
+Running batch 0 inference:   2%|▏         | 9/561 [00:36<22:59,  2.50s/it][A
+Running batch 0 inference:   2%|▏         | 10/561 [00:38<21:17,  2.32s/it][A
+Running batch 0 inference:   2%|▏         | 11/561 [00:40<21:04,  2.30s/it][A
+Running batch 0 inference:   2%|▏         | 12/561 [00:42<19:12,  2.10s/it][A
+Running batch 0 inference:   2%|▏         | 13/561 [00:43<17:47,  1.95s/it][A
+Running batch 0 inference:   2%|▏         | 14/561 [00:45<16:48,  1.84s/it][A
+Running batch 0 inference:   3%|▎         | 15/561 [00:47<16:09,  1.78s/it][A
+Running batch 0 inference:   3%|▎         | 16/561 [00:48<15:36,  1.72s/it][A
+Running batch 0 inference:   3%|▎         | 17/561 [00:50<15:24,  1.70s/it][A
+Running batch 0 inference:   3%|▎         | 18/561 [00:51<15:13,  1.68s/it][A
+Running batch 0 inference:   3%|▎         | 19/561 [00:53<14:53,  1.65s/it][A
+Running batch 0 inference:   4%|▎         | 20/561 [00:55<14:46,  1.64s/it][A
+Running batch 0 inference:   4%|▎         | 21/561 [00:56<14:45,  1.64s/it][A
+Running batch 0 inference:   4%|▍         | 22/561 [00:58<14:29,  1.61s/it][A
+Running batch 0 inference:   4%|▍         | 23/561 [00:59<14:25,  1.61s/it][A
+Running batch 0 inference:   4%|▍         | 24/561 [01:01<14:14,  1.59s/it][A
+Running batch 0 inference:   4%|▍         | 25/561 [01:03<14:11,  1.59s/it][A
+Running batch 0 inference:   5%|▍         | 26/561 [01:04<14:08,  1.59s/it][A
+Running batch 0 inference:   5%|▍         | 27/561 [01:06<14:03,  1.58s/it][A
+Running batch 0 inference:   5%|▍         | 28/561 [01:07<14:06,  1.59s/it][A
+Running batch 0 inference:   5%|▌         | 29/561 [01:09<14:09,  1.60s/it][A
+Running batch 0 inference:   5%|▌         | 30/561 [01:11<14:13,  1.61s/it][A
+Running batch 0 inference:   6%|▌         | 31/561 [01:12<14:13,  1.61s/it][A
+Running batch 0 inference:   6%|▌         | 32/561 [01:14<14:11,  1.61s/it][A
+Running batch 0 inference:   6%|▌         | 33/561 [01:15<14:16,  1.62s/it][A
+Running batch 0 inference:   6%|▌         | 34/561 [01:17<14:14,  1.62s/it][A
+Running batch 0 inference:   6%|▌         | 35/561 [01:19<14:05,  1.61s/it][A
+Running batch 0 inference:   6%|▋         | 36/561 [01:20<13:58,  1.60s/it][A
+Running batch 0 inference:   7%|▋         | 37/561 [01:22<13:57,  1.60s/it][A
+Running batch 0 inference:   7%|▋         | 38/561 [01:23<14:00,  1.61s/it][A
+Running batch 0 inference:   7%|▋         | 39/561 [01:25<14:05,  1.62s/it][A
+Running batch 0 inference:   7%|▋         | 40/561 [01:27<14:06,  1.63s/it][A
+Running batch 0 inference:   7%|▋         | 41/561 [01:28<14:00,  1.62s/it][A
+Running batch 0 inference:   7%|▋         | 42/561 [01:30<13:52,  1.60s/it][A
+Running batch 0 inference:   8%|▊         | 43/561 [01:31<13:51,  1.61s/it][A
+Running batch 0 inference:   8%|▊         | 44/561 [01:33<13:53,  1.61s/it][A
+Running batch 0 inference:   8%|▊         | 45/561 [01:35<13:52,  1.61s/it][A
+Running batch 0 inference:   8%|▊         | 46/561 [01:36<13:45,  1.60s/it][A
+Running batch 0 inference:   8%|▊         | 47/561 [01:38<13:39,  1.59s/it][A
+Running batch 0 inference:   9%|▊         | 48/561 [01:39<13:39,  1.60s/it][A
+Running batch 0 inference:   9%|▊         | 49/561 [01:41<13:49,  1.62s/it][A
+Running batch 0 inference:   9%|▉         | 50/561 [01:43<13:46,  1.62s/it][A
+Running batch 0 inference:   9%|▉         | 51/561 [01:44<13:39,  1.61s/it][A
+Running batch 0 inference:   9%|▉         | 52/561 [01:46<13:38,  1.61s/it][A
+Running batch 0 inference:   9%|▉         | 53/561 [01:48<13:37,  1.61s/it][A
+Running batch 0 inference:  10%|▉         | 54/561 [01:49<13:37,  1.61s/it][A
+Running batch 0 inference:  10%|▉         | 55/561 [01:51<13:39,  1.62s/it][A
+Running batch 0 inference:  10%|▉         | 56/561 [01:52<13:34,  1.61s/it][A
+Running batch 0 inference:  10%|█         | 57/561 [01:54<13:34,  1.62s/it][A
+Running batch 0 inference:  10%|█         | 58/561 [01:56<13:35,  1.62s/it][A
+Running batch 0 inference:  11%|█         | 59/561 [01:57<13:41,  1.64s/it][A
+Running batch 0 inference:  11%|█         | 60/561 [01:59<13:40,  1.64s/it][A
+Running batch 0 inference:  11%|█         | 61/561 [02:01<13:43,  1.65s/it][A
+Running batch 0 inference:  11%|█         | 62/561 [02:02<13:47,  1.66s/it][A
+Running batch 0 inference:  11%|█         | 63/561 [02:04<13:39,  1.65s/it][A
+Running batch 0 inference:  11%|█▏        | 64/561 [02:06<13:31,  1.63s/it][A
+Running batch 0 inference:  12%|█▏        | 65/561 [02:07<13:27,  1.63s/it][A
+Running batch 0 inference:  12%|█▏        | 66/561 [02:09<13:33,  1.64s/it][A
+Running batch 0 inference:  12%|█▏        | 67/561 [02:11<13:35,  1.65s/it][A
+Running batch 0 inference:  12%|█▏        | 68/561 [02:12<13:25,  1.63s/it][A
+Running batch 0 inference:  12%|█▏        | 69/561 [02:14<13:15,  1.62s/it][A
+Running batch 0 inference:  12%|█▏        | 70/561 [02:15<13:16,  1.62s/it][A
+Running batch 0 inference:  13%|█▎        | 71/561 [02:17<13:15,  1.62s/it][A
+Running batch 0 inference:  13%|█▎        | 72/561 [02:19<13:12,  1.62s/it][A
+Running batch 0 inference:  13%|█▎        | 73/561 [02:20<13:12,  1.62s/it][A
+Running batch 0 inference:  13%|█▎        | 74/561 [02:22<13:11,  1.62s/it][A
+Running batch 0 inference:  13%|█▎        | 75/561 [02:23<13:07,  1.62s/it][A
+Running batch 0 inference:  14%|█▎        | 76/561 [02:25<13:02,  1.61s/it][A
+Running batch 0 inference:  14%|█▎        | 77/561 [02:27<12:59,  1.61s/it][A
+Running batch 0 inference:  14%|█▍        | 78/561 [02:28<12:55,  1.61s/it][A
+Running batch 0 inference:  14%|█▍        | 79/561 [02:30<12:56,  1.61s/it][A
+Running batch 0 inference:  14%|█▍        | 80/561 [02:31<12:51,  1.60s/it][A
+Running batch 0 inference:  14%|█▍        | 81/561 [02:33<12:52,  1.61s/it][A
+Running batch 0 inference:  15%|█▍        | 82/561 [02:35<12:54,  1.62s/it][A
+Running batch 0 inference:  15%|█▍        | 83/561 [02:36<12:49,  1.61s/it][A
+Running batch 0 inference:  15%|█▍        | 84/561 [02:38<12:50,  1.62s/it][A
+Running batch 0 inference:  15%|█▌        | 85/561 [02:40<12:48,  1.61s/it][A
+Running batch 0 inference:  15%|█▌        | 86/561 [02:41<12:45,  1.61s/it][A
+Running batch 0 inference:  16%|█▌        | 87/561 [02:43<12:51,  1.63s/it][A
+Running batch 0 inference:  16%|█▌        | 88/561 [02:44<12:42,  1.61s/it][A
+Running batch 0 inference:  16%|█▌        | 89/561 [02:46<12:40,  1.61s/it][A
+Running batch 0 inference:  16%|█▌        | 90/561 [02:48<12:40,  1.62s/it][A
+Running batch 0 inference:  16%|█▌        | 91/561 [02:49<12:39,  1.62s/it][A
+Running batch 0 inference:  16%|█▋        | 92/561 [02:51<12:41,  1.62s/it][A
+Running batch 0 inference:  17%|█▋        | 93/561 [02:52<12:39,  1.62s/it][A
+Running batch 0 inference:  17%|█▋        | 94/561 [02:54<12:36,  1.62s/it][A
+Running batch 0 inference:  17%|█▋        | 95/561 [02:56<12:34,  1.62s/it][A
+Running batch 0 inference:  17%|█▋        | 96/561 [02:57<12:32,  1.62s/it][A
+Running batch 0 inference:  17%|█▋        | 97/561 [02:59<12:33,  1.62s/it][A
+Running batch 0 inference:  17%|█▋        | 98/561 [03:01<12:35,  1.63s/it][A
+Running batch 0 inference:  18%|█▊        | 99/561 [03:02<12:29,  1.62s/it][A
+Running batch 0 inference:  18%|█▊        | 100/561 [03:04<12:26,  1.62s/it][A
+Running batch 0 inference:  18%|█▊        | 101/561 [03:05<12:27,  1.63s/it][A
+Running batch 0 inference:  18%|█▊        | 102/561 [03:07<12:26,  1.63s/it][A
+Running batch 0 inference:  18%|█▊        | 103/561 [03:09<12:27,  1.63s/it][A
+Running batch 0 inference:  19%|█▊        | 104/561 [03:10<12:26,  1.63s/it][A
+Running batch 0 inference:  19%|█▊        | 105/561 [03:12<12:23,  1.63s/it][A
+Running batch 0 inference:  19%|█▉        | 106/561 [03:14<12:23,  1.63s/it][A
+Running batch 0 inference:  19%|█▉        | 107/561 [03:15<12:12,  1.61s/it][A
+Running batch 0 inference:  19%|█▉        | 108/561 [03:17<12:14,  1.62s/it][A
+Running batch 0 inference:  19%|█▉        | 109/561 [03:18<12:10,  1.62s/it][A
+Running batch 0 inference:  20%|█▉        | 110/561 [03:20<12:02,  1.60s/it][A
+Running batch 0 inference:  20%|█▉        | 111/561 [03:22<11:58,  1.60s/it][A
+Running batch 0 inference:  20%|█▉        | 112/561 [03:23<12:02,  1.61s/it][A
+Running batch 0 inference:  20%|██        | 113/561 [03:25<12:06,  1.62s/it][A
+Running batch 0 inference:  20%|██        | 114/561 [03:26<12:01,  1.62s/it][A
+Running batch 0 inference:  20%|██        | 115/561 [03:28<11:56,  1.61s/it][A
+Running batch 0 inference:  21%|██        | 116/561 [03:30<11:53,  1.60s/it][A
+Running batch 0 inference:  21%|██        | 117/561 [03:31<11:55,  1.61s/it][A
+Running batch 0 inference:  21%|██        | 118/561 [03:33<11:49,  1.60s/it][A
+Running batch 0 inference:  21%|██        | 119/561 [03:34<11:49,  1.61s/it][A
+Running batch 0 inference:  21%|██▏       | 120/561 [03:36<11:51,  1.61s/it][A
+Running batch 0 inference:  22%|██▏       | 121/561 [03:38<11:49,  1.61s/it][A
+Running batch 0 inference:  22%|██▏       | 122/561 [03:39<11:50,  1.62s/it][A
+Running batch 0 inference:  22%|██▏       | 123/561 [03:41<11:42,  1.60s/it][A
+Running batch 0 inference:  22%|██▏       | 124/561 [03:43<11:46,  1.62s/it][A
+Running batch 0 inference:  22%|██▏       | 125/561 [03:44<11:41,  1.61s/it][A
+Running batch 0 inference:  22%|██▏       | 126/561 [03:46<11:40,  1.61s/it][A
+Running batch 0 inference:  23%|██▎       | 127/561 [03:47<11:35,  1.60s/it][A
+Running batch 0 inference:  23%|██▎       | 128/561 [03:49<11:33,  1.60s/it][A
+Running batch 0 inference:  23%|██▎       | 129/561 [03:51<11:34,  1.61s/it][A
+Running batch 0 inference:  23%|██▎       | 130/561 [03:52<11:33,  1.61s/it][A
+Running batch 0 inference:  23%|██▎       | 131/561 [03:54<11:31,  1.61s/it][A
+Running batch 0 inference:  24%|██▎       | 132/561 [03:55<11:26,  1.60s/it][A
+Running batch 0 inference:  24%|██▎       | 133/561 [03:57<11:19,  1.59s/it][A
+Running batch 0 inference:  24%|██▍       | 134/561 [03:59<11:15,  1.58s/it][A
+Running batch 0 inference:  24%|██▍       | 135/561 [04:00<11:08,  1.57s/it][A
+Running batch 0 inference:  24%|██▍       | 136/561 [04:02<11:07,  1.57s/it][A
+Running batch 0 inference:  24%|██▍       | 137/561 [04:03<11:10,  1.58s/it][A
+Running batch 0 inference:  25%|██▍       | 138/561 [04:05<11:10,  1.59s/it][A
+Running batch 0 inference:  25%|██▍       | 139/561 [04:06<11:13,  1.59s/it][A
+Running batch 0 inference:  25%|██▍       | 140/561 [04:08<11:22,  1.62s/it][A
+Running batch 0 inference:  25%|██▌       | 141/561 [04:10<11:24,  1.63s/it][A
+Running batch 0 inference:  25%|██▌       | 142/561 [04:11<11:21,  1.63s/it][A
+Running batch 0 inference:  25%|██▌       | 143/561 [04:13<11:14,  1.61s/it][A
+Running batch 0 inference:  26%|██▌       | 144/561 [04:15<11:08,  1.60s/it][A
+Running batch 0 inference:  26%|██▌       | 145/561 [04:16<10:59,  1.59s/it][A
+Running batch 0 inference:  26%|██▌       | 146/561 [04:18<10:59,  1.59s/it][A
+Running batch 0 inference:  26%|██▌       | 147/561 [04:19<10:55,  1.58s/it][A
+Running batch 0 inference:  26%|██▋       | 148/561 [04:21<11:05,  1.61s/it][A
+Running batch 0 inference:  27%|██▋       | 149/561 [04:23<11:09,  1.62s/it][A
+Running batch 0 inference:  27%|██▋       | 150/561 [04:24<11:10,  1.63s/it][A
+Running batch 0 inference:  27%|██▋       | 151/561 [04:26<11:10,  1.64s/it][A
+Running batch 0 inference:  27%|██▋       | 152/561 [04:28<11:11,  1.64s/it][A
+Running batch 0 inference:  27%|██▋       | 153/561 [04:29<11:06,  1.63s/it][A
+Running batch 0 inference:  27%|██▋       | 154/561 [04:31<10:58,  1.62s/it][A
+Running batch 0 inference:  28%|██▊       | 155/561 [04:32<10:51,  1.60s/it][A
+Running batch 0 inference:  28%|██▊       | 156/561 [04:34<10:44,  1.59s/it][A
+Running batch 0 inference:  28%|██▊       | 157/561 [04:36<10:52,  1.62s/it][A
+Running batch 0 inference:  28%|██▊       | 158/561 [04:37<10:55,  1.63s/it][A
+Running batch 0 inference:  28%|██▊       | 159/561 [04:39<11:00,  1.64s/it][A
+Running batch 0 inference:  29%|██▊       | 160/561 [04:41<10:54,  1.63s/it][A
+Running batch 0 inference:  29%|██▊       | 161/561 [04:42<10:42,  1.61s/it][A
+Running batch 0 inference:  29%|██▉       | 162/561 [04:44<10:42,  1.61s/it][A
+Running batch 0 inference:  29%|██▉       | 163/561 [04:45<10:42,  1.61s/it][A
+Running batch 0 inference:  29%|██▉       | 164/561 [04:47<10:43,  1.62s/it][A
+Running batch 0 inference:  29%|██▉       | 165/561 [04:49<10:39,  1.62s/it][A
+Running batch 0 inference:  30%|██▉       | 166/561 [04:50<10:35,  1.61s/it][A
+Running batch 0 inference:  30%|██▉       | 167/561 [04:52<10:29,  1.60s/it][A
+Running batch 0 inference:  30%|██▉       | 168/561 [04:53<10:32,  1.61s/it][A
+Running batch 0 inference:  30%|███       | 169/561 [04:55<10:25,  1.60s/it][A
+Running batch 0 inference:  30%|███       | 170/561 [04:56<10:23,  1.59s/it][A
+Running batch 0 inference:  30%|███       | 171/561 [04:58<10:21,  1.59s/it][A
+Running batch 0 inference:  31%|███       | 172/561 [05:00<10:24,  1.61s/it][A
+Running batch 0 inference:  31%|███       | 173/561 [05:01<10:19,  1.60s/it][A
+Running batch 0 inference:  31%|███       | 174/561 [05:03<10:17,  1.60s/it][A
+Running batch 0 inference:  31%|███       | 175/561 [05:05<10:25,  1.62s/it][A
+Running batch 0 inference:  31%|███▏      | 176/561 [05:06<10:21,  1.61s/it][A
+Running batch 0 inference:  32%|███▏      | 177/561 [05:08<10:15,  1.60s/it][A
+Running batch 0 inference:  32%|███▏      | 178/561 [05:09<10:14,  1.60s/it][A
+Running batch 0 inference:  32%|███▏      | 179/561 [05:11<10:16,  1.61s/it][A
+Running batch 0 inference:  32%|███▏      | 180/561 [05:13<10:15,  1.62s/it][A
+Running batch 0 inference:  32%|███▏      | 181/561 [05:14<10:13,  1.62s/it][A
+Running batch 0 inference:  32%|███▏      | 182/561 [05:16<10:18,  1.63s/it][A
+Running batch 0 inference:  33%|███▎      | 183/561 [05:18<10:15,  1.63s/it][A
+Running batch 0 inference:  33%|███▎      | 184/561 [05:19<10:16,  1.64s/it][A
+Running batch 0 inference:  33%|███▎      | 185/561 [05:21<10:20,  1.65s/it][A
+Running batch 0 inference:  33%|███▎      | 186/561 [05:22<10:18,  1.65s/it][A
+Running batch 0 inference:  33%|███▎      | 187/561 [05:24<10:16,  1.65s/it][A
+Running batch 0 inference:  34%|███▎      | 188/561 [05:26<10:14,  1.65s/it][A
+Running batch 0 inference:  34%|███▎      | 189/561 [05:27<10:14,  1.65s/it][A
+Running batch 0 inference:  34%|███▍      | 190/561 [05:29<10:14,  1.66s/it][A
+Running batch 0 inference:  34%|███▍      | 191/561 [05:31<10:15,  1.66s/it][A
+Running batch 0 inference:  34%|███▍      | 192/561 [05:32<10:09,  1.65s/it][A
+Running batch 0 inference:  34%|███▍      | 193/561 [05:34<10:03,  1.64s/it][A
+Running batch 0 inference:  35%|███▍      | 194/561 [05:36<10:03,  1.65s/it][A
+Running batch 0 inference:  35%|███▍      | 195/561 [05:37<10:00,  1.64s/it][A
+Running batch 0 inference:  35%|███▍      | 196/561 [05:39<10:03,  1.65s/it][A
+Running batch 0 inference:  35%|███▌      | 197/561 [05:41<10:02,  1.66s/it][A
+Running batch 0 inference:  35%|███▌      | 198/561 [05:42<10:01,  1.66s/it][A
+Running batch 0 inference:  35%|███▌      | 199/561 [05:44<09:58,  1.65s/it][A
+Running batch 0 inference:  36%|███▌      | 200/561 [05:46<09:50,  1.64s/it][A
+Running batch 0 inference:  36%|███▌      | 201/561 [05:47<09:46,  1.63s/it][A
+Running batch 0 inference:  36%|███▌      | 202/561 [05:49<09:44,  1.63s/it][A
+Running batch 0 inference:  36%|███▌      | 203/561 [05:50<09:43,  1.63s/it][A
+Running batch 0 inference:  36%|███▋      | 204/561 [05:52<09:42,  1.63s/it][A
+Running batch 0 inference:  37%|███▋      | 205/561 [05:54<09:37,  1.62s/it][A
+Running batch 0 inference:  37%|███▋      | 206/561 [05:55<09:35,  1.62s/it][A
+Running batch 0 inference:  37%|███▋      | 207/561 [05:57<09:35,  1.63s/it][A
+Running batch 0 inference:  37%|███▋      | 208/561 [05:59<09:32,  1.62s/it][A
+Running batch 0 inference:  37%|███▋      | 209/561 [06:00<09:32,  1.63s/it][A
+Running batch 0 inference:  37%|███▋      | 210/561 [06:02<09:30,  1.62s/it][A
+Running batch 0 inference:  38%|███▊      | 211/561 [06:03<09:27,  1.62s/it][A
+Running batch 0 inference:  38%|███▊      | 212/561 [06:05<09:23,  1.61s/it][A
+Running batch 0 inference:  38%|███▊      | 213/561 [06:07<09:21,  1.61s/it][A
+Running batch 0 inference:  38%|███▊      | 214/561 [06:08<09:20,  1.62s/it][A
+Running batch 0 inference:  38%|███▊      | 215/561 [06:10<09:20,  1.62s/it][A
+Running batch 0 inference:  39%|███▊      | 216/561 [06:11<09:16,  1.61s/it][A
+Running batch 0 inference:  39%|███▊      | 217/561 [06:13<09:10,  1.60s/it][A
+Running batch 0 inference:  39%|███▉      | 218/561 [06:15<09:12,  1.61s/it][A
+Running batch 0 inference:  39%|███▉      | 219/561 [06:16<09:10,  1.61s/it][A
+Running batch 0 inference:  39%|███▉      | 220/561 [06:18<09:08,  1.61s/it][A
+Running batch 0 inference:  39%|███▉      | 221/561 [06:20<09:08,  1.61s/it][A
+Running batch 0 inference:  40%|███▉      | 222/561 [06:21<09:07,  1.62s/it][A
+Running batch 0 inference:  40%|███▉      | 223/561 [06:23<09:08,  1.62s/it][A
+Running batch 0 inference:  40%|███▉      | 224/561 [06:24<09:05,  1.62s/it][A
+Running batch 0 inference:  40%|████      | 225/561 [06:26<09:05,  1.62s/it][A
+Running batch 0 inference:  40%|████      | 226/561 [06:28<09:02,  1.62s/it][A
+Running batch 0 inference:  40%|████      | 227/561 [06:29<09:01,  1.62s/it][A
+Running batch 0 inference:  41%|████      | 228/561 [06:31<09:01,  1.62s/it][A
+Running batch 0 inference:  41%|████      | 229/561 [06:33<09:00,  1.63s/it][A
+Running batch 0 inference:  41%|████      | 230/561 [06:34<08:58,  1.63s/it][A
+Running batch 0 inference:  41%|████      | 231/561 [06:36<08:54,  1.62s/it][A
+Running batch 0 inference:  41%|████▏     | 232/561 [06:37<08:50,  1.61s/it][A
+Running batch 0 inference:  42%|████▏     | 233/561 [06:39<08:49,  1.62s/it][A
+Running batch 0 inference:  42%|████▏     | 234/561 [06:41<08:47,  1.61s/it][A
+Running batch 0 inference:  42%|████▏     | 235/561 [06:42<08:43,  1.61s/it][A
+Running batch 0 inference:  42%|████▏     | 236/561 [06:44<08:40,  1.60s/it][A
+Running batch 0 inference:  42%|████▏     | 237/561 [06:45<08:35,  1.59s/it][A
+Running batch 0 inference:  42%|████▏     | 238/561 [06:47<08:33,  1.59s/it][A
+Running batch 0 inference:  43%|████▎     | 239/561 [06:49<08:36,  1.60s/it][A
+Running batch 0 inference:  43%|████▎     | 240/561 [06:50<08:32,  1.60s/it][A
+Running batch 0 inference:  43%|████▎     | 241/561 [06:52<08:32,  1.60s/it][A
+Running batch 0 inference:  43%|████▎     | 242/561 [06:53<08:29,  1.60s/it][A
+Running batch 0 inference:  43%|████▎     | 243/561 [06:55<08:26,  1.59s/it][A
+Running batch 0 inference:  43%|████▎     | 244/561 [06:56<08:24,  1.59s/it][A
+Running batch 0 inference:  44%|████▎     | 245/561 [06:58<08:24,  1.60s/it][A
+Running batch 0 inference:  44%|████▍     | 246/561 [07:00<08:21,  1.59s/it][A
+Running batch 0 inference:  44%|████▍     | 247/561 [07:01<08:21,  1.60s/it][A
+Running batch 0 inference:  44%|████▍     | 248/561 [07:03<08:19,  1.60s/it][A
+Running batch 0 inference:  44%|████▍     | 249/561 [07:04<08:16,  1.59s/it][A
+Running batch 0 inference:  45%|████▍     | 250/561 [07:06<08:11,  1.58s/it][A
+Running batch 0 inference:  45%|████▍     | 251/561 [07:08<08:14,  1.60s/it][A
+Running batch 0 inference:  45%|████▍     | 252/561 [07:09<08:11,  1.59s/it][A
+Running batch 0 inference:  45%|████▌     | 253/561 [07:11<08:08,  1.59s/it][A
+Running batch 0 inference:  45%|████▌     | 254/561 [07:12<08:06,  1.58s/it][A
+Running batch 0 inference:  45%|████▌     | 255/561 [07:14<08:07,  1.59s/it][A
+Running batch 0 inference:  46%|████▌     | 256/561 [07:16<08:04,  1.59s/it][A
+Running batch 0 inference:  46%|████▌     | 257/561 [07:17<08:02,  1.59s/it][A
+Running batch 0 inference:  46%|████▌     | 258/561 [07:19<08:01,  1.59s/it][A
+Running batch 0 inference:  46%|████▌     | 259/561 [07:20<08:01,  1.59s/it][A
+Running batch 0 inference:  46%|████▋     | 260/561 [07:22<08:00,  1.59s/it][A
+Running batch 0 inference:  47%|████▋     | 261/561 [07:24<07:55,  1.59s/it][A
+Running batch 0 inference:  47%|████▋     | 262/561 [07:25<07:59,  1.60s/it][A
+Running batch 0 inference:  47%|████▋     | 263/561 [07:27<07:56,  1.60s/it][A
+Running batch 0 inference:  47%|████▋     | 264/561 [07:28<07:54,  1.60s/it][A
+Running batch 0 inference:  47%|████▋     | 265/561 [07:30<07:52,  1.60s/it][A
+Running batch 0 inference:  47%|████▋     | 266/561 [07:32<07:50,  1.60s/it][A
+Running batch 0 inference:  48%|████▊     | 267/561 [07:33<07:50,  1.60s/it][A
+Running batch 0 inference:  48%|████▊     | 268/561 [07:35<07:47,  1.60s/it][A
+Running batch 0 inference:  48%|████▊     | 269/561 [07:36<07:47,  1.60s/it][A
+Running batch 0 inference:  48%|████▊     | 270/561 [07:38<07:43,  1.59s/it][A
+Running batch 0 inference:  48%|████▊     | 271/561 [07:39<07:39,  1.58s/it][A
+Running batch 0 inference:  48%|████▊     | 272/561 [07:41<07:39,  1.59s/it][A
+Running batch 0 inference:  49%|████▊     | 273/561 [07:43<07:40,  1.60s/it][A
+Running batch 0 inference:  49%|████▉     | 274/561 [07:44<07:36,  1.59s/it][A
+Running batch 0 inference:  49%|████▉     | 275/561 [07:46<07:34,  1.59s/it][A
+Running batch 0 inference:  49%|████▉     | 276/561 [07:47<07:31,  1.58s/it][A
+Running batch 0 inference:  49%|████▉     | 277/561 [07:49<07:31,  1.59s/it][A
+Running batch 0 inference:  50%|████▉     | 278/561 [07:51<07:28,  1.58s/it][A
+Running batch 0 inference:  50%|████▉     | 279/561 [07:52<07:25,  1.58s/it][A
+Running batch 0 inference:  50%|████▉     | 280/561 [07:54<07:21,  1.57s/it][A
+Running batch 0 inference:  50%|█████     | 281/561 [07:55<07:21,  1.58s/it][A
+Running batch 0 inference:  50%|█████     | 282/561 [07:57<07:22,  1.58s/it][A
+Running batch 0 inference:  50%|█████     | 283/561 [07:59<07:22,  1.59s/it][A
+Running batch 0 inference:  51%|█████     | 284/561 [08:00<07:18,  1.58s/it][A
+Running batch 0 inference:  51%|█████     | 285/561 [08:02<07:22,  1.60s/it][A
+Running batch 0 inference:  51%|█████     | 286/561 [08:03<07:21,  1.60s/it][A
+Running batch 0 inference:  51%|█████     | 287/561 [08:05<07:20,  1.61s/it][A
+Running batch 0 inference:  51%|█████▏    | 288/561 [08:07<07:21,  1.62s/it][A
+Running batch 0 inference:  52%|█████▏    | 289/561 [08:08<07:22,  1.63s/it][A
+Running batch 0 inference:  52%|█████▏    | 290/561 [08:10<07:20,  1.62s/it][A
+Running batch 0 inference:  52%|█████▏    | 291/561 [08:11<07:18,  1.63s/it][A
+Running batch 0 inference:  52%|█████▏    | 292/561 [08:13<07:15,  1.62s/it][A
+Running batch 0 inference:  52%|█████▏    | 293/561 [08:15<07:14,  1.62s/it][A
+Running batch 0 inference:  52%|█████▏    | 294/561 [08:16<07:11,  1.61s/it][A
+Running batch 0 inference:  53%|█████▎    | 295/561 [08:18<07:09,  1.61s/it][A
+Running batch 0 inference:  53%|█████▎    | 296/561 [08:20<07:07,  1.61s/it][A
+Running batch 0 inference:  53%|█████▎    | 297/561 [08:21<07:04,  1.61s/it][A
+Running batch 0 inference:  53%|█████▎    | 298/561 [08:23<07:04,  1.61s/it][A
+Running batch 0 inference:  53%|█████▎    | 299/561 [08:24<07:03,  1.62s/it][A
+Running batch 0 inference:  53%|█████▎    | 300/561 [08:26<07:01,  1.61s/it][A
+Running batch 0 inference:  54%|█████▎    | 301/561 [08:28<06:58,  1.61s/it][A
+Running batch 0 inference:  54%|█████▍    | 302/561 [08:29<06:55,  1.61s/it][A
+Running batch 0 inference:  54%|█████▍    | 303/561 [08:31<06:54,  1.61s/it][A
+Running batch 0 inference:  54%|█████▍    | 304/561 [08:32<06:52,  1.61s/it][A
+Running batch 0 inference:  54%|█████▍    | 305/561 [08:34<06:52,  1.61s/it][A
+Running batch 0 inference:  55%|█████▍    | 306/561 [08:36<06:50,  1.61s/it][A
+Running batch 0 inference:  55%|█████▍    | 307/561 [08:37<06:49,  1.61s/it][A
+Running batch 0 inference:  55%|█████▍    | 308/561 [08:39<06:45,  1.60s/it][A
+Running batch 0 inference:  55%|█████▌    | 309/561 [08:40<06:43,  1.60s/it][A
+Running batch 0 inference:  55%|█████▌    | 310/561 [08:42<06:43,  1.61s/it][A
+Running batch 0 inference:  55%|█████▌    | 311/561 [08:44<06:42,  1.61s/it][A
+Running batch 0 inference:  56%|█████▌    | 312/561 [08:45<06:41,  1.61s/it][A
+Running batch 0 inference:  56%|█████▌    | 313/561 [08:47<06:39,  1.61s/it][A
+Running batch 0 inference:  56%|█████▌    | 314/561 [08:49<06:38,  1.61s/it][A
+Running batch 0 inference:  56%|█████▌    | 315/561 [08:50<06:35,  1.61s/it][A
+Running batch 0 inference:  56%|█████▋    | 316/561 [08:52<06:34,  1.61s/it][A
+Running batch 0 inference:  57%|█████▋    | 317/561 [08:53<06:31,  1.61s/it][A
+Running batch 0 inference:  57%|█████▋    | 318/561 [08:55<06:30,  1.61s/it][A
+Running batch 0 inference:  57%|█████▋    | 319/561 [08:57<06:27,  1.60s/it][A
+Running batch 0 inference:  57%|█████▋    | 320/561 [08:58<06:27,  1.61s/it][A
+Running batch 0 inference:  57%|█████▋    | 321/561 [09:00<06:24,  1.60s/it][A
+Running batch 0 inference:  57%|█████▋    | 322/561 [09:01<06:22,  1.60s/it][A
+Running batch 0 inference:  58%|█████▊    | 323/561 [09:03<06:19,  1.60s/it][A
+Running batch 0 inference:  58%|█████▊    | 324/561 [09:04<06:15,  1.58s/it][A
+Running batch 0 inference:  58%|█████▊    | 325/561 [09:06<06:12,  1.58s/it][A
+Running batch 0 inference:  58%|█████▊    | 326/561 [09:08<06:13,  1.59s/it][A
+Running batch 0 inference:  58%|█████▊    | 327/561 [09:09<06:17,  1.61s/it][A
+Running batch 0 inference:  58%|█████▊    | 328/561 [09:11<06:14,  1.61s/it][A
+Running batch 0 inference:  59%|█████▊    | 329/561 [09:13<06:15,  1.62s/it][A
+Running batch 0 inference:  59%|█████▉    | 330/561 [09:14<06:13,  1.62s/it][A
+Running batch 0 inference:  59%|█████▉    | 331/561 [09:16<06:14,  1.63s/it][A
+Running batch 0 inference:  59%|█████▉    | 332/561 [09:17<06:15,  1.64s/it][A
+Running batch 0 inference:  59%|█████▉    | 333/561 [09:19<06:11,  1.63s/it][A
+Running batch 0 inference:  60%|█████▉    | 334/561 [09:21<06:08,  1.62s/it][A
+Running batch 0 inference:  60%|█████▉    | 335/561 [09:22<06:05,  1.62s/it][A
+Running batch 0 inference:  60%|█████▉    | 336/561 [09:24<06:00,  1.60s/it][A
+Running batch 0 inference:  60%|██████    | 337/561 [09:26<06:01,  1.61s/it][A
+Running batch 0 inference:  60%|██████    | 338/561 [09:27<05:55,  1.59s/it][A
+Running batch 0 inference:  60%|██████    | 339/561 [09:29<05:57,  1.61s/it][A
+Running batch 0 inference:  61%|██████    | 340/561 [09:30<05:52,  1.60s/it][A
+Running batch 0 inference:  61%|██████    | 341/561 [09:32<05:54,  1.61s/it][A
+Running batch 0 inference:  61%|██████    | 342/561 [09:34<05:55,  1.62s/it][A
+Running batch 0 inference:  61%|██████    | 343/561 [09:35<05:54,  1.63s/it][A
+Running batch 0 inference:  61%|██████▏   | 344/561 [09:37<05:52,  1.62s/it][A
+Running batch 0 inference:  61%|██████▏   | 345/561 [09:38<05:47,  1.61s/it][A
+Running batch 0 inference:  62%|██████▏   | 346/561 [09:40<05:40,  1.59s/it][A
+Running batch 0 inference:  62%|██████▏   | 347/561 [09:42<05:42,  1.60s/it][A
+Running batch 0 inference:  62%|██████▏   | 348/561 [09:43<05:45,  1.62s/it][A
+Running batch 0 inference:  62%|██████▏   | 349/561 [09:45<05:41,  1.61s/it][A
+Running batch 0 inference:  62%|██████▏   | 350/561 [09:46<05:38,  1.60s/it][A
+Running batch 0 inference:  63%|██████▎   | 351/561 [09:48<05:34,  1.59s/it][A
+Running batch 0 inference:  63%|██████▎   | 352/561 [09:50<05:35,  1.61s/it][A
+Running batch 0 inference:  63%|██████▎   | 353/561 [09:51<05:33,  1.60s/it][A
+Running batch 0 inference:  63%|██████▎   | 354/561 [09:53<05:30,  1.60s/it][A
+Running batch 0 inference:  63%|██████▎   | 355/561 [09:54<05:28,  1.60s/it][A
+Running batch 0 inference:  63%|██████▎   | 356/561 [09:56<05:26,  1.59s/it][A
+Running batch 0 inference:  64%|██████▎   | 357/561 [09:57<05:19,  1.57s/it][A
+Running batch 0 inference:  64%|██████▍   | 358/561 [09:59<05:12,  1.54s/it][A
+Running batch 0 inference:  64%|██████▍   | 359/561 [10:01<05:11,  1.54s/it][A
+Running batch 0 inference:  64%|██████▍   | 360/561 [10:02<05:07,  1.53s/it][A
+Running batch 0 inference:  64%|██████▍   | 361/561 [10:04<05:10,  1.55s/it][A
+Running batch 0 inference:  65%|██████▍   | 362/561 [10:05<05:09,  1.56s/it][A
+Running batch 0 inference:  65%|██████▍   | 363/561 [10:07<05:06,  1.55s/it][A
+Running batch 0 inference:  65%|██████▍   | 364/561 [10:08<05:04,  1.54s/it][A
+Running batch 0 inference:  65%|██████▌   | 365/561 [10:10<05:02,  1.54s/it][A
+Running batch 0 inference:  65%|██████▌   | 366/561 [10:11<04:55,  1.51s/it][A
+Running batch 0 inference:  65%|██████▌   | 367/561 [10:13<04:52,  1.51s/it][A
+Running batch 0 inference:  66%|██████▌   | 368/561 [10:14<04:50,  1.51s/it][A
+Running batch 0 inference:  66%|██████▌   | 369/561 [10:16<04:47,  1.50s/it][A
+Running batch 0 inference:  66%|██████▌   | 370/561 [10:17<04:48,  1.51s/it][A
+Running batch 0 inference:  66%|██████▌   | 371/561 [10:19<04:48,  1.52s/it][A
+Running batch 0 inference:  66%|██████▋   | 372/561 [10:20<04:46,  1.52s/it][A
+Running batch 0 inference:  66%|██████▋   | 373/561 [10:22<04:45,  1.52s/it][A
+Running batch 0 inference:  67%|██████▋   | 374/561 [10:23<04:41,  1.50s/it][A
+Running batch 0 inference:  67%|██████▋   | 375/561 [10:25<04:36,  1.49s/it][A
+Running batch 0 inference:  67%|██████▋   | 376/561 [10:26<04:34,  1.49s/it][A
+Running batch 0 inference:  67%|██████▋   | 377/561 [10:28<04:35,  1.50s/it][A
+Running batch 0 inference:  67%|██████▋   | 378/561 [10:29<04:38,  1.52s/it][A
+Running batch 0 inference:  68%|██████▊   | 379/561 [10:31<04:38,  1.53s/it][A
+Running batch 0 inference:  68%|██████▊   | 380/561 [10:32<04:37,  1.53s/it][A
+Running batch 0 inference:  68%|██████▊   | 381/561 [10:34<04:37,  1.54s/it][A
+Running batch 0 inference:  68%|██████▊   | 382/561 [10:36<04:36,  1.55s/it][A
+Running batch 0 inference:  68%|██████▊   | 383/561 [10:37<04:34,  1.54s/it][A
+Running batch 0 inference:  68%|██████▊   | 384/561 [10:39<04:33,  1.55s/it][A
+Running batch 0 inference:  69%|██████▊   | 385/561 [10:40<04:29,  1.53s/it][A
+Running batch 0 inference:  69%|██████▉   | 386/561 [10:42<04:27,  1.53s/it][A
+Running batch 0 inference:  69%|██████▉   | 387/561 [10:43<04:30,  1.55s/it][A
+Running batch 0 inference:  69%|██████▉   | 388/561 [10:45<04:25,  1.54s/it][A
+Running batch 0 inference:  69%|██████▉   | 389/561 [10:46<04:23,  1.53s/it][A
+Running batch 0 inference:  70%|██████▉   | 390/561 [10:48<04:21,  1.53s/it][A
+Running batch 0 inference:  70%|██████▉   | 391/561 [10:49<04:19,  1.53s/it][A
+Running batch 0 inference:  70%|██████▉   | 392/561 [10:51<04:15,  1.51s/it][A
+Running batch 0 inference:  70%|███████   | 393/561 [10:52<04:14,  1.52s/it][A
+Running batch 0 inference:  70%|███████   | 394/561 [10:54<04:13,  1.52s/it][A
+Running batch 0 inference:  70%|███████   | 395/561 [10:55<04:13,  1.53s/it][A
+Running batch 0 inference:  71%|███████   | 396/561 [10:57<04:09,  1.51s/it][A
+Running batch 0 inference:  71%|███████   | 397/561 [10:58<04:07,  1.51s/it][A
+Running batch 0 inference:  71%|███████   | 398/561 [11:00<04:07,  1.52s/it][A
+Running batch 0 inference:  71%|███████   | 399/561 [11:01<04:07,  1.53s/it][A
+Running batch 0 inference:  71%|███████▏  | 400/561 [11:03<04:02,  1.51s/it][A
+Running batch 0 inference:  71%|███████▏  | 401/561 [11:04<04:01,  1.51s/it][A
+Running batch 0 inference:  72%|███████▏  | 402/561 [11:06<03:58,  1.50s/it][A
+Running batch 0 inference:  72%|███████▏  | 403/561 [11:07<03:59,  1.52s/it][A
+Running batch 0 inference:  72%|███████▏  | 404/561 [11:09<03:57,  1.51s/it][A
+Running batch 0 inference:  72%|███████▏  | 405/561 [11:10<03:55,  1.51s/it][A
+Running batch 0 inference:  72%|███████▏  | 406/561 [11:12<03:55,  1.52s/it][A
+Running batch 0 inference:  73%|███████▎  | 407/561 [11:13<03:52,  1.51s/it][A
+Running batch 0 inference:  73%|███████▎  | 408/561 [11:15<03:51,  1.51s/it][A
+Running batch 0 inference:  73%|███████▎  | 409/561 [11:17<04:00,  1.58s/it][A
+Running batch 0 inference:  73%|███████▎  | 410/561 [11:18<03:55,  1.56s/it][A
+Running batch 0 inference:  73%|███████▎  | 411/561 [11:20<03:51,  1.54s/it][A
+Running batch 0 inference:  73%|███████▎  | 412/561 [11:21<03:50,  1.54s/it][A
+Running batch 0 inference:  74%|███████▎  | 413/561 [11:23<03:45,  1.53s/it][A
+Running batch 0 inference:  74%|███████▍  | 414/561 [11:24<03:40,  1.50s/it][A
+Running batch 0 inference:  74%|███████▍  | 415/561 [11:26<03:43,  1.53s/it][A
+Running batch 0 inference:  74%|███████▍  | 416/561 [11:27<03:38,  1.51s/it][A
+Running batch 0 inference:  74%|███████▍  | 417/561 [11:29<03:34,  1.49s/it][A
+Running batch 0 inference:  75%|███████▍  | 418/561 [11:30<03:34,  1.50s/it][A
+Running batch 0 inference:  75%|███████▍  | 419/561 [11:32<03:32,  1.49s/it][A
+Running batch 0 inference:  75%|███████▍  | 420/561 [11:33<03:29,  1.49s/it][A
+Running batch 0 inference:  75%|███████▌  | 421/561 [11:35<03:28,  1.49s/it][A
+Running batch 0 inference:  75%|███████▌  | 422/561 [11:36<03:27,  1.49s/it][A
+Running batch 0 inference:  75%|███████▌  | 423/561 [11:38<03:25,  1.49s/it][A
+Running batch 0 inference:  76%|███████▌  | 424/561 [11:39<03:26,  1.51s/it][A
+Running batch 0 inference:  76%|███████▌  | 425/561 [11:41<03:25,  1.51s/it][A
+Running batch 0 inference:  76%|███████▌  | 426/561 [11:42<03:21,  1.50s/it][A
+Running batch 0 inference:  76%|███████▌  | 427/561 [11:44<03:22,  1.51s/it][A
+Running batch 0 inference:  76%|███████▋  | 428/561 [11:45<03:19,  1.50s/it][A
+Running batch 0 inference:  76%|███████▋  | 429/561 [11:47<03:19,  1.51s/it][A
+Running batch 0 inference:  77%|███████▋  | 430/561 [11:48<03:15,  1.49s/it][A
+Running batch 0 inference:  77%|███████▋  | 431/561 [11:50<03:12,  1.48s/it][A
+Running batch 0 inference:  77%|███████▋  | 432/561 [11:51<03:11,  1.48s/it][A
+Running batch 0 inference:  77%|███████▋  | 433/561 [11:53<03:12,  1.50s/it][A
+Running batch 0 inference:  77%|███████▋  | 434/561 [11:54<03:10,  1.50s/it][A
+Running batch 0 inference:  78%|███████▊  | 435/561 [11:56<03:09,  1.51s/it][A
+Running batch 0 inference:  78%|███████▊  | 436/561 [11:57<03:09,  1.51s/it][A
+Running batch 0 inference:  78%|███████▊  | 437/561 [11:59<03:07,  1.51s/it][A
+Running batch 0 inference:  78%|███████▊  | 438/561 [12:00<03:07,  1.52s/it][A
+Running batch 0 inference:  78%|███████▊  | 439/561 [12:02<03:03,  1.51s/it][A
+Running batch 0 inference:  78%|███████▊  | 440/561 [12:03<03:04,  1.52s/it][A
+Running batch 0 inference:  79%|███████▊  | 441/561 [12:05<03:04,  1.54s/it][A
+Running batch 0 inference:  79%|███████▉  | 442/561 [12:06<03:04,  1.55s/it][A
+Running batch 0 inference:  79%|███████▉  | 443/561 [12:08<03:03,  1.56s/it][A
+Running batch 0 inference:  79%|███████▉  | 444/561 [12:10<03:00,  1.54s/it][A
+Running batch 0 inference:  79%|███████▉  | 445/561 [12:11<02:59,  1.55s/it][A
+Running batch 0 inference:  80%|███████▉  | 446/561 [12:13<02:55,  1.53s/it][A
+Running batch 0 inference:  80%|███████▉  | 447/561 [12:14<02:51,  1.50s/it][A
+Running batch 0 inference:  80%|███████▉  | 448/561 [12:16<02:48,  1.49s/it][A
+Running batch 0 inference:  80%|████████  | 449/561 [12:17<02:49,  1.51s/it][A
+Running batch 0 inference:  80%|████████  | 450/561 [12:19<02:47,  1.51s/it][A
+Running batch 0 inference:  80%|████████  | 451/561 [12:20<02:46,  1.51s/it][A
+Running batch 0 inference:  81%|████████  | 452/561 [12:22<02:44,  1.51s/it][A
+Running batch 0 inference:  81%|████████  | 453/561 [12:23<02:42,  1.51s/it][A
+Running batch 0 inference:  81%|████████  | 454/561 [12:25<02:38,  1.48s/it][A
+Running batch 0 inference:  81%|████████  | 455/561 [12:26<02:38,  1.49s/it][A
+Running batch 0 inference:  81%|████████▏ | 456/561 [12:27<02:33,  1.47s/it][A
+Running batch 0 inference:  81%|████████▏ | 457/561 [12:29<02:29,  1.44s/it][A
+Running batch 0 inference:  82%|████████▏ | 458/561 [12:30<02:30,  1.46s/it][A
+Running batch 0 inference:  82%|████████▏ | 459/561 [12:32<02:30,  1.47s/it][A
+Running batch 0 inference:  82%|████████▏ | 460/561 [12:33<02:30,  1.49s/it][A
+Running batch 0 inference:  82%|████████▏ | 461/561 [12:35<02:29,  1.50s/it][A
+Running batch 0 inference:  82%|████████▏ | 462/561 [12:36<02:27,  1.49s/it][A
+Running batch 0 inference:  83%|████████▎ | 463/561 [12:38<02:27,  1.50s/it][A
+Running batch 0 inference:  83%|████████▎ | 464/561 [12:39<02:26,  1.51s/it][A
+Running batch 0 inference:  83%|████████▎ | 465/561 [12:41<02:24,  1.51s/it][A
+Running batch 0 inference:  83%|████████▎ | 466/561 [12:42<02:20,  1.48s/it][A
+Running batch 0 inference:  83%|████████▎ | 467/561 [12:44<02:19,  1.48s/it][A
+Running batch 0 inference:  83%|████████▎ | 468/561 [12:45<02:20,  1.51s/it][A
+Running batch 0 inference:  84%|████████▎ | 469/561 [12:47<02:22,  1.54s/it][A
+Running batch 0 inference:  84%|████████▍ | 470/561 [12:49<02:22,  1.57s/it][A
+Running batch 0 inference:  84%|████████▍ | 471/561 [12:50<02:17,  1.53s/it][A
+Running batch 0 inference:  84%|████████▍ | 472/561 [12:52<02:16,  1.53s/it][A
+Running batch 0 inference:  84%|████████▍ | 473/561 [12:53<02:14,  1.53s/it][A
+Running batch 0 inference:  84%|████████▍ | 474/561 [12:55<02:13,  1.54s/it][A
+Running batch 0 inference:  85%|████████▍ | 475/561 [12:56<02:11,  1.53s/it][A
+Running batch 0 inference:  85%|████████▍ | 476/561 [12:58<02:13,  1.57s/it][A
+Running batch 0 inference:  85%|████████▌ | 477/561 [12:59<02:09,  1.55s/it][A
+Running batch 0 inference:  85%|████████▌ | 478/561 [13:01<02:06,  1.52s/it][A
+Running batch 0 inference:  85%|████████▌ | 479/561 [13:02<02:03,  1.51s/it][A
+Running batch 0 inference:  86%|████████▌ | 480/561 [13:04<02:02,  1.51s/it][A
+Running batch 0 inference:  86%|████████▌ | 481/561 [13:05<02:00,  1.51s/it][A
+Running batch 0 inference:  86%|████████▌ | 482/561 [13:07<02:03,  1.56s/it][A
+Running batch 0 inference:  86%|████████▌ | 483/561 [13:09<02:00,  1.55s/it][A
+Running batch 0 inference:  86%|████████▋ | 484/561 [13:10<01:59,  1.56s/it][A
+Running batch 0 inference:  86%|████████▋ | 485/561 [13:12<01:57,  1.54s/it][A
+Running batch 0 inference:  87%|████████▋ | 486/561 [13:13<01:54,  1.52s/it][A
+Running batch 0 inference:  87%|████████▋ | 487/561 [13:14<01:49,  1.48s/it][A
+Running batch 0 inference:  87%|████████▋ | 488/561 [13:16<01:48,  1.49s/it][A
+Running batch 0 inference:  87%|████████▋ | 489/561 [13:17<01:46,  1.49s/it][A
+Running batch 0 inference:  87%|████████▋ | 490/561 [13:19<01:48,  1.52s/it][A
+Running batch 0 inference:  88%|████████▊ | 491/561 [13:21<01:48,  1.55s/it][A
+Running batch 0 inference:  88%|████████▊ | 492/561 [13:22<01:47,  1.56s/it][A
+Running batch 0 inference:  88%|████████▊ | 493/561 [13:24<01:47,  1.58s/it][A
+Running batch 0 inference:  88%|████████▊ | 494/561 [13:26<01:46,  1.58s/it][A
+Running batch 0 inference:  88%|████████▊ | 495/561 [13:27<01:44,  1.59s/it][A
+Running batch 0 inference:  88%|████████▊ | 496/561 [13:29<01:43,  1.60s/it][A
+Running batch 0 inference:  89%|████████▊ | 497/561 [13:30<01:41,  1.59s/it][A
+Running batch 0 inference:  89%|████████▉ | 498/561 [13:32<01:38,  1.57s/it][A
+Running batch 0 inference:  89%|████████▉ | 499/561 [13:33<01:35,  1.55s/it][A
+Running batch 0 inference:  89%|████████▉ | 500/561 [13:35<01:33,  1.54s/it][A
+Running batch 0 inference:  89%|████████▉ | 501/561 [13:36<01:32,  1.54s/it][A
+Running batch 0 inference:  89%|████████▉ | 502/561 [13:38<01:30,  1.53s/it][A
+Running batch 0 inference:  90%|████████▉ | 503/561 [13:39<01:29,  1.54s/it][A
+Running batch 0 inference:  90%|████████▉ | 504/561 [13:41<01:29,  1.57s/it][A
+Running batch 0 inference:  90%|█████████ | 505/561 [13:43<01:27,  1.57s/it][A
+Running batch 0 inference:  90%|█████████ | 506/561 [13:44<01:26,  1.57s/it][A
+Running batch 0 inference:  90%|█████████ | 507/561 [13:46<01:23,  1.54s/it][A
+Running batch 0 inference:  91%|█████████ | 508/561 [13:47<01:20,  1.52s/it][A
+Running batch 0 inference:  91%|█████████ | 509/561 [13:49<01:19,  1.53s/it][A
+Running batch 0 inference:  91%|█████████ | 510/561 [13:50<01:18,  1.54s/it][A
+Running batch 0 inference:  91%|█████████ | 511/561 [13:52<01:16,  1.52s/it][A
+Running batch 0 inference:  91%|█████████▏| 512/561 [13:53<01:16,  1.55s/it][A
+Running batch 0 inference:  91%|█████████▏| 513/561 [13:55<01:12,  1.51s/it][A
+Running batch 0 inference:  92%|█████████▏| 514/561 [13:56<01:09,  1.47s/it][A
+Running batch 0 inference:  92%|█████████▏| 515/561 [13:58<01:06,  1.45s/it][A
+Running batch 0 inference:  92%|█████████▏| 516/561 [13:59<01:06,  1.48s/it][A
+Running batch 0 inference:  92%|█████████▏| 517/561 [14:01<01:05,  1.49s/it][A
+Running batch 0 inference:  92%|█████████▏| 518/561 [14:02<01:04,  1.51s/it][A
+Running batch 0 inference:  93%|█████████▎| 519/561 [14:04<01:04,  1.52s/it][A
+Running batch 0 inference:  93%|█████████▎| 520/561 [14:05<01:03,  1.54s/it][A
+Running batch 0 inference:  93%|█████████▎| 521/561 [14:07<01:00,  1.51s/it][A
+Running batch 0 inference:  93%|█████████▎| 522/561 [14:08<00:58,  1.50s/it][A
+Running batch 0 inference:  93%|█████████▎| 523/561 [14:10<00:56,  1.48s/it][A
+Running batch 0 inference:  93%|█████████▎| 524/561 [14:11<00:54,  1.48s/it][A
+Running batch 0 inference:  94%|█████████▎| 525/561 [14:13<00:53,  1.49s/it][A
+Running batch 0 inference:  94%|█████████▍| 526/561 [14:14<00:52,  1.49s/it][A
+Running batch 0 inference:  94%|█████████▍| 527/561 [14:16<00:51,  1.52s/it][A
+Running batch 0 inference:  94%|█████████▍| 528/561 [14:17<00:50,  1.52s/it][A
+Running batch 0 inference:  94%|█████████▍| 529/561 [14:19<00:48,  1.52s/it][A
+Running batch 0 inference:  94%|█████████▍| 530/561 [14:20<00:47,  1.54s/it][A
+Running batch 0 inference:  95%|█████████▍| 531/561 [14:22<00:45,  1.51s/it][A
+Running batch 0 inference:  95%|█████████▍| 532/561 [14:23<00:43,  1.49s/it][A
+Running batch 0 inference:  95%|█████████▌| 533/561 [14:25<00:42,  1.53s/it][A
+Running batch 0 inference:  95%|█████████▌| 534/561 [14:26<00:41,  1.54s/it][A
+Running batch 0 inference:  95%|█████████▌| 535/561 [14:28<00:39,  1.51s/it][A
+Running batch 0 inference:  96%|█████████▌| 536/561 [14:29<00:37,  1.52s/it][A
+Running batch 0 inference:  96%|█████████▌| 537/561 [14:31<00:36,  1.51s/it][A
+Running batch 0 inference:  96%|█████████▌| 538/561 [14:32<00:34,  1.49s/it][A
+Running batch 0 inference:  96%|█████████▌| 539/561 [14:34<00:32,  1.48s/it][A
+Running batch 0 inference:  96%|█████████▋| 540/561 [14:35<00:31,  1.50s/it][A
+Running batch 0 inference:  96%|█████████▋| 541/561 [14:37<00:29,  1.47s/it][A
+Running batch 0 inference:  97%|█████████▋| 542/561 [14:38<00:27,  1.47s/it][A
+Running batch 0 inference:  97%|█████████▋| 543/561 [14:40<00:26,  1.50s/it][A
+Running batch 0 inference:  97%|█████████▋| 544/561 [14:41<00:24,  1.45s/it][A
+Running batch 0 inference:  97%|█████████▋| 545/561 [14:43<00:23,  1.45s/it][A
+Running batch 0 inference:  97%|█████████▋| 546/561 [14:44<00:21,  1.42s/it][A
+Running batch 0 inference:  98%|█████████▊| 547/561 [14:45<00:19,  1.42s/it][A
+Running batch 0 inference:  98%|█████████▊| 548/561 [14:47<00:19,  1.47s/it][A
+Running batch 0 inference:  98%|█████████▊| 549/561 [14:49<00:18,  1.50s/it][A
+Running batch 0 inference:  98%|█████████▊| 550/561 [14:50<00:16,  1.54s/it][A
+Running batch 0 inference:  98%|█████████▊| 551/561 [14:52<00:15,  1.57s/it][A
+Running batch 0 inference:  98%|█████████▊| 552/561 [14:53<00:14,  1.59s/it][A
+Running batch 0 inference:  99%|█████████▊| 553/561 [14:55<00:12,  1.59s/it][A
+Running batch 0 inference:  99%|█████████▉| 554/561 [14:57<00:11,  1.59s/it][A
+Running batch 0 inference:  99%|█████████▉| 555/561 [14:58<00:09,  1.57s/it][A
+Running batch 0 inference:  99%|█████████▉| 556/561 [15:00<00:07,  1.56s/it][A
+Running batch 0 inference:  99%|█████████▉| 557/561 [15:01<00:06,  1.55s/it][A
+Running batch 0 inference:  99%|█████████▉| 558/561 [15:03<00:04,  1.54s/it][A
+Running batch 0 inference: 100%|█████████▉| 559/561 [15:04<00:03,  1.52s/it][A
+Running batch 0 inference: 100%|█████████▉| 560/561 [15:06<00:01,  1.53s/it][A
+Running batch 0 inference: 100%|██████████| 561/561 [15:07<00:00,  1.55s/it][A
+                                                                            [A
+
+Total Ensemble Batches: 100%|██████████| 1/1 [15:07<00:00, 907.86s/it][A[ATotal Ensemble Batches: 100%|██████████| 1/1 [15:07<00:00, 907.86s/it]
+[32m2026-08-28 00:57:10.754[0m | [32m[1mSUCCESS [0m | [36mearth2studio.run[0m:[36mensemble[0m:[36m544[0m - [32m[1m
+Inference complete[0m
+[infer] PNW_HeatDome_2021: rollout 913.1 s (15.22 min); peak GPU mem 53.0 GB
+[infer]   wrote PNW_HeatDome_2021_shard00of01_cube.nc  {'time': 561, 'member': 1, 'lat': 105, 'lon': 237, 'level': 2} vars=['2m_temperature', 'geopotential', 'temperature'] lat[24.0..50.0] lon[235.0..294.0]
+[infer] shard 0/1 summary: done=1 skipped=0 failed=0
+[score] PNW_HeatDome_2021@wk20 free: rc=0 in 1090 s
+[score] WinterStorm_Uri_2021@wk18 free: 1 member(s) x 504 x 6 h from the ERA5 IC at 2020-10-12 00:00:00 -> peak 2021-02-15 00:00:00
+[check] torch-harmonics DISCO CUDA extension: PRESENT -> FCN3 runs bf16
+[infer] CPU threads: torch=26 OMP_NUM_THREADS=26
+[infer] host=nucla3m-a3meganodeset-4 shard=0/1: members 0..0 (1 of 1) over 1 event(s)
+[infer] device=cuda; torch 2.11.0+cu128 (cuda build 12.8)
+[infer] GPU: NVIDIA H100 80GB HBM3  85 GB
+[model] loaded cache fcn3_model_2.11.0+cu128_th0.8.1_a305be3ecd79.pt in 4.7 s
+[infer] WinterStorm_Uri_2021: rolling 1 member(s) x 504 steps (init 2020-10-12T00:00:00, vars=['t2m', 'z500', 't50'], seed=2333) ...
+[32m2026-08-28 00:59:22.885[0m | [1mINFO    [0m | [36mearth2studio.run[0m:[36mensemble[0m:[36m400[0m - [1mRunning ensemble inference![0m
+[32m2026-08-28 00:59:22.888[0m | [1mINFO    [0m | [36mearth2studio.run[0m:[36mensemble[0m:[36m407[0m - [1mInference device: cuda[0m
+[32m2026-08-28 00:59:25.173[0m | [32m[1mSUCCESS [0m | [36mearth2studio.run[0m:[36mensemble[0m:[36m428[0m - [32m[1mFetched data from LocalIC[0m
+[32m2026-08-28 00:59:25.527[0m | [1mINFO    [0m | [36mearth2studio.run[0m:[36mensemble[0m:[36m472[0m - [1mStarting 1 Member Ensemble Inference with             1 number of batches.[0m
+
+
+Total Ensemble Batches:   0%|          | 0/1 [00:00<?, ?it/s][A[A
+Running batch 0 inference:   0%|          | 0/505 [00:00<?, ?it/s][A
+Running batch 0 inference:   0%|          | 1/505 [00:00<05:42,  1.47it/s][A
+Running batch 0 inference:   0%|          | 2/505 [00:14<1:11:15,  8.50s/it][A
+Running batch 0 inference:   1%|          | 3/505 [00:16<44:34,  5.33s/it]  [A
+Running batch 0 inference:   1%|          | 4/505 [00:17<31:59,  3.83s/it][A
+Running batch 0 inference:   1%|          | 5/505 [00:19<24:54,  2.99s/it][A
+Running batch 0 inference:   1%|          | 6/505 [00:20<20:50,  2.51s/it][A
+Running batch 0 inference:   1%|▏         | 7/505 [00:22<18:24,  2.22s/it][A
+Running batch 0 inference:   2%|▏         | 8/505 [00:23<16:26,  1.99s/it][A
+Running batch 0 inference:   2%|▏         | 9/505 [00:25<14:59,  1.81s/it][A
+Running batch 0 inference:   2%|▏         | 10/505 [00:26<13:58,  1.69s/it][A
+Running batch 0 inference:   2%|▏         | 11/505 [00:28<13:14,  1.61s/it][A
+Running batch 0 inference:   2%|▏         | 12/505 [00:29<12:49,  1.56s/it][A
+Running batch 0 inference:   3%|▎         | 13/505 [00:31<12:32,  1.53s/it][A
+Running batch 0 inference:   3%|▎         | 14/505 [00:32<12:17,  1.50s/it][A
+Running batch 0 inference:   3%|▎         | 15/505 [00:33<12:07,  1.48s/it][A
+Running batch 0 inference:   3%|▎         | 16/505 [00:35<11:56,  1.46s/it][A
+Running batch 0 inference:   3%|▎         | 17/505 [00:36<11:51,  1.46s/it][A
+Running batch 0 inference:   4%|▎         | 18/505 [00:38<11:46,  1.45s/it][A
+Running batch 0 inference:   4%|▍         | 19/505 [00:39<11:44,  1.45s/it][A
+Running batch 0 inference:   4%|▍         | 20/505 [00:41<11:42,  1.45s/it][A
+Running batch 0 inference:   4%|▍         | 21/505 [00:42<11:42,  1.45s/it][A
+Running batch 0 inference:   4%|▍         | 22/505 [00:44<11:38,  1.45s/it][A
+Running batch 0 inference:   5%|▍         | 23/505 [00:45<11:33,  1.44s/it][A
+Running batch 0 inference:   5%|▍         | 24/505 [00:46<11:32,  1.44s/it][A
+Running batch 0 inference:   5%|▍         | 25/505 [00:48<11:26,  1.43s/it][A
+Running batch 0 inference:   5%|▌         | 26/505 [00:49<11:17,  1.41s/it][A
+Running batch 0 inference:   5%|▌         | 27/505 [00:51<11:20,  1.42s/it][A
+Running batch 0 inference:   6%|▌         | 28/505 [00:52<11:19,  1.42s/it][A
+Running batch 0 inference:   6%|▌         | 29/505 [00:54<11:22,  1.43s/it][A
+Running batch 0 inference:   6%|▌         | 30/505 [00:55<11:21,  1.43s/it][A
+Running batch 0 inference:   6%|▌         | 31/505 [00:56<11:22,  1.44s/it][A
+Running batch 0 inference:   6%|▋         | 32/505 [00:58<11:19,  1.44s/it][A
+Running batch 0 inference:   7%|▋         | 33/505 [00:59<11:20,  1.44s/it][A
+Running batch 0 inference:   7%|▋         | 34/505 [01:01<11:17,  1.44s/it][A
+Running batch 0 inference:   7%|▋         | 35/505 [01:02<11:10,  1.43s/it][A
+Running batch 0 inference:   7%|▋         | 36/505 [01:04<11:08,  1.43s/it][A
+Running batch 0 inference:   7%|▋         | 37/505 [01:05<11:04,  1.42s/it][A
+Running batch 0 inference:   8%|▊         | 38/505 [01:06<10:59,  1.41s/it][A
+Running batch 0 inference:   8%|▊         | 39/505 [01:08<10:57,  1.41s/it][A
+Running batch 0 inference:   8%|▊         | 40/505 [01:09<10:55,  1.41s/it][A
+Running batch 0 inference:   8%|▊         | 41/505 [01:11<10:53,  1.41s/it][A
+Running batch 0 inference:   8%|▊         | 42/505 [01:12<10:51,  1.41s/it][A
+Running batch 0 inference:   9%|▊         | 43/505 [01:13<10:45,  1.40s/it][A
+Running batch 0 inference:   9%|▊         | 44/505 [01:15<10:46,  1.40s/it][A
+Running batch 0 inference:   9%|▉         | 45/505 [01:16<10:41,  1.39s/it][A
+Running batch 0 inference:   9%|▉         | 46/505 [01:18<10:42,  1.40s/it][A
+Running batch 0 inference:   9%|▉         | 47/505 [01:19<10:42,  1.40s/it][A
+Running batch 0 inference:  10%|▉         | 48/505 [01:20<10:39,  1.40s/it][A
+Running batch 0 inference:  10%|▉         | 49/505 [01:22<10:35,  1.39s/it][A
+Running batch 0 inference:  10%|▉         | 50/505 [01:23<10:35,  1.40s/it][A
+Running batch 0 inference:  10%|█         | 51/505 [01:25<10:36,  1.40s/it][A
+Running batch 0 inference:  10%|█         | 52/505 [01:26<10:37,  1.41s/it][A
+Running batch 0 inference:  10%|█         | 53/505 [01:27<10:38,  1.41s/it][A
+Running batch 0 inference:  11%|█         | 54/505 [01:29<10:38,  1.42s/it][A
+Running batch 0 inference:  11%|█         | 55/505 [01:30<10:39,  1.42s/it][A
+Running batch 0 inference:  11%|█         | 56/505 [01:32<10:38,  1.42s/it][A
+Running batch 0 inference:  11%|█▏        | 57/505 [01:33<10:27,  1.40s/it][A
+Running batch 0 inference:  11%|█▏        | 58/505 [01:34<10:30,  1.41s/it][A
+Running batch 0 inference:  12%|█▏        | 59/505 [01:36<10:34,  1.42s/it][A
+Running batch 0 inference:  12%|█▏        | 60/505 [01:37<10:32,  1.42s/it][A
+Running batch 0 inference:  12%|█▏        | 61/505 [01:39<10:34,  1.43s/it][A
+Running batch 0 inference:  12%|█▏        | 62/505 [01:40<10:29,  1.42s/it][A
+Running batch 0 inference:  12%|█▏        | 63/505 [01:42<10:31,  1.43s/it][A
+Running batch 0 inference:  13%|█▎        | 64/505 [01:43<10:29,  1.43s/it][A
+Running batch 0 inference:  13%|█▎        | 65/505 [01:45<10:30,  1.43s/it][A
+Running batch 0 inference:  13%|█▎        | 66/505 [01:46<10:29,  1.43s/it][A
+Running batch 0 inference:  13%|█▎        | 67/505 [01:47<10:29,  1.44s/it][A
+Running batch 0 inference:  13%|█▎        | 68/505 [01:49<10:24,  1.43s/it][A
+Running batch 0 inference:  14%|█▎        | 69/505 [01:50<10:21,  1.43s/it][A
+Running batch 0 inference:  14%|█▍        | 70/505 [01:52<10:18,  1.42s/it][A
+Running batch 0 inference:  14%|█▍        | 71/505 [01:53<10:15,  1.42s/it][A
+Running batch 0 inference:  14%|█▍        | 72/505 [01:54<10:13,  1.42s/it][A
+Running batch 0 inference:  14%|█▍        | 73/505 [01:56<10:09,  1.41s/it][A
+Running batch 0 inference:  15%|█▍        | 74/505 [01:57<10:07,  1.41s/it][A
+Running batch 0 inference:  15%|█▍        | 75/505 [01:59<10:06,  1.41s/it][A
+Running batch 0 inference:  15%|█▌        | 76/505 [02:00<10:04,  1.41s/it][A
+Running batch 0 inference:  15%|█▌        | 77/505 [02:01<10:01,  1.40s/it][A
+Running batch 0 inference:  15%|█▌        | 78/505 [02:03<10:03,  1.41s/it][A
+Running batch 0 inference:  16%|█▌        | 79/505 [02:04<10:00,  1.41s/it][A
+Running batch 0 inference:  16%|█▌        | 80/505 [02:06<09:57,  1.41s/it][A
+Running batch 0 inference:  16%|█▌        | 81/505 [02:07<09:58,  1.41s/it][A
+Running batch 0 inference:  16%|█▌        | 82/505 [02:09<09:54,  1.40s/it][A
+Running batch 0 inference:  16%|█▋        | 83/505 [02:10<09:55,  1.41s/it][A
+Running batch 0 inference:  17%|█▋        | 84/505 [02:11<09:55,  1.41s/it][A
+Running batch 0 inference:  17%|█▋        | 85/505 [02:13<09:55,  1.42s/it][A
+Running batch 0 inference:  17%|█▋        | 86/505 [02:14<09:53,  1.42s/it][A
+Running batch 0 inference:  17%|█▋        | 87/505 [02:16<09:53,  1.42s/it][A
+Running batch 0 inference:  17%|█▋        | 88/505 [02:17<09:54,  1.42s/it][A
+Running batch 0 inference:  18%|█▊        | 89/505 [02:19<09:55,  1.43s/it][A
+Running batch 0 inference:  18%|█▊        | 90/505 [02:20<09:55,  1.43s/it][A
+Running batch 0 inference:  18%|█▊        | 91/505 [02:21<09:52,  1.43s/it][A
+Running batch 0 inference:  18%|█▊        | 92/505 [02:23<09:51,  1.43s/it][A
+Running batch 0 inference:  18%|█▊        | 93/505 [02:24<09:49,  1.43s/it][A
+Running batch 0 inference:  19%|█▊        | 94/505 [02:26<09:51,  1.44s/it][A
+Running batch 0 inference:  19%|█▉        | 95/505 [02:27<09:50,  1.44s/it][A
+Running batch 0 inference:  19%|█▉        | 96/505 [02:29<09:46,  1.43s/it][A
+Running batch 0 inference:  19%|█▉        | 97/505 [02:30<09:44,  1.43s/it][A
+Running batch 0 inference:  19%|█▉        | 98/505 [02:31<09:44,  1.44s/it][A
+Running batch 0 inference:  20%|█▉        | 99/505 [02:33<09:45,  1.44s/it][A
+Running batch 0 inference:  20%|█▉        | 100/505 [02:34<09:46,  1.45s/it][A
+Running batch 0 inference:  20%|██        | 101/505 [02:36<09:47,  1.45s/it][A
+Running batch 0 inference:  20%|██        | 102/505 [02:37<09:43,  1.45s/it][A
+Running batch 0 inference:  20%|██        | 103/505 [02:39<09:39,  1.44s/it][A
+Running batch 0 inference:  21%|██        | 104/505 [02:40<09:34,  1.43s/it][A
+Running batch 0 inference:  21%|██        | 105/505 [02:41<09:27,  1.42s/it][A
+Running batch 0 inference:  21%|██        | 106/505 [02:43<09:23,  1.41s/it][A
+Running batch 0 inference:  21%|██        | 107/505 [02:44<09:22,  1.41s/it][A
+Running batch 0 inference:  21%|██▏       | 108/505 [02:46<09:20,  1.41s/it][A
+Running batch 0 inference:  22%|██▏       | 109/505 [02:47<09:21,  1.42s/it][A
+Running batch 0 inference:  22%|██▏       | 110/505 [02:49<09:17,  1.41s/it][A
+Running batch 0 inference:  22%|██▏       | 111/505 [02:50<09:15,  1.41s/it][A
+Running batch 0 inference:  22%|██▏       | 112/505 [02:51<09:13,  1.41s/it][A
+Running batch 0 inference:  22%|██▏       | 113/505 [02:53<09:14,  1.41s/it][A
+Running batch 0 inference:  23%|██▎       | 114/505 [02:54<09:13,  1.41s/it][A
+Running batch 0 inference:  23%|██▎       | 115/505 [02:56<09:14,  1.42s/it][A
+Running batch 0 inference:  23%|██▎       | 116/505 [02:57<09:10,  1.41s/it][A
+Running batch 0 inference:  23%|██▎       | 117/505 [02:58<09:09,  1.42s/it][A
+Running batch 0 inference:  23%|██▎       | 118/505 [03:00<09:09,  1.42s/it][A
+Running batch 0 inference:  24%|██▎       | 119/505 [03:01<09:09,  1.42s/it][A
+Running batch 0 inference:  24%|██▍       | 120/505 [03:03<09:09,  1.43s/it][A
+Running batch 0 inference:  24%|██▍       | 121/505 [03:04<09:01,  1.41s/it][A
+Running batch 0 inference:  24%|██▍       | 122/505 [03:06<09:03,  1.42s/it][A
+Running batch 0 inference:  24%|██▍       | 123/505 [03:07<09:11,  1.44s/it][A
+Running batch 0 inference:  25%|██▍       | 124/505 [03:08<09:09,  1.44s/it][A
+Running batch 0 inference:  25%|██▍       | 125/505 [03:10<09:12,  1.45s/it][A
+Running batch 0 inference:  25%|██▍       | 126/505 [03:11<09:13,  1.46s/it][A
+Running batch 0 inference:  25%|██▌       | 127/505 [03:13<09:11,  1.46s/it][A
+Running batch 0 inference:  25%|██▌       | 128/505 [03:14<09:07,  1.45s/it][A
+Running batch 0 inference:  26%|██▌       | 129/505 [03:16<09:06,  1.45s/it][A
+Running batch 0 inference:  26%|██▌       | 130/505 [03:17<09:08,  1.46s/it][A
+Running batch 0 inference:  26%|██▌       | 131/505 [03:19<09:04,  1.46s/it][A
+Running batch 0 inference:  26%|██▌       | 132/505 [03:20<08:59,  1.45s/it][A
+Running batch 0 inference:  26%|██▋       | 133/505 [03:22<09:02,  1.46s/it][A
+Running batch 0 inference:  27%|██▋       | 134/505 [03:23<08:58,  1.45s/it][A
+Running batch 0 inference:  27%|██▋       | 135/505 [03:25<08:56,  1.45s/it][A
+Running batch 0 inference:  27%|██▋       | 136/505 [03:26<08:53,  1.45s/it][A
+Running batch 0 inference:  27%|██▋       | 137/505 [03:27<08:51,  1.44s/it][A
+Running batch 0 inference:  27%|██▋       | 138/505 [03:29<08:53,  1.45s/it][A
+Running batch 0 inference:  28%|██▊       | 139/505 [03:30<08:52,  1.45s/it][A
+Running batch 0 inference:  28%|██▊       | 140/505 [03:32<08:46,  1.44s/it][A
+Running batch 0 inference:  28%|██▊       | 141/505 [03:33<08:45,  1.44s/it][A
+Running batch 0 inference:  28%|██▊       | 142/505 [03:35<08:40,  1.43s/it][A
+Running batch 0 inference:  28%|██▊       | 143/505 [03:36<08:35,  1.42s/it][A
+Running batch 0 inference:  29%|██▊       | 144/505 [03:37<08:28,  1.41s/it][A
+Running batch 0 inference:  29%|██▊       | 145/505 [03:39<08:29,  1.41s/it][A
+Running batch 0 inference:  29%|██▉       | 146/505 [03:40<08:26,  1.41s/it][A
+Running batch 0 inference:  29%|██▉       | 147/505 [03:42<08:23,  1.41s/it][A
+Running batch 0 inference:  29%|██▉       | 148/505 [03:43<08:20,  1.40s/it][A
+Running batch 0 inference:  30%|██▉       | 149/505 [03:44<08:17,  1.40s/it][A
+Running batch 0 inference:  30%|██▉       | 150/505 [03:46<08:15,  1.40s/it][A
+Running batch 0 inference:  30%|██▉       | 151/505 [03:47<08:12,  1.39s/it][A
+Running batch 0 inference:  30%|███       | 152/505 [03:49<08:19,  1.41s/it][A
+Running batch 0 inference:  30%|███       | 153/505 [03:50<08:14,  1.40s/it][A
+Running batch 0 inference:  30%|███       | 154/505 [03:51<08:14,  1.41s/it][A
+Running batch 0 inference:  31%|███       | 155/505 [03:53<08:10,  1.40s/it][A
+Running batch 0 inference:  31%|███       | 156/505 [03:54<08:08,  1.40s/it][A
+Running batch 0 inference:  31%|███       | 157/505 [03:56<08:05,  1.40s/it][A
+Running batch 0 inference:  31%|███▏      | 158/505 [03:57<08:07,  1.41s/it][A
+Running batch 0 inference:  31%|███▏      | 159/505 [03:58<08:00,  1.39s/it][A
+Running batch 0 inference:  32%|███▏      | 160/505 [04:00<07:59,  1.39s/it][A
+Running batch 0 inference:  32%|███▏      | 161/505 [04:01<07:59,  1.39s/it][A
+Running batch 0 inference:  32%|███▏      | 162/505 [04:03<08:03,  1.41s/it][A
+Running batch 0 inference:  32%|███▏      | 163/505 [04:04<08:13,  1.44s/it][A
+Running batch 0 inference:  32%|███▏      | 164/505 [04:06<08:10,  1.44s/it][A
+Running batch 0 inference:  33%|███▎      | 165/505 [04:07<08:06,  1.43s/it][A
+Running batch 0 inference:  33%|███▎      | 166/505 [04:08<08:03,  1.43s/it][A
+Running batch 0 inference:  33%|███▎      | 167/505 [04:10<07:59,  1.42s/it][A
+Running batch 0 inference:  33%|███▎      | 168/505 [04:11<07:58,  1.42s/it][A
+Running batch 0 inference:  33%|███▎      | 169/505 [04:13<07:59,  1.43s/it][A
+Running batch 0 inference:  34%|███▎      | 170/505 [04:14<08:01,  1.44s/it][A
+Running batch 0 inference:  34%|███▍      | 171/505 [04:16<07:59,  1.44s/it][A
+Running batch 0 inference:  34%|███▍      | 172/505 [04:17<07:58,  1.44s/it][A
+Running batch 0 inference:  34%|███▍      | 173/505 [04:18<07:53,  1.43s/it][A
+Running batch 0 inference:  34%|███▍      | 174/505 [04:20<07:53,  1.43s/it][A
+Running batch 0 inference:  35%|███▍      | 175/505 [04:21<07:51,  1.43s/it][A
+Running batch 0 inference:  35%|███▍      | 176/505 [04:23<07:50,  1.43s/it][A
+Running batch 0 inference:  35%|███▌      | 177/505 [04:24<07:49,  1.43s/it][A
+Running batch 0 inference:  35%|███▌      | 178/505 [04:26<07:47,  1.43s/it][A
+Running batch 0 inference:  35%|███▌      | 179/505 [04:27<07:48,  1.44s/it][A
+Running batch 0 inference:  36%|███▌      | 180/505 [04:28<07:48,  1.44s/it][A
+Running batch 0 inference:  36%|███▌      | 181/505 [04:30<07:47,  1.44s/it][A
+Running batch 0 inference:  36%|███▌      | 182/505 [04:31<07:46,  1.44s/it][A
+Running batch 0 inference:  36%|███▌      | 183/505 [04:33<07:43,  1.44s/it][A
+Running batch 0 inference:  36%|███▋      | 184/505 [04:34<07:46,  1.45s/it][A
+Running batch 0 inference:  37%|███▋      | 185/505 [04:36<07:35,  1.42s/it][A
+Running batch 0 inference:  37%|███▋      | 186/505 [04:37<07:30,  1.41s/it][A
+Running batch 0 inference:  37%|███▋      | 187/505 [04:38<07:29,  1.41s/it][A
+Running batch 0 inference:  37%|███▋      | 188/505 [04:40<07:26,  1.41s/it][A
+Running batch 0 inference:  37%|███▋      | 189/505 [04:41<07:28,  1.42s/it][A
+Running batch 0 inference:  38%|███▊      | 190/505 [04:43<07:25,  1.41s/it][A
+Running batch 0 inference:  38%|███▊      | 191/505 [04:44<07:21,  1.41s/it][A
+Running batch 0 inference:  38%|███▊      | 192/505 [04:45<07:18,  1.40s/it][A
+Running batch 0 inference:  38%|███▊      | 193/505 [04:47<07:11,  1.38s/it][A
+Running batch 0 inference:  38%|███▊      | 194/505 [04:48<07:11,  1.39s/it][A
+Running batch 0 inference:  39%|███▊      | 195/505 [04:50<07:10,  1.39s/it][A
+Running batch 0 inference:  39%|███▉      | 196/505 [04:51<07:09,  1.39s/it][A
+Running batch 0 inference:  39%|███▉      | 197/505 [04:52<07:06,  1.38s/it][A
+Running batch 0 inference:  39%|███▉      | 198/505 [04:54<07:05,  1.39s/it][A
+Running batch 0 inference:  39%|███▉      | 199/505 [04:55<07:02,  1.38s/it][A
+Running batch 0 inference:  40%|███▉      | 200/505 [04:57<07:04,  1.39s/it][A
+Running batch 0 inference:  40%|███▉      | 201/505 [04:58<07:05,  1.40s/it][A
+Running batch 0 inference:  40%|████      | 202/505 [04:59<07:01,  1.39s/it][A
+Running batch 0 inference:  40%|████      | 203/505 [05:01<07:00,  1.39s/it][A
+Running batch 0 inference:  40%|████      | 204/505 [05:02<06:59,  1.39s/it][A
+Running batch 0 inference:  41%|████      | 205/505 [05:03<06:57,  1.39s/it][A
+Running batch 0 inference:  41%|████      | 206/505 [05:05<06:57,  1.40s/it][A
+Running batch 0 inference:  41%|████      | 207/505 [05:06<06:55,  1.39s/it][A
+Running batch 0 inference:  41%|████      | 208/505 [05:08<06:56,  1.40s/it][A
+Running batch 0 inference:  41%|████▏     | 209/505 [05:09<06:54,  1.40s/it][A
+Running batch 0 inference:  42%|████▏     | 210/505 [05:10<06:52,  1.40s/it][A
+Running batch 0 inference:  42%|████▏     | 211/505 [05:12<06:50,  1.39s/it][A
+Running batch 0 inference:  42%|████▏     | 212/505 [05:13<06:50,  1.40s/it][A
+Running batch 0 inference:  42%|████▏     | 213/505 [05:15<06:49,  1.40s/it][A
+Running batch 0 inference:  42%|████▏     | 214/505 [05:16<06:48,  1.40s/it][A
+Running batch 0 inference:  43%|████▎     | 215/505 [05:17<06:45,  1.40s/it][A
+Running batch 0 inference:  43%|████▎     | 216/505 [05:19<06:43,  1.40s/it][A
+Running batch 0 inference:  43%|████▎     | 217/505 [05:20<06:44,  1.40s/it][A
+Running batch 0 inference:  43%|████▎     | 218/505 [05:22<06:41,  1.40s/it][A
+Running batch 0 inference:  43%|████▎     | 219/505 [05:23<06:41,  1.40s/it][A
+Running batch 0 inference:  44%|████▎     | 220/505 [05:24<06:34,  1.38s/it][A
+Running batch 0 inference:  44%|████▍     | 221/505 [05:26<06:29,  1.37s/it][A
+Running batch 0 inference:  44%|████▍     | 222/505 [05:27<06:28,  1.37s/it][A
+Running batch 0 inference:  44%|████▍     | 223/505 [05:28<06:23,  1.36s/it][A
+Running batch 0 inference:  44%|████▍     | 224/505 [05:30<06:22,  1.36s/it][A
+Running batch 0 inference:  45%|████▍     | 225/505 [05:31<06:21,  1.36s/it][A
+Running batch 0 inference:  45%|████▍     | 226/505 [05:33<06:19,  1.36s/it][A
+Running batch 0 inference:  45%|████▍     | 227/505 [05:34<06:17,  1.36s/it][A
+Running batch 0 inference:  45%|████▌     | 228/505 [05:35<06:20,  1.37s/it][A
+Running batch 0 inference:  45%|████▌     | 229/505 [05:37<06:17,  1.37s/it][A
+Running batch 0 inference:  46%|████▌     | 230/505 [05:38<06:15,  1.36s/it][A
+Running batch 0 inference:  46%|████▌     | 231/505 [05:39<06:16,  1.37s/it][A
+Running batch 0 inference:  46%|████▌     | 232/505 [05:41<06:13,  1.37s/it][A
+Running batch 0 inference:  46%|████▌     | 233/505 [05:42<06:11,  1.36s/it][A
+Running batch 0 inference:  46%|████▋     | 234/505 [05:43<06:08,  1.36s/it][A
+Running batch 0 inference:  47%|████▋     | 235/505 [05:45<06:07,  1.36s/it][A
+Running batch 0 inference:  47%|████▋     | 236/505 [05:46<06:10,  1.38s/it][A
+Running batch 0 inference:  47%|████▋     | 237/505 [05:48<06:06,  1.37s/it][A
+Running batch 0 inference:  47%|████▋     | 238/505 [05:49<06:02,  1.36s/it][A
+Running batch 0 inference:  47%|████▋     | 239/505 [05:50<06:01,  1.36s/it][A
+Running batch 0 inference:  48%|████▊     | 240/505 [05:52<06:02,  1.37s/it][A
+Running batch 0 inference:  48%|████▊     | 241/505 [05:53<06:02,  1.37s/it][A
+Running batch 0 inference:  48%|████▊     | 242/505 [05:54<05:59,  1.37s/it][A
+Running batch 0 inference:  48%|████▊     | 243/505 [05:56<05:57,  1.37s/it][A
+Running batch 0 inference:  48%|████▊     | 244/505 [05:57<05:57,  1.37s/it][A
+Running batch 0 inference:  49%|████▊     | 245/505 [05:59<05:54,  1.36s/it][A
+Running batch 0 inference:  49%|████▊     | 246/505 [06:00<05:54,  1.37s/it][A
+Running batch 0 inference:  49%|████▉     | 247/505 [06:01<05:55,  1.38s/it][A
+Running batch 0 inference:  49%|████▉     | 248/505 [06:03<05:55,  1.38s/it][A
+Running batch 0 inference:  49%|████▉     | 249/505 [06:04<05:53,  1.38s/it][A
+Running batch 0 inference:  50%|████▉     | 250/505 [06:05<05:50,  1.37s/it][A
+Running batch 0 inference:  50%|████▉     | 251/505 [06:07<05:46,  1.36s/it][A
+Running batch 0 inference:  50%|████▉     | 252/505 [06:08<05:46,  1.37s/it][A
+Running batch 0 inference:  50%|█████     | 253/505 [06:10<05:44,  1.37s/it][A
+Running batch 0 inference:  50%|█████     | 254/505 [06:11<05:46,  1.38s/it][A
+Running batch 0 inference:  50%|█████     | 255/505 [06:12<05:47,  1.39s/it][A
+Running batch 0 inference:  51%|█████     | 256/505 [06:14<05:45,  1.39s/it][A
+Running batch 0 inference:  51%|█████     | 257/505 [06:15<05:41,  1.38s/it][A
+Running batch 0 inference:  51%|█████     | 258/505 [06:16<05:35,  1.36s/it][A
+Running batch 0 inference:  51%|█████▏    | 259/505 [06:18<05:34,  1.36s/it][A
+Running batch 0 inference:  51%|█████▏    | 260/505 [06:19<05:36,  1.37s/it][A
+Running batch 0 inference:  52%|█████▏    | 261/505 [06:21<05:32,  1.36s/it][A
+Running batch 0 inference:  52%|█████▏    | 262/505 [06:22<05:28,  1.35s/it][A
+Running batch 0 inference:  52%|█████▏    | 263/505 [06:23<05:29,  1.36s/it][A
+Running batch 0 inference:  52%|█████▏    | 264/505 [06:25<05:29,  1.37s/it][A
+Running batch 0 inference:  52%|█████▏    | 265/505 [06:26<05:30,  1.38s/it][A
+Running batch 0 inference:  53%|█████▎    | 266/505 [06:27<05:25,  1.36s/it][A
+Running batch 0 inference:  53%|█████▎    | 267/505 [06:29<05:23,  1.36s/it][A
+Running batch 0 inference:  53%|█████▎    | 268/505 [06:30<05:20,  1.35s/it][A
+Running batch 0 inference:  53%|█████▎    | 269/505 [06:31<05:19,  1.35s/it][A
+Running batch 0 inference:  53%|█████▎    | 270/505 [06:33<05:20,  1.36s/it][A
+Running batch 0 inference:  54%|█████▎    | 271/505 [06:34<05:21,  1.37s/it][A
+Running batch 0 inference:  54%|█████▍    | 272/505 [06:36<05:22,  1.38s/it][A
+Running batch 0 inference:  54%|█████▍    | 273/505 [06:37<05:18,  1.37s/it][A
+Running batch 0 inference:  54%|█████▍    | 274/505 [06:38<05:19,  1.38s/it][A
+Running batch 0 inference:  54%|█████▍    | 275/505 [06:40<05:18,  1.39s/it][A
+Running batch 0 inference:  55%|█████▍    | 276/505 [06:41<05:16,  1.38s/it][A
+Running batch 0 inference:  55%|█████▍    | 277/505 [06:42<05:12,  1.37s/it][A
+Running batch 0 inference:  55%|█████▌    | 278/505 [06:44<05:10,  1.37s/it][A
+Running batch 0 inference:  55%|█████▌    | 279/505 [06:45<05:05,  1.35s/it][A
+Running batch 0 inference:  55%|█████▌    | 280/505 [06:46<05:06,  1.36s/it][A
+Running batch 0 inference:  56%|█████▌    | 281/505 [06:48<05:08,  1.38s/it][A
+Running batch 0 inference:  56%|█████▌    | 282/505 [06:49<05:05,  1.37s/it][A
+Running batch 0 inference:  56%|█████▌    | 283/505 [06:51<05:02,  1.36s/it][A
+Running batch 0 inference:  56%|█████▌    | 284/505 [06:52<04:59,  1.36s/it][A
+Running batch 0 inference:  56%|█████▋    | 285/505 [06:53<04:58,  1.36s/it][A
+Running batch 0 inference:  57%|█████▋    | 286/505 [06:55<04:56,  1.35s/it][A
+Running batch 0 inference:  57%|█████▋    | 287/505 [06:56<04:52,  1.34s/it][A
+Running batch 0 inference:  57%|█████▋    | 288/505 [06:57<04:49,  1.34s/it][A
+Running batch 0 inference:  57%|█████▋    | 289/505 [06:59<04:47,  1.33s/it][A
+Running batch 0 inference:  57%|█████▋    | 290/505 [07:00<04:46,  1.33s/it][A
+Running batch 0 inference:  58%|█████▊    | 291/505 [07:01<04:45,  1.34s/it][A
+Running batch 0 inference:  58%|█████▊    | 292/505 [07:03<04:43,  1.33s/it][A
+Running batch 0 inference:  58%|█████▊    | 293/505 [07:04<04:43,  1.34s/it][A
+Running batch 0 inference:  58%|█████▊    | 294/505 [07:05<04:42,  1.34s/it][A
+Running batch 0 inference:  58%|█████▊    | 295/505 [07:07<04:41,  1.34s/it][A
+Running batch 0 inference:  59%|█████▊    | 296/505 [07:08<04:51,  1.39s/it][A
+Running batch 0 inference:  59%|█████▉    | 297/505 [07:10<04:50,  1.40s/it][A
+Running batch 0 inference:  59%|█████▉    | 298/505 [07:11<04:48,  1.39s/it][A
+Running batch 0 inference:  59%|█████▉    | 299/505 [07:12<04:38,  1.35s/it][A
+Running batch 0 inference:  59%|█████▉    | 300/505 [07:13<04:31,  1.32s/it][A
+Running batch 0 inference:  60%|█████▉    | 301/505 [07:15<04:25,  1.30s/it][A
+Running batch 0 inference:  60%|█████▉    | 302/505 [07:16<04:20,  1.28s/it][A
+Running batch 0 inference:  60%|██████    | 303/505 [07:17<04:15,  1.27s/it][A
+Running batch 0 inference:  60%|██████    | 304/505 [07:18<04:14,  1.26s/it][A
+Running batch 0 inference:  60%|██████    | 305/505 [07:20<04:12,  1.26s/it][A
+Running batch 0 inference:  61%|██████    | 306/505 [07:21<04:10,  1.26s/it][A
+Running batch 0 inference:  61%|██████    | 307/505 [07:22<04:08,  1.26s/it][A
+Running batch 0 inference:  61%|██████    | 308/505 [07:23<04:06,  1.25s/it][A
+Running batch 0 inference:  61%|██████    | 309/505 [07:25<04:04,  1.25s/it][A
+Running batch 0 inference:  61%|██████▏   | 310/505 [07:26<04:03,  1.25s/it][A
+Running batch 0 inference:  62%|██████▏   | 311/505 [07:27<04:02,  1.25s/it][A
+Running batch 0 inference:  62%|██████▏   | 312/505 [07:28<04:01,  1.25s/it][A
+Running batch 0 inference:  62%|██████▏   | 313/505 [07:30<04:00,  1.25s/it][A
+Running batch 0 inference:  62%|██████▏   | 314/505 [07:31<03:59,  1.26s/it][A
+Running batch 0 inference:  62%|██████▏   | 315/505 [07:32<03:58,  1.26s/it][A
+Running batch 0 inference:  63%|██████▎   | 316/505 [07:33<03:56,  1.25s/it][A
+Running batch 0 inference:  63%|██████▎   | 317/505 [07:35<03:54,  1.25s/it][A
+Running batch 0 inference:  63%|██████▎   | 318/505 [07:36<03:54,  1.25s/it][A
+Running batch 0 inference:  63%|██████▎   | 319/505 [07:37<03:53,  1.25s/it][A
+Running batch 0 inference:  63%|██████▎   | 320/505 [07:38<03:52,  1.26s/it][A
+Running batch 0 inference:  64%|██████▎   | 321/505 [07:40<03:50,  1.25s/it][A
+Running batch 0 inference:  64%|██████▍   | 322/505 [07:41<03:48,  1.25s/it][A
+Running batch 0 inference:  64%|██████▍   | 323/505 [07:42<03:46,  1.25s/it][A
+Running batch 0 inference:  64%|██████▍   | 324/505 [07:43<03:45,  1.25s/it][A
+Running batch 0 inference:  64%|██████▍   | 325/505 [07:45<03:44,  1.25s/it][A
+Running batch 0 inference:  65%|██████▍   | 326/505 [07:46<03:44,  1.25s/it][A
+Running batch 0 inference:  65%|██████▍   | 327/505 [07:47<03:42,  1.25s/it][A
+Running batch 0 inference:  65%|██████▍   | 328/505 [07:48<03:41,  1.25s/it][A
+Running batch 0 inference:  65%|██████▌   | 329/505 [07:50<03:41,  1.26s/it][A
+Running batch 0 inference:  65%|██████▌   | 330/505 [07:51<03:40,  1.26s/it][A
+Running batch 0 inference:  66%|██████▌   | 331/505 [07:52<03:39,  1.26s/it][A
+Running batch 0 inference:  66%|██████▌   | 332/505 [07:54<03:38,  1.26s/it][A
+Running batch 0 inference:  66%|██████▌   | 333/505 [07:55<03:36,  1.26s/it][A
+Running batch 0 inference:  66%|██████▌   | 334/505 [07:56<03:34,  1.26s/it][A
+Running batch 0 inference:  66%|██████▋   | 335/505 [07:57<03:32,  1.25s/it][A
+Running batch 0 inference:  67%|██████▋   | 336/505 [07:58<03:30,  1.25s/it][A
+Running batch 0 inference:  67%|██████▋   | 337/505 [08:00<03:29,  1.25s/it][A
+Running batch 0 inference:  67%|██████▋   | 338/505 [08:01<03:28,  1.25s/it][A
+Running batch 0 inference:  67%|██████▋   | 339/505 [08:02<03:28,  1.25s/it][A
+Running batch 0 inference:  67%|██████▋   | 340/505 [08:04<03:26,  1.25s/it][A
+Running batch 0 inference:  68%|██████▊   | 341/505 [08:05<03:26,  1.26s/it][A
+Running batch 0 inference:  68%|██████▊   | 342/505 [08:06<03:24,  1.25s/it][A
+Running batch 0 inference:  68%|██████▊   | 343/505 [08:07<03:22,  1.25s/it][A
+Running batch 0 inference:  68%|██████▊   | 344/505 [08:09<03:21,  1.25s/it][A
+Running batch 0 inference:  68%|██████▊   | 345/505 [08:10<03:20,  1.25s/it][A
+Running batch 0 inference:  69%|██████▊   | 346/505 [08:11<03:18,  1.25s/it][A
+Running batch 0 inference:  69%|██████▊   | 347/505 [08:12<03:17,  1.25s/it][A
+Running batch 0 inference:  69%|██████▉   | 348/505 [08:14<03:16,  1.25s/it][A
+Running batch 0 inference:  69%|██████▉   | 349/505 [08:15<03:15,  1.25s/it][A
+Running batch 0 inference:  69%|██████▉   | 350/505 [08:16<03:13,  1.25s/it][A
+Running batch 0 inference:  70%|██████▉   | 351/505 [08:17<03:11,  1.25s/it][A
+Running batch 0 inference:  70%|██████▉   | 352/505 [08:19<03:10,  1.25s/it][A
+Running batch 0 inference:  70%|██████▉   | 353/505 [08:20<03:09,  1.25s/it][A
+Running batch 0 inference:  70%|███████   | 354/505 [08:21<03:08,  1.25s/it][A
+Running batch 0 inference:  70%|███████   | 355/505 [08:22<03:07,  1.25s/it][A
+Running batch 0 inference:  70%|███████   | 356/505 [08:24<03:06,  1.25s/it][A
+Running batch 0 inference:  71%|███████   | 357/505 [08:25<03:05,  1.25s/it][A
+Running batch 0 inference:  71%|███████   | 358/505 [08:26<03:03,  1.25s/it][A
+Running batch 0 inference:  71%|███████   | 359/505 [08:27<03:01,  1.25s/it][A
+Running batch 0 inference:  71%|███████▏  | 360/505 [08:28<03:00,  1.25s/it][A
+Running batch 0 inference:  71%|███████▏  | 361/505 [08:30<02:59,  1.25s/it][A
+Running batch 0 inference:  72%|███████▏  | 362/505 [08:31<02:58,  1.25s/it][A
+Running batch 0 inference:  72%|███████▏  | 363/505 [08:32<02:58,  1.25s/it][A
+Running batch 0 inference:  72%|███████▏  | 364/505 [08:34<02:57,  1.26s/it][A
+Running batch 0 inference:  72%|███████▏  | 365/505 [08:35<02:55,  1.25s/it][A
+Running batch 0 inference:  72%|███████▏  | 366/505 [08:36<02:55,  1.26s/it][A
+Running batch 0 inference:  73%|███████▎  | 367/505 [08:37<02:54,  1.26s/it][A
+Running batch 0 inference:  73%|███████▎  | 368/505 [08:39<02:52,  1.26s/it][A
+Running batch 0 inference:  73%|███████▎  | 369/505 [08:40<02:50,  1.25s/it][A
+Running batch 0 inference:  73%|███████▎  | 370/505 [08:41<02:49,  1.26s/it][A
+Running batch 0 inference:  73%|███████▎  | 371/505 [08:42<02:48,  1.26s/it][A
+Running batch 0 inference:  74%|███████▎  | 372/505 [08:44<02:47,  1.26s/it][A
+Running batch 0 inference:  74%|███████▍  | 373/505 [08:45<02:46,  1.26s/it][A
+Running batch 0 inference:  74%|███████▍  | 374/505 [08:46<02:44,  1.26s/it][A
+Running batch 0 inference:  74%|███████▍  | 375/505 [08:47<02:43,  1.26s/it][A
+Running batch 0 inference:  74%|███████▍  | 376/505 [08:49<02:43,  1.26s/it][A
+Running batch 0 inference:  75%|███████▍  | 377/505 [08:50<02:41,  1.26s/it][A
+Running batch 0 inference:  75%|███████▍  | 378/505 [08:51<02:40,  1.26s/it][A
+Running batch 0 inference:  75%|███████▌  | 379/505 [08:52<02:39,  1.26s/it][A
+Running batch 0 inference:  75%|███████▌  | 380/505 [08:54<02:37,  1.26s/it][A
+Running batch 0 inference:  75%|███████▌  | 381/505 [08:55<02:36,  1.26s/it][A
+Running batch 0 inference:  76%|███████▌  | 382/505 [08:56<02:35,  1.27s/it][A
+Running batch 0 inference:  76%|███████▌  | 383/505 [08:58<02:34,  1.27s/it][A
+Running batch 0 inference:  76%|███████▌  | 384/505 [08:59<02:33,  1.27s/it][A
+Running batch 0 inference:  76%|███████▌  | 385/505 [09:00<02:31,  1.27s/it][A
+Running batch 0 inference:  76%|███████▋  | 386/505 [09:01<02:30,  1.26s/it][A
+Running batch 0 inference:  77%|███████▋  | 387/505 [09:03<02:29,  1.27s/it][A
+Running batch 0 inference:  77%|███████▋  | 388/505 [09:04<02:28,  1.27s/it][A
+Running batch 0 inference:  77%|███████▋  | 389/505 [09:05<02:26,  1.26s/it][A
+Running batch 0 inference:  77%|███████▋  | 390/505 [09:06<02:25,  1.26s/it][A
+Running batch 0 inference:  77%|███████▋  | 391/505 [09:08<02:24,  1.27s/it][A
+Running batch 0 inference:  78%|███████▊  | 392/505 [09:09<02:22,  1.26s/it][A
+Running batch 0 inference:  78%|███████▊  | 393/505 [09:10<02:21,  1.26s/it][A
+Running batch 0 inference:  78%|███████▊  | 394/505 [09:11<02:19,  1.26s/it][A
+Running batch 0 inference:  78%|███████▊  | 395/505 [09:13<02:18,  1.26s/it][A
+Running batch 0 inference:  78%|███████▊  | 396/505 [09:14<02:17,  1.26s/it][A
+Running batch 0 inference:  79%|███████▊  | 397/505 [09:15<02:16,  1.26s/it][A
+Running batch 0 inference:  79%|███████▉  | 398/505 [09:16<02:15,  1.26s/it][A
+Running batch 0 inference:  79%|███████▉  | 399/505 [09:18<02:14,  1.27s/it][A
+Running batch 0 inference:  79%|███████▉  | 400/505 [09:19<02:13,  1.27s/it][A
+Running batch 0 inference:  79%|███████▉  | 401/505 [09:20<02:11,  1.27s/it][A
+Running batch 0 inference:  80%|███████▉  | 402/505 [09:22<02:10,  1.26s/it][A
+Running batch 0 inference:  80%|███████▉  | 403/505 [09:23<02:08,  1.26s/it][A
+Running batch 0 inference:  80%|████████  | 404/505 [09:24<02:07,  1.27s/it][A
+Running batch 0 inference:  80%|████████  | 405/505 [09:25<02:06,  1.27s/it][A
+Running batch 0 inference:  80%|████████  | 406/505 [09:27<02:05,  1.27s/it][A
+Running batch 0 inference:  81%|████████  | 407/505 [09:28<02:03,  1.26s/it][A
+Running batch 0 inference:  81%|████████  | 408/505 [09:29<02:02,  1.27s/it][A
+Running batch 0 inference:  81%|████████  | 409/505 [09:30<02:02,  1.27s/it][A
+Running batch 0 inference:  81%|████████  | 410/505 [09:32<02:01,  1.28s/it][A
+Running batch 0 inference:  81%|████████▏ | 411/505 [09:33<01:59,  1.27s/it][A
+Running batch 0 inference:  82%|████████▏ | 412/505 [09:35<02:07,  1.37s/it][A
+Running batch 0 inference:  82%|████████▏ | 413/505 [09:36<02:03,  1.34s/it][A
+Running batch 0 inference:  82%|████████▏ | 414/505 [09:37<01:59,  1.31s/it][A
+Running batch 0 inference:  82%|████████▏ | 415/505 [09:38<01:55,  1.28s/it][A
+Running batch 0 inference:  82%|████████▏ | 416/505 [09:39<01:52,  1.26s/it][A
+Running batch 0 inference:  83%|████████▎ | 417/505 [09:41<01:50,  1.25s/it][A
+Running batch 0 inference:  83%|████████▎ | 418/505 [09:42<01:48,  1.24s/it][A
+Running batch 0 inference:  83%|████████▎ | 419/505 [09:43<01:45,  1.23s/it][A
+Running batch 0 inference:  83%|████████▎ | 420/505 [09:44<01:44,  1.23s/it][A
+Running batch 0 inference:  83%|████████▎ | 421/505 [09:46<01:43,  1.23s/it][A
+Running batch 0 inference:  84%|████████▎ | 422/505 [09:47<01:41,  1.23s/it][A
+Running batch 0 inference:  84%|████████▍ | 423/505 [09:48<01:40,  1.23s/it][A
+Running batch 0 inference:  84%|████████▍ | 424/505 [09:49<01:40,  1.23s/it][A
+Running batch 0 inference:  84%|████████▍ | 425/505 [09:51<01:38,  1.23s/it][A
+Running batch 0 inference:  84%|████████▍ | 426/505 [09:52<01:37,  1.23s/it][A
+Running batch 0 inference:  85%|████████▍ | 427/505 [09:53<01:36,  1.23s/it][A
+Running batch 0 inference:  85%|████████▍ | 428/505 [09:54<01:34,  1.23s/it][A
+Running batch 0 inference:  85%|████████▍ | 429/505 [09:55<01:33,  1.23s/it][A
+Running batch 0 inference:  85%|████████▌ | 430/505 [09:57<01:32,  1.23s/it][A
+Running batch 0 inference:  85%|████████▌ | 431/505 [09:58<01:31,  1.23s/it][A
+Running batch 0 inference:  86%|████████▌ | 432/505 [09:59<01:29,  1.23s/it][A
+Running batch 0 inference:  86%|████████▌ | 433/505 [10:00<01:28,  1.23s/it][A
+Running batch 0 inference:  86%|████████▌ | 434/505 [10:02<01:27,  1.24s/it][A
+Running batch 0 inference:  86%|████████▌ | 435/505 [10:03<01:26,  1.24s/it][A
+Running batch 0 inference:  86%|████████▋ | 436/505 [10:04<01:25,  1.24s/it][A
+Running batch 0 inference:  87%|████████▋ | 437/505 [10:05<01:23,  1.24s/it][A
+Running batch 0 inference:  87%|████████▋ | 438/505 [10:07<01:22,  1.24s/it][A
+Running batch 0 inference:  87%|████████▋ | 439/505 [10:08<01:21,  1.24s/it][A
+Running batch 0 inference:  87%|████████▋ | 440/505 [10:09<01:20,  1.24s/it][A
+Running batch 0 inference:  87%|████████▋ | 441/505 [10:10<01:19,  1.24s/it][A
+Running batch 0 inference:  88%|████████▊ | 442/505 [10:12<01:17,  1.24s/it][A
+Running batch 0 inference:  88%|████████▊ | 443/505 [10:13<01:16,  1.24s/it][A
+Running batch 0 inference:  88%|████████▊ | 444/505 [10:14<01:15,  1.23s/it][A
+Running batch 0 inference:  88%|████████▊ | 445/505 [10:15<01:13,  1.23s/it][A
+Running batch 0 inference:  88%|████████▊ | 446/505 [10:16<01:12,  1.23s/it][A
+Running batch 0 inference:  89%|████████▊ | 447/505 [10:18<01:11,  1.22s/it][A
+Running batch 0 inference:  89%|████████▊ | 448/505 [10:19<01:10,  1.23s/it][A
+Running batch 0 inference:  89%|████████▉ | 449/505 [10:20<01:08,  1.23s/it][A
+Running batch 0 inference:  89%|████████▉ | 450/505 [10:21<01:07,  1.23s/it][A
+Running batch 0 inference:  89%|████████▉ | 451/505 [10:23<01:06,  1.23s/it][A
+Running batch 0 inference:  90%|████████▉ | 452/505 [10:24<01:05,  1.23s/it][A
+Running batch 0 inference:  90%|████████▉ | 453/505 [10:25<01:04,  1.24s/it][A
+Running batch 0 inference:  90%|████████▉ | 454/505 [10:26<01:02,  1.23s/it][A
+Running batch 0 inference:  90%|█████████ | 455/505 [10:28<01:01,  1.23s/it][A
+Running batch 0 inference:  90%|█████████ | 456/505 [10:29<01:00,  1.23s/it][A
+Running batch 0 inference:  90%|█████████ | 457/505 [10:30<00:59,  1.23s/it][A
+Running batch 0 inference:  91%|█████████ | 458/505 [10:31<00:58,  1.24s/it][A
+Running batch 0 inference:  91%|█████████ | 459/505 [10:32<00:56,  1.23s/it][A
+Running batch 0 inference:  91%|█████████ | 460/505 [10:34<00:55,  1.23s/it][A
+Running batch 0 inference:  91%|█████████▏| 461/505 [10:35<00:54,  1.23s/it][A
+Running batch 0 inference:  91%|█████████▏| 462/505 [10:36<00:53,  1.24s/it][A
+Running batch 0 inference:  92%|█████████▏| 463/505 [10:37<00:52,  1.24s/it][A
+Running batch 0 inference:  92%|█████████▏| 464/505 [10:39<00:50,  1.24s/it][A
+Running batch 0 inference:  92%|█████████▏| 465/505 [10:40<00:49,  1.24s/it][A
+Running batch 0 inference:  92%|█████████▏| 466/505 [10:41<00:48,  1.24s/it][A
+Running batch 0 inference:  92%|█████████▏| 467/505 [10:42<00:46,  1.24s/it][A
+Running batch 0 inference:  93%|█████████▎| 468/505 [10:44<00:45,  1.24s/it][A
+Running batch 0 inference:  93%|█████████▎| 469/505 [10:45<00:44,  1.24s/it][A
+Running batch 0 inference:  93%|█████████▎| 470/505 [10:46<00:43,  1.23s/it][A
+Running batch 0 inference:  93%|█████████▎| 471/505 [10:47<00:41,  1.23s/it][A
+Running batch 0 inference:  93%|█████████▎| 472/505 [10:49<00:40,  1.23s/it][A
+Running batch 0 inference:  94%|█████████▎| 473/505 [10:50<00:39,  1.24s/it][A
+Running batch 0 inference:  94%|█████████▍| 474/505 [10:51<00:38,  1.24s/it][A
+Running batch 0 inference:  94%|█████████▍| 475/505 [10:52<00:37,  1.24s/it][A
+Running batch 0 inference:  94%|█████████▍| 476/505 [10:54<00:35,  1.24s/it][A
+Running batch 0 inference:  94%|█████████▍| 477/505 [10:55<00:34,  1.24s/it][A
+Running batch 0 inference:  95%|█████████▍| 478/505 [10:56<00:33,  1.24s/it][A
+Running batch 0 inference:  95%|█████████▍| 479/505 [10:57<00:32,  1.24s/it][A
+Running batch 0 inference:  95%|█████████▌| 480/505 [10:58<00:30,  1.24s/it][A
+Running batch 0 inference:  95%|█████████▌| 481/505 [11:00<00:29,  1.24s/it][A
+Running batch 0 inference:  95%|█████████▌| 482/505 [11:01<00:28,  1.24s/it][A
+Running batch 0 inference:  96%|█████████▌| 483/505 [11:02<00:27,  1.23s/it][A
+Running batch 0 inference:  96%|█████████▌| 484/505 [11:03<00:25,  1.23s/it][A
+Running batch 0 inference:  96%|█████████▌| 485/505 [11:05<00:24,  1.24s/it][A
+Running batch 0 inference:  96%|█████████▌| 486/505 [11:06<00:23,  1.23s/it][A
+Running batch 0 inference:  96%|█████████▋| 487/505 [11:07<00:22,  1.23s/it][A
+Running batch 0 inference:  97%|█████████▋| 488/505 [11:08<00:20,  1.23s/it][A
+Running batch 0 inference:  97%|█████████▋| 489/505 [11:10<00:19,  1.23s/it][A
+Running batch 0 inference:  97%|█████████▋| 490/505 [11:11<00:18,  1.23s/it][A
+Running batch 0 inference:  97%|█████████▋| 491/505 [11:12<00:17,  1.24s/it][A
+Running batch 0 inference:  97%|█████████▋| 492/505 [11:13<00:16,  1.24s/it][A
+Running batch 0 inference:  98%|█████████▊| 493/505 [11:14<00:14,  1.23s/it][A
+Running batch 0 inference:  98%|█████████▊| 494/505 [11:16<00:13,  1.23s/it][A
+Running batch 0 inference:  98%|█████████▊| 495/505 [11:17<00:12,  1.23s/it][A
+Running batch 0 inference:  98%|█████████▊| 496/505 [11:18<00:11,  1.23s/it][A
+Running batch 0 inference:  98%|█████████▊| 497/505 [11:19<00:09,  1.23s/it][A
+Running batch 0 inference:  99%|█████████▊| 498/505 [11:21<00:08,  1.23s/it][A
+Running batch 0 inference:  99%|█████████▉| 499/505 [11:22<00:07,  1.23s/it][A
+Running batch 0 inference:  99%|█████████▉| 500/505 [11:23<00:06,  1.23s/it][A
+Running batch 0 inference:  99%|█████████▉| 501/505 [11:24<00:04,  1.23s/it][A
+Running batch 0 inference:  99%|█████████▉| 502/505 [11:26<00:03,  1.24s/it][A
+Running batch 0 inference: 100%|█████████▉| 503/505 [11:27<00:02,  1.24s/it][A
+Running batch 0 inference: 100%|█████████▉| 504/505 [11:28<00:01,  1.23s/it][A
+Running batch 0 inference: 100%|██████████| 505/505 [11:29<00:00,  1.23s/it][A
+                                                                            [A
+
+Total Ensemble Batches: 100%|██████████| 1/1 [11:29<00:00, 689.77s/it][A[ATotal Ensemble Batches: 100%|██████████| 1/1 [11:29<00:00, 689.77s/it]
+[32m2026-08-28 01:10:55.295[0m | [32m[1mSUCCESS [0m | [36mearth2studio.run[0m:[36mensemble[0m:[36m544[0m - [32m[1m
+Inference complete[0m
+[infer] WinterStorm_Uri_2021: rollout 692.4 s (11.54 min); peak GPU mem 53.0 GB
+[infer]   wrote WinterStorm_Uri_2021_shard00of01_cube.nc  {'time': 505, 'member': 1, 'lat': 105, 'lon': 237, 'level': 2} vars=['2m_temperature', 'geopotential', 'temperature'] lat[24.0..50.0] lon[235.0..294.0]
+[infer] shard 0/1 summary: done=1 skipped=0 failed=0
+[score] WinterStorm_Uri_2021@wk18 free: rc=0 in 808 s

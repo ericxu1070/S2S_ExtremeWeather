@@ -74,11 +74,27 @@ class Task:
     (``runs/aires/<event>/res/<tag>/``), which is separate because a resampled walker slot
     is not a lineage - see ``aconfig``'s run-tree comment. The segment a lead corresponds
     to is the same arithmetic either way (segments are 3 d), so nothing else changes.
+
+    ``state_p``/``cube_p``/``zarr_p`` override those two layouts entirely, for a driver
+    whose tree is neither - ``astab`` writes to ``runs/astab/<event>/``. They are set
+    together or not at all: a Task that reads one tree and writes another is a cache that
+    can never be checked. ``tag`` is still carried when they are used, because it is
+    stamped on the cube as ``run_tag`` and is how an artifact says which run made it.
     """
     event: str
     walker: int
     lead_days: float
     tag: str | None = None
+    state_p: Path | None = None
+    cube_p: Path | None = None
+    zarr_p: Path | None = None
+
+    def __post_init__(self):
+        given = [p is not None for p in (self.state_p, self.cube_p, self.zarr_p)]
+        if any(given) and not all(given):
+            raise ValueError(
+                "state_p, cube_p and zarr_p are set together or not at all; got "
+                f"state_p={self.state_p}, cube_p={self.cube_p}, zarr_p={self.zarr_p}")
 
     @property
     def step(self) -> int:
@@ -86,18 +102,24 @@ class Task:
 
     @property
     def state_path(self) -> Path:
+        if self.state_p is not None:
+            return Path(self.state_p)
         if self.tag is None:
             return A.state_path(self.event, self.walker, self.step)
         return A.res_state_path(self.event, self.walker, self.step, self.tag)
 
     @property
     def cube_path(self) -> Path:
+        if self.cube_p is not None:
+            return Path(self.cube_p)
         if self.tag is None:
             return A.score_cube_path(self.event, self.walker, self.lead_days)
         return A.res_score_cube_path(self.event, self.walker, self.lead_days, self.tag)
 
     @property
     def zarr_path(self) -> Path:
+        if self.zarr_p is not None:
+            return Path(self.zarr_p)
         if self.tag is None:
             return A.score_zarr_path(self.event, self.walker, self.lead_days)
         return A.res_score_zarr_path(self.event, self.walker, self.lead_days, self.tag)

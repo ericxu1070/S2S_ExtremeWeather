@@ -1,0 +1,44 @@
+[walk] host=nucla3m-a3meganodeset-4 shard 4/8: ['PNW_HeatDome_2021@wk12', 'WinterStorm_Uri_2021@wk10']
+[walk] PNW_HeatDome_2021@wk12: 1 segment(s), 6 steps, init 2021-04-05 00:00:00 -> the 3 d launch state 2021-04-08 00:00:00 (FCN3-extension lead; the peak 2021-06-28 00:00:00 is FCN3's to reach)
+  [walker] w04 step1: 6 x 12 h from 2021-04-05 00:00:00
+  [walker] loading 'GenCast 0p25deg <2019.npz' (0.25 deg)
+[model] serial infer on 1 device(s); ensemble=1 (1 sample(s), one at a time). task pressure levels: 13
+  [walker] model loaded in 15 s
+  [walker] grid-node channels: inputs 176 + targets 504 + forcings 24; 6 step(s) from 2021-04-05 00:00:00
+/home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/third_party/graphcast/graphcast/rollout.py:328: FutureWarning: The return type of `Dataset.dims` will be changed to return a set of dimension names in future, in order to be more consistent with `DataArray.dims`. To access a mapping from dimension names to lengths, please use `Dataset.sizes`.
+  num_target_steps = targets_template.dims["time"]
+/home/ubuntu/miniconda3/envs/moe/lib/python3.12/site-packages/scipy/sparse/_index.py:210: SparseEfficiencyWarning: Changing the sparsity structure of a csr_matrix is expensive. lil and dok are more efficient.
+  self._set_arrayXarray(i, j, x)
+/home/ubuntu/miniconda3/envs/moe/lib/python3.12/site-packages/scipy/sparse/_index.py:210: SparseEfficiencyWarning: Changing the sparsity structure of a csr_matrix is expensive. lil and dok are more efficient.
+  self._set_arrayXarray(i, j, x)
+/home/ubuntu/miniconda3/envs/moe/lib/python3.12/site-packages/jax/_src/compiler.py:833: UserWarning: Error writing persistent compilation cache entry for 'jit_apply_fn': JaxRuntimeError: RESOURCE_EXHAUSTED: Failed to serialize message of type xla.gpu.GpuExecutableProto because its size must be smaller than 2GiB: 4171376105; at byte 0; at uncompressed byte 0; at byte 2909
+	failed to serialize the rest of the fields in GpuExecutableProto split proto (all fields except asm_text, binary, dnn_compiled_graphs, and constants)
+  warnings.warn(
+E0828 00:14:56.814484 3040958 cuda_executor.cc:1182] [0] Failed to allocate device memory of 32.00GiB (34359738368 bytes): RESOURCE_EXHAUSTED: : CUDA_ERROR_OUT_OF_MEMORY: out of memory
+E0828 00:14:56.814705 3040958 cuda_executor.cc:1182] [0] Failed to allocate device memory of 28.80GiB (30923763712 bytes): RESOURCE_EXHAUSTED: : CUDA_ERROR_OUT_OF_MEMORY: out of memory
+E0828 00:14:56.814823 3040958 cuda_executor.cc:1182] [0] Failed to allocate device memory of 25.92GiB (27831386112 bytes): RESOURCE_EXHAUSTED: : CUDA_ERROR_OUT_OF_MEMORY: out of memory
+E0828 00:14:56.814935 3040958 cuda_executor.cc:1182] [0] Failed to allocate device memory of 23.33GiB (25048246272 bytes): RESOURCE_EXHAUSTED: : CUDA_ERROR_OUT_OF_MEMORY: out of memory
+E0828 00:14:56.815056 3040958 cuda_executor.cc:1182] [0] Failed to allocate device memory of 21.00GiB (22543421440 bytes): RESOURCE_EXHAUSTED: : CUDA_ERROR_OUT_OF_MEMORY: out of memory
+E0828 00:14:56.815181 3040958 cuda_executor.cc:1182] [0] Failed to allocate device memory of 32.00GiB (34359738368 bytes): RESOURCE_EXHAUSTED: : CUDA_ERROR_OUT_OF_MEMORY: out of memory
+E0828 00:14:56.815297 3040958 cuda_executor.cc:1182] [0] Failed to allocate device memory of 28.80GiB (30923763712 bytes): RESOURCE_EXHAUSTED: : CUDA_ERROR_OUT_OF_MEMORY: out of memory
+E0828 00:14:56.815410 3040958 cuda_executor.cc:1182] [0] Failed to allocate device memory of 25.92GiB (27831386112 bytes): RESOURCE_EXHAUSTED: : CUDA_ERROR_OUT_OF_MEMORY: out of memory
+E0828 00:14:56.815545 3040958 cuda_executor.cc:1182] [0] Failed to allocate device memory of 23.33GiB (25048246272 bytes): RESOURCE_EXHAUSTED: : CUDA_ERROR_OUT_OF_MEMORY: out of memory
+E0828 00:14:56.815668 3040958 cuda_executor.cc:1182] [0] Failed to allocate device memory of 21.00GiB (22543421440 bytes): RESOURCE_EXHAUSTED: : CUDA_ERROR_OUT_OF_MEMORY: out of memory
+/home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/third_party/graphcast/graphcast/rollout.py:435: FutureWarning: The return type of `Dataset.dims` will be changed to return a set of dimension names in future, in order to be more consistent with `DataArray.dims`. To access a mapping from dimension names to lengths, please use `Dataset.sizes`.
+  num_inputs = prev_inputs.dims["time"]
+/home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/third_party/graphcast/graphcast/rollout.py:437: FutureWarning: In a future version of xarray the default value for compat will change from compat='equals' to compat='override'. This change will result in the following ValueError: Cannot specify both data_vars='different' and compat='override'. The recommendation is to set compat explicitly for this case.
+  xarray.concat(
+  [walker w04 s1] step 1/6  valid 2021-04-05 12:00:00
+  [walker w04 s1] step 2/6  valid 2021-04-06 00:00:00
+  [walker w04 s1] step 3/6  valid 2021-04-06 12:00:00
+  [walker w04 s1] step 4/6  valid 2021-04-07 00:00:00
+  [walker w04 s1] step 5/6  valid 2021-04-07 12:00:00
+  [walker w04 s1] step 6/6  valid 2021-04-08 00:00:00
+  [walker] wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/astab/PNW_HeatDome_2021/walkers/w04/step01/state.nc (473 MB), valid 2021-04-08 00:00:00
+  [walker] wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/astab/PNW_HeatDome_2021/walkers/w04/step01/diag.nc (34 MB, 6 steps)
+[walk] physics PNW_HeatDome_2021@wk12 step1 @ 2021-04-08 00:00:00: CONUS-mean T2m 291.46 K vs ERA5 291.19 K (+0.27 K; gate 6 K at 3 d lead, skill-bearing)
+[walk] PNW_HeatDome_2021@wk12: complete, landed on its 3 d launch state; FCN3 carries the remaining 81 d to the peak 2021-04-08 00:00:00 (595 s elapsed on this shard)
+[walk] WinterStorm_Uri_2021@wk10: 24 segment(s), 140 steps, init 2020-12-07 00:00:00 -> peak 2021-02-15 00:00:00
+[walk] WinterStorm_Uri_2021@wk10: final state pruned; landing verified from stab.json
+[walk] WinterStorm_Uri_2021@wk10: complete, landed exactly on the peak 2021-02-15 00:00:00 (596 s elapsed on this shard)
+[walk] shard 4: 1 segment(s) rolled, 596 s total

@@ -40,6 +40,13 @@ cannot be answered unattended. See "Reaching Derecho from a3mega" below.
 
 Traps this split sets:
 
+- **`sinfo` "idle" does not mean the GPUs are free.** Teammates run non-Slurm processes
+  on the a3mega nodes (vLLM servers, `continuum/inkling` probes, whisper/pyannote
+  services) that hold 63-81 GB per card while Slurm shows the node idle; on 2026-09-03
+  five of the eight nodes were unusable that way and a walker job placed on one died in
+  14 s. Survey over SSH before booking nodes (`ssh nucla3m-a3meganodeset-N nvidia-smi`;
+  the loop is in `aires/HANDOFF.md` under "GPU contention") and route around the busy
+  ones with `sbatch --exclude=...`. Never kill what you find; it is not yours.
 - This box has `qstat`/`qsub` binaries, but they are **Slurm's PBS-compat wrappers for the
   local cluster**. `qstat -u exu` exits 0 with EMPTY output — that means "wrong machine",
   not "no jobs". Every PBS/qstat command in this file and in `HANDOFF.md` is Derecho-only.
@@ -183,7 +190,7 @@ one you are working on before touching anything:
 
 | | **GenCast S2S** (original) | **AI+RES** (`aires`, branch) | **Downscaler** (extension) |
 |---|---|---|---|
-| Dirs | `gencast_s2s/`, `xres/`, `pbs/`, `runs/` | `aires/`, `fcn3/` | `downscaler/` (self-contained) |
+| Dirs | `gencast_s2s/`, `xres/`, `pbs/`, `runs/` | `aires/`, `fcn3/`, `astab/` | `downscaler/` (self-contained) |
 | Framework | JAX / GraphCast | JAX walker + PyTorch/earth2studio scorer | PyTorch (DDP) |
 | Runs on | **Derecho** (PBS, `my-env`) — SSH-reachable, Duo-gated | **this cluster** (a3mega Slurm; FCN3 needs an 80 GB H100) | **this cluster** (a3mega Slurm, `moe` env) |
 | Does | ensemble forecasts at 1.0° & 0.25°, weeks 2–4 lead | rare-event sampling: GenCast walkers, FCN3 score | super-resolves 1° → 3 km |
@@ -223,6 +230,37 @@ HANDOFF, not the plan, for what is actually built**.
 `aires/` imports from `gencast_s2s`, `xres` and `fcn3` without modifying them, the same way
 `xres/` builds on `gencast_s2s/`. It writes to `runs/aires/`.
 
+**`astab/` is the lead-time stability sweep** — how far the walker and the scorer can be
+rolled before either stops producing a physical atmosphere. It stands to `aires/` as
+`xres/` stands to `gencast_s2s/`: it imports the walker, the adapter, the scorer and the
+index and modifies none of them, and it writes to its own tree, `runs/astab/` +
+`figures/astab/`. Driver: `python -m astab.run --stage ...`; read `astab/__init__.py` for
+what it found. (Until 2026-08-27 it was `aires/astab.py` writing into a `stab` tag under
+`runs/aires/<event>/res/` — nothing lives there any more.)
+
+**Two sets of leads, and they are not the same experiment.** Weeks **4/6/8/10** are full
+chains: the GenCast walker is rolled to the event peak and both FCN3 arms alongside it.
+Weeks **12/14/16/18/20** (up to 140 d) are the **FCN3-only extension** — the walker rolls
+one 3-day segment to launch the adapter-fed arm and nothing more, because job 1189 measured
+GenCast's limit (diverged on 3 of 8 chains by week 6) but never reached FCN3's (clean at
+week 10 on every rollout of both arms). Job 1194 then ran the extension: FCN3 is clean
+through week 14 (98 d) on both arms and both events, and diverges at week 16+ on the PNW
+chains only (75 to 129 d) while Uri is clean to 140 d. `astab.sconfig.STAB_WALK_WEEKS` is
+the switch.
+Consequence to respect: **the sweep may not report a GenCast verdict at an extension lead**
+— every row of `stability.csv` carries `reached_peak` and `reduce._model_survival` drops
+the (model, week) pairs where it is 0, or three clean days would read as a clean 140-day
+chain.
+
+**`--ens N` is the ensemble follow-up**: N GenCast member chains of ONE (event, lead),
+GenCast-only, each member a distinct diffusion draw from the same ERA5 init. It writes
+under `runs/astab/<event>/ens/wk<NN>/m<MMM>/` and never into the frozen sweep's
+`walkers/` tree; `score`/`prune`/`maps` are refused under it. Launcher:
+`slurm/aires_stab_ens.slurm` (a Slurm array, one node per task; the array width and
+`AIRES_ENS_NODES` must agree). Read `astab/ensemble.py` for what the survival curve does
+and does not say. First result (job 1197, PNW week 8): 9 of 100 members diverged by 56 d,
+none before 39 d, all loud, all starting on negative 850 hPa humidity.
+
 Structural things to know before touching it:
 
 - **Two conda envs, one experiment.** The walker is JAX (`moe`), the scorer is
@@ -238,6 +276,12 @@ Structural things to know before touching it:
   transfer, so its cached cubes cannot restart a walker or initialise FCN3.
   `aires/walker.py` keeps a rolling 2-frame global buffer and writes the CONUS crop
   separately.
+- **A CONUS-only diagnostic panel is blind to two thirds of what goes wrong.** The
+  stability sweep's verdict: the calibrated CONUS panel caught 1 of GenCast's 3
+  divergences, the crude GLOBAL all-variable bounds check caught 3 of 3 — two chains held
+  a textbook CONUS troposphere on top of a 1211 K polar stratosphere. `A_L` is a CONUS box
+  mean and would have cloned those walkers happily, so any long-lead production must gate
+  on the global state, not on the observable.
 
 ### 2. ERA5→HRRR downscaler (`downscaler/`) — the extension
 

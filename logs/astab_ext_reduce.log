@@ -1,0 +1,276 @@
+  [reduce] PNW_HeatDome_2021@wk4  free: no retained Zarr at /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/fcn3/week4/shards/PNW_HeatDome_2021_shard00of01.zarr; the global items (4 and 7) are unavailable for this arm. Re-run the score stage with --keep-zarr.
+  [reduce] PNW_HeatDome_2021@wk4  fed: no retained Zarr at /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/astab/PNW_HeatDome_2021/scores/w00_lead03.zarr; the global items (4 and 7) are unavailable for this arm. Re-run the score stage with --keep-zarr.
+[reduce] PNW_HeatDome_2021@wk4 : wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/astab/PNW_HeatDome_2021/stab_w00.json  (gencast 10 ckpt, fcn3-era5 9, fcn3-adapter 8)
+  [reduce] PNW_HeatDome_2021@wk6  free: no retained Zarr at /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/fcn3/week6/shards/PNW_HeatDome_2021_shard00of01.zarr; the global items (4 and 7) are unavailable for this arm. Re-run the score stage with --keep-zarr.
+  [reduce] PNW_HeatDome_2021@wk6  fed: no retained Zarr at /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/astab/PNW_HeatDome_2021/scores/w01_lead03.zarr; the global items (4 and 7) are unavailable for this arm. Re-run the score stage with --keep-zarr.
+  [reduce] PNW_HeatDome_2021@wk6 : carried 108 value(s) forward from the previous panel (their source has been pruned)
+[reduce] PNW_HeatDome_2021@wk6 : wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/astab/PNW_HeatDome_2021/stab_w01.json  (gencast 14 ckpt, fcn3-era5 14, fcn3-adapter 13)
+  [reduce] PNW_HeatDome_2021@wk8  free: no retained Zarr at /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/fcn3/week8/shards/PNW_HeatDome_2021_shard00of01.zarr; the global items (4 and 7) are unavailable for this arm. Re-run the score stage with --keep-zarr.
+  [reduce] PNW_HeatDome_2021@wk8  fed: no retained Zarr at /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/astab/PNW_HeatDome_2021/scores/w02_lead03.zarr; the global items (4 and 7) are unavailable for this arm. Re-run the score stage with --keep-zarr.
+  [reduce] PNW_HeatDome_2021@wk8 : carried 140 value(s) forward from the previous panel (their source has been pruned)
+[reduce] PNW_HeatDome_2021@wk8 : wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/astab/PNW_HeatDome_2021/stab_w02.json  (gencast 19 ckpt, fcn3-era5 18, fcn3-adapter 17)
+  [reduce] PNW_HeatDome_2021@wk10 free: no retained Zarr at /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/fcn3/week10/shards/PNW_HeatDome_2021_shard00of01.zarr; the global items (4 and 7) are unavailable for this arm. Re-run the score stage with --keep-zarr.
+  [reduce] PNW_HeatDome_2021@wk10 fed: no retained Zarr at /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/astab/PNW_HeatDome_2021/scores/w03_lead03.zarr; the global items (4 and 7) are unavailable for this arm. Re-run the score stage with --keep-zarr.
+  [reduce] PNW_HeatDome_2021@wk10: carried 180 value(s) forward from the previous panel (their source has been pruned)
+[reduce] PNW_HeatDome_2021@wk10: wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/astab/PNW_HeatDome_2021/stab_w03.json  (gencast 24 ckpt, fcn3-era5 23, fcn3-adapter 22)
+/home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/astab/reduce.py:119: RuntimeWarning: Failed to open Zarr store with consolidated metadata, but successfully read with non-consolidated metadata. This is typically much slower for opening a dataset. To silence this warning, consider:
+1. Consolidating metadata in this existing store with zarr.consolidate_metadata().
+2. Explicitly setting consolidated=False, to avoid trying to read consolidate metadata, or
+3. Explicitly setting consolidated=True, to raise an error in this case instead of falling back to try reading non-consolidated metadata.
+  ds = xr.open_zarr(zarr_p)
+/home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/astab/reduce.py:119: RuntimeWarning: Failed to open Zarr store with consolidated metadata, but successfully read with non-consolidated metadata. This is typically much slower for opening a dataset. To silence this warning, consider:
+1. Consolidating metadata in this existing store with zarr.consolidate_metadata().
+2. Explicitly setting consolidated=False, to avoid trying to read consolidate metadata, or
+3. Explicitly setting consolidated=True, to raise an error in this case instead of falling back to try reading non-consolidated metadata.
+  ds = xr.open_zarr(zarr_p)
+  [reduce] PNW_HeatDome_2021@wk12 gencast: covers 3 d of 84 d - INCOMPLETE, so it is reported but not counted as a verdict at this lead
+[reduce] PNW_HeatDome_2021@wk12: wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/astab/PNW_HeatDome_2021/stab_w04.json  (gencast 1 ckpt, fcn3-era5 28, fcn3-adapter 27)
+/home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/astab/reduce.py:119: RuntimeWarning: Failed to open Zarr store with consolidated metadata, but successfully read with non-consolidated metadata. This is typically much slower for opening a dataset. To silence this warning, consider:
+1. Consolidating metadata in this existing store with zarr.consolidate_metadata().
+2. Explicitly setting consolidated=False, to avoid trying to read consolidate metadata, or
+3. Explicitly setting consolidated=True, to raise an error in this case instead of falling back to try reading non-consolidated metadata.
+  ds = xr.open_zarr(zarr_p)
+/home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/astab/reduce.py:119: RuntimeWarning: Failed to open Zarr store with consolidated metadata, but successfully read with non-consolidated metadata. This is typically much slower for opening a dataset. To silence this warning, consider:
+1. Consolidating metadata in this existing store with zarr.consolidate_metadata().
+2. Explicitly setting consolidated=False, to avoid trying to read consolidate metadata, or
+3. Explicitly setting consolidated=True, to raise an error in this case instead of falling back to try reading non-consolidated metadata.
+  ds = xr.open_zarr(zarr_p)
+  [reduce] PNW_HeatDome_2021@wk14 gencast: covers 3 d of 98 d - INCOMPLETE, so it is reported but not counted as a verdict at this lead
+[reduce] PNW_HeatDome_2021@wk14: wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/astab/PNW_HeatDome_2021/stab_w05.json  (gencast 1 ckpt, fcn3-era5 32, fcn3-adapter 31)
+/home/ubuntu/miniconda3/envs/moe/lib/python3.12/site-packages/numpy/_core/fromnumeric.py:86: RuntimeWarning: overflow encountered in reduce
+  return ufunc.reduce(obj, axis, dtype, out, **passkwargs)
+/home/ubuntu/miniconda3/envs/moe/lib/python3.12/site-packages/numpy/lib/_nanfunctions_impl.py:1872: RuntimeWarning: overflow encountered in multiply
+  sqr = np.multiply(arr, arr, out=arr, where=where)
+/home/ubuntu/miniconda3/envs/moe/lib/python3.12/site-packages/numpy/lib/_nanfunctions_impl.py:2019: RuntimeWarning: Degrees of freedom <= 0 for slice.
+  var = nanvar(a, axis=axis, dtype=dtype, out=out, ddof=ddof,
+/home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/astab/diag.py:362: RuntimeWarning: invalid value encountered in scalar subtract
+  amp = (v[i] - v[i + 1]) if h0 == 12 else (v[i + 1] - v[i])
+/home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/astab/reduce.py:119: RuntimeWarning: Failed to open Zarr store with consolidated metadata, but successfully read with non-consolidated metadata. This is typically much slower for opening a dataset. To silence this warning, consider:
+1. Consolidating metadata in this existing store with zarr.consolidate_metadata().
+2. Explicitly setting consolidated=False, to avoid trying to read consolidate metadata, or
+3. Explicitly setting consolidated=True, to raise an error in this case instead of falling back to try reading non-consolidated metadata.
+  ds = xr.open_zarr(zarr_p)
+/home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/astab/reduce.py:119: RuntimeWarning: Failed to open Zarr store with consolidated metadata, but successfully read with non-consolidated metadata. This is typically much slower for opening a dataset. To silence this warning, consider:
+1. Consolidating metadata in this existing store with zarr.consolidate_metadata().
+2. Explicitly setting consolidated=False, to avoid trying to read consolidate metadata, or
+3. Explicitly setting consolidated=True, to raise an error in this case instead of falling back to try reading non-consolidated metadata.
+  ds = xr.open_zarr(zarr_p)
+  [reduce] PNW_HeatDome_2021@wk16 gencast: covers 3 d of 112 d - INCOMPLETE, so it is reported but not counted as a verdict at this lead
+[reduce] PNW_HeatDome_2021@wk16: wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/astab/PNW_HeatDome_2021/stab_w06.json  (gencast 1 ckpt, fcn3-era5 37, fcn3-adapter 36)
+/home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/astab/reduce.py:119: RuntimeWarning: Failed to open Zarr store with consolidated metadata, but successfully read with non-consolidated metadata. This is typically much slower for opening a dataset. To silence this warning, consider:
+1. Consolidating metadata in this existing store with zarr.consolidate_metadata().
+2. Explicitly setting consolidated=False, to avoid trying to read consolidate metadata, or
+3. Explicitly setting consolidated=True, to raise an error in this case instead of falling back to try reading non-consolidated metadata.
+  ds = xr.open_zarr(zarr_p)
+/home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/astab/reduce.py:119: RuntimeWarning: Failed to open Zarr store with consolidated metadata, but successfully read with non-consolidated metadata. This is typically much slower for opening a dataset. To silence this warning, consider:
+1. Consolidating metadata in this existing store with zarr.consolidate_metadata().
+2. Explicitly setting consolidated=False, to avoid trying to read consolidate metadata, or
+3. Explicitly setting consolidated=True, to raise an error in this case instead of falling back to try reading non-consolidated metadata.
+  ds = xr.open_zarr(zarr_p)
+  [reduce] PNW_HeatDome_2021@wk18 gencast: covers 3 d of 126 d - INCOMPLETE, so it is reported but not counted as a verdict at this lead
+[reduce] PNW_HeatDome_2021@wk18: wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/astab/PNW_HeatDome_2021/stab_w07.json  (gencast 1 ckpt, fcn3-era5 42, fcn3-adapter 41)
+/home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/astab/reduce.py:119: RuntimeWarning: Failed to open Zarr store with consolidated metadata, but successfully read with non-consolidated metadata. This is typically much slower for opening a dataset. To silence this warning, consider:
+1. Consolidating metadata in this existing store with zarr.consolidate_metadata().
+2. Explicitly setting consolidated=False, to avoid trying to read consolidate metadata, or
+3. Explicitly setting consolidated=True, to raise an error in this case instead of falling back to try reading non-consolidated metadata.
+  ds = xr.open_zarr(zarr_p)
+/home/ubuntu/miniconda3/envs/moe/lib/python3.12/site-packages/numpy/_core/fromnumeric.py:86: RuntimeWarning: overflow encountered in reduce
+  return ufunc.reduce(obj, axis, dtype, out, **passkwargs)
+/home/ubuntu/miniconda3/envs/moe/lib/python3.12/site-packages/numpy/lib/_nanfunctions_impl.py:1872: RuntimeWarning: overflow encountered in multiply
+  sqr = np.multiply(arr, arr, out=arr, where=where)
+/home/ubuntu/miniconda3/envs/moe/lib/python3.12/site-packages/numpy/lib/_nanfunctions_impl.py:2019: RuntimeWarning: Degrees of freedom <= 0 for slice.
+  var = nanvar(a, axis=axis, dtype=dtype, out=out, ddof=ddof,
+/home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/astab/diag.py:362: RuntimeWarning: invalid value encountered in scalar subtract
+  amp = (v[i] - v[i + 1]) if h0 == 12 else (v[i + 1] - v[i])
+/home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/astab/reduce.py:119: RuntimeWarning: Failed to open Zarr store with consolidated metadata, but successfully read with non-consolidated metadata. This is typically much slower for opening a dataset. To silence this warning, consider:
+1. Consolidating metadata in this existing store with zarr.consolidate_metadata().
+2. Explicitly setting consolidated=False, to avoid trying to read consolidate metadata, or
+3. Explicitly setting consolidated=True, to raise an error in this case instead of falling back to try reading non-consolidated metadata.
+  ds = xr.open_zarr(zarr_p)
+  [reduce] PNW_HeatDome_2021@wk20 gencast: covers 3 d of 140 d - INCOMPLETE, so it is reported but not counted as a verdict at this lead
+[reduce] PNW_HeatDome_2021@wk20: wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/astab/PNW_HeatDome_2021/stab_w08.json  (gencast 1 ckpt, fcn3-era5 46, fcn3-adapter 45)
+  [reduce] WinterStorm_Uri_2021@wk4  free: no retained Zarr at /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/fcn3/week4/shards/WinterStorm_Uri_2021_shard00of01.zarr; the global items (4 and 7) are unavailable for this arm. Re-run the score stage with --keep-zarr.
+  [reduce] WinterStorm_Uri_2021@wk4  fed: no retained Zarr at /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/astab/WinterStorm_Uri_2021/scores/w00_lead03.zarr; the global items (4 and 7) are unavailable for this arm. Re-run the score stage with --keep-zarr.
+  [reduce] WinterStorm_Uri_2021@wk4 : carried 68 value(s) forward from the previous panel (their source has been pruned)
+[reduce] WinterStorm_Uri_2021@wk4 : wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/astab/WinterStorm_Uri_2021/stab_w00.json  (gencast 10 ckpt, fcn3-era5 9, fcn3-adapter 8)
+  [reduce] WinterStorm_Uri_2021@wk6  free: no retained Zarr at /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/fcn3/week6/shards/WinterStorm_Uri_2021_shard00of01.zarr; the global items (4 and 7) are unavailable for this arm. Re-run the score stage with --keep-zarr.
+  [reduce] WinterStorm_Uri_2021@wk6  fed: no retained Zarr at /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/astab/WinterStorm_Uri_2021/scores/w01_lead03.zarr; the global items (4 and 7) are unavailable for this arm. Re-run the score stage with --keep-zarr.
+  [reduce] WinterStorm_Uri_2021@wk6 : carried 108 value(s) forward from the previous panel (their source has been pruned)
+[reduce] WinterStorm_Uri_2021@wk6 : wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/astab/WinterStorm_Uri_2021/stab_w01.json  (gencast 14 ckpt, fcn3-era5 14, fcn3-adapter 13)
+  [reduce] WinterStorm_Uri_2021@wk8  free: no retained Zarr at /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/fcn3/week8/shards/WinterStorm_Uri_2021_shard00of01.zarr; the global items (4 and 7) are unavailable for this arm. Re-run the score stage with --keep-zarr.
+  [reduce] WinterStorm_Uri_2021@wk8  fed: no retained Zarr at /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/astab/WinterStorm_Uri_2021/scores/w02_lead03.zarr; the global items (4 and 7) are unavailable for this arm. Re-run the score stage with --keep-zarr.
+  [reduce] WinterStorm_Uri_2021@wk8 : carried 140 value(s) forward from the previous panel (their source has been pruned)
+[reduce] WinterStorm_Uri_2021@wk8 : wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/astab/WinterStorm_Uri_2021/stab_w02.json  (gencast 19 ckpt, fcn3-era5 18, fcn3-adapter 17)
+  [reduce] WinterStorm_Uri_2021@wk10 free: no retained Zarr at /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/fcn3/week10/shards/WinterStorm_Uri_2021_shard00of01.zarr; the global items (4 and 7) are unavailable for this arm. Re-run the score stage with --keep-zarr.
+  [reduce] WinterStorm_Uri_2021@wk10 fed: no retained Zarr at /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/astab/WinterStorm_Uri_2021/scores/w03_lead03.zarr; the global items (4 and 7) are unavailable for this arm. Re-run the score stage with --keep-zarr.
+  [reduce] WinterStorm_Uri_2021@wk10: carried 180 value(s) forward from the previous panel (their source has been pruned)
+[reduce] WinterStorm_Uri_2021@wk10: wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/astab/WinterStorm_Uri_2021/stab_w03.json  (gencast 24 ckpt, fcn3-era5 23, fcn3-adapter 22)
+/home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/astab/reduce.py:119: RuntimeWarning: Failed to open Zarr store with consolidated metadata, but successfully read with non-consolidated metadata. This is typically much slower for opening a dataset. To silence this warning, consider:
+1. Consolidating metadata in this existing store with zarr.consolidate_metadata().
+2. Explicitly setting consolidated=False, to avoid trying to read consolidate metadata, or
+3. Explicitly setting consolidated=True, to raise an error in this case instead of falling back to try reading non-consolidated metadata.
+  ds = xr.open_zarr(zarr_p)
+/home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/astab/reduce.py:119: RuntimeWarning: Failed to open Zarr store with consolidated metadata, but successfully read with non-consolidated metadata. This is typically much slower for opening a dataset. To silence this warning, consider:
+1. Consolidating metadata in this existing store with zarr.consolidate_metadata().
+2. Explicitly setting consolidated=False, to avoid trying to read consolidate metadata, or
+3. Explicitly setting consolidated=True, to raise an error in this case instead of falling back to try reading non-consolidated metadata.
+  ds = xr.open_zarr(zarr_p)
+  [reduce] WinterStorm_Uri_2021@wk12 gencast: covers 3 d of 84 d - INCOMPLETE, so it is reported but not counted as a verdict at this lead
+[reduce] WinterStorm_Uri_2021@wk12: wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/astab/WinterStorm_Uri_2021/stab_w04.json  (gencast 1 ckpt, fcn3-era5 28, fcn3-adapter 27)
+/home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/astab/reduce.py:119: RuntimeWarning: Failed to open Zarr store with consolidated metadata, but successfully read with non-consolidated metadata. This is typically much slower for opening a dataset. To silence this warning, consider:
+1. Consolidating metadata in this existing store with zarr.consolidate_metadata().
+2. Explicitly setting consolidated=False, to avoid trying to read consolidate metadata, or
+3. Explicitly setting consolidated=True, to raise an error in this case instead of falling back to try reading non-consolidated metadata.
+  ds = xr.open_zarr(zarr_p)
+/home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/astab/reduce.py:119: RuntimeWarning: Failed to open Zarr store with consolidated metadata, but successfully read with non-consolidated metadata. This is typically much slower for opening a dataset. To silence this warning, consider:
+1. Consolidating metadata in this existing store with zarr.consolidate_metadata().
+2. Explicitly setting consolidated=False, to avoid trying to read consolidate metadata, or
+3. Explicitly setting consolidated=True, to raise an error in this case instead of falling back to try reading non-consolidated metadata.
+  ds = xr.open_zarr(zarr_p)
+  [reduce] WinterStorm_Uri_2021@wk14 gencast: covers 3 d of 98 d - INCOMPLETE, so it is reported but not counted as a verdict at this lead
+[reduce] WinterStorm_Uri_2021@wk14: wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/astab/WinterStorm_Uri_2021/stab_w05.json  (gencast 1 ckpt, fcn3-era5 32, fcn3-adapter 31)
+/home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/astab/reduce.py:119: RuntimeWarning: Failed to open Zarr store with consolidated metadata, but successfully read with non-consolidated metadata. This is typically much slower for opening a dataset. To silence this warning, consider:
+1. Consolidating metadata in this existing store with zarr.consolidate_metadata().
+2. Explicitly setting consolidated=False, to avoid trying to read consolidate metadata, or
+3. Explicitly setting consolidated=True, to raise an error in this case instead of falling back to try reading non-consolidated metadata.
+  ds = xr.open_zarr(zarr_p)
+/home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/astab/reduce.py:119: RuntimeWarning: Failed to open Zarr store with consolidated metadata, but successfully read with non-consolidated metadata. This is typically much slower for opening a dataset. To silence this warning, consider:
+1. Consolidating metadata in this existing store with zarr.consolidate_metadata().
+2. Explicitly setting consolidated=False, to avoid trying to read consolidate metadata, or
+3. Explicitly setting consolidated=True, to raise an error in this case instead of falling back to try reading non-consolidated metadata.
+  ds = xr.open_zarr(zarr_p)
+  [reduce] WinterStorm_Uri_2021@wk16 gencast: covers 3 d of 112 d - INCOMPLETE, so it is reported but not counted as a verdict at this lead
+[reduce] WinterStorm_Uri_2021@wk16: wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/astab/WinterStorm_Uri_2021/stab_w06.json  (gencast 1 ckpt, fcn3-era5 37, fcn3-adapter 36)
+/home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/astab/reduce.py:119: RuntimeWarning: Failed to open Zarr store with consolidated metadata, but successfully read with non-consolidated metadata. This is typically much slower for opening a dataset. To silence this warning, consider:
+1. Consolidating metadata in this existing store with zarr.consolidate_metadata().
+2. Explicitly setting consolidated=False, to avoid trying to read consolidate metadata, or
+3. Explicitly setting consolidated=True, to raise an error in this case instead of falling back to try reading non-consolidated metadata.
+  ds = xr.open_zarr(zarr_p)
+/home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/astab/reduce.py:119: RuntimeWarning: Failed to open Zarr store with consolidated metadata, but successfully read with non-consolidated metadata. This is typically much slower for opening a dataset. To silence this warning, consider:
+1. Consolidating metadata in this existing store with zarr.consolidate_metadata().
+2. Explicitly setting consolidated=False, to avoid trying to read consolidate metadata, or
+3. Explicitly setting consolidated=True, to raise an error in this case instead of falling back to try reading non-consolidated metadata.
+  ds = xr.open_zarr(zarr_p)
+  [reduce] WinterStorm_Uri_2021@wk18 gencast: covers 3 d of 126 d - INCOMPLETE, so it is reported but not counted as a verdict at this lead
+[reduce] WinterStorm_Uri_2021@wk18: wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/astab/WinterStorm_Uri_2021/stab_w07.json  (gencast 1 ckpt, fcn3-era5 42, fcn3-adapter 41)
+/home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/astab/reduce.py:119: RuntimeWarning: Failed to open Zarr store with consolidated metadata, but successfully read with non-consolidated metadata. This is typically much slower for opening a dataset. To silence this warning, consider:
+1. Consolidating metadata in this existing store with zarr.consolidate_metadata().
+2. Explicitly setting consolidated=False, to avoid trying to read consolidate metadata, or
+3. Explicitly setting consolidated=True, to raise an error in this case instead of falling back to try reading non-consolidated metadata.
+  ds = xr.open_zarr(zarr_p)
+/home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/astab/reduce.py:119: RuntimeWarning: Failed to open Zarr store with consolidated metadata, but successfully read with non-consolidated metadata. This is typically much slower for opening a dataset. To silence this warning, consider:
+1. Consolidating metadata in this existing store with zarr.consolidate_metadata().
+2. Explicitly setting consolidated=False, to avoid trying to read consolidate metadata, or
+3. Explicitly setting consolidated=True, to raise an error in this case instead of falling back to try reading non-consolidated metadata.
+  ds = xr.open_zarr(zarr_p)
+  [reduce] WinterStorm_Uri_2021@wk20 gencast: covers 3 d of 140 d - INCOMPLETE, so it is reported but not counted as a verdict at this lead
+[reduce] WinterStorm_Uri_2021@wk20: wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/astab/WinterStorm_Uri_2021/stab_w08.json  (gencast 1 ckpt, fcn3-era5 46, fcn3-adapter 45)
+[reduce] wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/astab/stability.csv (12274 rows)
+
+==============================================================================
+  HEADLINE
+    GenCast stable through week 6 (42 d)   - every chain
+    FCN3    stable through week 14 (98 d)   - every rollout, both arms [ERA5-IC 14, adapter-fed 14]
+    tested to the peak: GenCast week(s) [4, 6, 8, 10], FCN3 week(s) [4, 6, 8, 10, 12, 14, 16, 18, 20]
+    NOT a GenCast result at week(s) [12, 14, 16, 18, 20]: the walker rolls 3 d there, only to launch the
+    adapter-fed arm, and FCN3 carries the rest. Those chains say nothing about the walker at that lead -
+    they are the SCORER's question, which week 10 left open by never failing.
+            gencast  PNW_HeatDome_2021@wk8  left bounds at 42 d (0.5% past, marginal); DIVERGED by 45 d, worst 64% past
+            gencast  WinterStorm_Uri_2021@wk8  left bounds at 51 d (4.1% past); DIVERGED by 51 d, worst 124% past
+            gencast  WinterStorm_Uri_2021@wk10 left bounds at 30 d (33.1% past); DIVERGED by 30 d, worst 431% past
+          fcn3_era5  PNW_HeatDome_2021@wk16 left bounds at 75 d (23.5% past); DIVERGED by 75 d, worst inf% past
+          fcn3_era5  PNW_HeatDome_2021@wk20 left bounds at 129 d (82.0% past); DIVERGED by 129 d, worst 21907758192% past
+       fcn3_adapter  PNW_HeatDome_2021@wk16 left bounds at 108 d (12.4% past); DIVERGED by 108 d, worst 2321% past
+       fcn3_adapter  PNW_HeatDome_2021@wk18 left bounds at 111 d (9.0% past); DIVERGED by 111 d, worst 2882235111833712% past
+       fcn3_adapter  PNW_HeatDome_2021@wk20 left bounds at 105 d (55.9% past); DIVERGED by 105 d, worst 1740740181078280042065400647940833280% past
+
+    DIVERGENCE IS NOT MONOTONIC IN LEAD: week 10: 1/2 chains clean, while every
+    chain at the SHORTER week 8 lead diverged. A chain that survives 70 d
+    sits beside one that fails at 30 d, so this
+    run cannot separate 'that lead is unstable' from 'that member diverged'.
+    With n = 1 member per lead it was never able to. The follow-up needs an
+    ensemble for the STABILITY question too, not only for the skill one -
+    which is a finding about the experiment, not a caveat on it.
+
+    961 band exceedance(s) short of a hard failure (degraded, not diverged):
+       fcn3_adapter  conus_t2m_sd             first at 6 d  (band extrapolated past 21 d)
+       fcn3_adapter  diurnal_ratio            first at 6 d  (band extrapolated past 21 d)
+       fcn3_adapter  t2m_anom_conus           first at 6 d  (band extrapolated past 21 d)
+       fcn3_adapter  t2m_conus_drift          first at 12 d  (band extrapolated past 21 d)
+       fcn3_adapter  z500_hi_wavenumber_frac  first at 12 d  (band extrapolated past 21 d)
+          fcn3_era5  conus_t2m_sd             first at 3 d  (band extrapolated past 21 d)
+          fcn3_era5  diurnal_ratio            first at 3 d  (band extrapolated past 21 d)
+          fcn3_era5  t2m_anom_conus           first at 3 d  (band extrapolated past 21 d)
+          fcn3_era5  t2m_conus_drift          first at 6 d  (band extrapolated past 21 d)
+          fcn3_era5  z500_hi_wavenumber_frac  first at 3 d  (band extrapolated past 21 d)
+            gencast  conus_t2m_sd             first at 3 d  (band extrapolated past 21 d)
+            gencast  diurnal_ratio            first at 42 d  (band extrapolated past 21 d)
+            gencast  t2m_anom_conus           first at 42 d  (band extrapolated past 21 d)
+            gencast  t2m_conus_drift          first at 9 d  (band extrapolated past 21 d)
+            gencast  z500_hi_wavenumber_frac  first at 3 d  (band extrapolated past 21 d)
+
+    STABLE IS NOT USEFUL, and it gets less useful the further out this goes.
+    Gate 2 put FCN3's rank-equivalence horizon at ~8.5 d
+    and Gate 3 measured score skill rho_s = 0.797 at 9 d. Stability out here is
+    PERMISSION to run AI+RES at long lead, not a reason to: past the
+    predictability horizon the score function ranks chaos. Establishing the
+    USEFUL horizon needs a rank correlation, which needs an ensemble, which one
+    member cannot produce.
+==============================================================================
+  wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/figures/astab/stability.png (367 kB)
+[maps] PNW_HeatDome_2021@wk4  gencast: cached gencast_wk04.png, skip
+[maps] PNW_HeatDome_2021@wk4  fcn3_era5: cached fcn3_era5_wk04.png, skip
+[maps] PNW_HeatDome_2021@wk4  fcn3_adapter: cached fcn3_adapter_wk04.png, skip
+[maps] PNW_HeatDome_2021@wk6  gencast: cached gencast_wk06.png, skip
+[maps] PNW_HeatDome_2021@wk6  fcn3_era5: cached fcn3_era5_wk06.png, skip
+[maps] PNW_HeatDome_2021@wk6  fcn3_adapter: cached fcn3_adapter_wk06.png, skip
+[maps] PNW_HeatDome_2021@wk8  gencast: cached gencast_wk08.png, skip
+[maps] PNW_HeatDome_2021@wk8  fcn3_era5: cached fcn3_era5_wk08.png, skip
+[maps] PNW_HeatDome_2021@wk8  fcn3_adapter: cached fcn3_adapter_wk08.png, skip
+[maps] PNW_HeatDome_2021@wk10 gencast: cached gencast_wk10.png, skip
+[maps] PNW_HeatDome_2021@wk10 fcn3_era5: cached fcn3_era5_wk10.png, skip
+[maps] PNW_HeatDome_2021@wk10 fcn3_adapter: cached fcn3_adapter_wk10.png, skip
+[maps] PNW_HeatDome_2021@wk12 gencast: FCN3-extension lead, the walker rolled 3 d only - no trajectory to draw
+[maps] PNW_HeatDome_2021@wk12 fcn3_era5: wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/figures/astab/maps/PNW_HeatDome_2021/fcn3_era5_wk12.png (1415 kB, 8 lead(s), RMSE 1.9 -> 5.2 K)
+[maps] PNW_HeatDome_2021@wk12 fcn3_adapter: wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/figures/astab/maps/PNW_HeatDome_2021/fcn3_adapter_wk12.png (1419 kB, 8 lead(s), RMSE 1.7 -> 3.8 K)
+[maps] PNW_HeatDome_2021@wk14 gencast: FCN3-extension lead, the walker rolled 3 d only - no trajectory to draw
+[maps] PNW_HeatDome_2021@wk14 fcn3_era5: wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/figures/astab/maps/PNW_HeatDome_2021/fcn3_era5_wk14.png (1421 kB, 8 lead(s), RMSE 2.3 -> 4.8 K)
+[maps] PNW_HeatDome_2021@wk14 fcn3_adapter: wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/figures/astab/maps/PNW_HeatDome_2021/fcn3_adapter_wk14.png (1412 kB, 8 lead(s), RMSE 1.6 -> 5.7 K)
+[maps] PNW_HeatDome_2021@wk16 gencast: FCN3-extension lead, the walker rolled 3 d only - no trajectory to draw
+[maps] PNW_HeatDome_2021@wk16 fcn3_era5: wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/figures/astab/maps/PNW_HeatDome_2021/fcn3_era5_wk16.png (1265 kB, 8 lead(s), RMSE 1.6 -> nan K)
+[maps] PNW_HeatDome_2021@wk16 fcn3_adapter: wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/figures/astab/maps/PNW_HeatDome_2021/fcn3_adapter_wk16.png (1382 kB, 8 lead(s), RMSE 1.7 -> 4575.6 K)
+[maps] PNW_HeatDome_2021@wk18 gencast: FCN3-extension lead, the walker rolled 3 d only - no trajectory to draw
+[maps] PNW_HeatDome_2021@wk18 fcn3_era5: wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/figures/astab/maps/PNW_HeatDome_2021/fcn3_era5_wk18.png (1423 kB, 8 lead(s), RMSE 1.6 -> 3.5 K)
+[maps] PNW_HeatDome_2021@wk18 fcn3_adapter: wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/figures/astab/maps/PNW_HeatDome_2021/fcn3_adapter_wk18.png (1393 kB, 8 lead(s), RMSE 1.7 -> 391891841449984.0 K)
+[maps] PNW_HeatDome_2021@wk20 gencast: FCN3-extension lead, the walker rolled 3 d only - no trajectory to draw
+[maps] PNW_HeatDome_2021@wk20 fcn3_era5: wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/figures/astab/maps/PNW_HeatDome_2021/fcn3_era5_wk20.png (1384 kB, 8 lead(s), RMSE 2.1 -> 794527072256.0 K)
+[maps] PNW_HeatDome_2021@wk20 fcn3_adapter: wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/figures/astab/maps/PNW_HeatDome_2021/fcn3_adapter_wk20.png (1324 kB, 8 lead(s), RMSE 2.8 -> nan K)
+[maps] WinterStorm_Uri_2021@wk4  gencast: cached gencast_wk04.png, skip
+[maps] WinterStorm_Uri_2021@wk4  fcn3_era5: cached fcn3_era5_wk04.png, skip
+[maps] WinterStorm_Uri_2021@wk4  fcn3_adapter: cached fcn3_adapter_wk04.png, skip
+[maps] WinterStorm_Uri_2021@wk6  gencast: cached gencast_wk06.png, skip
+[maps] WinterStorm_Uri_2021@wk6  fcn3_era5: cached fcn3_era5_wk06.png, skip
+[maps] WinterStorm_Uri_2021@wk6  fcn3_adapter: cached fcn3_adapter_wk06.png, skip
+[maps] WinterStorm_Uri_2021@wk8  gencast: cached gencast_wk08.png, skip
+[maps] WinterStorm_Uri_2021@wk8  fcn3_era5: cached fcn3_era5_wk08.png, skip
+[maps] WinterStorm_Uri_2021@wk8  fcn3_adapter: cached fcn3_adapter_wk08.png, skip
+[maps] WinterStorm_Uri_2021@wk10 gencast: cached gencast_wk10.png, skip
+[maps] WinterStorm_Uri_2021@wk10 fcn3_era5: cached fcn3_era5_wk10.png, skip
+[maps] WinterStorm_Uri_2021@wk10 fcn3_adapter: cached fcn3_adapter_wk10.png, skip
+[maps] WinterStorm_Uri_2021@wk12 gencast: FCN3-extension lead, the walker rolled 3 d only - no trajectory to draw
+[maps] WinterStorm_Uri_2021@wk12 fcn3_era5: wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/figures/astab/maps/WinterStorm_Uri_2021/fcn3_era5_wk12.png (1416 kB, 8 lead(s), RMSE 1.5 -> 11.9 K)
+[maps] WinterStorm_Uri_2021@wk12 fcn3_adapter: wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/figures/astab/maps/WinterStorm_Uri_2021/fcn3_adapter_wk12.png (1418 kB, 8 lead(s), RMSE 1.4 -> 12.8 K)
+[maps] WinterStorm_Uri_2021@wk14 gencast: FCN3-extension lead, the walker rolled 3 d only - no trajectory to draw
+[maps] WinterStorm_Uri_2021@wk14 fcn3_era5: wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/figures/astab/maps/WinterStorm_Uri_2021/fcn3_era5_wk14.png (1426 kB, 8 lead(s), RMSE 2.0 -> 7.9 K)
+[maps] WinterStorm_Uri_2021@wk14 fcn3_adapter: wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/figures/astab/maps/WinterStorm_Uri_2021/fcn3_adapter_wk14.png (1409 kB, 8 lead(s), RMSE 1.7 -> 13.4 K)
+[maps] WinterStorm_Uri_2021@wk16 gencast: FCN3-extension lead, the walker rolled 3 d only - no trajectory to draw
+[maps] WinterStorm_Uri_2021@wk16 fcn3_era5: wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/figures/astab/maps/WinterStorm_Uri_2021/fcn3_era5_wk16.png (1423 kB, 8 lead(s), RMSE 2.7 -> 7.8 K)
+[maps] WinterStorm_Uri_2021@wk16 fcn3_adapter: wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/figures/astab/maps/WinterStorm_Uri_2021/fcn3_adapter_wk16.png (1409 kB, 8 lead(s), RMSE 2.0 -> 12.6 K)
+[maps] WinterStorm_Uri_2021@wk18 gencast: FCN3-extension lead, the walker rolled 3 d only - no trajectory to draw
+[maps] WinterStorm_Uri_2021@wk18 fcn3_era5: wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/figures/astab/maps/WinterStorm_Uri_2021/fcn3_era5_wk18.png (1399 kB, 8 lead(s), RMSE 1.5 -> 9.4 K)
+[maps] WinterStorm_Uri_2021@wk18 fcn3_adapter: wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/figures/astab/maps/WinterStorm_Uri_2021/fcn3_adapter_wk18.png (1406 kB, 8 lead(s), RMSE 1.4 -> 11.4 K)
+[maps] WinterStorm_Uri_2021@wk20 gencast: FCN3-extension lead, the walker rolled 3 d only - no trajectory to draw
+[maps] WinterStorm_Uri_2021@wk20 fcn3_era5: wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/figures/astab/maps/WinterStorm_Uri_2021/fcn3_era5_wk20.png (1385 kB, 8 lead(s), RMSE 1.5 -> 8.0 K)
+[maps] WinterStorm_Uri_2021@wk20 fcn3_adapter: wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/figures/astab/maps/WinterStorm_Uri_2021/fcn3_adapter_wk20.png (1387 kB, 8 lead(s), RMSE 1.3 -> 12.2 K)
+[maps] 44 figure(s) under /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/figures/astab/maps; 10 walker figure(s) not drawn (FCN3-extension leads)
+RC=0

@@ -1,0 +1,12 @@
+[score] host=nucla3m-a3meganodeset-4 shard 1/8 arm=fed: ['PNW_HeatDome_2021@wk6 ']
+[check] torch-harmonics DISCO CUDA extension: PRESENT -> FCN3 runs bf16
+[score] calibration = aires.calibrate fit on 90 ERA5 frames
+[model] loaded cache fcn3_model_2.11.0+cu128_th0.8.1_a305be3ecd79.pt in 9.9 s
+[score] w01@3d: 1 member(s) x 156 x 6 h from 2021-05-20 00:00:00 -> peak 2021-06-28  (seed 1810000901, vars ['t2m', 'z500', 't50'])
+[32m2026-08-27 04:38:41.279[0m | [1mINFO    [0m | [36mearth2studio.run[0m:[36mensemble[0m:[36m400[0m - [1mRunning ensemble inference![0m
+[32m2026-08-27 04:38:41.279[0m | [1mINFO    [0m | [36mearth2studio.run[0m:[36mensemble[0m:[36m407[0m - [1mInference device: cuda[0m
+[32m2026-08-27 04:38:49.614[0m | [32m[1mSUCCESS [0m | [36mearth2studio.run[0m:[36mensemble[0m:[36m428[0m - [32m[1mFetched data from GenCastICSource[0m
+[32m2026-08-27 04:38:50.048[0m | [1mINFO    [0m | [36mearth2studio.run[0m:[36mensemble[0m:[36m472[0m - [1mStarting 1 Member Ensemble Inference with             1 number of batches.[0m
+[32m2026-08-27 04:43:53.516[0m | [32m[1mSUCCESS [0m | [36mearth2studio.run[0m:[36mensemble[0m:[36m544[0m - [32m[1m
+Inference complete[0m
+[score] w01@3d: 312.2 s (2.00 s/step) -> w01_lead03_cube.nc (29 MB)

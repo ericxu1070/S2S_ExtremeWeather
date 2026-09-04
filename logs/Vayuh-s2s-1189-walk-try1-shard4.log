@@ -1,0 +1,178 @@
+[walk] host=nucla3m-a3meganodeset-4 shard 4/8: ['WinterStorm_Uri_2021@wk4 ']
+[walk] WinterStorm_Uri_2021@wk4 : 10 segment(s), 56 steps, init 2021-01-18 00:00:00 -> peak 2021-02-15 00:00:00
+  [walker] w00 step1: 6 x 12 h from 2021-01-18 00:00:00
+  [walker] loading 'GenCast 0p25deg <2019.npz' (0.25 deg)
+[model] serial infer on 1 device(s); ensemble=1 (1 sample(s), one at a time). task pressure levels: 13
+  [walker] model loaded in 17 s
+  [walker] grid-node channels: inputs 176 + targets 504 + forcings 24; 6 step(s) from 2021-01-18 00:00:00
+/home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/third_party/graphcast/graphcast/rollout.py:328: FutureWarning: The return type of `Dataset.dims` will be changed to return a set of dimension names in future, in order to be more consistent with `DataArray.dims`. To access a mapping from dimension names to lengths, please use `Dataset.sizes`.
+  num_target_steps = targets_template.dims["time"]
+/home/ubuntu/miniconda3/envs/moe/lib/python3.12/site-packages/scipy/sparse/_index.py:210: SparseEfficiencyWarning: Changing the sparsity structure of a csr_matrix is expensive. lil and dok are more efficient.
+  self._set_arrayXarray(i, j, x)
+/home/ubuntu/miniconda3/envs/moe/lib/python3.12/site-packages/scipy/sparse/_index.py:210: SparseEfficiencyWarning: Changing the sparsity structure of a csr_matrix is expensive. lil and dok are more efficient.
+  self._set_arrayXarray(i, j, x)
+/home/ubuntu/miniconda3/envs/moe/lib/python3.12/site-packages/jax/_src/compiler.py:833: UserWarning: Error writing persistent compilation cache entry for 'jit_apply_fn': JaxRuntimeError: RESOURCE_EXHAUSTED: Failed to serialize message of type xla.gpu.GpuExecutableProto because its size must be smaller than 2GiB: 4171376044; at byte 0; at uncompressed byte 0; at byte 2909
+	failed to serialize the rest of the fields in GpuExecutableProto split proto (all fields except asm_text, binary, dnn_compiled_graphs, and constants)
+  warnings.warn(
+/home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/third_party/graphcast/graphcast/rollout.py:435: FutureWarning: The return type of `Dataset.dims` will be changed to return a set of dimension names in future, in order to be more consistent with `DataArray.dims`. To access a mapping from dimension names to lengths, please use `Dataset.sizes`.
+  num_inputs = prev_inputs.dims["time"]
+/home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/third_party/graphcast/graphcast/rollout.py:437: FutureWarning: In a future version of xarray the default value for compat will change from compat='equals' to compat='override'. This change will result in the following ValueError: Cannot specify both data_vars='different' and compat='override'. The recommendation is to set compat explicitly for this case.
+  xarray.concat(
+  [walker w00 s1] step 1/6  valid 2021-01-18 12:00:00
+  [walker w00 s1] step 2/6  valid 2021-01-19 00:00:00
+  [walker w00 s1] step 3/6  valid 2021-01-19 12:00:00
+  [walker w00 s1] step 4/6  valid 2021-01-20 00:00:00
+  [walker w00 s1] step 5/6  valid 2021-01-20 12:00:00
+  [walker w00 s1] step 6/6  valid 2021-01-21 00:00:00
+  [walker] wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/aires/WinterStorm_Uri_2021/res/stab/walkers/w00/step01/state.nc (473 MB), valid 2021-01-21 00:00:00
+  [walker] wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/aires/WinterStorm_Uri_2021/res/stab/walkers/w00/step01/diag.nc (34 MB, 6 steps)
+[walk] physics WinterStorm_Uri_2021@wk4  step1 @ 2021-01-21 00:00:00: CONUS-mean T2m 281.31 K vs the same-init xres ensemble 281.18 +- 0.174 K over 24 members (0.8 sd)
+  [walker] w00 step2: 6 x 12 h from 2021-01-21 00:00:00
+  [walker] grid-node channels: inputs 176 + targets 504 + forcings 24; 6 step(s) from 2021-01-21 00:00:00
+/home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/third_party/graphcast/graphcast/rollout.py:328: FutureWarning: The return type of `Dataset.dims` will be changed to return a set of dimension names in future, in order to be more consistent with `DataArray.dims`. To access a mapping from dimension names to lengths, please use `Dataset.sizes`.
+  num_target_steps = targets_template.dims["time"]
+/home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/third_party/graphcast/graphcast/rollout.py:435: FutureWarning: The return type of `Dataset.dims` will be changed to return a set of dimension names in future, in order to be more consistent with `DataArray.dims`. To access a mapping from dimension names to lengths, please use `Dataset.sizes`.
+  num_inputs = prev_inputs.dims["time"]
+/home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/third_party/graphcast/graphcast/rollout.py:437: FutureWarning: In a future version of xarray the default value for compat will change from compat='equals' to compat='override'. This change will result in the following ValueError: Cannot specify both data_vars='different' and compat='override'. The recommendation is to set compat explicitly for this case.
+  xarray.concat(
+  [walker w00 s2] step 1/6  valid 2021-01-21 12:00:00
+  [walker w00 s2] step 2/6  valid 2021-01-22 00:00:00
+  [walker w00 s2] step 3/6  valid 2021-01-22 12:00:00
+  [walker w00 s2] step 4/6  valid 2021-01-23 00:00:00
+  [walker w00 s2] step 5/6  valid 2021-01-23 12:00:00
+  [walker w00 s2] step 6/6  valid 2021-01-24 00:00:00
+  [walker] wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/aires/WinterStorm_Uri_2021/res/stab/walkers/w00/step02/state.nc (473 MB), valid 2021-01-24 00:00:00
+  [walker] wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/aires/WinterStorm_Uri_2021/res/stab/walkers/w00/step02/diag.nc (34 MB, 6 steps)
+  [walker] w00 step3: 6 x 12 h from 2021-01-24 00:00:00
+  [walker] grid-node channels: inputs 176 + targets 504 + forcings 24; 6 step(s) from 2021-01-24 00:00:00
+/home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/third_party/graphcast/graphcast/rollout.py:328: FutureWarning: The return type of `Dataset.dims` will be changed to return a set of dimension names in future, in order to be more consistent with `DataArray.dims`. To access a mapping from dimension names to lengths, please use `Dataset.sizes`.
+  num_target_steps = targets_template.dims["time"]
+/home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/third_party/graphcast/graphcast/rollout.py:435: FutureWarning: The return type of `Dataset.dims` will be changed to return a set of dimension names in future, in order to be more consistent with `DataArray.dims`. To access a mapping from dimension names to lengths, please use `Dataset.sizes`.
+  num_inputs = prev_inputs.dims["time"]
+/home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/third_party/graphcast/graphcast/rollout.py:437: FutureWarning: In a future version of xarray the default value for compat will change from compat='equals' to compat='override'. This change will result in the following ValueError: Cannot specify both data_vars='different' and compat='override'. The recommendation is to set compat explicitly for this case.
+  xarray.concat(
+  [walker w00 s3] step 1/6  valid 2021-01-24 12:00:00
+  [walker w00 s3] step 2/6  valid 2021-01-25 00:00:00
+  [walker w00 s3] step 3/6  valid 2021-01-25 12:00:00
+  [walker w00 s3] step 4/6  valid 2021-01-26 00:00:00
+  [walker w00 s3] step 5/6  valid 2021-01-26 12:00:00
+  [walker w00 s3] step 6/6  valid 2021-01-27 00:00:00
+  [walker] wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/aires/WinterStorm_Uri_2021/res/stab/walkers/w00/step03/state.nc (474 MB), valid 2021-01-27 00:00:00
+  [walker] wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/aires/WinterStorm_Uri_2021/res/stab/walkers/w00/step03/diag.nc (34 MB, 6 steps)
+  [walker] w00 step4: 6 x 12 h from 2021-01-27 00:00:00
+  [walker] grid-node channels: inputs 176 + targets 504 + forcings 24; 6 step(s) from 2021-01-27 00:00:00
+/home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/third_party/graphcast/graphcast/rollout.py:328: FutureWarning: The return type of `Dataset.dims` will be changed to return a set of dimension names in future, in order to be more consistent with `DataArray.dims`. To access a mapping from dimension names to lengths, please use `Dataset.sizes`.
+  num_target_steps = targets_template.dims["time"]
+/home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/third_party/graphcast/graphcast/rollout.py:435: FutureWarning: The return type of `Dataset.dims` will be changed to return a set of dimension names in future, in order to be more consistent with `DataArray.dims`. To access a mapping from dimension names to lengths, please use `Dataset.sizes`.
+  num_inputs = prev_inputs.dims["time"]
+/home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/third_party/graphcast/graphcast/rollout.py:437: FutureWarning: In a future version of xarray the default value for compat will change from compat='equals' to compat='override'. This change will result in the following ValueError: Cannot specify both data_vars='different' and compat='override'. The recommendation is to set compat explicitly for this case.
+  xarray.concat(
+  [walker w00 s4] step 1/6  valid 2021-01-27 12:00:00
+  [walker w00 s4] step 2/6  valid 2021-01-28 00:00:00
+  [walker w00 s4] step 3/6  valid 2021-01-28 12:00:00
+  [walker w00 s4] step 4/6  valid 2021-01-29 00:00:00
+  [walker w00 s4] step 5/6  valid 2021-01-29 12:00:00
+  [walker w00 s4] step 6/6  valid 2021-01-30 00:00:00
+  [walker] wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/aires/WinterStorm_Uri_2021/res/stab/walkers/w00/step04/state.nc (473 MB), valid 2021-01-30 00:00:00
+  [walker] wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/aires/WinterStorm_Uri_2021/res/stab/walkers/w00/step04/diag.nc (34 MB, 6 steps)
+  [walk] pruned WinterStorm_Uri_2021@wk4  step2 state (0.47 GB)
+  [walker] w00 step5: 6 x 12 h from 2021-01-30 00:00:00
+  [walker] grid-node channels: inputs 176 + targets 504 + forcings 24; 6 step(s) from 2021-01-30 00:00:00
+/home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/third_party/graphcast/graphcast/rollout.py:328: FutureWarning: The return type of `Dataset.dims` will be changed to return a set of dimension names in future, in order to be more consistent with `DataArray.dims`. To access a mapping from dimension names to lengths, please use `Dataset.sizes`.
+  num_target_steps = targets_template.dims["time"]
+/home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/third_party/graphcast/graphcast/rollout.py:435: FutureWarning: The return type of `Dataset.dims` will be changed to return a set of dimension names in future, in order to be more consistent with `DataArray.dims`. To access a mapping from dimension names to lengths, please use `Dataset.sizes`.
+  num_inputs = prev_inputs.dims["time"]
+/home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/third_party/graphcast/graphcast/rollout.py:437: FutureWarning: In a future version of xarray the default value for compat will change from compat='equals' to compat='override'. This change will result in the following ValueError: Cannot specify both data_vars='different' and compat='override'. The recommendation is to set compat explicitly for this case.
+  xarray.concat(
+  [walker w00 s5] step 1/6  valid 2021-01-30 12:00:00
+  [walker w00 s5] step 2/6  valid 2021-01-31 00:00:00
+  [walker w00 s5] step 3/6  valid 2021-01-31 12:00:00
+  [walker w00 s5] step 4/6  valid 2021-02-01 00:00:00
+  [walker w00 s5] step 5/6  valid 2021-02-01 12:00:00
+  [walker w00 s5] step 6/6  valid 2021-02-02 00:00:00
+  [walker] wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/aires/WinterStorm_Uri_2021/res/stab/walkers/w00/step05/state.nc (473 MB), valid 2021-02-02 00:00:00
+  [walker] wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/aires/WinterStorm_Uri_2021/res/stab/walkers/w00/step05/diag.nc (34 MB, 6 steps)
+  [walk] pruned WinterStorm_Uri_2021@wk4  step3 state (0.47 GB)
+  [walker] w00 step6: 6 x 12 h from 2021-02-02 00:00:00
+  [walker] grid-node channels: inputs 176 + targets 504 + forcings 24; 6 step(s) from 2021-02-02 00:00:00
+/home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/third_party/graphcast/graphcast/rollout.py:328: FutureWarning: The return type of `Dataset.dims` will be changed to return a set of dimension names in future, in order to be more consistent with `DataArray.dims`. To access a mapping from dimension names to lengths, please use `Dataset.sizes`.
+  num_target_steps = targets_template.dims["time"]
+/home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/third_party/graphcast/graphcast/rollout.py:435: FutureWarning: The return type of `Dataset.dims` will be changed to return a set of dimension names in future, in order to be more consistent with `DataArray.dims`. To access a mapping from dimension names to lengths, please use `Dataset.sizes`.
+  num_inputs = prev_inputs.dims["time"]
+/home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/third_party/graphcast/graphcast/rollout.py:437: FutureWarning: In a future version of xarray the default value for compat will change from compat='equals' to compat='override'. This change will result in the following ValueError: Cannot specify both data_vars='different' and compat='override'. The recommendation is to set compat explicitly for this case.
+  xarray.concat(
+  [walker w00 s6] step 1/6  valid 2021-02-02 12:00:00
+  [walker w00 s6] step 2/6  valid 2021-02-03 00:00:00
+  [walker w00 s6] step 3/6  valid 2021-02-03 12:00:00
+  [walker w00 s6] step 4/6  valid 2021-02-04 00:00:00
+  [walker w00 s6] step 5/6  valid 2021-02-04 12:00:00
+  [walker w00 s6] step 6/6  valid 2021-02-05 00:00:00
+  [walker] wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/aires/WinterStorm_Uri_2021/res/stab/walkers/w00/step06/state.nc (473 MB), valid 2021-02-05 00:00:00
+  [walker] wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/aires/WinterStorm_Uri_2021/res/stab/walkers/w00/step06/diag.nc (34 MB, 6 steps)
+  [walk] pruned WinterStorm_Uri_2021@wk4  step4 state (0.47 GB)
+  [walker] w00 step7: 6 x 12 h from 2021-02-05 00:00:00
+  [walker] grid-node channels: inputs 176 + targets 504 + forcings 24; 6 step(s) from 2021-02-05 00:00:00
+/home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/third_party/graphcast/graphcast/rollout.py:328: FutureWarning: The return type of `Dataset.dims` will be changed to return a set of dimension names in future, in order to be more consistent with `DataArray.dims`. To access a mapping from dimension names to lengths, please use `Dataset.sizes`.
+  num_target_steps = targets_template.dims["time"]
+/home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/third_party/graphcast/graphcast/rollout.py:435: FutureWarning: The return type of `Dataset.dims` will be changed to return a set of dimension names in future, in order to be more consistent with `DataArray.dims`. To access a mapping from dimension names to lengths, please use `Dataset.sizes`.
+  num_inputs = prev_inputs.dims["time"]
+/home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/third_party/graphcast/graphcast/rollout.py:437: FutureWarning: In a future version of xarray the default value for compat will change from compat='equals' to compat='override'. This change will result in the following ValueError: Cannot specify both data_vars='different' and compat='override'. The recommendation is to set compat explicitly for this case.
+  xarray.concat(
+  [walker w00 s7] step 1/6  valid 2021-02-05 12:00:00
+  [walker w00 s7] step 2/6  valid 2021-02-06 00:00:00
+  [walker w00 s7] step 3/6  valid 2021-02-06 12:00:00
+  [walker w00 s7] step 4/6  valid 2021-02-07 00:00:00
+  [walker w00 s7] step 5/6  valid 2021-02-07 12:00:00
+  [walker w00 s7] step 6/6  valid 2021-02-08 00:00:00
+  [walker] wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/aires/WinterStorm_Uri_2021/res/stab/walkers/w00/step07/state.nc (474 MB), valid 2021-02-08 00:00:00
+  [walker] wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/aires/WinterStorm_Uri_2021/res/stab/walkers/w00/step07/diag.nc (35 MB, 6 steps)
+  [walk] pruned WinterStorm_Uri_2021@wk4  step5 state (0.47 GB)
+  [walker] w00 step8: 6 x 12 h from 2021-02-08 00:00:00
+  [walker] grid-node channels: inputs 176 + targets 504 + forcings 24; 6 step(s) from 2021-02-08 00:00:00
+/home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/third_party/graphcast/graphcast/rollout.py:328: FutureWarning: The return type of `Dataset.dims` will be changed to return a set of dimension names in future, in order to be more consistent with `DataArray.dims`. To access a mapping from dimension names to lengths, please use `Dataset.sizes`.
+  num_target_steps = targets_template.dims["time"]
+/home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/third_party/graphcast/graphcast/rollout.py:435: FutureWarning: The return type of `Dataset.dims` will be changed to return a set of dimension names in future, in order to be more consistent with `DataArray.dims`. To access a mapping from dimension names to lengths, please use `Dataset.sizes`.
+  num_inputs = prev_inputs.dims["time"]
+/home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/third_party/graphcast/graphcast/rollout.py:437: FutureWarning: In a future version of xarray the default value for compat will change from compat='equals' to compat='override'. This change will result in the following ValueError: Cannot specify both data_vars='different' and compat='override'. The recommendation is to set compat explicitly for this case.
+  xarray.concat(
+  [walker w00 s8] step 1/6  valid 2021-02-08 12:00:00
+  [walker w00 s8] step 2/6  valid 2021-02-09 00:00:00
+  [walker w00 s8] step 3/6  valid 2021-02-09 12:00:00
+  [walker w00 s8] step 4/6  valid 2021-02-10 00:00:00
+  [walker w00 s8] step 5/6  valid 2021-02-10 12:00:00
+  [walker w00 s8] step 6/6  valid 2021-02-11 00:00:00
+  [walker] wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/aires/WinterStorm_Uri_2021/res/stab/walkers/w00/step08/state.nc (474 MB), valid 2021-02-11 00:00:00
+  [walker] wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/aires/WinterStorm_Uri_2021/res/stab/walkers/w00/step08/diag.nc (34 MB, 6 steps)
+  [walk] pruned WinterStorm_Uri_2021@wk4  step6 state (0.47 GB)
+  [walker] w00 step9: 6 x 12 h from 2021-02-11 00:00:00
+  [walker] grid-node channels: inputs 176 + targets 504 + forcings 24; 6 step(s) from 2021-02-11 00:00:00
+/home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/third_party/graphcast/graphcast/rollout.py:328: FutureWarning: The return type of `Dataset.dims` will be changed to return a set of dimension names in future, in order to be more consistent with `DataArray.dims`. To access a mapping from dimension names to lengths, please use `Dataset.sizes`.
+  num_target_steps = targets_template.dims["time"]
+/home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/third_party/graphcast/graphcast/rollout.py:435: FutureWarning: The return type of `Dataset.dims` will be changed to return a set of dimension names in future, in order to be more consistent with `DataArray.dims`. To access a mapping from dimension names to lengths, please use `Dataset.sizes`.
+  num_inputs = prev_inputs.dims["time"]
+/home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/third_party/graphcast/graphcast/rollout.py:437: FutureWarning: In a future version of xarray the default value for compat will change from compat='equals' to compat='override'. This change will result in the following ValueError: Cannot specify both data_vars='different' and compat='override'. The recommendation is to set compat explicitly for this case.
+  xarray.concat(
+  [walker w00 s9] step 1/6  valid 2021-02-11 12:00:00
+  [walker w00 s9] step 2/6  valid 2021-02-12 00:00:00
+  [walker w00 s9] step 3/6  valid 2021-02-12 12:00:00
+  [walker w00 s9] step 4/6  valid 2021-02-13 00:00:00
+  [walker w00 s9] step 5/6  valid 2021-02-13 12:00:00
+  [walker w00 s9] step 6/6  valid 2021-02-14 00:00:00
+  [walker] wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/aires/WinterStorm_Uri_2021/res/stab/walkers/w00/step09/state.nc (474 MB), valid 2021-02-14 00:00:00
+  [walker] wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/aires/WinterStorm_Uri_2021/res/stab/walkers/w00/step09/diag.nc (34 MB, 6 steps)
+  [walk] pruned WinterStorm_Uri_2021@wk4  step7 state (0.47 GB)
+  [walker] w00 step10: 2 x 12 h from 2021-02-14 00:00:00
+  [walker] grid-node channels: inputs 176 + targets 168 + forcings 8; 2 step(s) from 2021-02-14 00:00:00
+/home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/third_party/graphcast/graphcast/rollout.py:328: FutureWarning: The return type of `Dataset.dims` will be changed to return a set of dimension names in future, in order to be more consistent with `DataArray.dims`. To access a mapping from dimension names to lengths, please use `Dataset.sizes`.
+  num_target_steps = targets_template.dims["time"]
+/home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/third_party/graphcast/graphcast/rollout.py:435: FutureWarning: The return type of `Dataset.dims` will be changed to return a set of dimension names in future, in order to be more consistent with `DataArray.dims`. To access a mapping from dimension names to lengths, please use `Dataset.sizes`.
+  num_inputs = prev_inputs.dims["time"]
+/home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/third_party/graphcast/graphcast/rollout.py:437: FutureWarning: In a future version of xarray the default value for compat will change from compat='equals' to compat='override'. This change will result in the following ValueError: Cannot specify both data_vars='different' and compat='override'. The recommendation is to set compat explicitly for this case.
+  xarray.concat(
+  [walker w00 s10] step 1/2  valid 2021-02-14 12:00:00
+  [walker w00 s10] step 2/2  valid 2021-02-15 00:00:00
+  [walker] wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/aires/WinterStorm_Uri_2021/res/stab/walkers/w00/step10/state.nc (473 MB), valid 2021-02-15 00:00:00
+  [walker] wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/aires/WinterStorm_Uri_2021/res/stab/walkers/w00/step10/diag.nc (12 MB, 2 steps)
+  [walk] pruned WinterStorm_Uri_2021@wk4  step8 state (0.47 GB)
+[walk] WinterStorm_Uri_2021@wk4 : complete, landed exactly on the peak 2021-02-15 00:00:00 (2290 s elapsed on this shard)
+[walk] shard 4: 10 segment(s) rolled, 2290 s total

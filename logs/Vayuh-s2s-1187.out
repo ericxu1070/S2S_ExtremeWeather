@@ -1,0 +1,39 @@
+Host: nucla3m-a3meganodeset-4
+Start: Thu Aug 27 01:37:49 UTC 2026
+GPU 0: NVIDIA H100 80GB HBM3 (UUID: GPU-8deaf399-5257-44be-de29-dbab5cab2837)
+GPU 1: NVIDIA H100 80GB HBM3 (UUID: GPU-08ce4409-9463-80ec-57ba-eca08d003482)
+GPU 2: NVIDIA H100 80GB HBM3 (UUID: GPU-8d511a9b-a471-736e-637d-a997e0a57717)
+GPU 3: NVIDIA H100 80GB HBM3 (UUID: GPU-ab33084f-509e-82b2-8949-d8815d024cb0)
+GPU 4: NVIDIA H100 80GB HBM3 (UUID: GPU-67dcae5f-2cfd-b933-fa3a-05a8184dccf0)
+GPU 5: NVIDIA H100 80GB HBM3 (UUID: GPU-6f4c5b9e-2690-3130-7cd6-0ff15eee4c02)
+GPU 6: NVIDIA H100 80GB HBM3 (UUID: GPU-5544fb35-a86b-e04c-5eea-201f7515a48a)
+GPU 7: NVIDIA H100 80GB HBM3 (UUID: GPU-5d02916b-f04f-56da-a539-ff7cf9f27b6f)
+astab: events=PNW_HeatDome_2021 weeks=4 gpus=1 phase=walk members=1
+AI+RES lead-time stability sweep  (tag 'stab')
+  1 chain(s): 1 event(s) x 1 lead(s), 1 walker member, 1 FCN3 member each
+
+                         chain        init       peak  segs steps tail  ckpts  cached
+        PNW_HeatDome_2021@wk4   2021-05-31 2021-06-28    10    56    2      9  0/10
+
+  prerequisites
+    PNW_HeatDome_2021@wk4   walker init frames  OK   /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/xres/0p25/week4/inputs/PNW_HeatDome_2021_inputs.nc
+    PNW_HeatDome_2021@wk4   FCN3 ERA5 IC       OK   /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/fcn3/week4/ic/PNW_HeatDome_2021_ic.nc
+                                  derived calibration  OK   /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/aires/calib/derived_calib.nc
+                                  measured bands       OK   /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/aires/astab/bands.json
+               PNW_HeatDome_2021  ERA5 reference     OK   /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/aires/astab/PNW_HeatDome_2021_era5_ref.nc
+               PNW_HeatDome_2021  week-4 anchor cube OK   /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/xres/0p25/week4/cache/PNW_HeatDome_2021_cube.nc   (the same-init physics gate)
+                                  climatology grid   OK   {'hour': 4, 'dayofyear': 366, 'lat': 105, 'lon': 237}   (expect lat=105 lon=237; CLAUDE.md's stale-2deg trap)
+
+  budget
+    walker          56 GenCast steps  ~  0.8 GPU-h  (52 s/step, run_aires.SECONDS_PER_GENCAST_STEP)
+    scorer         212 FCN3 steps     ~  0.1 GPU-h  (1.40 s/step, job 1161)
+    wall clock  set by the longest chain: 56 steps at 28-52 s = 0.4-0.8 h, plus ~15 min model load and 1-2 XLA compiles
+    disk        states ~1.4 GB retained (2 rolling + 2 pinned per chain), diag ~0.3 GB, FCN3 Zarrs ~2.3 GB until --stage prune
+    free        309 GB on /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs
+
+  shards      1 chain(s) over 1 GPU(s): [1]
+
+  READY: yes
+--- walk phase: Thu Aug 27 01:38:02 UTC 2026 ---
+  walk: attempt 1/1
+  launched walk shard 0 on GPU 0 (pid 2930254)
