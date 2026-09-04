@@ -173,3 +173,18 @@ def test_clim_pool_rejects_a_gappy_pool():
     every quantile shifts with it. Ten years cannot pass for thirty."""
     with pytest.raises(SystemExit, match="gappy"):
         LF.clim_pool("p90_20240802", _flat_anom(["CONUS"], years=(1990, 1999)))
+
+
+def test_clim_pool_reports_the_cold_tail_sign_for_a_freeze():
+    """`Event` has no `tail_sign` attribute, so a getattr default silently returned +1
+    here and would score a freeze's rarity off its warm tail."""
+    from aires import aindex as AI
+
+    _, sign = LF.clim_pool("WinterStorm_Elliott_2022",
+                           _flat_anom(["WinterStorm_Elliott_2022"]))
+    assert sign == -1.0 == AI.tail_sign("WinterStorm_Elliott_2022")
+
+
+def test_clim_pool_reports_the_warm_tail_sign_for_a_heat_event():
+    _, sign = LF.clim_pool("p90_20240802", _flat_anom(["CONUS"]))
+    assert sign == 1.0
