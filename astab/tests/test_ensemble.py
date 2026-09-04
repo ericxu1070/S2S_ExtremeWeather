@@ -85,6 +85,25 @@ def test_every_member_path_is_disjoint_from_the_frozen_sweeps(step):
                 assert f not in p.parents and p not in f.parents
 
 
+def _stub_init_frames(monkeypatch, tmp_path):
+    """Put the walker's init frames inside ``tmp_path``.
+
+    ``Chain.inputs_path`` resolves through ``aconfig.gencast_inputs_path``, which is keyed
+    on the xres tree and NOT on ``sconfig.RUNS`` - so monkeypatching ``RUNS`` does not move
+    it and ``stage_walk``'s existence check reads the real ``runs/xres/0p25/week8/inputs/``.
+    That directory exists only where the week-8 xres prep was run, which made these two
+    tests pass on one machine and fail on another, and it breaks this module's stated
+    contract of touching no file in ``runs/``. ``run_segment`` is faked in both callers and
+    never opens the file, so an empty one is enough: the check under test is
+    ``src.exists()``.
+    """
+    src = tmp_path / "inputs" / f"{EV}_inputs.nc"
+    src.parent.mkdir(parents=True, exist_ok=True)
+    src.touch()
+    monkeypatch.setattr(SCH.Chain, "inputs_path", lambda self: src)
+    return src
+
+
 def test_the_stale_segment_rmtree_goes_through_the_chain(tmp_path, monkeypatch, capsys):
     """THE regression. ``stage_walk`` ``rmtree``s a stale segment with
     ``ignore_errors=True``; before ``Chain.segment_dir`` that call was
@@ -99,6 +118,7 @@ def test_the_stale_segment_rmtree_goes_through_the_chain(tmp_path, monkeypatch, 
     import aires.walker as W
 
     monkeypatch.setattr(SC, "RUNS", tmp_path)
+    _stub_init_frames(monkeypatch, tmp_path)
     ch = SCH.Chain(EV, WK, 0)
 
     frozen = SC.segment_dir(EV, ch.walker, 3)      # runs/astab/<ev>/walkers/w02/step03
@@ -142,6 +162,7 @@ def test_a_failing_member_does_not_take_its_siblings_down(tmp_path, monkeypatch)
     import aires.walker as W
 
     monkeypatch.setattr(SC, "RUNS", tmp_path)
+    _stub_init_frames(monkeypatch, tmp_path)
     chs = [SCH.Chain(EV, WK, m) for m in (0, 1, 2)]
     tried = []
 
