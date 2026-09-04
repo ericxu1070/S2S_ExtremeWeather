@@ -650,6 +650,46 @@ Southwest and the `persist` control have nothing in the band; their panels repor
 plus the deepest level the run resolved (3.2e-04 and 2.6e-04), which is the honest
 statement and matches the wave-1 table's "< 3e-4".
 
+## The population as a density - the KDE of `A_L` (2026-09-02)
+
+`aires/akde.py` (new, + `aires/tests/test_akde.py`, 12 tests). The same 64 walkers per
+run as `aires_walkers.png`, drawn as a Gaussian kernel density over `A_L` instead of as
+a scatter: three curves per panel, log y, one panel per run in the same cell order
+(`awalkers.order_runs`, extracted from `plot_walkers` so the two slates line up).
+
+    PYTHONPATH=. python -m aires.akde               # figures/aires/aires_kde.png
+    PYTHONPATH=. python -m aires.akde --per-event   # + figures/aires/<event>/aires_kde_<event>_<tag>.png
+    PYTHONPATH=. python -m aires.akde --z-scaled --bw 0.5   # sum p_i scaling; one width for all
+
+- **weighted by `p_i`** (solid blue) - the estimator's own PDF; `p_i` comes through
+  `awalkers.run_record`, i.e. `alift.walker_mass`, nothing re-derived. Self-normalised by
+  default; `--z-scaled` multiplies it by `sum p_i` (8.75 for the persistence control).
+- **unweighted** (dotted blue) - where the sampler put its walkers. Its mass past the
+  observation is 0.4-0.7 on the reached events and is NOT a probability; the legend says so.
+- **direct ensemble** (dashed brown) - the 24-member xres cube at `1/n` each, the
+  like-for-like baseline. It and the weighted curve estimate the same law.
+- rug ticks at the foot of each panel: the discrete positions the curves were smoothed from.
+
+Two decisions a KDE forces, both pinned by tests:
+
+- **One bandwidth for both walker curves**: Scott's rule on the 64 unweighted positions
+  (0.13 K for `p90_20240802` up to 1.75 K for Elliott). scipy's weighted default sizes the
+  kernel from the Kish ESS of the weights and would give 2.0 K for Uri and 3.7 K for the
+  persistence control - a blob wider than half the population. The unweighted estimator
+  is pinned to `scipy.stats.gaussian_kde` to 1e-10.
+- **Every curve ends at its own most extreme member.** A Gaussian kernel is never zero:
+  unclipped, the direct ensemble's KDE puts 0.035 (persist) and 0.0013 (Southwest) past
+  the observation with 0/24 members there, which would draw the reach the experiment
+  denies. Curves are NaN outside `[min, max]` of their own sample.
+
+The panel title prints the EXACT subset-sum `P` (as `aires_walkers.png` does), never a KDE
+integral. `main` echoes the unclipped KDE tail beside it so the smoothing is on record -
+it overstates `P / sum p_i` by 1.15x (CA, PNW), 1.3x (Uri), 1.4x (Elliott) and 1.75x
+(SCentral), and `tail_mass` (an exact normal-CDF sum, no grid) collapses onto the subset
+sum as `--bw` -> 0. Not yet registered in `scripts/embed_slate_figs.py` /
+`docs/aires_event_slate.html`; add an `ALT_TO_FIG` entry and a slot if it should go into
+the slate PDF.
+
 ## The lead-time stability sweep - weeks 4/6/8/10 (the `astab/` package) - 2026-08-27
 
 *(Everything below is job 1189, the eight-chain run. The scorer was extended to week
