@@ -8,9 +8,11 @@ plus, for the two that need fields rather than indices, the walker diagnostics c
 built one. No GPU, no model, no network: the CFS cube is READ here and fetched there, and
 a missing one drops that curve with a message rather than failing the figure.
 
-    trajectory    the algorithm happening: the observable against lead time, every
-                  branch the pilot rolled, the barriers, the 7-day window, and what
-                  the operational CFSv2 forecast had at the same lead
+    trajectory    the algorithm happening, in three panels on ONE shared y axis:
+                  the observable against lead time (every branch the pilot rolled,
+                  the barriers, the 7-day window, the operational CFSv2 forecast and
+                  the ERA5 reanalysis itself), then the final-``A_L`` density, then
+                  where each method's members landed         [after AI+RES fig. S9]
     exceedance    the headline: does the RES tail contain the observed event when direct
                   sampling does not?                                     [aires.md fig 1]
     diagnostics   score skill per t_k, and whether N=64 held up          [figs 3, 4]
@@ -30,6 +32,21 @@ either interval: whether RES puts probability mass where direct sampling has non
 
 `--stage compare` must have run. The x axis is in the metric's own units and the tail sign
 is applied for cold events, so "further right" always means "more extreme".
+
+Reading the trajectory figure
+-----------------------------
+Three panels, one y axis, drawn after Lancelin et al.'s figure S9. The middle panel is
+the MARGINAL of the left one: it is the same 64 numbers the trajectory lines end at and
+the same numbers the right panel scatters, so a bar, a dot and a line-end at the same
+height are the same walker. The y limits are therefore computed ONCE over everything
+drawn anywhere - walkers, killed branches, CFSv2 members, every scatter population,
+every kernel's support, the observation and the ERA5 truth - because a panel that
+autoscaled on its own contents would break exactly the correspondence the layout is for.
+
+The left panel also carries the **ERA5 reanalysis** as a single black line with a marker
+every 6 h: what actually happened, at the sampling the reanalysis has, against 64
+forecasts of it. It comes from `aires/aera5.py` and, like the CFSv2 baseline, a missing
+cache costs the line and not the figure.
 
     PYTHONPATH=. python -m aires.aplots --event PNW_HeatDome_2021 --tag pilot
 """
@@ -65,6 +82,21 @@ OBS_COLOR = "#d62728"
 # learning model, and it has to stay legible against 64 survivors coloured on a saturated
 # ramp, ~450 grey killed branches and a red observed line.
 CFS_COLOR = "#111111"
+# The density panel follows figure S9's two-tone convention rather than this module's
+# per-method palette: the AI+RES population in the run colour, the direct-sampling
+# ensemble in a neutral mid grey. It is a mid grey (0.50) on purpose - `DEAD_COLOR` is
+# 0.72 and lives on a different panel, and the two never share an axis.
+DENS_DS_COLOR = "#808080"
+# The weighted curve's own blue: `RES_COLOR` at half luminance. It is drawn ON TOP of the
+# translucent `RES_COLOR` bars, and mid-blue dashes over a mid-blue fill read as a broken
+# WHITE line - the casing showing through the gaps is the only thing with any contrast
+# left. A navy at the same hue keeps the curve in the AI+RES family, reads against both
+# the fill and the white ground, and can never be mistaken for the solid mid-blue
+# unweighted curve: they differ in lightness AND in dash state, not in one of the two.
+RES_WEIGHTED_COLOR = "#0f3b5a"
+# How much taller than the tallest histogram bar the weighted curve's peak may be before
+# the panel stops trying to show all of it. See `_density_panel`.
+DENS_WEIGHTED_HEADROOM = 1.6
 
 
 # --------------------------------------------------------------------------- #
@@ -89,9 +121,20 @@ def _fig_path(ctx: R.Ctx, kind: str) -> Path:
     return A.fig_dir(ctx.event) / f"aires_{kind}_{ctx.event}_{ctx.tag}.png"
 
 
-def _save(fig, path: Path) -> Path:
+def _save(fig, path: Path, pdf: bool = False) -> Path:
+    """Write the PNG, and for the publication figures a vector PDF of the same stem.
+
+    140 dpi is a screen artifact: legible in a browser, and the moment a trajectory
+    panel with 450 grey branches is put through a typesetter every one of them turns to
+    mush. The PDF is the SAME figure object at the same bbox - one layout, two
+    containers - so the two can never drift apart.
+    """
     fig.savefig(path, dpi=140, bbox_inches="tight")
     print(f"  wrote {path} ({path.stat().st_size / 1e3:.0f} kB)")
+    if pdf:
+        vec = path.with_suffix(".pdf")
+        fig.savefig(vec, bbox_inches="tight")
+        print(f"  wrote {vec} ({vec.stat().st_size / 1e3:.0f} kB)")
     return path
 
 
@@ -865,7 +908,345 @@ def trajectory_tree(ctx: R.Ctx, d: dict) -> dict:
                 root=None if root is None else [root[0].tolist(), root[1].tolist()])
 
 
+# --------------------------------------------------------------------------- #
+# The final-value density panel (figure S9's middle column)
+# --------------------------------------------------------------------------- #
+def density_bins(x, h: float) -> np.ndarray:
+    """Bin edges for one population of the density panel, by a stated rule.
+
+    The paper had 50,000 direct-sampling members in 30 bins and 400 AI+RES walkers in
+    10. We have 64 and 24. At that size the bin count is not a cosmetic choice: too few
+    and the panel is three bars that say nothing the scatter column does not; too many
+    and it draws Poisson noise as structure. So the count is fenced from both sides by
+    quantities the same panel already commits to, and nothing here is a free number:
+
+    - **the target** is Freedman-Diaconis, ``w = 2 IQR n^(-1/3)`` - the usual
+      distribution-free width, which adapts to a population whose spread differs by an
+      order of magnitude between events (0.30 K on p90_20240802, 4.0 K on Elliott);
+    - **the floor** is the square-root rule, ``round(sqrt(n))`` bins - 8 for the 64
+      walkers, 5 for a 24-member ensemble - so a population is never drawn coarser than
+      that however tight its interquartile range happens to be;
+    - **the ceiling** is ``range / h``, i.e. no bin narrower than the KDE bandwidth
+      overlaid on the very same axes. ``h`` is Scott's rule on the sample
+      (`aires.akde.scott_bandwidth`); a bar finer than the kernel would assert a
+      resolution the curve beside it explicitly denies.
+
+    Degenerate samples (fewer than 2 points, or zero range) get a single unit-wide bin
+    rather than an exception - the persistence control and Southwest are near-degenerate
+    and the figure has to render for them too.
+    """
+    x = np.asarray(x, dtype="float64").ravel()
+    x = x[np.isfinite(x)]
+    lo, hi = (float(x.min()), float(x.max())) if x.size else (0.0, 0.0)
+    span = hi - lo
+    if x.size < 2 or not span > 0:
+        return np.array([lo - 0.5, lo + 0.5])
+    q1, q3 = np.percentile(x, [25.0, 75.0])
+    w_fd = 2.0 * float(q3 - q1) * x.size ** (-1.0 / 3.0)
+    k_lo = max(2, int(round(np.sqrt(x.size))))
+    k_hi = max(k_lo, int(np.floor(span / h)) if (np.isfinite(h) and h > 0) else k_lo)
+    k_fd = int(np.ceil(span / w_fd)) if w_fd > 0 else k_lo
+    return np.linspace(lo, hi, int(np.clip(k_fd, k_lo, k_hi)) + 1)
+
+
+def _density(ctx: R.Ctx) -> dict | None:
+    """The three curves of the density panel, or ``None`` if the run is not reduced.
+
+    Everything comes from `aires.akde`, which already encodes the two decisions that
+    make a 64-point KDE honest and which must not be re-implemented here: both walker
+    curves share ONE bandwidth (Scott's rule on the unweighted positions, because the
+    weights reweight the sample and do not enlarge it), and every curve is clipped to
+    ``[min, max]`` of its own members, because a Gaussian tail past the observation is
+    kernel shape and would draw a reach the experiment denies.
+
+    Degrades the way ``_cfs`` does. ``SystemExit`` is caught by name for the same reason
+    it is there: it is how this repo reports "unknown event" / "not reduced" and it does
+    not inherit from ``Exception``.
+    """
+    try:
+        from aires import akde as KDE
+        from aires import awalkers as WK
+
+        r = WK.run_record(ctx.event, ctx.tag)
+        curves = {c["key"]: c for c in KDE.panel_curves(r)}
+    except (Exception, SystemExit) as e:                          # noqa: BLE001
+        print(f"    final-value density unavailable ({type(e).__name__}: {e}); drawing "
+              f"the trajectory figure without that panel")
+        return None
+    if "aires_unweighted" not in curves:
+        return None
+    print(f"    density panel: {r['n']} walkers (h = {curves['aires_unweighted']['h']:.2f})"
+          + (f", {r['direct'].size} {r['direct_key']} members "
+             f"(h = {curves['direct']['h']:.2f})" if "direct" in curves else
+             ", no direct ensemble"))
+    return dict(r=r, curves=curves)
+
+
+def _density_panel(axd, dens: dict, obs, unit: str) -> None:
+    """Figure S9's marginal: horizontal bars plus KDE, on the trajectories' own y axis.
+
+    The variable is on **y** and density grows rightward from the left spine, so the
+    panel is literally the left panel's final column turned into a distribution. Only
+    the left spine is drawn and the density axis carries no ticks, no numbers and no
+    label: its scale is set by the requirement that the tallest kernel just fits, and a
+    reader who measures a bar against it is measuring the wrong thing. What the panel
+    says is *shape*, and where the shape sits relative to the red observed line.
+
+    Three populations, and the pairing is the whole argument:
+
+    - **blue bars + blue solid KDE** - the AI+RES walkers UNWEIGHTED. This is the paper's
+      blue: the tilted population that resampling actually manufactured. It is what the
+      trajectory lines end at and what the scatter panel's first column shows, which is
+      what lets the three panels be read across.
+    - **grey bars + grey solid KDE** - the direct-sampling ensemble (the paper's DS),
+      chosen by ``awalkers.DS_PREFERENCE``. The like-for-like baseline.
+    - **navy DASHED KDE, no bars** - ours, not the paper's: the walkers WEIGHTED by
+      ``p_i = Z w_i / N``, the estimator's reconstruction of the original forecast law.
+      Its mass past the red line is the headline ``P``. It gets no bars because a
+      histogram of 64 points whose weights span four decades is a lie about counting -
+      the weighted object is a density and only a density. It is the ONLY dashed line on
+      the panel, and both other curves are solid exactly as in S9, so "dashed" reads as
+      "weighted" and nothing else: the two blue curves are the same 64 walkers and the
+      dash is the whole difference between where they are and what they are worth.
+
+    Bin edges are chosen per population from its own range (``density_bins``) and
+    deliberately do not align: two grids forced to share edges would invite reading one
+    bar against another, which at n = 24 and n = 64 is noise. The density scale is
+    LINEAR, unlike `aires.akde`'s own log panel - S9 is linear, and a log axis would
+    stop this reading as a marginal of the trajectories beside it.
+
+    Two ways a curve can stop, and they must not look alike
+    ------------------------------------------------------
+    **A dot is where the sample ran out.** Every curve is drawn only inside
+    ``[min, max]`` of its own members (`aires.akde`'s support rule), so all three end in
+    mid-air. On the two S9 curves that is invisible - they end near the spine, where a
+    kernel has almost no mass left. The WEIGHTED curve does not: its weights concentrate
+    on the least extreme walkers, which is the whole point of it, so it ends at the
+    least-extreme edge of the support at a density of 0.25 (PNW pilot, 64% of the panel
+    width) to 0.75 (the persistence control, 91%). A curve that just stops out there
+    reads as a rendering failure. So every curve gets a filled dot at each end: the mark
+    says "this is the most extreme member there is", not "the drawing was cut".
+
+    **A caret at the spine is where the drawing WAS cut.** The weighted PDF concentrates,
+    so its peak can dwarf the histograms', and a limit that always covered it would
+    flatten the bars into invisibility on exactly the runs where the estimator is
+    degenerate. The limit is therefore chosen per run:
+
+    - if the weighted peak is within ``DENS_WEIGHTED_HEADROOM`` (1.6x) of the tallest
+      bar, the limit covers EVERYTHING drawn - simplest and most honest, and it is what
+      fires on all ten runs of the current slate (the largest ratio is 1.52, the
+      persistence control);
+    - otherwise the limit is set from the bars and the S9 curves alone, the weighted
+      curve is clipped at the spine, a caret is drawn where it leaves, and its true peak
+      density is printed in its own legend entry. The number is then ON the figure
+      rather than lost with the ink.
+
+    The weighted curve is never rescaled to a common peak height. Two densities on one
+    axis are comparable only while they share that axis; normalising one of them to fit
+    would make the panel's central comparison meaningless.
+    """
+    import matplotlib.patheffects as pe
+    from matplotlib.colors import to_rgba
+    from matplotlib.lines import Line2D
+    from matplotlib.patches import Patch
+
+    r, curves = dens["r"], dens["curves"]
+    peak_s9 = [0.0]        # bars + the two S9 curves: what has to stay legible
+    peak_wtd = [0.0]       # the weighted curve alone: it is allowed to be much taller
+    handles = []
+
+    def bars(c, color, alpha, elw, z):
+        # The alpha goes on the FACE only, as an RGBA, never on the artist: a patch-level
+        # alpha fades the black edge with the fill, and S9's bars are outlined in solid
+        # black precisely so two overlapping histograms stay separable where they cross.
+        e = density_bins(c["x"], c["h"])
+        dy, _ = np.histogram(np.asarray(c["x"], dtype="float64"), bins=e, density=True)
+        axd.barh(0.5 * (e[:-1] + e[1:]), dy, height=np.diff(e), align="center",
+                 color=to_rgba(color, alpha), edgecolor="black", linewidth=elw, zorder=z)
+        peak_s9.append(float(np.max(dy)) if dy.size else 0.0)
+        return e.size - 1
+
+    def kde_line(c, color, ls, lw, z, into, halo=False):
+        st = dict(color=color, ls=ls, lw=lw, zorder=z, solid_capstyle="round")
+        if halo:
+            st["path_effects"] = [pe.Stroke(linewidth=lw + 1.7, foreground="white"),
+                                  pe.Normal()]
+        axd.plot(c["density"], c["grid"], **st)
+        d, g = c["density"], c["grid"]
+        m = np.flatnonzero(np.isfinite(d))
+        if m.size:
+            # The two ends of the curve's own support, marked - see the docstring: a dot
+            # is the sample running out, and it must not look like the axis cutting it.
+            axd.plot(d[m[[0, -1]]], g[m[[0, -1]]], ls="none", marker="o", ms=3.2,
+                     mfc=color, mec="white", mew=0.7, zorder=z + 0.1)
+            into.append(float(np.max(d[m])))
+
+    # --- draw order is S9's: grey bars, blue bars, grey KDE, blue KDE ------------- #
+    direct = curves.get("direct")
+    if direct is not None:
+        nb = bars(direct, DENS_DS_COLOR, 0.60, 0.55, 2)
+        handles.append(Patch(fc=to_rgba(DENS_DS_COLOR, 0.60), ec="black", lw=0.55,
+                             label=f"{_ds_short(r['direct_key'])},\n"
+                                   f"n={direct['x'].size} ({nb} bins)"))
+    unw = curves["aires_unweighted"]
+    nb = bars(unw, RES_COLOR, 0.70, 0.75, 3)
+    handles.append(Patch(fc=to_rgba(RES_COLOR, 0.70), ec="black", lw=0.75,
+                         label=f"AI+RES, unweighted,\nn={unw['x'].size} ({nb} bins)"))
+    if direct is not None:
+        kde_line(direct, DENS_DS_COLOR, "-", 1.5, 4, peak_s9)
+    kde_line(unw, RES_COLOR, "-", 1.5, 5, peak_s9)
+    wtd = curves.get("aires_weighted")
+    if wtd is not None:
+        kde_line(wtd, RES_WEIGHTED_COLOR, (0, (4.5, 1.8)), 1.9, 6, peak_wtd, halo=True)
+    if obs is not None:
+        axd.axhline(float(obs), color=OBS_COLOR, lw=1.3, ls="--", zorder=7)
+
+    # --- the frame: left spine only, no density ticks, no density label ----------- #
+    for side in ("top", "right", "bottom"):
+        axd.spines[side].set_visible(False)
+    axd.tick_params(axis="x", bottom=False, top=False, labelbottom=False)
+    axd.tick_params(axis="y", direction="in", left=True, right=False, labelleft=False)
+
+    # --- how far right the panel reaches, and what happens if a curve is cut ------ #
+    s9_hi, wtd_hi = max(peak_s9), max(peak_wtd)
+    truncated = wtd_hi > DENS_WEIGHTED_HEADROOM * max(s9_hi, 1e-12)
+    axd.set_xlim(0.0, 1.10 * max(s9_hi if truncated else max(s9_hi, wtd_hi), 1e-9))
+    if wtd is not None:
+        lab = "AI+RES weighted by $p_i$,\nthe estimator's PDF"
+        if truncated:
+            # It leaves the panel: say where, and say how tall it really is. Without both
+            # marks the curve simply vanishes at the spine and the reader cannot tell
+            # that from a curve whose data ended there.
+            d, g = wtd["density"], wtd["grid"]
+            j = int(np.nanargmax(np.where(np.isfinite(d), d, -np.inf)))
+            axd.plot([axd.get_xlim()[1]], [g[j]], ls="none", marker=">", ms=7.5,
+                     color=RES_WEIGHTED_COLOR, mec="white", mew=0.8, clip_on=False,
+                     zorder=9)
+            lab += f"\n(peak {wtd_hi:.2f} off-panel $\\rightarrow$)"
+        handles.append(Line2D([], [], color=RES_WEIGHTED_COLOR, ls=(0, (4.5, 1.8)),
+                              lw=1.9, label=lab))
+    axd.set_title("final $A_L$ distribution\n"
+                  + (f"(density per {unit})" if unit else "(density)"),
+                  fontsize=9, pad=16)
+
+    # --- the legend goes in whichever end of the panel has no ink ----------------- #
+    # S9 puts it lower right, which is right for a heat event whose population piles up
+    # at the top of a shared axis. On a cold event the same population sits at the
+    # BOTTOM of that axis and a fixed corner would land on the bars, so the corner is
+    # chosen from where the density actually is. The comparison is over the outer 30% of
+    # the axis at each end - roughly the height the legend itself occupies - and NOT
+    # over the two halves: a half-and-half split is decided by whatever happens to fall
+    # on the near side of the midpoint, which is nowhere near either corner.
+    lo, hi = axd.get_ylim()
+    span = hi - lo
+    top_ink = bot_ink = 0.0
+    for c in curves.values():
+        d, g = c["density"], c["grid"]
+        m = np.isfinite(d)
+        if not m.any():
+            continue
+        up, dn = m & (g > lo + 0.70 * span), m & (g < lo + 0.30 * span)
+        top_ink = max(top_ink, float(d[up].max()) if up.any() else 0.0)
+        bot_ink = max(bot_ink, float(d[dn].max()) if dn.any() else 0.0)
+    axd.legend(handles=handles, loc="lower right" if top_ink >= bot_ink else "upper right",
+               fontsize=7.0, frameon=False, handlelength=1.6, handleheight=1.15,
+               labelspacing=0.9, borderaxespad=0.3)
+
+
+def _ds_short(key) -> str:
+    """The direct ensemble's name as the scatter panel writes it, on one line."""
+    return {"gencast_xres": "GenCast direct (xres)",
+            "gencast_walkers": "GenCast direct (walkers)",
+            "fcn3": "FCN3 direct"}.get(key, str(key))
+
+
+# --------------------------------------------------------------------------- #
+# The ERA5 reanalysis trajectory
+# --------------------------------------------------------------------------- #
+def _era5_truth(ctx: R.Ctx) -> dict | None:
+    """The observed running index for this event, or ``None`` if it is not cached.
+
+    `aires/aera5.py` builds it; this only reads. Degrades exactly like ``_cfs``: the
+    figure stage is offline and must not acquire a data dependency it can fail on, and
+    losing the truth line is not worth losing the figure over. The import itself is
+    guarded because the module is newer than this one and a checkout may not have it.
+    """
+    try:
+        from aires import aera5
+
+        truth = aera5.load(ctx.event)
+    except (Exception, SystemExit) as e:                          # noqa: BLE001
+        print(f"    ERA5 truth trajectory unavailable ({type(e).__name__}: {e}); "
+              f"drawing without it")
+        return None
+    if truth is None:
+        print(f"    no ERA5 running index cached for {ctx.event} - drawing without the "
+              f"reanalysis trajectory.\n"
+              f"      build it on the login node: PYTHONPATH=. python -m aires.aera5 "
+              f"--event {ctx.event}")
+        return None
+    try:
+        lead = np.asarray(truth["lead"], dtype=float)
+        box = np.asarray(truth["box"], dtype=float)
+    except (Exception, KeyError) as e:                            # noqa: BLE001
+        print(f"    ERA5 truth cache is not shaped as expected ({e}); skipping")
+        return None
+    if lead.size != box.size or not lead.size:
+        print(f"    ERA5 truth cache is empty or ragged ({lead.size} vs {box.size}); "
+              f"skipping")
+        return None
+    step = float(np.median(np.diff(lead))) * 24.0 if lead.size > 1 else float("nan")
+    a_l = truth.get("a_l") if isinstance(truth, dict) else None
+    print(f"    ERA5 truth: {box.size} frames, {lead.min():.2f}-{lead.max():.2f} d, "
+          f"{step:.0f} h sampling"
+          + (f", $A_L$ = {float(a_l):+.2f}" if a_l is not None
+             and np.isfinite(float(a_l)) else ""))
+    return dict(lead=lead, box=box, a_l=a_l)
+
+
+def _shared_ylim(parts, pad: float = 0.035) -> tuple[float, float]:
+    """One y range over EVERYTHING the three panels draw, computed before any of them.
+
+    The panels share a y axis, so whichever one autoscales sets it for all three - and
+    the left panel, which is the one matplotlib would autoscale from, is the one whose
+    range is largest. Left to itself it would happily clip a direct-sampling member or a
+    kernel's support off the bottom of the two panels on its right, and the figure's
+    whole claim is that a bar, a dot and a line-end at the same height are the same
+    number. So the limits are taken over the union up front.
+    """
+    vals = [np.asarray(a, dtype=float).ravel() for a in parts if a is not None]
+    v = np.concatenate([a for a in vals if a.size]) if vals else np.zeros(0)
+    v = v[np.isfinite(v)]
+    if not v.size:
+        return (-1.0, 1.0)
+    lo, hi = float(v.min()), float(v.max())
+    m = pad * max(hi - lo, 1e-6)
+    return lo - m, hi + m
+
+
 def plot_trajectory(ctx: R.Ctx, d: dict, tree: dict | None = None) -> Path:
+    """The walk itself, in three panels on one shared y axis, after AI+RES fig. S9.
+
+        [ trajectories | final-$A_L$ density | where each method landed ] + colorbar
+
+    Left: the observable against lead time - every branch the pilot rolled, the killed
+    ones in grey with an x where they end, the resampling barriers with what each one
+    killed, the 7-day window ``A_L`` is the mean over, the operational CFSv2 cycles, and
+    the ERA5 reanalysis as a black line marked every 6 h. Middle: the same 64 endpoints
+    as a probability density, binned and smoothed, against the direct-sampling ensemble
+    (`_density_panel`). Right: every method's members as a strip of dots with the count
+    that reached the observation (`_marginal`).
+
+    The three panels are ONE picture and the code keeps them that way in three places:
+    the y limits are computed once over the union of everything drawn anywhere
+    (`_shared_ylim`), the observed value's red dashed line runs across all three, and
+    only the left panel carries y numbers. A walker is then the same height in all
+    three - a line-end, a bar and a dot - which is the correspondence the layout exists
+    to make readable.
+
+    Both the CFSv2 baseline and the ERA5 truth line are optional caches: a missing one
+    prints why and drops that curve. The density panel degrades the same way.
+    """
     import matplotlib
     matplotlib.use("Agg")
     import matplotlib.pyplot as plt
@@ -895,15 +1276,25 @@ def plot_trajectory(ctx: R.Ctx, d: dict, tree: dict | None = None) -> Path:
         "survivors", base(np.linspace(0.32, 1.0, 256)))
 
     cfs = _cfs(ctx)
+    truth = _era5_truth(ctx)
+    dens = _density(ctx)
 
-    fig = plt.figure(figsize=(15.5, 7.4))
     # The marginal holds one column per method and gains one when CFS is present; a fixed
-    # width ratio would overlap its tick labels rather than shrink the dots.
-    n_cols = 1 + len(d.get("ds", {}) or {}) + (1 if cfs else 0)
-    gs = fig.add_gridspec(1, 3, width_ratios=[4.6, 0.30 * n_cols, 0.05], wspace=0.06)
+    # width ratio would overlap its tick labels rather than shrink the dots. Count the
+    # columns `_marginal` ACTUALLY draws: `d["ds"]` also carries `event`, `metric` and
+    # `tail_sign`, so its raw length is 8 where 5 columns are drawn, and the panel was
+    # being handed 60% more width than it used.
+    ds_keys = [k for k in DS_STYLE if k in (d.get("ds", {}) or {})]
+    n_cols = 1 + len(ds_keys) + (1 if cfs else 0)
+    # S9's proportions: a wide trajectory panel, a narrow density panel beside it, frames
+    # top- and bottom-aligned, one tight gap. The scatter strip and the colorbar are ours.
+    ratios = [4.6] + ([1.30] if dens else []) + [0.30 * n_cols, 0.05]
+    fig = plt.figure(figsize=(15.5 + (2.9 if dens else 0.0), 7.4))
+    gs = fig.add_gridspec(1, len(ratios), width_ratios=ratios, wspace=0.075)
     ax = fig.add_subplot(gs[0, 0])
-    axm = fig.add_subplot(gs[0, 1], sharey=ax)
-    cax = fig.add_subplot(gs[0, 2])
+    axd = fig.add_subplot(gs[0, 1], sharey=ax) if dens else None
+    axm = fig.add_subplot(gs[0, -2], sharey=ax)
+    cax = fig.add_subplot(gs[0, -1])
 
     # --- the x axis: LEAD TIME TO THE EVENT, counted down --------------------------- #
     # Everything upstream carries lead-from-init (0 d at the init, 21 d at the peak),
@@ -923,10 +1314,16 @@ def plot_trajectory(ctx: R.Ctx, d: dict, tree: dict | None = None) -> Path:
     win = np.asarray(_window_lead(ctx, d), dtype=float)
     w0, w1 = float(win.min()), float(win.max())
     ax.axvspan(tb(w0), tb(w1), color="#f0c040", alpha=0.16, lw=0, zorder=0)
+    # A translucent white plate under it, like every other in-panel label here: the
+    # annotation sits at the top of the window and the ERA5 truth line now runs through
+    # that corner on the events where the reanalysis is the most extreme thing on the
+    # figure (Southwest 2020, where no walker reaches it), which is exactly the event
+    # whose caption a reader most needs to be able to read.
     ax.text(tb(0.5 * (w0 + w1)), 0.985,
             f"$A_L$ = the 7-day mean\nover these {win.size} frames",
             transform=ax.get_xaxis_transform(), ha="center", va="top", fontsize=8.5,
-            color="#8a5a12", linespacing=1.35)
+            color="#8a5a12", linespacing=1.35, zorder=6,
+            bbox=dict(boxstyle="round,pad=0.25", fc="white", ec="none", alpha=0.65))
 
     # --- killed branches, then the survivors on top ------------------------------ #
     for x, y in tree["dead"]:
@@ -938,8 +1335,25 @@ def plot_trajectory(ctx: R.Ctx, d: dict, tree: dict | None = None) -> Path:
     root = tree.get("root")
     root = None if root is None else (np.asarray(root[0], dtype=float),
                                       np.asarray(root[1], dtype=float))
-    for i in np.argsort(al):                            # extremes drawn last, on top
-        xs, ys = _from_root(root, lead, series[i])
+    # Built before they are drawn, because `_shared_ylim` needs the SMOOTHED values: the
+    # 24 h filter's end padding can overshoot the raw series by a fraction of a kelvin,
+    # and a limit taken from the raw one would clip the very last point of a lineage -
+    # the one sitting on the event peak, where A_L is taken.
+    surv = [_from_root(root, lead, series[i]) for i in np.argsort(al)]
+
+    ax.set_ylim(*_shared_ylim(
+        [y for _x, y in surv]                                   # survivors, as drawn
+        + [np.asarray(y, dtype=float) for _x, y in tree["dead"]]  # killed branches
+        + [al]                                                   # the walkers' own A_L
+        + [np.asarray(v["box"], dtype=float)                     # scatter populations
+           for k, v in (d.get("ds", {}) or {}).items() if k in DS_STYLE]
+        + ([np.asarray(cfs["series"], dtype=float), np.asarray(cfs["box"], dtype=float),
+            np.array([float(cfs["box_mean"])])] if cfs is not None else [])
+        + ([truth["box"]] if truth is not None else [])
+        + ([c["x"] for c in dens["curves"].values()] if dens else [])  # kernel supports
+        + ([np.array([float(obs)])] if obs is not None else [])))
+
+    for (xs, ys), i in zip(surv, np.argsort(al)):       # extremes drawn last, on top
         ax.plot(tb(xs), ys, "-", lw=1.0, color=cmap(norm(al[i])), alpha=0.9,
                 zorder=3, solid_capstyle="round")
 
@@ -957,9 +1371,24 @@ def plot_trajectory(ctx: R.Ctx, d: dict, tree: dict | None = None) -> Path:
         m = float(cfs["box_mean"])
         ax.plot([tb(w0), tb(w1)], [m, m], "-", lw=2.6, color=CFS_COLOR, zorder=4.8,
                 solid_capstyle="butt")
+        # Above the ERA5 truth line (zorder 5.5), not below it: on Uri the reanalysis
+        # crosses its own CFSv2 bar within a day of this label, and a 2.4 pt black line
+        # through the middle of a number is worse than a line with a gap in it.
         ax.text(tb(w0), m, f"CFSv2 $A_L$ = {m:+.2f}{unit_suffix(ctx)}  ", color=CFS_COLOR,
-                fontsize=8.5, ha="right", va="center", zorder=4.9,
+                fontsize=8.5, ha="right", va="center", zorder=7,
                 bbox=dict(boxstyle="round,pad=0.22", fc="white", ec="none", alpha=0.72))
+
+    # --- what actually happened ---------------------------------------------------- #
+    # The ERA5 reanalysis, on the same running index the walkers are drawn on. One line,
+    # solid black, ABOVE everything else: it is the only curve on the panel that is not a
+    # forecast, and the figure is asking whether any of the forecasts got near it. A
+    # marker on every point rather than a smooth line, because the reanalysis is
+    # 6-hourly where the walkers are 12-hourly - the markers are the sampling, and
+    # hiding that difference would let the truth read as just another member.
+    if truth is not None:
+        ax.plot(tb(truth["lead"]), truth["box"], "-", color="black", lw=2.4, marker="o",
+                ms=3.4, mfc="white", mec="black", mew=0.9, zorder=5.5,
+                solid_capstyle="round")
 
     # --- the barriers ------------------------------------------------------------- #
     for leg, th in zip([l for l in legs if l.resampling],
@@ -1020,9 +1449,25 @@ def plot_trajectory(ctx: R.Ctx, d: dict, tree: dict | None = None) -> Path:
             [], [], color=CFS_COLOR, lw=1.05, ls="--",
             label=f"CFSv2 operational, {cfs['n_members']} lagged cycles "
                   f"({lo:g}-{hi:g} d lead); bar = its $A_L$"))
-    ax.legend(handles=handles, fontsize=8, loc="upper left", framealpha=0.92)
+    if truth is not None:
+        handles.append(Line2D(
+            [], [], color="black", lw=2.4, marker="o", ms=3.4, mfc="white",
+            mec="black", mew=0.9,
+            label="ERA5 reanalysis truth (a marker every 6 h)"))
+    # Above everything, the ERA5 truth line included. There is no corner of this panel
+    # that is empty on all ten runs - on Uri the population starts at +5 K and the legend
+    # sits on top of it whatever alpha it carries - so the choice is between a legend the
+    # curves are drawn through and a legend that hides some of them. A legend with a
+    # trajectory scribbled across its text is not a legend.
+    ax.legend(handles=handles, fontsize=8, loc="upper left",
+              framealpha=0.92).set_zorder(20)
+    # S9's frame: a closed box with ticks on all four sides pointing inward, so the panel
+    # reads as one field rather than as two open axes with curves in them.
+    ax.tick_params(direction="in", top=True, right=True)
 
-    # --- the marginal: where each method's members landed ------------------------ #
+    # --- the marginal of the trajectories, then the strip ------------------------- #
+    if axd is not None:
+        _density_panel(axd, dens, obs, metric_unit(ctx.ev.metric))
     _marginal(axm, d, al, obs, sign, cfs)
 
     fig.colorbar(cm.ScalarMappable(norm=norm, cmap=cmap), cax=cax,
@@ -1030,8 +1475,8 @@ def plot_trajectory(ctx: R.Ctx, d: dict, tree: dict | None = None) -> Path:
                                             if metric_unit(ctx.ev.metric) else ""))
     fig.suptitle(f"AI+RES pilot - {ctx.event} ({ctx.tag}): the walk itself, barrier by "
                  f"barrier", fontsize=12)
-    fig.subplots_adjust(left=0.055, right=0.945, top=0.865, bottom=0.115)
-    return _save(fig, _fig_path(ctx, "trajectory"))
+    fig.subplots_adjust(left=0.048, right=0.952, top=0.865, bottom=0.115)
+    return _save(fig, _fig_path(ctx, "trajectory"), pdf=True)
 
 
 def _cfs(ctx: R.Ctx) -> dict | None:

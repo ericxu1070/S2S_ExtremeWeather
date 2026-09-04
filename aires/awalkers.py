@@ -241,6 +241,19 @@ def metric_unit(metric: str) -> str:
         "m s$^{-1}$" if "speed" in metric else ("mm" if metric.startswith("tp") else ""))
 
 
+def order_runs(runs: list[dict]) -> list[dict]:
+    """Hardest target first: the cell order of every cross-event slate.
+
+    The ordering is verification-side only - it decides which cell a run is drawn in and
+    never touches a mass - and it is what makes a grid readable as a severity ladder:
+    reach falls off from left to right, and the two runs that cannot answer (Southwest,
+    p90_20231107) sit at the two ends. Runs with no direct baseline (no depth) go last.
+    Shared with `aires.akde` so the two population figures put each run in the same cell.
+    """
+    return sorted(runs, key=lambda r: (-r["sigma_depth"] if np.isfinite(r["sigma_depth"])
+                                       else 99, r["event"], r["tag"]))
+
+
 def _fmt_p(x: float) -> str:
     if not np.isfinite(x):
         return "n/a"
@@ -259,12 +272,7 @@ def plot_walkers(runs: list[dict], out: Path | None = None, ncols: int = 4) -> P
     from matplotlib.lines import Line2D
     from matplotlib.patches import Patch
 
-    # Hardest target first. The ordering is verification-side only - it decides which cell
-    # a run is drawn in and never touches a mass - and it is what makes the grid readable
-    # as a severity ladder: reach falls off from left to right, and the two runs that
-    # cannot answer (Southwest, p90_20231107) sit at the two ends.
-    runs = sorted(runs, key=lambda r: (-r["sigma_depth"] if np.isfinite(r["sigma_depth"])
-                                       else 99, r["event"], r["tag"]))
+    runs = order_runs(runs)
     n = len(runs)
     ncols = max(1, min(ncols, n))
     nrows = int(np.ceil(n / ncols))
