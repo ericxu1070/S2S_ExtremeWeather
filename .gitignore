@@ -45,3 +45,14 @@ us_prob_forecast_2026.h5
 
 # Learn-quiz session state (local study notes, not project code)
 .learn-quiz/
+
+# Vendored Notion export of Vayuh's "Customer Insights (Non-Smooth)" deck (149 PNGs,
+# ~11 MB). Reference material for aires/INSIGHTS_PLAN.md, not project source; keep it
+# out of repo history.
+docs/vayuh_customer_insights/
+
+# The embedded deck: scripts/embed_insights.py inlines 60 figures as data URIs, so the
+# output is ~12 MB and regenerates from the template plus figures/ on demand. Track
+# docs/aires_insights_template.html, not this. Same split as docs/aires_pilot.html, whose
+# embedded form scripts/embed_figs.py writes to a caller-supplied path.
+docs/aires_insights.html
