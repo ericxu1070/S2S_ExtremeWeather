@@ -32,7 +32,7 @@ Visual summaries:
 | 1 - adapter + calibration + Gate 1 | **done on Derecho AND on a3mega** - identical numbers on both |
 | 1 - Gate 2 (forecast equivalence) | **PASS**. Ran on a3mega (Slurm job 1153), re-scored on Derecho from the transferred cubes - identical to the digit. G2a 0.083 K, G2b horizon 8.5 d, G2c 0.990. `aires.md`'s G2b was amended first (endpoint -> horizon); see below |
 | 1 - Gate 3 (score skill, the go/no-go) | **PASS**, a3mega job **1160** (2 h 08 m, one node). rho_s = 0.797 at t_k = 9 d and 0.959 at 12 d, against a 0.5 threshold; persistence scores 0.062 and 0.129 at the same leads. See "What Gate 3 established" |
-| 2 - RES core + C_k tuning | **done**, CPU only. `aires/dmc.py` validated against an analytic Ornstein-Uhlenbeck problem; `aires/ctune.py` replays the schedule on the measured Gate 3 skill curve. `aires.md`'s C_k is **validated as-is**. See "What Phase 2 established" |
+| 2 - RES core + C_k tuning | **done**, CPU only. `aires/dmc.py` validated against an analytic Ornstein-Uhlenbeck problem; `aires/ctune.py` replays the schedule on the measured Gate 3 skill curve. `aires.md`'s C_k is **validated as-is**, and re-checked 2026-09-11 against the "zero `C_2` too, to save its score" proposal - it loses on all three measured events and the loss is not recoverable by tilting harder later. See "What Phase 2 established" and "Why `C_2` is not also zero" |
 | 3 - workers + Slurm driver | **done**, smoke-tested on the hardware (job **1161**, 30.7 min). `aires/run_aires.py`, `slurm/aires_res.slurm`, `slurm/aires_env.sh`. The loop rolled clones, resampled on real FCN3 scores, pruned states, and replayed bit-identically in 2 s. See "What Phase 3 established" |
 | 4 - run the pilot + figures | **done**, job **1172** (7 h 45 m). AI+RES reaches the observed dome (42/64 walkers) where 40 direct GenCast members do not (0/40); P = 0.054. See "What Phase 4 established" |
 | 4b - rebuild the pilot's probabilities as binned PDFs vs ERA5 | **done**, job **1174** (45 s, debug CPU node). The weighted spatial PDF reaches ERA5's tail: box P(point >= +9 K) = 0.0505 vs ERA5's 0.0848, where 24 direct members give 0.0011. See "The pilot's probabilities as binned PDFs" |
@@ -2080,6 +2080,72 @@ were consistent with Gaussian (Shapiro-Wilk p = 0.51), exactly-Gaussian scores a
 finished above target, because consolidating early onto good ancestors leaves the later
 steps less degenerate. `C_k = (0, 1.0, 1.4, 1.8, 2.0)` is confirmed at N=64 on real scores.
 
+### Why `C_2` is not also zero - asked properly, 2026-09-11
+
+`C_1 = 0` is free: the 3 d score has no skill (`rho_3d` = -0.008 / -0.064 / +0.065 on the
+three Gate 3 events), so the first resampling is the identity and buying its score would
+be spending H100-hours on noise. The obvious next move is to zero `C_2` as well - leg 2's
+score is the **longest forecast in the run** (15 d to the peak, 23,040 FCN3 steps, 71.8 min
+of the pilot's 465) and dropping it saves ~10 H100-h of the ~61, about 12%.
+
+**It does not pay, and the reason is measurable rather than aesthetic.** The question turns
+entirely on `rho_6d`, and `ctune --rho-sens` converts it into a crossover by sweeping that
+one number with the rest of each measured curve held fixed:
+
+| | `rho_6d` | crossover | verdict |
+|---|---|---|---|
+| PNW_HeatDome_2021 | **0.612** | ~0.30 | keep |
+| SCentral_HeatDome_2023 | **0.527** | ~0.30 | keep |
+| WinterStorm_Uri_2021 | **0.758** | ~0.30 | keep |
+
+Below `rho_6d ~ 0.3` the 6 d resampling is acting on noise and skipping it wins - clearly
+so at `rho_6d = 0`, where Uri's tail spread at 3.5 sigma is 8.47 keeping against 4.42
+skipping. All three measured events sit well above it. The damage below the crossover is
+not a drift but **occasional blow-ups** (a walker that looks good at 6 d by chance gets
+cloned and the estimate inherits its error), which is why the keep-6d rows go non-monotonic
+at the low end - PNW reads 9.13 at `rho_6d = 0.15` - while the skip-6d rows stay flat.
+
+**Re-tuning the later steps does not buy the loss back.** `ctune --search` scores 84
+monotone schedules with `C_1 = C_2 = 0` and 210 with `C_2` free, by relative RMSE of the
+tail estimate at 3.0/3.5 sigma - the band the reach frontier actually sits in (+2.81 sigma
+Elliott, the deepest reach; +3.3 sigma Southwest, the only miss):
+
+| event | best `C_1=C_2=0` | obj | best `C_2` free | obj | `aires.md` | `skip 6d` |
+|---|---|---|---|---|---|---|
+| PNW | 0,0,2,2.4,2.8 | 3.07 | 0,2,2,2.4,2.8 | **1.92** | 2.19 | 3.44 |
+| SCentral | 0,0,1.6,2.4,2.4 | 2.45 | 0,1.2,1.6,2.4,2.4 | **1.86** | 1.89 | 2.56 |
+| Uri | 0,0,2.4,2.4,2.8 | 2.95 | 0,1.6,2.4,2.4,2.4 | **2.61** | 2.96 | 3.45 |
+
+Three things to carry:
+
+1. **The constrained optimum never beats the frozen schedule** - 40% worse on PNW, 30% on
+   SCentral, a tie on Uri. Raising `C_3..C_5` improves on naive `skip 6d` by only 4%
+   (SCentral), 11% (PNW) and 14% (Uri) - nowhere near closing the gap - so the 6 d tilt is
+   not substitutable by tilting harder later.
+2. **The frozen schedule is already near-optimal on two of three events** (PNW 2.19 vs a
+   best of 1.92; SCentral 1.89 vs 1.86, inside the noise) but **under-tilted on Uri**
+   (2.96 vs 2.61). If any schedule change is ever worth GPU time it is more tilt on the
+   cold events, not less at 6 d.
+3. **The objective is single-purpose and the optima are unhealthy samplers.** Each
+   best-in-family schedule above sits at ESS/N 0.18-0.36 with a largest clone multiplicity
+   of 21-27 of 64 - one walker owning ~40% of the population - against the frozen
+   schedule's 0.58 and 11.1 on PNW. Tail RMSE alone will always push toward collapse; read
+   it next to the ESS column, not instead of it, and note that the surrogate has no way to
+   charge a collapsed population for the physical divergence it would risk in a real run.
+
+**Do not try to widen this to the other six events from their production runs.**
+`ctune.production_skill()` estimates `rho_k` from a finished run by undoing the resampling
+tilt with the importance weights, and `--validate-production` is why it is not used: mean
+|error| **0.263** against Gate 3 where both exist, and PNW at 6 d comes back **-0.369
+against a measured +0.612, a sign flip**. Resampling leaves the 64 final walkers descending
+from ~15 distinct ancestors, so the weighted correlation runs over a handful of distinct
+pairs and attenuates toward zero. Uri agrees to 0.012 - at a weight ESS of 2.2, which is
+luck, and had Uri been the only event checked the estimator would have been licensed. **A
+new event's skill curve costs a Gate 3 run** (~2.2 h, ~18 H100-h); there is no way to read
+one off a production run after the fact. Covering the remaining six events therefore costs
+~108 H100-h of Gate 3 - and ~324 GB of walker states against 256 GB free, so it has to be
+sequenced with pruning, not launched as a batch.
+
 The score drove the population into the tail monotonically: theta = **+1.98, +4.07, +5.57,
 +6.62 K** at 6/9/12/15 d.
 
@@ -2661,6 +2727,10 @@ PYTHONPATH=. python -m pytest aires/tests/ -q            # 133 pass, 1 skipped
 PYTHONPATH=. python -m aires.gate2 --stage score         # GATE 2: PASS, exit 0
 PYTHONPATH=. python -m aires.gate3 --stage reduce        # GATE 3: PASS, exit 0
 PYTHONPATH=. python -m aires.ctune --check               # the surrogate's fit to Gate 3
+PYTHONPATH=. python -m aires.ctune --rho-sens            # how low rho_6d must go before C_2=0 pays
+PYTHONPATH=. python -m aires.ctune --validate-production # why rho cannot be read off a production run
+PYTHONPATH=. python -m aires.ctune --search \
+    --thresholds 3.0,3.5                                 # best schedule with and without C_1=C_2=0
 
 # the pilot: readiness, budget, disk, and the Gate 3 seeding -- must print READY: yes
 PYTHONPATH=. python -m aires.run_aires --stage prep
@@ -2708,7 +2778,7 @@ M = 6, N = 64, states pruned to the last 2 segments, no score bought where `C_k 
 | `aires/score.py` | the FCN3 score function: M forecasts from a walker checkpoint to the peak |
 | `aires/gate3.py` | Gate 3: `--stage {plan,walk,reduce}`, plus the physical check against the xres ensemble |
 | `aires/dmc.py` | the RES core: splitting, pivotal sampling, genealogy, the unbiased estimator |
-| `aires/ctune.py` | replays the C_k schedule on a surrogate calibrated to the Gate 3 skill curve |
+| `aires/ctune.py` | replays the C_k schedule on a surrogate calibrated to the Gate 3 skill curve; `--rho-sens` finds the skill crossover where switching a resampling off starts to pay, `--search` optimises the schedule with and without `C_1 = C_2 = 0`, `--validate-production` records why a finished run cannot supply a skill curve |
 | `aires/aplots.py` | the Phase 4 figures: trajectory, exceedance, diagnostics, genealogy, composite |
 | `aires/cfs.py` | the CFSv2 operational baseline: range-fetches NCEI's archive, regrids to the 0.25 deg CONUS grid, reports `A_L` at the 21 d lead. `--event NAME` / `--all`. Needs internet, no GPU |
 | `aires/apdfs.py` | the pilot's PDFs: `--stage {build,figs,all}` - lineage-stitched walker fields, weighted binned PDFs (CONUS + box), the 3-panel map |
