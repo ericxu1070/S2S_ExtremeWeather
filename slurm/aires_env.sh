@@ -31,8 +31,23 @@ case "$_aires_want" in
     export XRES_SERIAL_INFER=1
     export XRES_BF16=1
     export XRES_INFER_GPUS=1
-    export XLA_PYTHON_CLIENT_PREALLOCATE=false
-    export XLA_PYTHON_CLIENT_MEM_FRACTION=.90
+    # PREALLOCATE used to be false, inherited from the first 0.25 deg xres scripts. With
+    # it false the BFC arena grows piecemeal, so its size when the model first executes is
+    # a function of that process's history. acal array 1209 (2026-09-16) is what that
+    # costs: the FIRST denoiser execution wants a single ~19.6 GiB block, which against a
+    # piecemeal arena is a NEW driver region, and a card already nearly full refuses it
+    # (RESOURCE_EXHAUSTED under executable_name='jit_concatenate', 20 lines of
+    # cuda_executor.cc ladder from 32.00 down to 21.00 GiB, while BFC's own map showed a
+    # ~59 GiB arena a third free). e23_h3_20231228 failed 24 of 24 shard-attempts;
+    # e02_c4_20210218 passed 7 of 8 only because its arena had already grown to fill the
+    # card - which also proves the whole computation fits inside the 72 GB cap.
+    # Preallocating reserves the fraction ONCE at startup: the outcome then depends on
+    # peak use, not on growth history, and a foreign tenant holding the card fails the
+    # shard in seconds at startup instead of minutes into the rollout.
+    # AIRES_XLA_PREALLOCATE=false restores the old behaviour (the test rig uses it as a
+    # control).
+    export XLA_PYTHON_CLIENT_PREALLOCATE=${AIRES_XLA_PREALLOCATE:-true}
+    export XLA_PYTHON_CLIENT_MEM_FRACTION=${AIRES_XLA_MEM_FRACTION:-.90}
     export JAX_CAPTURED_CONSTANTS_WARN_BYTES=-1
     export JAX_COMPILATION_CACHE_DIR="$REPO/runs/models/jax_cache_0p25"
     mkdir -p "$JAX_COMPILATION_CACHE_DIR"

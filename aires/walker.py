@@ -46,6 +46,7 @@ import dataclasses
 import os
 import sys
 from collections import deque
+from datetime import datetime, timezone
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
@@ -110,6 +111,58 @@ def read_state(path) -> xr.Dataset:
     return ds
 
 
+# (allocator key, printed label, is it a byte count). Stable order, widest context
+# first. Which of these a backend actually populates is a PROPERTY OF THE JAX BUILD, not
+# of the run: jax 0.10.2 here reports only ``peak_bytes_in_use``, ``bytes_limit`` and
+# ``num_allocs``. The probe used to print ``st.get(key, 0)`` for all six, so every one of
+# job 1216's 208 lines carried ``in_use=0.00 GiB reserved=0.00 GiB
+# largest_free_block=0.00 GiB`` - which reads as a full arena with nothing allocatable and
+# misled the first analysis of that job. An ABSENT key and a key that is genuinely zero
+# are different facts, so absent keys are omitted rather than printed as 0.
+_MEMSTAT_KEYS = (
+    ("bytes_in_use", "in_use", True),
+    ("peak_bytes_in_use", "peak", True),
+    ("bytes_reserved", "reserved", True),
+    ("bytes_limit", "limit", True),
+    ("largest_free_block_bytes", "largest_free_block", True),
+    ("num_allocs", "num_allocs", False),
+)
+
+
+def _memstats(where: str) -> None:
+    """Env-gated (``AIRES_MEMSTATS=1``) snapshot of device 0's allocator, for the acal
+    array 1209 OOM investigation (acal/HANDOFF.md). No-op otherwise - and deliberately so:
+    ``jax.devices()`` initialises the backend, which a login-node import must not do."""
+    if not os.environ.get("AIRES_MEMSTATS"):
+        return
+    try:
+        import jax
+        st = jax.devices()[0].memory_stats() or {}
+    except Exception as e:                      # CPU backend, or no device
+        print(f"  [memstats {where}] unavailable ({e})", flush=True)
+        return
+    gib = 1.0 / 2 ** 30
+    parts = [(f"{label}={st[key] * gib:.2f} GiB" if is_bytes else f"{label}={st[key]}")
+             for key, label, is_bytes in _MEMSTAT_KEYS if key in st]
+    print(f"  [memstats {where}] " + (" ".join(parts) if parts
+                                      else "no keys reported by this backend"), flush=True)
+
+
+def _stamp() -> str:
+    """``AIRES_MEMSTATS``-gated UTC prefix for the walker's progress lines; ``""`` else.
+
+    Same gate as :func:`_memstats` on purpose. A memory number is only readable against a
+    clock: reconciling job 1216's allocator lines with the 5 s ``nvidia-smi`` sampler and
+    with a foreign tenant's arrival (job 1215 lost all 8 cards 6 s after its guard read
+    them empty) meant aligning two logs that shared no timestamp. Gating it keeps the
+    DEFAULT log format byte-for-byte what every earlier run wrote, so log parsers and
+    line-for-line diffs against banked runs still hold.
+    """
+    if not os.environ.get("AIRES_MEMSTATS"):
+        return ""
+    return datetime.now(timezone.utc).strftime("[%Y-%m-%dT%H:%M:%SZ] ")
+
+
 def _host_materialize(ds: xr.Dataset) -> xr.Dataset:
     """Rebuild ``ds`` with every variable and coordinate pulled to host, one at a time.
 
@@ -121,23 +174,33 @@ def _host_materialize(ds: xr.Dataset) -> xr.Dataset:
     ``Variable.load()`` calls ``to_duck_array()``, sees an already-duck-typed array, and
     hands it back UNCHANGED (verified against the installed xarray: ``to_duck_array``
     special-cases ``is_chunked_array`` for dask, then returns any other duck array as-is).
-    So the ``.compute()`` at the end of ``roll_segment``'s per-step loop is a no-op for
-    this data, and every frame stays on the GPU straight into ``write_state``.
+    So the ``.compute()`` this replaces was a no-op for this data, and every frame stayed
+    device-resident straight into ``to_netcdf``. ``.copy(deep=True)`` is the same story:
+    it copies the wrapper, not the buffer behind it.
 
-    Handing such a Dataset straight to ``ds.to_netcdf()`` leaves it up to xarray/netCDF4
-    to decide how much to pull off the device at once. In production that turned into one
-    fused device-side concatenate (``jit_concatenate``) demanding a single ~19.59 GiB
-    contiguous allocation on top of the ~42 GiB checkpoint already resident on the GPU -
-    the OOM this function exists to prevent. Converting one variable at a time here makes
-    each host transfer its own small op (only that one variable's data need be resident on
-    the device at the moment it is copied), and any concatenation across variables/frames
-    then happens afterwards in plain numpy, on the host, where there is no such ceiling.
+    What this is NOT. It does not prevent the OOM of acal array 1209. That 19.59 GiB
+    request is made during the FIRST predictor execution, before any write - it was a BFC
+    arena EXTENSION the driver refused under ``XLA_PYTHON_CLIENT_PREALLOCATE=false``, and
+    ``jit_concatenate`` in the message names the first CONSUMER of the denoiser's output,
+    not the allocating op (the largest concatenate on the walker/write path is 162 MB).
+    The fix for that lives in ``slurm/aires_env.sh``; see acal/HANDOFF.md, 2026-09-17.
+    What this function does fix is real and separate: device residency of what is written,
+    and an explicit dtype at the netCDF boundary rather than whatever the roll ran in.
     """
     import jax
     from graphcast import xarray_jax
 
     def host(da: xr.DataArray) -> np.ndarray:
         arr = np.asarray(jax.device_get(xarray_jax.unwrap_data(da)))
+        # Upcast sub-32-bit floats. The walker rolls under XRES_BF16=1, and netCDF4 has no
+        # bfloat16 ("unsupported dtype for netCDF4 variable: bfloat16", raised on write) -
+        # so ``write_state``'s "float32, always" has to be enforced here, not assumed.
+        # bfloat16 is an ml_dtypes extension type whose numpy ``kind`` is 'V', not 'f',
+        # so it is matched by name as well; float64 coords are left alone.
+        if (arr.dtype.name == "bfloat16"
+                or arr.dtype == np.float16
+                or (arr.dtype.kind == "f" and arr.dtype.itemsize < 4)):
+            arr = arr.astype(np.float32)
         return arr
 
     data_vars = {name: (da.dims, host(da), dict(da.attrs))
@@ -147,25 +210,46 @@ def _host_materialize(ds: xr.Dataset) -> xr.Dataset:
     return xr.Dataset(data_vars, coords=coords, attrs=dict(ds.attrs))
 
 
-def write_state(ds: xr.Dataset, path, *, compress: bool = True) -> Path:
-    """Atomically write a restart state.
+def _write_nc(ds: xr.Dataset, path, *, compress: bool = True) -> Path:
+    """Write ``ds`` atomically, leaving no partial file behind when the write fails.
 
-    float32, always. aires.md floats float16 for archived states to halve the ~0.70 GB
-    footprint; that is unsafe here and must not be adopted without a per-variable
-    encoding: ``geopotential`` at 50 hPa is ~2.0e5 m2 s-2, well past float16's 65504
-    ceiling, so the archive would silently store ``inf`` for the top of every column.
-    zlib on float32 is the safe halving (netCDF ``scale_factor``/``add_offset`` int16
-    packing would be the principled alternative).
+    The temp name carries the pid because a shard pool writes into one shared tree. The
+    ``try`` is what was missing: when a write died mid-``to_netcdf`` (acal array 1209),
+    netCDF4 had already created the file, so the failure left a header-only
+    ``<name>.nc.tmp.<pid>`` orphan - 25 of them, ~9.7 kB apiece (24 at exactly 9,786 B) -
+    that nothing ever cleans up and no later run can use. ``BaseException``, not ``Exception``, because a walltime
+    ``SIGTERM`` or a Ctrl-C mid-write leaves exactly the same litter.
     """
-    check_state(ds, where=str(path))
-    ds = _host_materialize(ds)
     path = Path(path)
     path.parent.mkdir(parents=True, exist_ok=True)
     enc = ({v: {"zlib": True, "complevel": 4} for v in ds.data_vars} if compress else None)
     tmp = path.with_suffix(f".nc.tmp.{os.getpid()}")
-    ds.to_netcdf(tmp, encoding=enc)
-    os.replace(tmp, path)
+    try:
+        ds.to_netcdf(tmp, encoding=enc)
+        os.replace(tmp, path)
+    except BaseException:
+        tmp.unlink(missing_ok=True)
+        raise
     return path
+
+
+def write_state(ds: xr.Dataset, path, *, compress: bool = True) -> Path:
+    """Atomically write a restart state.
+
+    float32, always - including when the segment rolled in bf16: ``_host_materialize``
+    upcasts every sub-32-bit float on the way out, which is what makes that claim true
+    rather than merely intended (netCDF4 has no bfloat16 type at all). Narrower floats are
+    not an option even where netCDF supports them: aires.md floats float16 for archived
+    states to halve the ~0.70 GB footprint, but ``geopotential`` at 50 hPa is ~2.0e5
+    m2 s-2, well past float16's 65504 ceiling, so the archive would silently store ``inf``
+    for the top of every column. zlib on float32 is the safe halving (netCDF
+    ``scale_factor``/``add_offset`` int16 packing would be the principled alternative).
+    """
+    check_state(ds, where=str(path))
+    _memstats("write_state:before")
+    ds = _host_materialize(ds)
+    _memstats("write_state:after")
+    return _write_nc(ds, path, compress=compress)
 
 
 def initial_state(event: str, **kw) -> xr.Dataset:
@@ -296,8 +380,11 @@ def roll_segment(bundle: dict, state: xr.Dataset, n_steps: int, key, *,
                  label: str = ""):
     """Roll ``n_steps`` from ``state``; return (next global 2-frame state, diagnostics).
 
-    Memory: the ring buffer holds two GLOBAL frames (~0.70 GB total) and nothing else
-    global survives a loop iteration.
+    Memory: each step's global frame is pulled to HOST (``_host_materialize``) and the
+    ring keeps the last two of them, ~0.70 GB of host RAM; nothing else global survives a
+    loop iteration. That bounds THIS function's footprint, not the device's - graphcast's
+    rollout holds whatever device-side state it needs to produce the next step either way,
+    so do not read the ring's 0.70 GB as a statement about GPU memory.
     """
     from graphcast import rollout
     from gencast_s2s import config as C
@@ -316,7 +403,13 @@ def roll_segment(bundle: dict, state: xr.Dataset, n_steps: int, key, *,
     done = 0
     for chunk in gen:
         g = chunk.isel(sample=0, drop=True) if "sample" in chunk.dims else chunk
-        g = _tidy(_to_valid_time(g, init)).compute()      # the one global materialisation
+        # The one place a rollout frame leaves the device - and it has to be an explicit
+        # host transfer: ``.compute()`` here was a no-op on a JaxArrayWrapper (see
+        # ``_host_materialize``). It is NOT "the one global materialisation": graphcast's
+        # rollout keeps its own device copies to feed the next step. What it buys is that
+        # the ring and the diag crops below hold HOST arrays, so nothing retained here can
+        # pin a global device buffer alive.
+        g = _host_materialize(_tidy(_to_valid_time(g, init)))
         ring.append(g)
         if crop:
             # .sel with slices is BASIC indexing -> a view that pins the whole global
@@ -325,12 +418,13 @@ def roll_segment(bundle: dict, state: xr.Dataset, n_steps: int, key, *,
             diag.append(g.sel(lat=C.LAT, lon=C.LON).copy(deep=True))
         done += 1
         if verbose:
-            print(f"  [walker{label}] step {done}/{n_steps}  valid "
+            print(f"  {_stamp()}[walker{label}] step {done}/{n_steps}  valid "
                   f"{pd.DatetimeIndex(g['time'].values)[-1]}", flush=True)
         del chunk, g
 
     if done != n_steps:
         raise RuntimeError(f"segment produced {done}/{n_steps} steps")
+    _memstats(f"roll_segment{label}:after-loop")
 
     nxt = _tidy(xr.concat(list(ring), dim="time", coords="minimal", compat="override"))
     nxt = xr.merge([nxt, statics(state)], compat="override")
@@ -395,14 +489,16 @@ def run_segment(get_bundle, event: str, walker: int, step: int, n_steps: int, *,
                      resolution=A.WALKER_RES)
     sp.parent.mkdir(parents=True, exist_ok=True)
     write_state(nxt, sp)
-    print(f"  [walker] wrote {sp} ({sp.stat().st_size/1e6:.0f} MB), valid {valid_time(nxt)}")
+    print(f"  {_stamp()}[walker] wrote {sp} ({sp.stat().st_size/1e6:.0f} MB), "
+          f"valid {valid_time(nxt)}")
     if cube is not None:
         cube.attrs.update(nxt.attrs)
-        tmp = dp.with_suffix(f".nc.tmp.{os.getpid()}")
-        cube.to_netcdf(tmp, encoding={v: {"zlib": True, "complevel": 4}
-                                      for v in cube.data_vars})
-        os.replace(tmp, dp)
-        print(f"  [walker] wrote {dp} ({dp.stat().st_size/1e6:.0f} MB, "
+        # The diag cube is the second device->netCDF write, and it was the one left
+        # behind: ``.copy(deep=True)`` on the crop copies the JaxArrayWrapper, not the
+        # buffer, so this reached netCDF4 exactly as device-resident as the state did.
+        cube = _host_materialize(cube)
+        _write_nc(cube, dp)
+        print(f"  {_stamp()}[walker] wrote {dp} ({dp.stat().st_size/1e6:.0f} MB, "
               f"{cube.sizes['time']} steps)")
     return dict(state=sp, diag=dp if cube is not None else None, rolled=True)
 

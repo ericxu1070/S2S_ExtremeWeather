@@ -164,10 +164,12 @@ def test_jax_state_fixture_is_device_resident():
 
 
 def test_host_materialize_strips_the_jax_wrapper():
-    """The core of the OOM fix: every DATA VARIABLE must be a plain numpy array -- not a
-    ``JaxArrayWrapper``, not a bare ``jax.Array`` -- BEFORE ``to_netcdf`` ever sees the
-    dataset, so any concatenation ``to_netcdf`` triggers happens in host numpy, never as
-    one large fused device-side op. Coordinates are checked the same way, EXCEPT that a
+    """Every DATA VARIABLE must be a plain numpy array -- not a ``JaxArrayWrapper``, not a
+    bare ``jax.Array`` -- BEFORE ``to_netcdf`` ever sees the dataset, so what is written is
+    host memory and nothing on the write path can touch a device buffer. (This is NOT what
+    prevents array 1209's 19.59 GiB OOM; that one is an arena extension during the first
+    predictor execution -- see ``walker._host_materialize`` and ``slurm/aires_env.sh``.)
+    Coordinates are checked the same way, EXCEPT that a
     dimension coordinate (``time``/``lat``/``lon``/``level`` all are) is always rewrapped
     by xarray itself into an index-backed ``PandasIndexingAdapter`` once it is set as an
     index -- that happens for ANY Dataset, jax-derived or not, and is itself already
@@ -204,6 +206,121 @@ def test_write_state_round_trips_a_jax_backed_state(tmp_path):
     for v, want in expected.items():
         assert back[v].dtype == np.float32
         assert np.array_equal(back[v].values, want, equal_nan=True), v
+
+
+def test_host_materialize_upcasts_sub32_floats(tmp_path):
+    """``write_state`` promises "float32, always"; the walker rolls under ``XRES_BF16=1``,
+    so a sub-32-bit float reaching ``to_netcdf`` is a live path, not a hypothetical --
+    and netCDF4 has no float16/bfloat16 at all. Only FLOATS narrower than 32 bits move:
+    an int stays an int and a float64 coord is not downcast behind the caller's back."""
+    import jax.numpy as jnp
+    from graphcast import xarray_jax as XJ
+
+    ds = XJ.Dataset(
+        {"half": (("y", "x"), jnp.asarray(np.ones((2, 3), dtype=np.float16))),
+         "full": (("y", "x"), jnp.asarray(np.ones((2, 3), dtype=np.float32))),
+         "count": (("y", "x"), np.arange(6, dtype="int32").reshape(2, 3))},
+        coords=dict(y=np.array([0.0, 1.0], dtype=np.float64), x=np.arange(3)))
+
+    out = W._host_materialize(ds)
+    assert out["half"].dtype == np.float32
+    assert out["full"].dtype == np.float32
+    assert out["count"].dtype == np.int32
+    assert out["y"].dtype == np.float64
+    assert np.array_equal(out["half"].values, np.ones((2, 3), dtype=np.float32))
+    W._write_nc(out, tmp_path / "u.nc", compress=False)      # and it survives netCDF
+
+
+def test_host_materialize_upcasts_bfloat16(tmp_path):
+    """bfloat16 is the one that actually bites: it is an ml_dtypes extension type whose
+    numpy ``kind`` is ``'V'``, not ``'f'``, so an itemsize-and-kind test alone misses it
+    and ``to_netcdf`` raises "unsupported dtype for netCDF4 variable: bfloat16"."""
+    import jax.numpy as jnp
+    from graphcast import xarray_jax as XJ
+
+    try:
+        bf = jnp.ones((2, 3), dtype=jnp.bfloat16)
+    except Exception as e:                                   # pragma: no cover
+        pytest.skip(f"no bfloat16 on this backend: {e}")
+    assert np.dtype(bf.dtype).kind != "f", "the 'V' kind is why this test exists"
+
+    ds = XJ.Dataset({"bf": (("y", "x"), bf)},
+                    coords=dict(y=np.arange(2.0), x=np.arange(3.0)))
+    with pytest.raises(ValueError, match="bfloat16"):         # what we are preventing
+        ds.to_netcdf(tmp_path / "raw.nc")
+
+    out = W._host_materialize(ds)
+    assert out["bf"].dtype == np.float32
+    p = W._write_nc(out, tmp_path / "bf.nc", compress=False)
+    assert xr.open_dataset(p)["bf"].dtype == np.float32
+
+
+def test_write_nc_removes_tmp_on_failure(tmp_path, monkeypatch):
+    """acal array 1209 left 25 header-only ``state.nc.tmp.<pid>`` orphans, ~9.7 kB apiece:
+    netCDF4 had already created the file when the write died, and nothing cleaned up. The
+    failure must still propagate -- a swallowed write error is worse than the litter."""
+    ds = xr.Dataset({"a": (("x",), np.arange(4, dtype="float32"))})
+    real = xr.Dataset.to_netcdf
+
+    def boom(self, path=None, *a, **kw):
+        real(self, path, *a, **kw)          # create the file, exactly as the real one did
+        raise MemoryError("RESOURCE_EXHAUSTED: simulated")
+
+    monkeypatch.setattr(xr.Dataset, "to_netcdf", boom)
+    with pytest.raises(MemoryError):
+        W._write_nc(ds, tmp_path / "state.nc")
+    assert list(tmp_path.iterdir()) == [], sorted(q.name for q in tmp_path.iterdir())
+
+
+def test_write_nc_happy_path_leaves_only_the_target(tmp_path):
+    ds = xr.Dataset({"a": (("x",), np.arange(4, dtype="float32"))}, attrs=dict(m="ok"))
+    p = W._write_nc(ds, tmp_path / "sub" / "state.nc")
+    assert p == tmp_path / "sub" / "state.nc"
+    assert [q.name for q in p.parent.iterdir()] == ["state.nc"]
+    back = xr.open_dataset(p).load()
+    assert back.attrs["m"] == "ok"
+    assert np.array_equal(back["a"].values, np.arange(4, dtype="float32"))
+
+
+def test_run_segment_writes_the_diag_cube_through_host_materialize(tmp_path, monkeypatch):
+    """The OTHER unmaterialised write, and the one a678a66 missed. ``run_segment`` wrote
+    ``diag.nc`` with a bare ``cube.to_netcdf`` + ``os.replace``: the crop's
+    ``.copy(deep=True)`` copies the ``JaxArrayWrapper``, not the buffer behind it, so the
+    diag cube reached netCDF4 exactly as device-resident as the state did, with no tmp
+    cleanup either.
+
+    ``roll_segment`` is faked, not run -- a real one needs the 0.25 deg checkpoint and a
+    GPU. What is under test is everything ``run_segment`` does with its RESULT.
+    """
+    import jax.numpy as jnp
+    from graphcast import xarray_jax as XJ
+
+    monkeypatch.setattr(A, "AIRES_ROOT", tmp_path)
+    monkeypatch.setattr(W, "read_state", lambda p: _jax_state(seed=3, n_levels=1))
+
+    nxt = _jax_state(seed=11, n_levels=1)
+    t = np.array([pd.Timestamp("2021-06-06T12"), pd.Timestamp("2021-06-07T00")],
+                 dtype="datetime64[ns]")
+    cube = XJ.Dataset(
+        {"2m_temperature": (("time", "lat", "lon"),
+                            jnp.asarray(np.arange(24, dtype="float32").reshape(2, 3, 4)))},
+        coords=dict(time=t, lat=np.arange(3.0), lon=np.arange(4.0),
+                    lead_h=("time", np.array([12, 24], dtype="int32"))))
+    monkeypatch.setattr(W, "roll_segment", lambda *a, **k: (nxt, cube))
+
+    sp, dp = tmp_path / "seg" / "state.nc", tmp_path / "seg" / "diag.nc"
+    out = W.run_segment(lambda: {}, "EV", 0, 1, 2, parent_state=tmp_path / "parent.nc",
+                        state_path=sp, diag_path=dp)
+    assert out["rolled"] and out["state"] == sp and out["diag"] == dp
+
+    back = xr.open_dataset(dp).load()
+    assert type(back["2m_temperature"].variable._data) is np.ndarray
+    assert back["2m_temperature"].dtype == np.float32
+    assert np.array_equal(back["2m_temperature"].values,
+                          np.arange(24, dtype="float32").reshape(2, 3, 4))
+    assert back["lead_h"].values.tolist() == [12, 24]        # non-dim coord survives
+    assert back.attrs["event"] == "EV" and back.attrs["walker"] == 0
+    assert sorted(q.name for q in dp.parent.iterdir()) == ["diag.nc", "state.nc"]
 
 
 def test_float16_would_overflow_geopotential(state):
