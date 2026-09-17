@@ -509,6 +509,9 @@ not already in the config need a `+` prefix — e.g. `+stats.n_samples=500` for
 
 ### Downscaler constraints that bite
 
+- **HRRR 2019-2021 WAS DELETED 2026-09-14** (383 GB, for the acal campaign) - the index and
+  norm stats are stale and training will crash at the first batch until rebuilt. See
+  `downscaler/docs/HRRR_GAP.md`.
 - **Real data is on disk and `use_dummy: false` is now the default.** ERA5 (16,072 files)
   and HRRR (16,019 files, `hrrr_nc_v3_rebuilt/`) both cover 2015–2025 6-hourly, and the
   config's paths/coord names/variable names are verified against them. `use_dummy=true`
