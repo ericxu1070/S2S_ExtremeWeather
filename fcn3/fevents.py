@@ -295,12 +295,67 @@ RES_EVENTS: dict[str, Event] = {
 }
 RES_ORDER = tuple(RES_EVENTS)
 
+
+# --------------------------------------------------------------------------- #
+# acal calibration cases (`acal/`, the rare-event probability calibration campaign).
+#
+# These are NOT curated events. They are the output of a frozen SELECTION RULE -- every
+# CONUS-wide 7-day T2m anomaly crossing +/-2, 3, 4 K over 2021-2025, declustered -- so
+# they are loaded from acal's catalog rather than written out here: the CSV is the single
+# source of truth and a hand-copied duplicate would rot the moment the rule changes.
+#
+# Three invariants this must not break, all of which APPENDING preserves:
+#
+#   seeds    `seed_for` is BASE_SEED + 1000 * SEED_ORDER.index(name). Every cached cube on
+#            disk was rolled with the seed its POSITION gave it, so inserting anywhere but
+#            the end would silently re-seed all 14 existing events and stop the caches
+#            matching what the code reproduces. ALL_ORDER and RES_ORDER stay prefixes.
+#   figures  `selected()` is what run_fcn3.py and compare_fcn3_gencast.py iterate. These
+#            are deliberately absent from ORDER/ALL_ORDER, so no published figure gains
+#            42 panels.
+#   boxes    `aires.aindex.box_for` falls back to CONUS for an unregistered name, which is
+#            CORRECT here: the slate was selected on the CONUS-wide mean, so the CONUS box
+#            IS each case's index. aindex.py needs no acal entry and gets none.
+#
+# `family` is the one field that changes behaviour rather than labelling: it drives
+# `Event.cold` -> `aires.aindex.tail_sign`, so the 11 cold cases resample the NEGATIVE
+# tail. It is read from the catalog, not inferred from the name.
+#
+# Absent catalog -> empty dict, so this module still imports on a box that has no acal
+# tree (Derecho, a fresh clone) instead of failing at import time.
+# --------------------------------------------------------------------------- #
+ACAL_CATALOG = (Path(__file__).resolve().parents[1]
+                / "runs" / "acal" / "catalog" / "conus_episodes_21d_2021_2025.csv")
+
+
+def _load_acal_events(path: Path = ACAL_CATALOG) -> dict[str, Event]:
+    """The calibration slate as `Event` records, ordered by case id (== peak order)."""
+    if not path.exists():
+        return {}
+    df = pd.read_csv(path).sort_values("episode_id")
+    out: dict[str, Event] = {}
+    for r in df.itertuples():
+        if r.family not in ("heat", "cold"):
+            raise SystemExit(f"{path.name}: case {r.episode_id} has family {r.family!r}; "
+                             f"acal cases are heat or cold only (family drives tail_sign)")
+        out[r.episode_id] = Event(
+            r.episode_id, str(r.peak), "t2m_anom", r.family,
+            f"acal {r.episode_id[:3]} {r.peak} ({r.a_l_conus:+.1f} K)", "aires",
+            f"acal calibration case; CONUS-wide A_L {r.a_l_conus:+.3f} K, "
+            f"rung {int(r.rung)} K, strongest box {r.box} at {r.box_a_l:+.2f} K")
+    return out
+
+
+ACAL_EVENTS: dict[str, Event] = _load_acal_events()
+ACAL_ORDER = tuple(ACAL_EVENTS)
+
 # The seed space. ALL_ORDER is a PREFIX, so indices 0..9 -- and every seed the native and
-# adapter cubes on disk were rolled with -- are unchanged; the extension takes 10, 11, 12.
-SEED_ORDER = ALL_ORDER + RES_ORDER
+# adapter cubes on disk were rolled with -- are unchanged; the extension takes 10, 11, 12,
+# 13 and the acal calibration slate takes 14+. Appending only; see the acal block above.
+SEED_ORDER = ALL_ORDER + RES_ORDER + ACAL_ORDER
 
 # Everything any driver in this repo may resolve by name.
-KNOWN: dict[str, Event] = {**ALL_EVENTS, **RES_EVENTS}
+KNOWN: dict[str, Event] = {**ALL_EVENTS, **RES_EVENTS, **ACAL_EVENTS}
 KNOWN_ORDER = SEED_ORDER
 
 
