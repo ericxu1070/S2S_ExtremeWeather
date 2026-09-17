@@ -110,6 +110,43 @@ def read_state(path) -> xr.Dataset:
     return ds
 
 
+def _host_materialize(ds: xr.Dataset) -> xr.Dataset:
+    """Rebuild ``ds`` with every variable and coordinate pulled to host, one at a time.
+
+    A state fresh off ``roll_segment`` is still device-resident: each prognostic
+    ``DataArray``'s ``.data`` is an ``xarray_jax.JaxArrayWrapper`` around a jax array that
+    has never been copied to host. ``Dataset.compute()``/``.load()`` does NOT do that copy
+    - ``JaxArrayWrapper`` satisfies xarray's NEP-18 duck-array protocol (it implements
+    ``__array_function__``/``__array_ufunc__``, ``xarray_jax.py:442-466``), so
+    ``Variable.load()`` calls ``to_duck_array()``, sees an already-duck-typed array, and
+    hands it back UNCHANGED (verified against the installed xarray: ``to_duck_array``
+    special-cases ``is_chunked_array`` for dask, then returns any other duck array as-is).
+    So the ``.compute()`` at the end of ``roll_segment``'s per-step loop is a no-op for
+    this data, and every frame stays on the GPU straight into ``write_state``.
+
+    Handing such a Dataset straight to ``ds.to_netcdf()`` leaves it up to xarray/netCDF4
+    to decide how much to pull off the device at once. In production that turned into one
+    fused device-side concatenate (``jit_concatenate``) demanding a single ~19.59 GiB
+    contiguous allocation on top of the ~42 GiB checkpoint already resident on the GPU -
+    the OOM this function exists to prevent. Converting one variable at a time here makes
+    each host transfer its own small op (only that one variable's data need be resident on
+    the device at the moment it is copied), and any concatenation across variables/frames
+    then happens afterwards in plain numpy, on the host, where there is no such ceiling.
+    """
+    import jax
+    from graphcast import xarray_jax
+
+    def host(da: xr.DataArray) -> np.ndarray:
+        arr = np.asarray(jax.device_get(xarray_jax.unwrap_data(da)))
+        return arr
+
+    data_vars = {name: (da.dims, host(da), dict(da.attrs))
+                for name, da in ds.data_vars.items()}
+    coords = {name: (da.dims, host(da), dict(da.attrs))
+             for name, da in ds.coords.items()}
+    return xr.Dataset(data_vars, coords=coords, attrs=dict(ds.attrs))
+
+
 def write_state(ds: xr.Dataset, path, *, compress: bool = True) -> Path:
     """Atomically write a restart state.
 
@@ -121,6 +158,7 @@ def write_state(ds: xr.Dataset, path, *, compress: bool = True) -> Path:
     packing would be the principled alternative).
     """
     check_state(ds, where=str(path))
+    ds = _host_materialize(ds)
     path = Path(path)
     path.parent.mkdir(parents=True, exist_ok=True)
     enc = ({v: {"zlib": True, "complevel": 4} for v in ds.data_vars} if compress else None)
