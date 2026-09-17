@@ -1,0 +1,7 @@
+2026-09-17T10:51:27Z watching nucla3m-a3meganodeset-{0,1,2,3,4,5,6,7} for a node with 8 cards all < 1000 MB
+2026-09-17T10:51:27Z will submit: sbatch --nodelist=<node> slurm/acal_walktest.slurm
+2026-09-17T10:51:33Z round 1: node0=busy(61-64G) node1=busy(61-64G) node2=busy(34-78G) node3=busy(32-78G) node4=busy(64-67G) node5=busy(34-79G) node6=busy(61-63G) node7=partial(6/8,0-72G)
+2026-09-17T10:58:59Z round 10: node0=busy(61-64G) node1=busy(61-65G) node2=busy(34-78G) node3=busy(32-78G) node4=busy(65-71G) node5=busy(34-79G) node6=busy(61-63G) node7=partial(6/8,0-72G)
+2026-09-17T11:07:16Z round 20: node0=busy(61-64G) node1=busy(61-64G) node2=busy(34-78G) node3=busy(32-78G) node4=busy(68-71G) node5=busy(34-79G) node6=busy(61-63G) node7=partial(6/8,0-72G)
+2026-09-17T11:15:34Z round 30: node0=busy(61-64G) node1=busy(61-64G) node2=busy(34-78G) node3=busy(32-78G) node4=busy(62-65G) node5=busy(34-79G) node6=busy(61-63G) node7=partial(6/8,0-72G)
+SUBMITTED job=1215 node=1 at 2026-09-17T11:16:20Z survey=0,0,0,0,0,0,0,0
