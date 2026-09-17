@@ -114,6 +114,98 @@ def test_write_state_rejects_a_cropped_state(tmp_path, state):
         W.write_state(state.isel(lat=slice(0, 105), lon=slice(0, 237)), tmp_path / "x.nc")
 
 
+def _jax_state(seed: int = 0, n_levels: int = 2) -> xr.Dataset:
+    """A small, GLOBAL, jax-BACKED 2-frame state, shaped like a real walker checkpoint.
+
+    ``check_state`` does not look at the ``level`` dimension's size, so ``n_levels`` is
+    kept tiny (2, not the real 13) to keep this fast and hermetic - no GPU, no checkpoint,
+    no run data on disk. ``lat``/``lon`` cannot be shrunk the same way: they are exactly
+    what ``check_state`` asserts against.
+    """
+    import jax.numpy as jnp
+    from graphcast import xarray_jax as XJ
+
+    rng = np.random.default_rng(seed)
+    nlat, nlon = A.STATE_NLAT, A.STATE_NLON
+    lat = np.linspace(-90, 90, nlat)
+    lon = np.linspace(0, 359.75, nlon, endpoint=False)
+    level = np.asarray(A.P13[:n_levels])
+    t0 = pd.Timestamp("2021-06-06T00")
+    time = np.array([t0, t0 + pd.Timedelta(hours=W.STEP_H)], dtype="datetime64[ns]")
+
+    def arr(*shape):
+        return jnp.asarray(rng.standard_normal(shape).astype("float32"))
+
+    level_vars = {"geopotential", "specific_humidity", "temperature",
+                 "u_component_of_wind", "v_component_of_wind", "vertical_velocity"}
+    data_vars = {}
+    for v in A.STATE_PROGNOSTIC:
+        if v in level_vars:
+            data_vars[v] = (("time", "level", "lat", "lon"),
+                            arr(2, n_levels, nlat, nlon), {"long_name": v})
+        else:
+            data_vars[v] = (("time", "lat", "lon"), arr(2, nlat, nlon), {"long_name": v})
+    for v in A.STATE_STATIC:
+        data_vars[v] = (("lat", "lon"), arr(nlat, nlon), {"long_name": v})
+
+    return XJ.Dataset(
+        data_vars, coords=dict(time=time, level=level, lat=lat, lon=lon),
+        attrs=dict(event="unit-test", walker=0, step=1))
+
+
+def test_jax_state_fixture_is_device_resident():
+    """Sanity check on the fixture itself: it must actually exercise the failure mode -
+    a state still backed by ``JaxArrayWrapper``, not a plain numpy array."""
+    from graphcast import xarray_jax as XJ
+
+    ds = _jax_state()
+    for v in A.STATE_PROGNOSTIC + A.STATE_STATIC:
+        assert isinstance(ds[v].variable._data, XJ.JaxArrayWrapper), v
+
+
+def test_host_materialize_strips_the_jax_wrapper():
+    """The core of the OOM fix: every DATA VARIABLE must be a plain numpy array -- not a
+    ``JaxArrayWrapper``, not a bare ``jax.Array`` -- BEFORE ``to_netcdf`` ever sees the
+    dataset, so any concatenation ``to_netcdf`` triggers happens in host numpy, never as
+    one large fused device-side op. Coordinates are checked the same way, EXCEPT that a
+    dimension coordinate (``time``/``lat``/``lon``/``level`` all are) is always rewrapped
+    by xarray itself into an index-backed ``PandasIndexingAdapter`` once it is set as an
+    index -- that happens for ANY Dataset, jax-derived or not, and is itself already
+    host-only, so asserting literal ``np.ndarray`` there would be asserting an xarray
+    implementation detail unrelated to this fix."""
+    from graphcast import xarray_jax as XJ
+
+    ds = W._host_materialize(_jax_state())
+    for v in A.STATE_PROGNOSTIC + A.STATE_STATIC:
+        assert type(ds[v].variable._data) is np.ndarray, (v, type(ds[v].variable._data))
+        assert ds[v].dtype == np.float32
+    for c in ("time", "lat", "lon", "level"):
+        assert not isinstance(ds[c].variable._data, XJ.JaxArrayWrapper), c
+        assert isinstance(ds[c].values, np.ndarray), c
+
+
+def test_write_state_round_trips_a_jax_backed_state(tmp_path):
+    """The actual bug: a state fresh off ``roll_segment`` (jax-backed, device-resident)
+    must write and read back correctly, with no GPU involved. This is what
+    ``test_state_round_trip`` below does NOT cover - that one starts from
+    ``read_state``, which is already numpy, so it never touches the code path that OOM'd
+    (a still-device-resident dataset reaching ``ds.to_netcdf`` for the first time)."""
+    import jax
+    from graphcast import xarray_jax as XJ
+
+    ds = _jax_state(seed=7)
+    expected = {v: np.asarray(jax.device_get(XJ.unwrap_data(ds[v])))
+               for v in A.STATE_PROGNOSTIC + A.STATE_STATIC}
+
+    p = W.write_state(ds, tmp_path / "state.nc")
+    back = xr.open_dataset(p).load()
+    W.check_state(back)
+    assert back.attrs["event"] == "unit-test"
+    for v, want in expected.items():
+        assert back[v].dtype == np.float32
+        assert np.array_equal(back[v].values, want, equal_nan=True), v
+
+
 def test_float16_would_overflow_geopotential(state):
     """Why write_state is float32: aires.md proposed float16 for archived states.
 
