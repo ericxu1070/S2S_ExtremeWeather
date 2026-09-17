@@ -1,0 +1,131 @@
+Host:  nucla3m-a3meganodeset-1
+Start: Thu Sep 17 11:19:49 UTC 2026
+HEAD:  1c09559 dirty=13 files
+--- walker env in effect ---
+AIRES_MEMSTATS=1
+AIRES_M_MEMBERS=6
+AIRES_NSHARDS=8
+AIRES_N_WALKERS=32
+JAX_CAPTURED_CONSTANTS_WARN_BYTES=-1
+JAX_COMPILATION_CACHE_DIR=/home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/models/jax_cache_0p25
+XLA_PYTHON_CLIENT_MEM_FRACTION=.90
+XLA_PYTHON_CLIENT_PREALLOCATE=true
+XRES_BF16=1
+XRES_INFER_GPUS=1
+XRES_SERIAL_INFER=1
+----------------------------
+--- cards at startup (index, MB used) ---
+0, 0
+1, 0
+2, 0
+3, 0
+4, 0
+5, 0
+6, 0
+7, 0
+gpu sampler pid=2554714 -> /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/logs/acal_walktest_gpumem_1216.csv
+
+=== POOL A  event=e23_h3_20231228  preallocate=true  Thu Sep 17 11:19:50 UTC 2026 ===
+AI+RES acal - e23_h3_20231228  (init 2023-12-07, peak 2023-12-28, metric t2m_anom)
+e23_h3_20231228: primary box CONUS (24-50N, 125W-66W)
+    the whole verification window; what Gate 2 used
+
+  N walkers        32
+  score backend    fcn3   M = 6
+  tail             HIGH (clone the largest A_L)
+  C_k              0, 1, 1.4, 1.8, 2 at 3 d, 6 d, 9 d, 12 d, 15 d
+  legs
+    1: 0 -> 3 d, segments [1], C = 0
+    2: 3 -> 6 d, segments [2], C = 1
+    3: 6 -> 9 d, segments [3], C = 1.4
+    4: 9 -> 12 d, segments [4], C = 1.8
+    5: 12 -> 15 d, segments [5], C = 2
+    6: 15 -> 21 d, segments [6, 7], carry to the horizon (no resampling)
+
+  prerequisites
+    walker init frames  OK   /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/xres/0p25/week3/inputs/e23_h3_20231228_inputs.nc
+    derived calibration OK   /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/aires/calib/derived_calib.nc
+    xres reference cube absent   /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/xres/0p25/week3/cache/e23_h3_20231228_cube.nc   (physical check on the first segment; not required)
+
+  cached            0/224 walker segments, 0/128 score cubes (0 states resident)
+
+  budget            walk 1,344 GenCast steps ~19.4 GPU-h (~146 min over 8 GPUs)
+                    score 32,256 FCN3 steps ~12.5 GPU-h (~94 min over 8 GPUs)
+                    total ~32.0 H100-h, ~4.0 h wall on one node
+
+  disk              states 46 GB peak (3 segments resident x 32 x 477 MB, --keep-states 2), diagnostics 8 GB, score cubes 1 GB
+                    ~55 GB needed, 509 GB free
+
+  configuration frozen at /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/aires/e23_h3_20231228/res/acal/run.json
+
+  READY: yes
+--- pool A walk leg 1: Thu Sep 17 11:19:54 UTC 2026
+--- cards at pool A launch (index, MB used) ---
+0, 0
+1, 0
+2, 0
+3, 0
+4, 0
+5, 0
+6, 0
+7, 0
+  [walk-leg01] attempt 1/1: 8 shard(s)
+--- pool A rc=0  1190s  states=32/32  Thu Sep 17 11:39:44 UTC 2026
+
+=== POOL B  event=e12_c3_20221121  preallocate=false  Thu Sep 17 11:39:50 UTC 2026 ===
+AI+RES acal - e12_c3_20221121  (init 2022-10-31, peak 2022-11-21, metric t2m_anom)
+e12_c3_20221121: primary box CONUS (24-50N, 125W-66W)
+    the whole verification window; what Gate 2 used
+
+  N walkers        32
+  score backend    fcn3   M = 6
+  tail             LOW (cold event: clone the most negative A_L)
+  C_k              0, 1, 1.4, 1.8, 2 at 3 d, 6 d, 9 d, 12 d, 15 d
+  legs
+    1: 0 -> 3 d, segments [1], C = 0
+    2: 3 -> 6 d, segments [2], C = 1
+    3: 6 -> 9 d, segments [3], C = 1.4
+    4: 9 -> 12 d, segments [4], C = 1.8
+    5: 12 -> 15 d, segments [5], C = 2
+    6: 15 -> 21 d, segments [6, 7], carry to the horizon (no resampling)
+
+  prerequisites
+    walker init frames  OK   /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/xres/0p25/week3/inputs/e12_c3_20221121_inputs.nc
+    derived calibration OK   /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/aires/calib/derived_calib.nc
+    xres reference cube absent   /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/xres/0p25/week3/cache/e12_c3_20221121_cube.nc   (physical check on the first segment; not required)
+
+  cached            0/224 walker segments, 0/128 score cubes (0 states resident)
+
+  budget            walk 1,344 GenCast steps ~19.4 GPU-h (~146 min over 8 GPUs)
+                    score 32,256 FCN3 steps ~12.5 GPU-h (~94 min over 8 GPUs)
+                    total ~32.0 H100-h, ~4.0 h wall on one node
+
+  disk              states 46 GB peak (3 segments resident x 32 x 477 MB, --keep-states 2), diagnostics 8 GB, score cubes 1 GB
+                    ~55 GB needed, 493 GB free
+
+  configuration frozen at /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/aires/e12_c3_20221121/res/acal/run.json
+
+  READY: yes
+--- pool B walk leg 1: Thu Sep 17 11:39:53 UTC 2026
+  [walk-leg01] attempt 1/1: 8 shard(s)
+--- pool B rc=0  1183s  states=32/32  Thu Sep 17 11:59:36 UTC 2026
+
+--- cards at exit (index, MB used) ---
+index, memory.used [MiB]
+0, 0 MiB
+1, 0 MiB
+2, 0 MiB
+3, 0 MiB
+4, 0 MiB
+5, 0 MiB
+6, 0 MiB
+7, 0 MiB
+gpu memory trace: /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/logs/acal_walktest_gpumem_1216.csv
+shard logs:       runs/aires/{e23_h3_20231228,e12_c3_20221121}/res/acal/logs/walk-leg01-1216-try1-shard*.log
+
+RESULT A (preallocate=true,  e23_h3_20231228): PASS rc=0 states=32/32 1190s
+RESULT B (preallocate=false, e12_c3_20221121): PASS rc=0 states=32/32 1183s
+A is the campaign question; B is informational. B=FAIL with the 19.59 GiB signature
+while A=PASS is the causal evidence; B=PASS means the old config is merely
+nondeterministic on this node, and the campaign still runs with A's config.
+End: Thu Sep 17 11:59:36 UTC 2026
