@@ -1,0 +1,46 @@
+  [walk-leg01] shard 0 exited 1 -- see /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/aires/e23_h3_20231228/res/acal/logs/walk-leg01-1214-try1-shard0.log
+  [walk-leg01] shard 1 exited 1 -- see /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/aires/e23_h3_20231228/res/acal/logs/walk-leg01-1214-try1-shard1.log
+  [walk-leg01] shard 2 exited 1 -- see /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/aires/e23_h3_20231228/res/acal/logs/walk-leg01-1214-try1-shard2.log
+  [walk-leg01] shard 3 exited 1 -- see /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/aires/e23_h3_20231228/res/acal/logs/walk-leg01-1214-try1-shard3.log
+  [walk-leg01] shard 4 exited 1 -- see /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/aires/e23_h3_20231228/res/acal/logs/walk-leg01-1214-try1-shard4.log
+  [walk-leg01] shard 5 exited 1 -- see /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/aires/e23_h3_20231228/res/acal/logs/walk-leg01-1214-try1-shard5.log
+  [walk-leg01] shard 6 exited 1 -- see /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/aires/e23_h3_20231228/res/acal/logs/walk-leg01-1214-try1-shard6.log
+  [walk-leg01] shard 7 exited 1 -- see /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/aires/e23_h3_20231228/res/acal/logs/walk-leg01-1214-try1-shard7.log
+  [walk-leg01] shard 0 exited 1 -- see /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/aires/e23_h3_20231228/res/acal/logs/walk-leg01-1214-try2-shard0.log
+  [walk-leg01] shard 1 exited 1 -- see /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/aires/e23_h3_20231228/res/acal/logs/walk-leg01-1214-try2-shard1.log
+  [walk-leg01] shard 2 exited 1 -- see /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/aires/e23_h3_20231228/res/acal/logs/walk-leg01-1214-try2-shard2.log
+  [walk-leg01] shard 3 exited 1 -- see /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/aires/e23_h3_20231228/res/acal/logs/walk-leg01-1214-try2-shard3.log
+  [walk-leg01] shard 4 exited 1 -- see /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/aires/e23_h3_20231228/res/acal/logs/walk-leg01-1214-try2-shard4.log
+  [walk-leg01] shard 5 exited 1 -- see /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/aires/e23_h3_20231228/res/acal/logs/walk-leg01-1214-try2-shard5.log
+  [walk-leg01] shard 6 exited 1 -- see /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/aires/e23_h3_20231228/res/acal/logs/walk-leg01-1214-try2-shard6.log
+  [walk-leg01] shard 7 exited 1 -- see /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/aires/e23_h3_20231228/res/acal/logs/walk-leg01-1214-try2-shard7.log
+  [walk-leg01] shard 0 exited 1 -- see /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/aires/e23_h3_20231228/res/acal/logs/walk-leg01-1214-try3-shard0.log
+  [walk-leg01] shard 1 exited 1 -- see /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/aires/e23_h3_20231228/res/acal/logs/walk-leg01-1214-try3-shard1.log
+  [walk-leg01] shard 2 exited 1 -- see /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/aires/e23_h3_20231228/res/acal/logs/walk-leg01-1214-try3-shard2.log
+  [walk-leg01] shard 3 exited 1 -- see /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/aires/e23_h3_20231228/res/acal/logs/walk-leg01-1214-try3-shard3.log
+  [walk-leg01] shard 4 exited 1 -- see /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/aires/e23_h3_20231228/res/acal/logs/walk-leg01-1214-try3-shard4.log
+  [walk-leg01] shard 5 exited 1 -- see /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/aires/e23_h3_20231228/res/acal/logs/walk-leg01-1214-try3-shard5.log
+  [walk-leg01] shard 6 exited 1 -- see /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/aires/e23_h3_20231228/res/acal/logs/walk-leg01-1214-try3-shard6.log
+  [walk-leg01] shard 7 exited 1 -- see /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/aires/e23_h3_20231228/res/acal/logs/walk-leg01-1214-try3-shard7.log
+Traceback (most recent call last):
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "/home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/aires/run_aires.py", line 1380, in <module>
+    sys.exit(main())
+             ^^^^^^
+  File "/home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/aires/run_aires.py", line 1353, in main
+    return stage_res(ctx, force=a.force)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/aires/run_aires.py", line 953, in stage_res
+    result = dmc.run(ctx.n_walkers, ctx.C, propagate, score,
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/aires/dmc.py", line 413, in run
+    states = propagate(k, parents, states)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/aires/run_aires.py", line 939, in propagate
+    ensure_leg_walked(ctx, leg, parents)
+  File "/home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/aires/run_aires.py", line 533, in ensure_leg_walked
+    run_pool(ctx, f"walk-leg{leg.k:02d}", "moe",
+  File "/home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/aires/run_aires.py", line 451, in run_pool
+    raise RuntimeError(f"{label} failed {ctx.attempts} time(s)")
+RuntimeError: walk-leg01 failed 3 time(s)

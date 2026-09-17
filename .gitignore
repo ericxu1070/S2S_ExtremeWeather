@@ -56,3 +56,6 @@ docs/vayuh_customer_insights/
 # docs/aires_insights_template.html, not this. Same split as docs/aires_pilot.html, whose
 # embedded form scripts/embed_figs.py writes to a caller-supplied path.
 docs/aires_insights.html
+
+# Claude Code worktrees: nested working copies of this repo, not project content
+.claude/worktrees/

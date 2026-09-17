@@ -1,0 +1,774 @@
+[prep] 42 cases, 1 cached, 41 to build (~27 GB, ~2.0 h)
+
+[prep] ---- 1/41  e01_h2_20210119  peak=2021-01-19 init=2020-12-29  (0 min elapsed) ----
+[prep] e01_h2_20210119: init=peak-21d -> e01_h2_20210119_inputs.nc (673 MB)
+
+[prep] ---- 2/41  e02_c4_20210218  peak=2021-02-18 init=2021-01-28  (2 min elapsed) ----
+[prep] e02_c4_20210218: init=peak-21d -> e02_c4_20210218_inputs.nc (673 MB)
+
+[prep] ---- 3/41  e03_h2_20210411  peak=2021-04-11 init=2021-03-21  (5 min elapsed) ----
+[prep] e03_h2_20210411: init=peak-21d -> e03_h2_20210411_inputs.nc (673 MB)
+
+[prep] ---- 4/41  e04_h2_20210610  peak=2021-06-10 init=2021-05-20  (8 min elapsed) ----
+[prep] e04_h2_20210610: init=peak-21d -> e04_h2_20210610_inputs.nc (673 MB)
+
+[prep] ---- 5/41  e05_h2_20211011  peak=2021-10-11 init=2021-09-20  (10 min elapsed) ----
+[prep] e05_h2_20211011: init=peak-21d -> e05_h2_20211011_inputs.nc (673 MB)
+
+[prep] ---- 6/41  e06_h2_20211206  peak=2021-12-06 init=2021-11-15  (12 min elapsed) ----
+[prep] e06_h2_20211206: init=peak-21d -> e06_h2_20211206_inputs.nc (673 MB)
+
+[prep] ---- 7/41  e07_h2_20211217  peak=2021-12-17 init=2021-11-26  (14 min elapsed) ----
+[prep] e07_h2_20211217: init=peak-21d -> e07_h2_20211217_inputs.nc (673 MB)
+
+[prep] ---- 8/41  e08_h2_20211229  peak=2021-12-29 init=2021-12-08  (17 min elapsed) ----
+[prep] e08_h2_20211229: init=peak-21d -> e08_h2_20211229_inputs.nc (673 MB)
+
+[prep] ---- 9/41  e09_c2_20220228  peak=2022-02-28 init=2022-02-07  (19 min elapsed) ----
+[prep] e09_c2_20220228: init=peak-21d -> e09_c2_20220228_inputs.nc (673 MB)
+
+[prep] ---- 10/41  e10_c2_20220314  peak=2022-03-14 init=2022-02-21  (21 min elapsed) ----
+[prep] e10_c2_20220314: init=peak-21d -> e10_c2_20220314_inputs.nc (673 MB)
+
+[prep] ---- 11/41  e11_h2_20220321  peak=2022-03-21 init=2022-02-28  (23 min elapsed) ----
+[prep] e11_h2_20220321: init=peak-21d -> e11_h2_20220321_inputs.nc (673 MB)
+
+[prep] ---- 12/41  e12_c3_20221121  peak=2022-11-21 init=2022-10-31  (25 min elapsed) ----
+[prep] e12_c3_20221121: init=peak-21d -> e12_c3_20221121_inputs.nc (673 MB)
+
+[prep] ---- 13/41  e13_c3_20221225  peak=2022-12-25 init=2022-12-04  (27 min elapsed) ----
+[prep] e13_c3_20221225: init=peak-21d -> e13_c3_20221225_inputs.nc (673 MB)
+
+[prep] ---- 14/41  e15_h2_20230118  peak=2023-01-18 init=2022-12-28  (29 min elapsed) ----
+[prep] e15_h2_20230118: init=peak-21d -> e15_h2_20230118_inputs.nc (673 MB)
+
+[prep] ---- 15/41  e16_c2_20230205  peak=2023-02-05 init=2023-01-15  (31 min elapsed) ----
+Traceback (most recent call last):
+  File "/home/ubuntu/miniconda3/envs/moe/lib/python3.12/weakref.py", line 666, in _exitfunc
+    f()
+  File "/home/ubuntu/miniconda3/envs/moe/lib/python3.12/weakref.py", line 590, in __call__
+    return info.func(*info.args, **(info.kwargs or {}))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ubuntu/miniconda3/envs/moe/lib/python3.12/site-packages/gcsfs/core.py", line 406, in close_session
+    asyn.sync(asyn.loop[0], session.close, timeout=0.1)
+  File "/home/ubuntu/miniconda3/envs/moe/lib/python3.12/site-packages/fsspec/asyn.py", line 103, in sync
+    raise return_result
+  File "/home/ubuntu/miniconda3/envs/moe/lib/python3.12/site-packages/fsspec/asyn.py", line 56, in _runner
+    result[0] = await coro
+                ^^^^^^^^^^
+  File "/home/ubuntu/miniconda3/envs/moe/lib/python3.12/asyncio/tasks.py", line 520, in wait_for
+    return await fut
+           ^^^^^^^^^
+  File "/home/ubuntu/miniconda3/envs/moe/lib/python3.12/site-packages/aiohttp/client.py", line 1349, in close
+    await self._connector.close()
+  File "/home/ubuntu/miniconda3/envs/moe/lib/python3.12/site-packages/aiohttp/connector.py", line 1074, in close
+    await super().close(abort_ssl=abort_ssl or self._ssl_shutdown_timeout == 0)
+RuntimeError: Task <Task pending name='Task-1106' coro=<_runner() running at /home/ubuntu/miniconda3/envs/moe/lib/python3.12/site-packages/fsspec/asyn.py:56> cb=[_chain_future.<locals>._call_set_state() at /home/ubuntu/miniconda3/envs/moe/lib/python3.12/asyncio/futures.py:396]> got Future <Task pending name='Task-1107' coro=<_wait_for_close() running at /home/ubuntu/miniconda3/envs/moe/lib/python3.12/site-packages/aiohttp/connector.py:138> wait_for=<_GatheringFuture pending cb=[Task.task_wakeup()]>> attached to a different loop
+   (using ARCO-ERA5: past WB2 coverage)
+[prep] e16_c2_20230205: init=peak-21d -> e16_c2_20230205_inputs.nc (673 MB)
+Task was destroyed but it is pending!
+task: <Task pending name='Task-1107' coro=<_wait_for_close() done, defined at /home/ubuntu/miniconda3/envs/moe/lib/python3.12/site-packages/aiohttp/connector.py:136> wait_for=<_GatheringFuture pending cb=[Task.task_wakeup()]>>
+
+[prep] ---- 16/41  e17_c2_20230322  peak=2023-03-22 init=2023-03-01  (36 min elapsed) ----
+Traceback (most recent call last):
+  File "/home/ubuntu/miniconda3/envs/moe/lib/python3.12/weakref.py", line 666, in _exitfunc
+    f()
+  File "/home/ubuntu/miniconda3/envs/moe/lib/python3.12/weakref.py", line 590, in __call__
+    return info.func(*info.args, **(info.kwargs or {}))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ubuntu/miniconda3/envs/moe/lib/python3.12/site-packages/gcsfs/core.py", line 406, in close_session
+    asyn.sync(asyn.loop[0], session.close, timeout=0.1)
+  File "/home/ubuntu/miniconda3/envs/moe/lib/python3.12/site-packages/fsspec/asyn.py", line 103, in sync
+    raise return_result
+  File "/home/ubuntu/miniconda3/envs/moe/lib/python3.12/site-packages/fsspec/asyn.py", line 56, in _runner
+    result[0] = await coro
+                ^^^^^^^^^^
+  File "/home/ubuntu/miniconda3/envs/moe/lib/python3.12/asyncio/tasks.py", line 520, in wait_for
+    return await fut
+           ^^^^^^^^^
+  File "/home/ubuntu/miniconda3/envs/moe/lib/python3.12/site-packages/aiohttp/client.py", line 1349, in close
+    await self._connector.close()
+  File "/home/ubuntu/miniconda3/envs/moe/lib/python3.12/site-packages/aiohttp/connector.py", line 1074, in close
+    await super().close(abort_ssl=abort_ssl or self._ssl_shutdown_timeout == 0)
+RuntimeError: Task <Task pending name='Task-1106' coro=<_runner() running at /home/ubuntu/miniconda3/envs/moe/lib/python3.12/site-packages/fsspec/asyn.py:56> cb=[_chain_future.<locals>._call_set_state() at /home/ubuntu/miniconda3/envs/moe/lib/python3.12/asyncio/futures.py:396]> got Future <Task pending name='Task-1107' coro=<_wait_for_close() running at /home/ubuntu/miniconda3/envs/moe/lib/python3.12/site-packages/aiohttp/connector.py:138> wait_for=<_GatheringFuture pending cb=[Task.task_wakeup()]>> attached to a different loop
+   (using ARCO-ERA5: past WB2 coverage)
+[prep] e17_c2_20230322: init=peak-21d -> e17_c2_20230322_inputs.nc (673 MB)
+Task was destroyed but it is pending!
+task: <Task pending name='Task-1107' coro=<_wait_for_close() done, defined at /home/ubuntu/miniconda3/envs/moe/lib/python3.12/site-packages/aiohttp/connector.py:136> wait_for=<_GatheringFuture pending cb=[Task.task_wakeup()]>>
+
+[prep] ---- 17/41  e18_h2_20231006  peak=2023-10-06 init=2023-09-15  (40 min elapsed) ----
+Traceback (most recent call last):
+  File "/home/ubuntu/miniconda3/envs/moe/lib/python3.12/weakref.py", line 666, in _exitfunc
+    f()
+  File "/home/ubuntu/miniconda3/envs/moe/lib/python3.12/weakref.py", line 590, in __call__
+    return info.func(*info.args, **(info.kwargs or {}))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ubuntu/miniconda3/envs/moe/lib/python3.12/site-packages/gcsfs/core.py", line 406, in close_session
+    asyn.sync(asyn.loop[0], session.close, timeout=0.1)
+  File "/home/ubuntu/miniconda3/envs/moe/lib/python3.12/site-packages/fsspec/asyn.py", line 103, in sync
+    raise return_result
+  File "/home/ubuntu/miniconda3/envs/moe/lib/python3.12/site-packages/fsspec/asyn.py", line 56, in _runner
+    result[0] = await coro
+                ^^^^^^^^^^
+  File "/home/ubuntu/miniconda3/envs/moe/lib/python3.12/asyncio/tasks.py", line 520, in wait_for
+    return await fut
+           ^^^^^^^^^
+  File "/home/ubuntu/miniconda3/envs/moe/lib/python3.12/site-packages/aiohttp/client.py", line 1349, in close
+    await self._connector.close()
+  File "/home/ubuntu/miniconda3/envs/moe/lib/python3.12/site-packages/aiohttp/connector.py", line 1074, in close
+    await super().close(abort_ssl=abort_ssl or self._ssl_shutdown_timeout == 0)
+RuntimeError: Task <Task pending name='Task-1106' coro=<_runner() running at /home/ubuntu/miniconda3/envs/moe/lib/python3.12/site-packages/fsspec/asyn.py:56> cb=[_chain_future.<locals>._call_set_state() at /home/ubuntu/miniconda3/envs/moe/lib/python3.12/asyncio/futures.py:396]> got Future <Task pending name='Task-1107' coro=<_wait_for_close() running at /home/ubuntu/miniconda3/envs/moe/lib/python3.12/site-packages/aiohttp/connector.py:138> wait_for=<_GatheringFuture pending cb=[Task.task_wakeup()]>> attached to a different loop
+   (using ARCO-ERA5: past WB2 coverage)
+[prep] e18_h2_20231006: init=peak-21d -> e18_h2_20231006_inputs.nc (673 MB)
+Task was destroyed but it is pending!
+task: <Task pending name='Task-1107' coro=<_wait_for_close() done, defined at /home/ubuntu/miniconda3/envs/moe/lib/python3.12/site-packages/aiohttp/connector.py:136> wait_for=<_GatheringFuture pending cb=[Task.task_wakeup()]>>
+
+[prep] ---- 18/41  e19_h2_20231025  peak=2023-10-25 init=2023-10-04  (44 min elapsed) ----
+Traceback (most recent call last):
+  File "/home/ubuntu/miniconda3/envs/moe/lib/python3.12/weakref.py", line 666, in _exitfunc
+    f()
+  File "/home/ubuntu/miniconda3/envs/moe/lib/python3.12/weakref.py", line 590, in __call__
+    return info.func(*info.args, **(info.kwargs or {}))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ubuntu/miniconda3/envs/moe/lib/python3.12/site-packages/gcsfs/core.py", line 406, in close_session
+    asyn.sync(asyn.loop[0], session.close, timeout=0.1)
+  File "/home/ubuntu/miniconda3/envs/moe/lib/python3.12/site-packages/fsspec/asyn.py", line 103, in sync
+    raise return_result
+  File "/home/ubuntu/miniconda3/envs/moe/lib/python3.12/site-packages/fsspec/asyn.py", line 56, in _runner
+    result[0] = await coro
+                ^^^^^^^^^^
+  File "/home/ubuntu/miniconda3/envs/moe/lib/python3.12/asyncio/tasks.py", line 520, in wait_for
+    return await fut
+           ^^^^^^^^^
+  File "/home/ubuntu/miniconda3/envs/moe/lib/python3.12/site-packages/aiohttp/client.py", line 1349, in close
+    await self._connector.close()
+  File "/home/ubuntu/miniconda3/envs/moe/lib/python3.12/site-packages/aiohttp/connector.py", line 1074, in close
+    await super().close(abort_ssl=abort_ssl or self._ssl_shutdown_timeout == 0)
+RuntimeError: Task <Task pending name='Task-1106' coro=<_runner() running at /home/ubuntu/miniconda3/envs/moe/lib/python3.12/site-packages/fsspec/asyn.py:56> cb=[_chain_future.<locals>._call_set_state() at /home/ubuntu/miniconda3/envs/moe/lib/python3.12/asyncio/futures.py:396]> got Future <Task pending name='Task-1107' coro=<_wait_for_close() running at /home/ubuntu/miniconda3/envs/moe/lib/python3.12/site-packages/aiohttp/connector.py:138> wait_for=<_GatheringFuture pending cb=[Task.task_wakeup()]>> attached to a different loop
+   (using ARCO-ERA5: past WB2 coverage)
+[prep] e19_h2_20231025: init=peak-21d -> e19_h2_20231025_inputs.nc (673 MB)
+Task was destroyed but it is pending!
+task: <Task pending name='Task-1107' coro=<_wait_for_close() done, defined at /home/ubuntu/miniconda3/envs/moe/lib/python3.12/site-packages/aiohttp/connector.py:136> wait_for=<_GatheringFuture pending cb=[Task.task_wakeup()]>>
+
+[prep] ---- 19/41  e20_c2_20231103  peak=2023-11-03 init=2023-10-13  (48 min elapsed) ----
+Traceback (most recent call last):
+  File "/home/ubuntu/miniconda3/envs/moe/lib/python3.12/weakref.py", line 666, in _exitfunc
+    f()
+  File "/home/ubuntu/miniconda3/envs/moe/lib/python3.12/weakref.py", line 590, in __call__
+    return info.func(*info.args, **(info.kwargs or {}))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ubuntu/miniconda3/envs/moe/lib/python3.12/site-packages/gcsfs/core.py", line 406, in close_session
+    asyn.sync(asyn.loop[0], session.close, timeout=0.1)
+  File "/home/ubuntu/miniconda3/envs/moe/lib/python3.12/site-packages/fsspec/asyn.py", line 103, in sync
+    raise return_result
+  File "/home/ubuntu/miniconda3/envs/moe/lib/python3.12/site-packages/fsspec/asyn.py", line 56, in _runner
+    result[0] = await coro
+                ^^^^^^^^^^
+  File "/home/ubuntu/miniconda3/envs/moe/lib/python3.12/asyncio/tasks.py", line 520, in wait_for
+    return await fut
+           ^^^^^^^^^
+  File "/home/ubuntu/miniconda3/envs/moe/lib/python3.12/site-packages/aiohttp/client.py", line 1349, in close
+    await self._connector.close()
+  File "/home/ubuntu/miniconda3/envs/moe/lib/python3.12/site-packages/aiohttp/connector.py", line 1074, in close
+    await super().close(abort_ssl=abort_ssl or self._ssl_shutdown_timeout == 0)
+RuntimeError: Task <Task pending name='Task-1106' coro=<_runner() running at /home/ubuntu/miniconda3/envs/moe/lib/python3.12/site-packages/fsspec/asyn.py:56> cb=[_chain_future.<locals>._call_set_state() at /home/ubuntu/miniconda3/envs/moe/lib/python3.12/asyncio/futures.py:396]> got Future <Task pending name='Task-1107' coro=<_wait_for_close() running at /home/ubuntu/miniconda3/envs/moe/lib/python3.12/site-packages/aiohttp/connector.py:138> wait_for=<_GatheringFuture pending cb=[Task.task_wakeup()]>> attached to a different loop
+   (using ARCO-ERA5: past WB2 coverage)
+[prep] e20_c2_20231103: init=peak-21d -> e20_c2_20231103_inputs.nc (673 MB)
+Task was destroyed but it is pending!
+task: <Task pending name='Task-1107' coro=<_wait_for_close() done, defined at /home/ubuntu/miniconda3/envs/moe/lib/python3.12/site-packages/aiohttp/connector.py:136> wait_for=<_GatheringFuture pending cb=[Task.task_wakeup()]>>
+
+[prep] ---- 20/41  e21_h2_20231120  peak=2023-11-20 init=2023-10-30  (52 min elapsed) ----
+Traceback (most recent call last):
+  File "/home/ubuntu/miniconda3/envs/moe/lib/python3.12/weakref.py", line 666, in _exitfunc
+    f()
+  File "/home/ubuntu/miniconda3/envs/moe/lib/python3.12/weakref.py", line 590, in __call__
+    return info.func(*info.args, **(info.kwargs or {}))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ubuntu/miniconda3/envs/moe/lib/python3.12/site-packages/gcsfs/core.py", line 406, in close_session
+    asyn.sync(asyn.loop[0], session.close, timeout=0.1)
+  File "/home/ubuntu/miniconda3/envs/moe/lib/python3.12/site-packages/fsspec/asyn.py", line 103, in sync
+    raise return_result
+  File "/home/ubuntu/miniconda3/envs/moe/lib/python3.12/site-packages/fsspec/asyn.py", line 56, in _runner
+    result[0] = await coro
+                ^^^^^^^^^^
+  File "/home/ubuntu/miniconda3/envs/moe/lib/python3.12/asyncio/tasks.py", line 520, in wait_for
+    return await fut
+           ^^^^^^^^^
+  File "/home/ubuntu/miniconda3/envs/moe/lib/python3.12/site-packages/aiohttp/client.py", line 1349, in close
+    await self._connector.close()
+  File "/home/ubuntu/miniconda3/envs/moe/lib/python3.12/site-packages/aiohttp/connector.py", line 1074, in close
+    await super().close(abort_ssl=abort_ssl or self._ssl_shutdown_timeout == 0)
+RuntimeError: Task <Task pending name='Task-1106' coro=<_runner() running at /home/ubuntu/miniconda3/envs/moe/lib/python3.12/site-packages/fsspec/asyn.py:56> cb=[_chain_future.<locals>._call_set_state() at /home/ubuntu/miniconda3/envs/moe/lib/python3.12/asyncio/futures.py:396]> got Future <Task pending name='Task-1107' coro=<_wait_for_close() running at /home/ubuntu/miniconda3/envs/moe/lib/python3.12/site-packages/aiohttp/connector.py:138> wait_for=<_GatheringFuture pending cb=[Task.task_wakeup()]>> attached to a different loop
+   (using ARCO-ERA5: past WB2 coverage)
+[prep] e21_h2_20231120: init=peak-21d -> e21_h2_20231120_inputs.nc (673 MB)
+Task was destroyed but it is pending!
+task: <Task pending name='Task-1107' coro=<_wait_for_close() done, defined at /home/ubuntu/miniconda3/envs/moe/lib/python3.12/site-packages/aiohttp/connector.py:136> wait_for=<_GatheringFuture pending cb=[Task.task_wakeup()]>>
+
+[prep] ---- 21/41  e22_h2_20231210  peak=2023-12-10 init=2023-11-19  (56 min elapsed) ----
+Traceback (most recent call last):
+  File "/home/ubuntu/miniconda3/envs/moe/lib/python3.12/weakref.py", line 666, in _exitfunc
+    f()
+  File "/home/ubuntu/miniconda3/envs/moe/lib/python3.12/weakref.py", line 590, in __call__
+    return info.func(*info.args, **(info.kwargs or {}))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ubuntu/miniconda3/envs/moe/lib/python3.12/site-packages/gcsfs/core.py", line 406, in close_session
+    asyn.sync(asyn.loop[0], session.close, timeout=0.1)
+  File "/home/ubuntu/miniconda3/envs/moe/lib/python3.12/site-packages/fsspec/asyn.py", line 103, in sync
+    raise return_result
+  File "/home/ubuntu/miniconda3/envs/moe/lib/python3.12/site-packages/fsspec/asyn.py", line 56, in _runner
+    result[0] = await coro
+                ^^^^^^^^^^
+  File "/home/ubuntu/miniconda3/envs/moe/lib/python3.12/asyncio/tasks.py", line 520, in wait_for
+    return await fut
+           ^^^^^^^^^
+  File "/home/ubuntu/miniconda3/envs/moe/lib/python3.12/site-packages/aiohttp/client.py", line 1349, in close
+    await self._connector.close()
+  File "/home/ubuntu/miniconda3/envs/moe/lib/python3.12/site-packages/aiohttp/connector.py", line 1074, in close
+    await super().close(abort_ssl=abort_ssl or self._ssl_shutdown_timeout == 0)
+RuntimeError: Task <Task pending name='Task-1106' coro=<_runner() running at /home/ubuntu/miniconda3/envs/moe/lib/python3.12/site-packages/fsspec/asyn.py:56> cb=[_chain_future.<locals>._call_set_state() at /home/ubuntu/miniconda3/envs/moe/lib/python3.12/asyncio/futures.py:396]> got Future <Task pending name='Task-1107' coro=<_wait_for_close() running at /home/ubuntu/miniconda3/envs/moe/lib/python3.12/site-packages/aiohttp/connector.py:138> wait_for=<_GatheringFuture pending cb=[Task.task_wakeup()]>> attached to a different loop
+   (using ARCO-ERA5: past WB2 coverage)
+[prep] e22_h2_20231210: init=peak-21d -> e22_h2_20231210_inputs.nc (673 MB)
+Task was destroyed but it is pending!
+task: <Task pending name='Task-1107' coro=<_wait_for_close() done, defined at /home/ubuntu/miniconda3/envs/moe/lib/python3.12/site-packages/aiohttp/connector.py:136> wait_for=<_GatheringFuture pending cb=[Task.task_wakeup()]>>
+
+[prep] ---- 22/41  e23_h3_20231228  peak=2023-12-28 init=2023-12-07  (60 min elapsed) ----
+Traceback (most recent call last):
+  File "/home/ubuntu/miniconda3/envs/moe/lib/python3.12/weakref.py", line 666, in _exitfunc
+    f()
+  File "/home/ubuntu/miniconda3/envs/moe/lib/python3.12/weakref.py", line 590, in __call__
+    return info.func(*info.args, **(info.kwargs or {}))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ubuntu/miniconda3/envs/moe/lib/python3.12/site-packages/gcsfs/core.py", line 406, in close_session
+    asyn.sync(asyn.loop[0], session.close, timeout=0.1)
+  File "/home/ubuntu/miniconda3/envs/moe/lib/python3.12/site-packages/fsspec/asyn.py", line 103, in sync
+    raise return_result
+  File "/home/ubuntu/miniconda3/envs/moe/lib/python3.12/site-packages/fsspec/asyn.py", line 56, in _runner
+    result[0] = await coro
+                ^^^^^^^^^^
+  File "/home/ubuntu/miniconda3/envs/moe/lib/python3.12/asyncio/tasks.py", line 520, in wait_for
+    return await fut
+           ^^^^^^^^^
+  File "/home/ubuntu/miniconda3/envs/moe/lib/python3.12/site-packages/aiohttp/client.py", line 1349, in close
+    await self._connector.close()
+  File "/home/ubuntu/miniconda3/envs/moe/lib/python3.12/site-packages/aiohttp/connector.py", line 1074, in close
+    await super().close(abort_ssl=abort_ssl or self._ssl_shutdown_timeout == 0)
+RuntimeError: Task <Task pending name='Task-1106' coro=<_runner() running at /home/ubuntu/miniconda3/envs/moe/lib/python3.12/site-packages/fsspec/asyn.py:56> cb=[_chain_future.<locals>._call_set_state() at /home/ubuntu/miniconda3/envs/moe/lib/python3.12/asyncio/futures.py:396]> got Future <Task pending name='Task-1107' coro=<_wait_for_close() running at /home/ubuntu/miniconda3/envs/moe/lib/python3.12/site-packages/aiohttp/connector.py:138> wait_for=<_GatheringFuture pending cb=[Task.task_wakeup()]>> attached to a different loop
+   (using ARCO-ERA5: past WB2 coverage)
+[prep] e23_h3_20231228: init=peak-21d -> e23_h3_20231228_inputs.nc (673 MB)
+Task was destroyed but it is pending!
+task: <Task pending name='Task-1107' coro=<_wait_for_close() done, defined at /home/ubuntu/miniconda3/envs/moe/lib/python3.12/site-packages/aiohttp/connector.py:136> wait_for=<_GatheringFuture pending cb=[Task.task_wakeup()]>>
+
+[prep] ---- 23/41  e24_c3_20240119  peak=2024-01-19 init=2023-12-29  (64 min elapsed) ----
+Traceback (most recent call last):
+  File "/home/ubuntu/miniconda3/envs/moe/lib/python3.12/weakref.py", line 666, in _exitfunc
+    f()
+  File "/home/ubuntu/miniconda3/envs/moe/lib/python3.12/weakref.py", line 590, in __call__
+    return info.func(*info.args, **(info.kwargs or {}))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ubuntu/miniconda3/envs/moe/lib/python3.12/site-packages/gcsfs/core.py", line 406, in close_session
+    asyn.sync(asyn.loop[0], session.close, timeout=0.1)
+  File "/home/ubuntu/miniconda3/envs/moe/lib/python3.12/site-packages/fsspec/asyn.py", line 103, in sync
+    raise return_result
+  File "/home/ubuntu/miniconda3/envs/moe/lib/python3.12/site-packages/fsspec/asyn.py", line 56, in _runner
+    result[0] = await coro
+                ^^^^^^^^^^
+  File "/home/ubuntu/miniconda3/envs/moe/lib/python3.12/asyncio/tasks.py", line 520, in wait_for
+    return await fut
+           ^^^^^^^^^
+  File "/home/ubuntu/miniconda3/envs/moe/lib/python3.12/site-packages/aiohttp/client.py", line 1349, in close
+    await self._connector.close()
+  File "/home/ubuntu/miniconda3/envs/moe/lib/python3.12/site-packages/aiohttp/connector.py", line 1074, in close
+    await super().close(abort_ssl=abort_ssl or self._ssl_shutdown_timeout == 0)
+RuntimeError: Task <Task pending name='Task-1106' coro=<_runner() running at /home/ubuntu/miniconda3/envs/moe/lib/python3.12/site-packages/fsspec/asyn.py:56> cb=[_chain_future.<locals>._call_set_state() at /home/ubuntu/miniconda3/envs/moe/lib/python3.12/asyncio/futures.py:396]> got Future <Task pending name='Task-1107' coro=<_wait_for_close() running at /home/ubuntu/miniconda3/envs/moe/lib/python3.12/site-packages/aiohttp/connector.py:138> wait_for=<_GatheringFuture pending cb=[Task.task_wakeup()]>> attached to a different loop
+   (using ARCO-ERA5: past WB2 coverage)
+[prep] e24_c3_20240119: init=peak-21d -> e24_c3_20240119_inputs.nc (673 MB)
+Task was destroyed but it is pending!
+task: <Task pending name='Task-1107' coro=<_wait_for_close() done, defined at /home/ubuntu/miniconda3/envs/moe/lib/python3.12/site-packages/aiohttp/connector.py:136> wait_for=<_GatheringFuture pending cb=[Task.task_wakeup()]>>
+
+[prep] ---- 24/41  e25_h3_20240131  peak=2024-01-31 init=2024-01-10  (69 min elapsed) ----
+Traceback (most recent call last):
+  File "/home/ubuntu/miniconda3/envs/moe/lib/python3.12/weakref.py", line 666, in _exitfunc
+    f()
+  File "/home/ubuntu/miniconda3/envs/moe/lib/python3.12/weakref.py", line 590, in __call__
+    return info.func(*info.args, **(info.kwargs or {}))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ubuntu/miniconda3/envs/moe/lib/python3.12/site-packages/gcsfs/core.py", line 406, in close_session
+    asyn.sync(asyn.loop[0], session.close, timeout=0.1)
+  File "/home/ubuntu/miniconda3/envs/moe/lib/python3.12/site-packages/fsspec/asyn.py", line 103, in sync
+    raise return_result
+  File "/home/ubuntu/miniconda3/envs/moe/lib/python3.12/site-packages/fsspec/asyn.py", line 56, in _runner
+    result[0] = await coro
+                ^^^^^^^^^^
+  File "/home/ubuntu/miniconda3/envs/moe/lib/python3.12/asyncio/tasks.py", line 520, in wait_for
+    return await fut
+           ^^^^^^^^^
+  File "/home/ubuntu/miniconda3/envs/moe/lib/python3.12/site-packages/aiohttp/client.py", line 1349, in close
+    await self._connector.close()
+  File "/home/ubuntu/miniconda3/envs/moe/lib/python3.12/site-packages/aiohttp/connector.py", line 1074, in close
+    await super().close(abort_ssl=abort_ssl or self._ssl_shutdown_timeout == 0)
+RuntimeError: Task <Task pending name='Task-1106' coro=<_runner() running at /home/ubuntu/miniconda3/envs/moe/lib/python3.12/site-packages/fsspec/asyn.py:56> cb=[_chain_future.<locals>._call_set_state() at /home/ubuntu/miniconda3/envs/moe/lib/python3.12/asyncio/futures.py:396]> got Future <Task pending name='Task-1107' coro=<_wait_for_close() running at /home/ubuntu/miniconda3/envs/moe/lib/python3.12/site-packages/aiohttp/connector.py:138> wait_for=<_GatheringFuture pending cb=[Task.task_wakeup()]>> attached to a different loop
+   (using ARCO-ERA5: past WB2 coverage)
+[prep] e25_h3_20240131: init=peak-21d -> e25_h3_20240131_inputs.nc (673 MB)
+Task was destroyed but it is pending!
+task: <Task pending name='Task-1107' coro=<_wait_for_close() done, defined at /home/ubuntu/miniconda3/envs/moe/lib/python3.12/site-packages/aiohttp/connector.py:136> wait_for=<_GatheringFuture pending cb=[Task.task_wakeup()]>>
+
+[prep] ---- 25/41  e26_h2_20240211  peak=2024-02-11 init=2024-01-21  (73 min elapsed) ----
+Traceback (most recent call last):
+  File "/home/ubuntu/miniconda3/envs/moe/lib/python3.12/weakref.py", line 666, in _exitfunc
+    f()
+  File "/home/ubuntu/miniconda3/envs/moe/lib/python3.12/weakref.py", line 590, in __call__
+    return info.func(*info.args, **(info.kwargs or {}))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ubuntu/miniconda3/envs/moe/lib/python3.12/site-packages/gcsfs/core.py", line 406, in close_session
+    asyn.sync(asyn.loop[0], session.close, timeout=0.1)
+  File "/home/ubuntu/miniconda3/envs/moe/lib/python3.12/site-packages/fsspec/asyn.py", line 103, in sync
+    raise return_result
+  File "/home/ubuntu/miniconda3/envs/moe/lib/python3.12/site-packages/fsspec/asyn.py", line 56, in _runner
+    result[0] = await coro
+                ^^^^^^^^^^
+  File "/home/ubuntu/miniconda3/envs/moe/lib/python3.12/asyncio/tasks.py", line 520, in wait_for
+    return await fut
+           ^^^^^^^^^
+  File "/home/ubuntu/miniconda3/envs/moe/lib/python3.12/site-packages/aiohttp/client.py", line 1349, in close
+    await self._connector.close()
+  File "/home/ubuntu/miniconda3/envs/moe/lib/python3.12/site-packages/aiohttp/connector.py", line 1074, in close
+    await super().close(abort_ssl=abort_ssl or self._ssl_shutdown_timeout == 0)
+RuntimeError: Task <Task pending name='Task-1106' coro=<_runner() running at /home/ubuntu/miniconda3/envs/moe/lib/python3.12/site-packages/fsspec/asyn.py:56> cb=[_chain_future.<locals>._call_set_state() at /home/ubuntu/miniconda3/envs/moe/lib/python3.12/asyncio/futures.py:396]> got Future <Task pending name='Task-1107' coro=<_wait_for_close() running at /home/ubuntu/miniconda3/envs/moe/lib/python3.12/site-packages/aiohttp/connector.py:138> wait_for=<_GatheringFuture pending cb=[Task.task_wakeup()]>> attached to a different loop
+   (using ARCO-ERA5: past WB2 coverage)
+[prep] e26_h2_20240211: init=peak-21d -> e26_h2_20240211_inputs.nc (673 MB)
+Task was destroyed but it is pending!
+task: <Task pending name='Task-1107' coro=<_wait_for_close() done, defined at /home/ubuntu/miniconda3/envs/moe/lib/python3.12/site-packages/aiohttp/connector.py:136> wait_for=<_GatheringFuture pending cb=[Task.task_wakeup()]>>
+
+[prep] ---- 26/41  e27_h2_20240228  peak=2024-02-28 init=2024-02-07  (77 min elapsed) ----
+Traceback (most recent call last):
+  File "/home/ubuntu/miniconda3/envs/moe/lib/python3.12/weakref.py", line 666, in _exitfunc
+    f()
+  File "/home/ubuntu/miniconda3/envs/moe/lib/python3.12/weakref.py", line 590, in __call__
+    return info.func(*info.args, **(info.kwargs or {}))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ubuntu/miniconda3/envs/moe/lib/python3.12/site-packages/gcsfs/core.py", line 406, in close_session
+    asyn.sync(asyn.loop[0], session.close, timeout=0.1)
+  File "/home/ubuntu/miniconda3/envs/moe/lib/python3.12/site-packages/fsspec/asyn.py", line 103, in sync
+    raise return_result
+  File "/home/ubuntu/miniconda3/envs/moe/lib/python3.12/site-packages/fsspec/asyn.py", line 56, in _runner
+    result[0] = await coro
+                ^^^^^^^^^^
+  File "/home/ubuntu/miniconda3/envs/moe/lib/python3.12/asyncio/tasks.py", line 520, in wait_for
+    return await fut
+           ^^^^^^^^^
+  File "/home/ubuntu/miniconda3/envs/moe/lib/python3.12/site-packages/aiohttp/client.py", line 1349, in close
+    await self._connector.close()
+  File "/home/ubuntu/miniconda3/envs/moe/lib/python3.12/site-packages/aiohttp/connector.py", line 1074, in close
+    await super().close(abort_ssl=abort_ssl or self._ssl_shutdown_timeout == 0)
+RuntimeError: Task <Task pending name='Task-1106' coro=<_runner() running at /home/ubuntu/miniconda3/envs/moe/lib/python3.12/site-packages/fsspec/asyn.py:56> cb=[_chain_future.<locals>._call_set_state() at /home/ubuntu/miniconda3/envs/moe/lib/python3.12/asyncio/futures.py:396]> got Future <Task pending name='Task-1107' coro=<_wait_for_close() running at /home/ubuntu/miniconda3/envs/moe/lib/python3.12/site-packages/aiohttp/connector.py:138> wait_for=<_GatheringFuture pending cb=[Task.task_wakeup()]>> attached to a different loop
+   (using ARCO-ERA5: past WB2 coverage)
+[prep] e27_h2_20240228: init=peak-21d -> e27_h2_20240228_inputs.nc (673 MB)
+Task was destroyed but it is pending!
+task: <Task pending name='Task-1107' coro=<_wait_for_close() done, defined at /home/ubuntu/miniconda3/envs/moe/lib/python3.12/site-packages/aiohttp/connector.py:136> wait_for=<_GatheringFuture pending cb=[Task.task_wakeup()]>>
+
+[prep] ---- 27/41  e28_h2_20240318  peak=2024-03-18 init=2024-02-26  (81 min elapsed) ----
+Traceback (most recent call last):
+  File "/home/ubuntu/miniconda3/envs/moe/lib/python3.12/weakref.py", line 666, in _exitfunc
+    f()
+  File "/home/ubuntu/miniconda3/envs/moe/lib/python3.12/weakref.py", line 590, in __call__
+    return info.func(*info.args, **(info.kwargs or {}))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ubuntu/miniconda3/envs/moe/lib/python3.12/site-packages/gcsfs/core.py", line 406, in close_session
+    asyn.sync(asyn.loop[0], session.close, timeout=0.1)
+  File "/home/ubuntu/miniconda3/envs/moe/lib/python3.12/site-packages/fsspec/asyn.py", line 103, in sync
+    raise return_result
+  File "/home/ubuntu/miniconda3/envs/moe/lib/python3.12/site-packages/fsspec/asyn.py", line 56, in _runner
+    result[0] = await coro
+                ^^^^^^^^^^
+  File "/home/ubuntu/miniconda3/envs/moe/lib/python3.12/asyncio/tasks.py", line 520, in wait_for
+    return await fut
+           ^^^^^^^^^
+  File "/home/ubuntu/miniconda3/envs/moe/lib/python3.12/site-packages/aiohttp/client.py", line 1349, in close
+    await self._connector.close()
+  File "/home/ubuntu/miniconda3/envs/moe/lib/python3.12/site-packages/aiohttp/connector.py", line 1074, in close
+    await super().close(abort_ssl=abort_ssl or self._ssl_shutdown_timeout == 0)
+RuntimeError: Task <Task pending name='Task-1106' coro=<_runner() running at /home/ubuntu/miniconda3/envs/moe/lib/python3.12/site-packages/fsspec/asyn.py:56> cb=[_chain_future.<locals>._call_set_state() at /home/ubuntu/miniconda3/envs/moe/lib/python3.12/asyncio/futures.py:396]> got Future <Task pending name='Task-1107' coro=<_wait_for_close() running at /home/ubuntu/miniconda3/envs/moe/lib/python3.12/site-packages/aiohttp/connector.py:138> wait_for=<_GatheringFuture pending cb=[Task.task_wakeup()]>> attached to a different loop
+   (using ARCO-ERA5: past WB2 coverage)
+[prep] e28_h2_20240318: init=peak-21d -> e28_h2_20240318_inputs.nc (673 MB)
+Task was destroyed but it is pending!
+task: <Task pending name='Task-1107' coro=<_wait_for_close() done, defined at /home/ubuntu/miniconda3/envs/moe/lib/python3.12/site-packages/aiohttp/connector.py:136> wait_for=<_GatheringFuture pending cb=[Task.task_wakeup()]>>
+
+[prep] ---- 28/41  e29_h2_20240418  peak=2024-04-18 init=2024-03-28  (85 min elapsed) ----
+Traceback (most recent call last):
+  File "/home/ubuntu/miniconda3/envs/moe/lib/python3.12/weakref.py", line 666, in _exitfunc
+    f()
+  File "/home/ubuntu/miniconda3/envs/moe/lib/python3.12/weakref.py", line 590, in __call__
+    return info.func(*info.args, **(info.kwargs or {}))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ubuntu/miniconda3/envs/moe/lib/python3.12/site-packages/gcsfs/core.py", line 406, in close_session
+    asyn.sync(asyn.loop[0], session.close, timeout=0.1)
+  File "/home/ubuntu/miniconda3/envs/moe/lib/python3.12/site-packages/fsspec/asyn.py", line 103, in sync
+    raise return_result
+  File "/home/ubuntu/miniconda3/envs/moe/lib/python3.12/site-packages/fsspec/asyn.py", line 56, in _runner
+    result[0] = await coro
+                ^^^^^^^^^^
+  File "/home/ubuntu/miniconda3/envs/moe/lib/python3.12/asyncio/tasks.py", line 520, in wait_for
+    return await fut
+           ^^^^^^^^^
+  File "/home/ubuntu/miniconda3/envs/moe/lib/python3.12/site-packages/aiohttp/client.py", line 1349, in close
+    await self._connector.close()
+  File "/home/ubuntu/miniconda3/envs/moe/lib/python3.12/site-packages/aiohttp/connector.py", line 1074, in close
+    await super().close(abort_ssl=abort_ssl or self._ssl_shutdown_timeout == 0)
+RuntimeError: Task <Task pending name='Task-1106' coro=<_runner() running at /home/ubuntu/miniconda3/envs/moe/lib/python3.12/site-packages/fsspec/asyn.py:56> cb=[_chain_future.<locals>._call_set_state() at /home/ubuntu/miniconda3/envs/moe/lib/python3.12/asyncio/futures.py:396]> got Future <Task pending name='Task-1107' coro=<_wait_for_close() running at /home/ubuntu/miniconda3/envs/moe/lib/python3.12/site-packages/aiohttp/connector.py:138> wait_for=<_GatheringFuture pending cb=[Task.task_wakeup()]>> attached to a different loop
+   (using ARCO-ERA5: past WB2 coverage)
+[prep] e29_h2_20240418: init=peak-21d -> e29_h2_20240418_inputs.nc (673 MB)
+Task was destroyed but it is pending!
+task: <Task pending name='Task-1107' coro=<_wait_for_close() done, defined at /home/ubuntu/miniconda3/envs/moe/lib/python3.12/site-packages/aiohttp/connector.py:136> wait_for=<_GatheringFuture pending cb=[Task.task_wakeup()]>>
+
+[prep] ---- 29/41  e30_h2_20241001  peak=2024-10-01 init=2024-09-10  (89 min elapsed) ----
+Traceback (most recent call last):
+  File "/home/ubuntu/miniconda3/envs/moe/lib/python3.12/weakref.py", line 666, in _exitfunc
+    f()
+  File "/home/ubuntu/miniconda3/envs/moe/lib/python3.12/weakref.py", line 590, in __call__
+    return info.func(*info.args, **(info.kwargs or {}))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ubuntu/miniconda3/envs/moe/lib/python3.12/site-packages/gcsfs/core.py", line 406, in close_session
+    asyn.sync(asyn.loop[0], session.close, timeout=0.1)
+  File "/home/ubuntu/miniconda3/envs/moe/lib/python3.12/site-packages/fsspec/asyn.py", line 103, in sync
+    raise return_result
+  File "/home/ubuntu/miniconda3/envs/moe/lib/python3.12/site-packages/fsspec/asyn.py", line 56, in _runner
+    result[0] = await coro
+                ^^^^^^^^^^
+  File "/home/ubuntu/miniconda3/envs/moe/lib/python3.12/asyncio/tasks.py", line 520, in wait_for
+    return await fut
+           ^^^^^^^^^
+  File "/home/ubuntu/miniconda3/envs/moe/lib/python3.12/site-packages/aiohttp/client.py", line 1349, in close
+    await self._connector.close()
+  File "/home/ubuntu/miniconda3/envs/moe/lib/python3.12/site-packages/aiohttp/connector.py", line 1074, in close
+    await super().close(abort_ssl=abort_ssl or self._ssl_shutdown_timeout == 0)
+RuntimeError: Task <Task pending name='Task-1106' coro=<_runner() running at /home/ubuntu/miniconda3/envs/moe/lib/python3.12/site-packages/fsspec/asyn.py:56> cb=[_chain_future.<locals>._call_set_state() at /home/ubuntu/miniconda3/envs/moe/lib/python3.12/asyncio/futures.py:396]> got Future <Task pending name='Task-1107' coro=<_wait_for_close() running at /home/ubuntu/miniconda3/envs/moe/lib/python3.12/site-packages/aiohttp/connector.py:138> wait_for=<_GatheringFuture pending cb=[Task.task_wakeup()]>> attached to a different loop
+   (using ARCO-ERA5: past WB2 coverage)
+[prep] e30_h2_20241001: init=peak-21d -> e30_h2_20241001_inputs.nc (673 MB)
+Task was destroyed but it is pending!
+task: <Task pending name='Task-1107' coro=<_wait_for_close() done, defined at /home/ubuntu/miniconda3/envs/moe/lib/python3.12/site-packages/aiohttp/connector.py:136> wait_for=<_GatheringFuture pending cb=[Task.task_wakeup()]>>
+
+[prep] ---- 30/41  e31_h2_20241027  peak=2024-10-27 init=2024-10-06  (93 min elapsed) ----
+Traceback (most recent call last):
+  File "/home/ubuntu/miniconda3/envs/moe/lib/python3.12/weakref.py", line 666, in _exitfunc
+    f()
+  File "/home/ubuntu/miniconda3/envs/moe/lib/python3.12/weakref.py", line 590, in __call__
+    return info.func(*info.args, **(info.kwargs or {}))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ubuntu/miniconda3/envs/moe/lib/python3.12/site-packages/gcsfs/core.py", line 406, in close_session
+    asyn.sync(asyn.loop[0], session.close, timeout=0.1)
+  File "/home/ubuntu/miniconda3/envs/moe/lib/python3.12/site-packages/fsspec/asyn.py", line 103, in sync
+    raise return_result
+  File "/home/ubuntu/miniconda3/envs/moe/lib/python3.12/site-packages/fsspec/asyn.py", line 56, in _runner
+    result[0] = await coro
+                ^^^^^^^^^^
+  File "/home/ubuntu/miniconda3/envs/moe/lib/python3.12/asyncio/tasks.py", line 520, in wait_for
+    return await fut
+           ^^^^^^^^^
+  File "/home/ubuntu/miniconda3/envs/moe/lib/python3.12/site-packages/aiohttp/client.py", line 1349, in close
+    await self._connector.close()
+  File "/home/ubuntu/miniconda3/envs/moe/lib/python3.12/site-packages/aiohttp/connector.py", line 1074, in close
+    await super().close(abort_ssl=abort_ssl or self._ssl_shutdown_timeout == 0)
+RuntimeError: Task <Task pending name='Task-1106' coro=<_runner() running at /home/ubuntu/miniconda3/envs/moe/lib/python3.12/site-packages/fsspec/asyn.py:56> cb=[_chain_future.<locals>._call_set_state() at /home/ubuntu/miniconda3/envs/moe/lib/python3.12/asyncio/futures.py:396]> got Future <Task pending name='Task-1107' coro=<_wait_for_close() running at /home/ubuntu/miniconda3/envs/moe/lib/python3.12/site-packages/aiohttp/connector.py:138> wait_for=<_GatheringFuture pending cb=[Task.task_wakeup()]>> attached to a different loop
+   (using ARCO-ERA5: past WB2 coverage)
+[prep] e31_h2_20241027: init=peak-21d -> e31_h2_20241027_inputs.nc (673 MB)
+Task was destroyed but it is pending!
+task: <Task pending name='Task-1107' coro=<_wait_for_close() done, defined at /home/ubuntu/miniconda3/envs/moe/lib/python3.12/site-packages/aiohttp/connector.py:136> wait_for=<_GatheringFuture pending cb=[Task.task_wakeup()]>>
+
+[prep] ---- 31/41  e32_h2_20241221  peak=2024-12-21 init=2024-11-30  (97 min elapsed) ----
+Traceback (most recent call last):
+  File "/home/ubuntu/miniconda3/envs/moe/lib/python3.12/weakref.py", line 666, in _exitfunc
+    f()
+  File "/home/ubuntu/miniconda3/envs/moe/lib/python3.12/weakref.py", line 590, in __call__
+    return info.func(*info.args, **(info.kwargs or {}))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ubuntu/miniconda3/envs/moe/lib/python3.12/site-packages/gcsfs/core.py", line 406, in close_session
+    asyn.sync(asyn.loop[0], session.close, timeout=0.1)
+  File "/home/ubuntu/miniconda3/envs/moe/lib/python3.12/site-packages/fsspec/asyn.py", line 103, in sync
+    raise return_result
+  File "/home/ubuntu/miniconda3/envs/moe/lib/python3.12/site-packages/fsspec/asyn.py", line 56, in _runner
+    result[0] = await coro
+                ^^^^^^^^^^
+  File "/home/ubuntu/miniconda3/envs/moe/lib/python3.12/asyncio/tasks.py", line 520, in wait_for
+    return await fut
+           ^^^^^^^^^
+  File "/home/ubuntu/miniconda3/envs/moe/lib/python3.12/site-packages/aiohttp/client.py", line 1349, in close
+    await self._connector.close()
+  File "/home/ubuntu/miniconda3/envs/moe/lib/python3.12/site-packages/aiohttp/connector.py", line 1074, in close
+    await super().close(abort_ssl=abort_ssl or self._ssl_shutdown_timeout == 0)
+RuntimeError: Task <Task pending name='Task-1106' coro=<_runner() running at /home/ubuntu/miniconda3/envs/moe/lib/python3.12/site-packages/fsspec/asyn.py:56> cb=[_chain_future.<locals>._call_set_state() at /home/ubuntu/miniconda3/envs/moe/lib/python3.12/asyncio/futures.py:396]> got Future <Task pending name='Task-1107' coro=<_wait_for_close() running at /home/ubuntu/miniconda3/envs/moe/lib/python3.12/site-packages/aiohttp/connector.py:138> wait_for=<_GatheringFuture pending cb=[Task.task_wakeup()]>> attached to a different loop
+   (using ARCO-ERA5: past WB2 coverage)
+[prep] e32_h2_20241221: init=peak-21d -> e32_h2_20241221_inputs.nc (673 MB)
+Task was destroyed but it is pending!
+task: <Task pending name='Task-1107' coro=<_wait_for_close() done, defined at /home/ubuntu/miniconda3/envs/moe/lib/python3.12/site-packages/aiohttp/connector.py:136> wait_for=<_GatheringFuture pending cb=[Task.task_wakeup()]>>
+
+[prep] ---- 32/41  e33_h4_20250101  peak=2025-01-01 init=2024-12-11  (101 min elapsed) ----
+Traceback (most recent call last):
+  File "/home/ubuntu/miniconda3/envs/moe/lib/python3.12/weakref.py", line 666, in _exitfunc
+    f()
+  File "/home/ubuntu/miniconda3/envs/moe/lib/python3.12/weakref.py", line 590, in __call__
+    return info.func(*info.args, **(info.kwargs or {}))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ubuntu/miniconda3/envs/moe/lib/python3.12/site-packages/gcsfs/core.py", line 406, in close_session
+    asyn.sync(asyn.loop[0], session.close, timeout=0.1)
+  File "/home/ubuntu/miniconda3/envs/moe/lib/python3.12/site-packages/fsspec/asyn.py", line 103, in sync
+    raise return_result
+  File "/home/ubuntu/miniconda3/envs/moe/lib/python3.12/site-packages/fsspec/asyn.py", line 56, in _runner
+    result[0] = await coro
+                ^^^^^^^^^^
+  File "/home/ubuntu/miniconda3/envs/moe/lib/python3.12/asyncio/tasks.py", line 520, in wait_for
+    return await fut
+           ^^^^^^^^^
+  File "/home/ubuntu/miniconda3/envs/moe/lib/python3.12/site-packages/aiohttp/client.py", line 1349, in close
+    await self._connector.close()
+  File "/home/ubuntu/miniconda3/envs/moe/lib/python3.12/site-packages/aiohttp/connector.py", line 1074, in close
+    await super().close(abort_ssl=abort_ssl or self._ssl_shutdown_timeout == 0)
+RuntimeError: Task <Task pending name='Task-1106' coro=<_runner() running at /home/ubuntu/miniconda3/envs/moe/lib/python3.12/site-packages/fsspec/asyn.py:56> cb=[_chain_future.<locals>._call_set_state() at /home/ubuntu/miniconda3/envs/moe/lib/python3.12/asyncio/futures.py:396]> got Future <Task pending name='Task-1107' coro=<_wait_for_close() running at /home/ubuntu/miniconda3/envs/moe/lib/python3.12/site-packages/aiohttp/connector.py:138> wait_for=<_GatheringFuture pending cb=[Task.task_wakeup()]>> attached to a different loop
+   (using ARCO-ERA5: past WB2 coverage)
+[prep] e33_h4_20250101: init=peak-21d -> e33_h4_20250101_inputs.nc (673 MB)
+Task was destroyed but it is pending!
+task: <Task pending name='Task-1107' coro=<_wait_for_close() done, defined at /home/ubuntu/miniconda3/envs/moe/lib/python3.12/site-packages/aiohttp/connector.py:136> wait_for=<_GatheringFuture pending cb=[Task.task_wakeup()]>>
+
+[prep] ---- 33/41  e34_c4_20250125  peak=2025-01-25 init=2025-01-04  (105 min elapsed) ----
+Traceback (most recent call last):
+  File "/home/ubuntu/miniconda3/envs/moe/lib/python3.12/weakref.py", line 666, in _exitfunc
+    f()
+  File "/home/ubuntu/miniconda3/envs/moe/lib/python3.12/weakref.py", line 590, in __call__
+    return info.func(*info.args, **(info.kwargs or {}))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ubuntu/miniconda3/envs/moe/lib/python3.12/site-packages/gcsfs/core.py", line 406, in close_session
+    asyn.sync(asyn.loop[0], session.close, timeout=0.1)
+  File "/home/ubuntu/miniconda3/envs/moe/lib/python3.12/site-packages/fsspec/asyn.py", line 103, in sync
+    raise return_result
+  File "/home/ubuntu/miniconda3/envs/moe/lib/python3.12/site-packages/fsspec/asyn.py", line 56, in _runner
+    result[0] = await coro
+                ^^^^^^^^^^
+  File "/home/ubuntu/miniconda3/envs/moe/lib/python3.12/asyncio/tasks.py", line 520, in wait_for
+    return await fut
+           ^^^^^^^^^
+  File "/home/ubuntu/miniconda3/envs/moe/lib/python3.12/site-packages/aiohttp/client.py", line 1349, in close
+    await self._connector.close()
+  File "/home/ubuntu/miniconda3/envs/moe/lib/python3.12/site-packages/aiohttp/connector.py", line 1074, in close
+    await super().close(abort_ssl=abort_ssl or self._ssl_shutdown_timeout == 0)
+RuntimeError: Task <Task pending name='Task-1106' coro=<_runner() running at /home/ubuntu/miniconda3/envs/moe/lib/python3.12/site-packages/fsspec/asyn.py:56> cb=[_chain_future.<locals>._call_set_state() at /home/ubuntu/miniconda3/envs/moe/lib/python3.12/asyncio/futures.py:396]> got Future <Task pending name='Task-1107' coro=<_wait_for_close() running at /home/ubuntu/miniconda3/envs/moe/lib/python3.12/site-packages/aiohttp/connector.py:138> wait_for=<_GatheringFuture pending cb=[Task.task_wakeup()]>> attached to a different loop
+   (using ARCO-ERA5: past WB2 coverage)
+[prep] e34_c4_20250125: init=peak-21d -> e34_c4_20250125_inputs.nc (673 MB)
+Task was destroyed but it is pending!
+task: <Task pending name='Task-1107' coro=<_wait_for_close() done, defined at /home/ubuntu/miniconda3/envs/moe/lib/python3.12/site-packages/aiohttp/connector.py:136> wait_for=<_GatheringFuture pending cb=[Task.task_wakeup()]>>
+
+[prep] ---- 34/41  e35_h2_20250209  peak=2025-02-09 init=2025-01-19  (110 min elapsed) ----
+Traceback (most recent call last):
+  File "/home/ubuntu/miniconda3/envs/moe/lib/python3.12/weakref.py", line 666, in _exitfunc
+    f()
+  File "/home/ubuntu/miniconda3/envs/moe/lib/python3.12/weakref.py", line 590, in __call__
+    return info.func(*info.args, **(info.kwargs or {}))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ubuntu/miniconda3/envs/moe/lib/python3.12/site-packages/gcsfs/core.py", line 406, in close_session
+    asyn.sync(asyn.loop[0], session.close, timeout=0.1)
+  File "/home/ubuntu/miniconda3/envs/moe/lib/python3.12/site-packages/fsspec/asyn.py", line 103, in sync
+    raise return_result
+  File "/home/ubuntu/miniconda3/envs/moe/lib/python3.12/site-packages/fsspec/asyn.py", line 56, in _runner
+    result[0] = await coro
+                ^^^^^^^^^^
+  File "/home/ubuntu/miniconda3/envs/moe/lib/python3.12/asyncio/tasks.py", line 520, in wait_for
+    return await fut
+           ^^^^^^^^^
+  File "/home/ubuntu/miniconda3/envs/moe/lib/python3.12/site-packages/aiohttp/client.py", line 1349, in close
+    await self._connector.close()
+  File "/home/ubuntu/miniconda3/envs/moe/lib/python3.12/site-packages/aiohttp/connector.py", line 1074, in close
+    await super().close(abort_ssl=abort_ssl or self._ssl_shutdown_timeout == 0)
+RuntimeError: Task <Task pending name='Task-1106' coro=<_runner() running at /home/ubuntu/miniconda3/envs/moe/lib/python3.12/site-packages/fsspec/asyn.py:56> cb=[_chain_future.<locals>._call_set_state() at /home/ubuntu/miniconda3/envs/moe/lib/python3.12/asyncio/futures.py:396]> got Future <Task pending name='Task-1107' coro=<_wait_for_close() running at /home/ubuntu/miniconda3/envs/moe/lib/python3.12/site-packages/aiohttp/connector.py:138> wait_for=<_GatheringFuture pending cb=[Task.task_wakeup()]>> attached to a different loop
+   (using ARCO-ERA5: past WB2 coverage)
+[prep] e35_h2_20250209: init=peak-21d -> e35_h2_20250209_inputs.nc (673 MB)
+Task was destroyed but it is pending!
+task: <Task pending name='Task-1107' coro=<_wait_for_close() done, defined at /home/ubuntu/miniconda3/envs/moe/lib/python3.12/site-packages/aiohttp/connector.py:136> wait_for=<_GatheringFuture pending cb=[Task.task_wakeup()]>>
+
+[prep] ---- 35/41  e36_c3_20250223  peak=2025-02-23 init=2025-02-02  (114 min elapsed) ----
+Traceback (most recent call last):
+  File "/home/ubuntu/miniconda3/envs/moe/lib/python3.12/weakref.py", line 666, in _exitfunc
+    f()
+  File "/home/ubuntu/miniconda3/envs/moe/lib/python3.12/weakref.py", line 590, in __call__
+    return info.func(*info.args, **(info.kwargs or {}))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ubuntu/miniconda3/envs/moe/lib/python3.12/site-packages/gcsfs/core.py", line 406, in close_session
+    asyn.sync(asyn.loop[0], session.close, timeout=0.1)
+  File "/home/ubuntu/miniconda3/envs/moe/lib/python3.12/site-packages/fsspec/asyn.py", line 103, in sync
+    raise return_result
+  File "/home/ubuntu/miniconda3/envs/moe/lib/python3.12/site-packages/fsspec/asyn.py", line 56, in _runner
+    result[0] = await coro
+                ^^^^^^^^^^
+  File "/home/ubuntu/miniconda3/envs/moe/lib/python3.12/asyncio/tasks.py", line 520, in wait_for
+    return await fut
+           ^^^^^^^^^
+  File "/home/ubuntu/miniconda3/envs/moe/lib/python3.12/site-packages/aiohttp/client.py", line 1349, in close
+    await self._connector.close()
+  File "/home/ubuntu/miniconda3/envs/moe/lib/python3.12/site-packages/aiohttp/connector.py", line 1074, in close
+    await super().close(abort_ssl=abort_ssl or self._ssl_shutdown_timeout == 0)
+RuntimeError: Task <Task pending name='Task-1106' coro=<_runner() running at /home/ubuntu/miniconda3/envs/moe/lib/python3.12/site-packages/fsspec/asyn.py:56> cb=[_chain_future.<locals>._call_set_state() at /home/ubuntu/miniconda3/envs/moe/lib/python3.12/asyncio/futures.py:396]> got Future <Task pending name='Task-1107' coro=<_wait_for_close() running at /home/ubuntu/miniconda3/envs/moe/lib/python3.12/site-packages/aiohttp/connector.py:138> wait_for=<_GatheringFuture pending cb=[Task.task_wakeup()]>> attached to a different loop
+   (using ARCO-ERA5: past WB2 coverage)
+[prep] e36_c3_20250223: init=peak-21d -> e36_c3_20250223_inputs.nc (673 MB)
+Task was destroyed but it is pending!
+task: <Task pending name='Task-1107' coro=<_wait_for_close() done, defined at /home/ubuntu/miniconda3/envs/moe/lib/python3.12/site-packages/aiohttp/connector.py:136> wait_for=<_GatheringFuture pending cb=[Task.task_wakeup()]>>
+
+[prep] ---- 36/41  e37_h3_20250302  peak=2025-03-02 init=2025-02-09  (118 min elapsed) ----
+Traceback (most recent call last):
+  File "/home/ubuntu/miniconda3/envs/moe/lib/python3.12/weakref.py", line 666, in _exitfunc
+    f()
+  File "/home/ubuntu/miniconda3/envs/moe/lib/python3.12/weakref.py", line 590, in __call__
+    return info.func(*info.args, **(info.kwargs or {}))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ubuntu/miniconda3/envs/moe/lib/python3.12/site-packages/gcsfs/core.py", line 406, in close_session
+    asyn.sync(asyn.loop[0], session.close, timeout=0.1)
+  File "/home/ubuntu/miniconda3/envs/moe/lib/python3.12/site-packages/fsspec/asyn.py", line 103, in sync
+    raise return_result
+  File "/home/ubuntu/miniconda3/envs/moe/lib/python3.12/site-packages/fsspec/asyn.py", line 56, in _runner
+    result[0] = await coro
+                ^^^^^^^^^^
+  File "/home/ubuntu/miniconda3/envs/moe/lib/python3.12/asyncio/tasks.py", line 520, in wait_for
+    return await fut
+           ^^^^^^^^^
+  File "/home/ubuntu/miniconda3/envs/moe/lib/python3.12/site-packages/aiohttp/client.py", line 1349, in close
+    await self._connector.close()
+  File "/home/ubuntu/miniconda3/envs/moe/lib/python3.12/site-packages/aiohttp/connector.py", line 1074, in close
+    await super().close(abort_ssl=abort_ssl or self._ssl_shutdown_timeout == 0)
+RuntimeError: Task <Task pending name='Task-1106' coro=<_runner() running at /home/ubuntu/miniconda3/envs/moe/lib/python3.12/site-packages/fsspec/asyn.py:56> cb=[_chain_future.<locals>._call_set_state() at /home/ubuntu/miniconda3/envs/moe/lib/python3.12/asyncio/futures.py:396]> got Future <Task pending name='Task-1107' coro=<_wait_for_close() running at /home/ubuntu/miniconda3/envs/moe/lib/python3.12/site-packages/aiohttp/connector.py:138> wait_for=<_GatheringFuture pending cb=[Task.task_wakeup()]>> attached to a different loop
+   (using ARCO-ERA5: past WB2 coverage)
+[prep] e37_h3_20250302: init=peak-21d -> e37_h3_20250302_inputs.nc (673 MB)
+Task was destroyed but it is pending!
+task: <Task pending name='Task-1107' coro=<_wait_for_close() done, defined at /home/ubuntu/miniconda3/envs/moe/lib/python3.12/site-packages/aiohttp/connector.py:136> wait_for=<_GatheringFuture pending cb=[Task.task_wakeup()]>>
+
+[prep] ---- 37/41  e38_h2_20250317  peak=2025-03-17 init=2025-02-24  (122 min elapsed) ----
+Traceback (most recent call last):
+  File "/home/ubuntu/miniconda3/envs/moe/lib/python3.12/weakref.py", line 666, in _exitfunc
+    f()
+  File "/home/ubuntu/miniconda3/envs/moe/lib/python3.12/weakref.py", line 590, in __call__
+    return info.func(*info.args, **(info.kwargs or {}))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ubuntu/miniconda3/envs/moe/lib/python3.12/site-packages/gcsfs/core.py", line 406, in close_session
+    asyn.sync(asyn.loop[0], session.close, timeout=0.1)
+  File "/home/ubuntu/miniconda3/envs/moe/lib/python3.12/site-packages/fsspec/asyn.py", line 103, in sync
+    raise return_result
+  File "/home/ubuntu/miniconda3/envs/moe/lib/python3.12/site-packages/fsspec/asyn.py", line 56, in _runner
+    result[0] = await coro
+                ^^^^^^^^^^
+  File "/home/ubuntu/miniconda3/envs/moe/lib/python3.12/asyncio/tasks.py", line 520, in wait_for
+    return await fut
+           ^^^^^^^^^
+  File "/home/ubuntu/miniconda3/envs/moe/lib/python3.12/site-packages/aiohttp/client.py", line 1349, in close
+    await self._connector.close()
+  File "/home/ubuntu/miniconda3/envs/moe/lib/python3.12/site-packages/aiohttp/connector.py", line 1074, in close
+    await super().close(abort_ssl=abort_ssl or self._ssl_shutdown_timeout == 0)
+RuntimeError: Task <Task pending name='Task-1106' coro=<_runner() running at /home/ubuntu/miniconda3/envs/moe/lib/python3.12/site-packages/fsspec/asyn.py:56> cb=[_chain_future.<locals>._call_set_state() at /home/ubuntu/miniconda3/envs/moe/lib/python3.12/asyncio/futures.py:396]> got Future <Task pending name='Task-1107' coro=<_wait_for_close() running at /home/ubuntu/miniconda3/envs/moe/lib/python3.12/site-packages/aiohttp/connector.py:138> wait_for=<_GatheringFuture pending cb=[Task.task_wakeup()]>> attached to a different loop
+   (using ARCO-ERA5: past WB2 coverage)
+[prep] e38_h2_20250317: init=peak-21d -> e38_h2_20250317_inputs.nc (673 MB)
+Task was destroyed but it is pending!
+task: <Task pending name='Task-1107' coro=<_wait_for_close() done, defined at /home/ubuntu/miniconda3/envs/moe/lib/python3.12/site-packages/aiohttp/connector.py:136> wait_for=<_GatheringFuture pending cb=[Task.task_wakeup()]>>
+
+[prep] ---- 38/41  e39_h2_20250331  peak=2025-03-31 init=2025-03-10  (126 min elapsed) ----
+Traceback (most recent call last):
+  File "/home/ubuntu/miniconda3/envs/moe/lib/python3.12/weakref.py", line 666, in _exitfunc
+    f()
+  File "/home/ubuntu/miniconda3/envs/moe/lib/python3.12/weakref.py", line 590, in __call__
+    return info.func(*info.args, **(info.kwargs or {}))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ubuntu/miniconda3/envs/moe/lib/python3.12/site-packages/gcsfs/core.py", line 406, in close_session
+    asyn.sync(asyn.loop[0], session.close, timeout=0.1)
+  File "/home/ubuntu/miniconda3/envs/moe/lib/python3.12/site-packages/fsspec/asyn.py", line 103, in sync
+    raise return_result
+  File "/home/ubuntu/miniconda3/envs/moe/lib/python3.12/site-packages/fsspec/asyn.py", line 56, in _runner
+    result[0] = await coro
+                ^^^^^^^^^^
+  File "/home/ubuntu/miniconda3/envs/moe/lib/python3.12/asyncio/tasks.py", line 520, in wait_for
+    return await fut
+           ^^^^^^^^^
+  File "/home/ubuntu/miniconda3/envs/moe/lib/python3.12/site-packages/aiohttp/client.py", line 1349, in close
+    await self._connector.close()
+  File "/home/ubuntu/miniconda3/envs/moe/lib/python3.12/site-packages/aiohttp/connector.py", line 1074, in close
+    await super().close(abort_ssl=abort_ssl or self._ssl_shutdown_timeout == 0)
+RuntimeError: Task <Task pending name='Task-1106' coro=<_runner() running at /home/ubuntu/miniconda3/envs/moe/lib/python3.12/site-packages/fsspec/asyn.py:56> cb=[_chain_future.<locals>._call_set_state() at /home/ubuntu/miniconda3/envs/moe/lib/python3.12/asyncio/futures.py:396]> got Future <Task pending name='Task-1107' coro=<_wait_for_close() running at /home/ubuntu/miniconda3/envs/moe/lib/python3.12/site-packages/aiohttp/connector.py:138> wait_for=<_GatheringFuture pending cb=[Task.task_wakeup()]>> attached to a different loop
+   (using ARCO-ERA5: past WB2 coverage)
+[prep] e39_h2_20250331: init=peak-21d -> e39_h2_20250331_inputs.nc (673 MB)
+Task was destroyed but it is pending!
+task: <Task pending name='Task-1107' coro=<_wait_for_close() done, defined at /home/ubuntu/miniconda3/envs/moe/lib/python3.12/site-packages/aiohttp/connector.py:136> wait_for=<_GatheringFuture pending cb=[Task.task_wakeup()]>>
+
+[prep] ---- 39/41  e40_h2_20250930  peak=2025-09-30 init=2025-09-09  (131 min elapsed) ----
+Traceback (most recent call last):
+  File "/home/ubuntu/miniconda3/envs/moe/lib/python3.12/weakref.py", line 666, in _exitfunc
+    f()
+  File "/home/ubuntu/miniconda3/envs/moe/lib/python3.12/weakref.py", line 590, in __call__
+    return info.func(*info.args, **(info.kwargs or {}))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ubuntu/miniconda3/envs/moe/lib/python3.12/site-packages/gcsfs/core.py", line 406, in close_session
+    asyn.sync(asyn.loop[0], session.close, timeout=0.1)
+  File "/home/ubuntu/miniconda3/envs/moe/lib/python3.12/site-packages/fsspec/asyn.py", line 103, in sync
+    raise return_result
+  File "/home/ubuntu/miniconda3/envs/moe/lib/python3.12/site-packages/fsspec/asyn.py", line 56, in _runner
+    result[0] = await coro
+                ^^^^^^^^^^
+  File "/home/ubuntu/miniconda3/envs/moe/lib/python3.12/asyncio/tasks.py", line 520, in wait_for
+    return await fut
+           ^^^^^^^^^
+  File "/home/ubuntu/miniconda3/envs/moe/lib/python3.12/site-packages/aiohttp/client.py", line 1349, in close
+    await self._connector.close()
+  File "/home/ubuntu/miniconda3/envs/moe/lib/python3.12/site-packages/aiohttp/connector.py", line 1074, in close
+    await super().close(abort_ssl=abort_ssl or self._ssl_shutdown_timeout == 0)
+RuntimeError: Task <Task pending name='Task-1106' coro=<_runner() running at /home/ubuntu/miniconda3/envs/moe/lib/python3.12/site-packages/fsspec/asyn.py:56> cb=[_chain_future.<locals>._call_set_state() at /home/ubuntu/miniconda3/envs/moe/lib/python3.12/asyncio/futures.py:396]> got Future <Task pending name='Task-1107' coro=<_wait_for_close() running at /home/ubuntu/miniconda3/envs/moe/lib/python3.12/site-packages/aiohttp/connector.py:138> wait_for=<_GatheringFuture pending cb=[Task.task_wakeup()]>> attached to a different loop
+   (using ARCO-ERA5: past WB2 coverage)
+[prep] e40_h2_20250930: init=peak-21d -> e40_h2_20250930_inputs.nc (673 MB)
+Task was destroyed but it is pending!
+task: <Task pending name='Task-1107' coro=<_wait_for_close() done, defined at /home/ubuntu/miniconda3/envs/moe/lib/python3.12/site-packages/aiohttp/connector.py:136> wait_for=<_GatheringFuture pending cb=[Task.task_wakeup()]>>
+
+[prep] ---- 40/41  e41_h2_20251120  peak=2025-11-20 init=2025-10-30  (135 min elapsed) ----
+Traceback (most recent call last):
+  File "/home/ubuntu/miniconda3/envs/moe/lib/python3.12/weakref.py", line 666, in _exitfunc
+    f()
+  File "/home/ubuntu/miniconda3/envs/moe/lib/python3.12/weakref.py", line 590, in __call__
+    return info.func(*info.args, **(info.kwargs or {}))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ubuntu/miniconda3/envs/moe/lib/python3.12/site-packages/gcsfs/core.py", line 406, in close_session
+    asyn.sync(asyn.loop[0], session.close, timeout=0.1)
+  File "/home/ubuntu/miniconda3/envs/moe/lib/python3.12/site-packages/fsspec/asyn.py", line 103, in sync
+    raise return_result
+  File "/home/ubuntu/miniconda3/envs/moe/lib/python3.12/site-packages/fsspec/asyn.py", line 56, in _runner
+    result[0] = await coro
+                ^^^^^^^^^^
+  File "/home/ubuntu/miniconda3/envs/moe/lib/python3.12/asyncio/tasks.py", line 520, in wait_for
+    return await fut
+           ^^^^^^^^^
+  File "/home/ubuntu/miniconda3/envs/moe/lib/python3.12/site-packages/aiohttp/client.py", line 1349, in close
+    await self._connector.close()
+  File "/home/ubuntu/miniconda3/envs/moe/lib/python3.12/site-packages/aiohttp/connector.py", line 1074, in close
+    await super().close(abort_ssl=abort_ssl or self._ssl_shutdown_timeout == 0)
+RuntimeError: Task <Task pending name='Task-1106' coro=<_runner() running at /home/ubuntu/miniconda3/envs/moe/lib/python3.12/site-packages/fsspec/asyn.py:56> cb=[_chain_future.<locals>._call_set_state() at /home/ubuntu/miniconda3/envs/moe/lib/python3.12/asyncio/futures.py:396]> got Future <Task pending name='Task-1107' coro=<_wait_for_close() running at /home/ubuntu/miniconda3/envs/moe/lib/python3.12/site-packages/aiohttp/connector.py:138> wait_for=<_GatheringFuture pending cb=[Task.task_wakeup()]>> attached to a different loop
+   (using ARCO-ERA5: past WB2 coverage)
+[prep] e41_h2_20251120: init=peak-21d -> e41_h2_20251120_inputs.nc (673 MB)
+Task was destroyed but it is pending!
+task: <Task pending name='Task-1107' coro=<_wait_for_close() done, defined at /home/ubuntu/miniconda3/envs/moe/lib/python3.12/site-packages/aiohttp/connector.py:136> wait_for=<_GatheringFuture pending cb=[Task.task_wakeup()]>>
+
+[prep] ---- 41/41  e42_h4_20251228  peak=2025-12-28 init=2025-12-07  (139 min elapsed) ----
+Traceback (most recent call last):
+  File "/home/ubuntu/miniconda3/envs/moe/lib/python3.12/weakref.py", line 666, in _exitfunc
+    f()
+  File "/home/ubuntu/miniconda3/envs/moe/lib/python3.12/weakref.py", line 590, in __call__
+    return info.func(*info.args, **(info.kwargs or {}))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ubuntu/miniconda3/envs/moe/lib/python3.12/site-packages/gcsfs/core.py", line 406, in close_session
+    asyn.sync(asyn.loop[0], session.close, timeout=0.1)
+  File "/home/ubuntu/miniconda3/envs/moe/lib/python3.12/site-packages/fsspec/asyn.py", line 103, in sync
+    raise return_result
+  File "/home/ubuntu/miniconda3/envs/moe/lib/python3.12/site-packages/fsspec/asyn.py", line 56, in _runner
+    result[0] = await coro
+                ^^^^^^^^^^
+  File "/home/ubuntu/miniconda3/envs/moe/lib/python3.12/asyncio/tasks.py", line 520, in wait_for
+    return await fut
+           ^^^^^^^^^
+  File "/home/ubuntu/miniconda3/envs/moe/lib/python3.12/site-packages/aiohttp/client.py", line 1349, in close
+    await self._connector.close()
+  File "/home/ubuntu/miniconda3/envs/moe/lib/python3.12/site-packages/aiohttp/connector.py", line 1074, in close
+    await super().close(abort_ssl=abort_ssl or self._ssl_shutdown_timeout == 0)
+RuntimeError: Task <Task pending name='Task-1106' coro=<_runner() running at /home/ubuntu/miniconda3/envs/moe/lib/python3.12/site-packages/fsspec/asyn.py:56> cb=[_chain_future.<locals>._call_set_state() at /home/ubuntu/miniconda3/envs/moe/lib/python3.12/asyncio/futures.py:396]> got Future <Task pending name='Task-1107' coro=<_wait_for_close() running at /home/ubuntu/miniconda3/envs/moe/lib/python3.12/site-packages/aiohttp/connector.py:138> wait_for=<_GatheringFuture pending cb=[Task.task_wakeup()]>> attached to a different loop
+   (using ARCO-ERA5: past WB2 coverage)
+[prep] e42_h4_20251228: init=peak-21d -> e42_h4_20251228_inputs.nc (673 MB)
+Task was destroyed but it is pending!
+task: <Task pending name='Task-1107' coro=<_wait_for_close() done, defined at /home/ubuntu/miniconda3/envs/moe/lib/python3.12/site-packages/aiohttp/connector.py:136> wait_for=<_GatheringFuture pending cb=[Task.task_wakeup()]>>
+
+[prep] done: 42/42 inits present, 0 failed, 144 min
