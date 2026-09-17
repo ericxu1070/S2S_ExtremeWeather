@@ -846,6 +846,20 @@ def stage_walk(ctx: Ctx, leg_k: int, shard: int, nshards: int) -> int:
     print(f"[walk] host={socket.gethostname()} shard {shard}/{nshards} leg {leg_k} "
           f"({leg.lead_start_days:g} -> {leg.lead_end_days:g} d): walkers {mine}")
 
+    # Claim the card NOW, before the ~30 s checkpoint load. With
+    # XLA_PYTHON_CLIENT_PREALLOCATE=true the arena is reserved at the FIRST allocation,
+    # not at backend init, so until something is placed on the device the card is still
+    # up for grabs - and on this cluster it does get grabbed: job 1215 (2026-09-17) passed
+    # its all-cards-empty guard at 11:16:32, a teammate's non-Slurm eval took 80 GB on
+    # every card from 11:16:38, and the shards' preallocation at 11:17:17 found nothing
+    # left. A 1-element device_put here moves the reservation to a few seconds after the
+    # process starts. It also fails fast: a card already held by someone else raises
+    # here, not after a 6-minute compile.
+    import jax
+    import numpy as np
+    jax.device_put(np.zeros(1, np.float32)).block_until_ready()
+    W._memstats("stage_walk:claimed")
+
     get_bundle = W.lazy_bundle()
     t0, rolled = time.perf_counter(), 0
     for w in mine:
