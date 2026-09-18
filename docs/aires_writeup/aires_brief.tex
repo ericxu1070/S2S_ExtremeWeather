@@ -96,6 +96,29 @@ The trajectory model is GenCast (Google DeepMind) at 0.25-degree resolution. The
 FourCastNet~3 (NVIDIA). Both were trained on data ending before 2019, so every event tested here
 is out of sample.
 
+The algorithm is AI+RES, introduced by Lancelin et al.\ in Physical Review Letters, 2026
+(\href{https://doi.org/10.1103/b1gc-9c2q}{doi:10.1103/b1gc-9c2q},
+\href{https://arxiv.org/abs/2510.27066}{arXiv:2510.27066}). Figure~\ref{fig:lancelin} is their
+schematic of it. Their demonstration ran an intermediate-complexity climate model as the
+trajectory model, scored by an AI emulator trained on that same model, and targeted heat waves in
+the model's own climate. The work reported here replaces both halves with operational-grade
+weather models at full resolution and targets named events in the observed record.
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=0.92\textwidth]{figs/lancelin_fig1.pdf}
+\caption{The AI+RES algorithm, reproduced from Figure~1 of Lancelin et al. (2026),
+arXiv:2510.27066. \textbf{(a)} A population of trajectories runs forward in the physics model.
+At each resampling time, marked by a dashed vertical, the low scorers are discarded (red crosses)
+and the high scorers duplicated in their place (green crosses). \textbf{(b)} The score comes from
+an ensemble forecast made by the AI model from each trajectory's current state out to the target
+time, which is what carries information the trajectory's present state does not. \textbf{(c)} The
+run yields a catalogue of extreme events and \textbf{(d)} an unbiased return-period curve, at a
+fraction of the cost of direct sampling (DS). The configuration reported here follows the same
+schematic with GenCast as the trajectory model and FourCastNet~3 as the scorer.}
+\label{fig:lancelin}
+\end{figure}
+
 \section{Results}
 \label{sec:results}
 
@@ -309,7 +332,7 @@ per-forecast cost directly, since the current pair requires an 80\,GB GPU per tr
 \label{sec:appendix}
 
 These figures show every forecast trajectory of four AI+RES runs, from the start of the
-forecast to the event. They support Table~\ref{tab:results} and are not counted in the four
+forecast to the event. They support Table~\ref{tab:results} and are not counted in the five
 pages of the brief. Figure~\ref{fig:tj_pnw} describes the panels, and Figures~\ref{fig:tj_uri}
 to~\ref{fig:tj_sw} use the same layout.
 
