@@ -83,7 +83,7 @@ schematic of it.
 
 \begin{figure}[t]
 \centering
-\includegraphics[width=0.92\textwidth]{figs/lancelin_fig1.pdf}
+\includegraphics[width=0.90\textwidth]{figs/lancelin_fig1.png}
 \caption{The AI+RES algorithm, reproduced from Figure~1 of Lancelin et al. (2026),
 arXiv:2510.27066. \textbf{(a)} A population of trajectories runs forward in the physics model.
 At each resampling time, marked by a dashed vertical, the low scorers are discarded (red crosses)
@@ -132,7 +132,7 @@ is out of sample.
 
 Neither choice is structural. The algorithm needs a trajectory model that can be
 stopped, checkpointed and restarted, and a scoring model that forecasts to the target lead faster
-than the trajectory model reaches it. Any autoregressive weather model meeting those two
+than the trajectory model reaches it. Any weather model meeting those two
 conditions can take either role, so a more accurate or cheaper model released later can be
 substituted for one of ours. The component that would be rewritten is the adapter that translates
 one model's state into the other's input format, not the sampling algorithm.
@@ -199,7 +199,7 @@ extremes.
 
 \textbf{The bound on what this configuration reaches is qualitative.} The configuration tested here
 is 64 trajectories with five resampling steps at a 21-day lead. On the evidence of these nine cases
-it produces the event for extremes up to about the 99.9th percentile, roughly a 1-in-40-year week
+it produces the event for extremes up to about the 99.9th percentile, roughly a 1-in-100-year week
 for a given region and season. It reached one event with no analogue in the
 64-year record, the S.\ Texas heat dome, and missed another, the Southwest heat wave at an
 estimated 1-in-210-year return period. That miss is the rarest case in the set by return period.
@@ -207,7 +207,9 @@ Resampling moved the population 1.75\,K toward the observed value and stopped 4.
 it. The boundary for this budget is therefore near the
 1-in-100-year level rather than beyond it. Past that boundary the limit is population size, which
 scales linearly in compute. Nine cases do not establish a hit rate, and the percentile above
-should be read as a working expectation rather than as a measured threshold.
+should be read as a working expectation rather than as a measured threshold. The seven extremes
+were chosen as some of the most extreme events of the out-of-sample period, with no formal
+selection rule.
 
 Figure~\ref{fig:maps} shows the 2021 heat dome as fields rather than as a single number. The
 AI+RES population reproduces the dome in the observed location and at the observed intensity, and
@@ -217,7 +219,7 @@ steps and shows what the scoring model was responding to.
 
 \begin{figure}[t]
 \centering
-\includegraphics[width=0.94\textwidth]{figs/pnw_anom_maps.png}
+\includegraphics[width=0.90\textwidth]{figs/pnw_anom_maps.png}
 \caption{The 2021 Pacific Northwest heat dome, as maps of the week-average temperature anomaly.
 \textbf{Left.} The observed field. \textbf{Middle.} The AI+RES population three weeks out, with
 the dome in the observed location at the observed intensity. \textbf{Right.} The 24-member direct
@@ -230,7 +232,7 @@ sense.}
 
 \begin{figure}[t]
 \centering
-\includegraphics[width=0.94\textwidth]{figs/pnw_map_walk.png}
+\includegraphics[width=0.90\textwidth]{figs/pnw_map_walk.png}
 \caption{The single hottest surviving trajectory of the 2021 heat-dome run, followed from the
 3-day resampling step to the event, with the instantaneous temperature anomaly shaded and the
 upper-atmosphere pressure pattern contoured. At the 9-day resampling step this trajectory had the
@@ -370,7 +372,7 @@ describes the layout, and the remaining events follow the order of Table~\ref{ta
 
 \begin{figure}[h]
 \centering
-\includegraphics[width=\textwidth,trim=0 0 0 22,clip]{PNW_HeatDome_2021/aires_trajectory_PNW_HeatDome_2021_pilot.pdf}
+\makebox[\textwidth][c]{\includegraphics[width=\dimexpr\paperwidth-0.5in\relax,trim=0 0 0 22,clip]{PNW_HeatDome_2021/aires_trajectory_PNW_HeatDome_2021_pilot.pdf}}
 \caption{The 2021 Pacific Northwest heat dome, scored over 44 to 50$^\circ$N and 124 to 118$^\circ$W, 64
 trajectories, forecast from 21 days out.
 \textbf{Left.} Each line is one trajectory, plotted as its running regional temperature anomaly
@@ -392,7 +394,7 @@ and stops at $+7.08$\,K.}
 
 \begin{figure}[h]
 \centering
-\includegraphics[width=\textwidth,trim=0 0 0 22,clip]{SCentral_HeatDome_2023/aires_trajectory_SCentral_HeatDome_2023_pilot.pdf}
+\makebox[\textwidth][c]{\includegraphics[width=\dimexpr\paperwidth-0.5in\relax,trim=0 0 0 22,clip]{SCentral_HeatDome_2023/aires_trajectory_SCentral_HeatDome_2023_pilot.pdf}}
 \caption{The June 2023 S.\ Texas heat dome, scored over 26 to 32$^\circ$N and 106 to 100$^\circ$W, the event
 with no analogue in the 1959 to 2022
 record. The direct column is the 16 free-running GenCast trajectories at 21 days, the only
@@ -404,7 +406,7 @@ closest stopping at $+4.19$\,K.}
 
 \begin{figure}[h]
 \centering
-\includegraphics[width=\textwidth,trim=0 0 0 22,clip]{Southwest_HeatWave_2020/aires_trajectory_Southwest_HeatWave_2020_pilot.pdf}
+\makebox[\textwidth][c]{\includegraphics[width=\dimexpr\paperwidth-0.5in\relax,trim=0 0 0 22,clip]{Southwest_HeatWave_2020/aires_trajectory_Southwest_HeatWave_2020_pilot.pdf}}
 \caption{The August 2020 Southwest heat wave, scored over 29 to 35$^\circ$N and 109 to 103$^\circ$W, the one
 target in Table~\ref{tab:results} the method does not reach. Resampling moves the population about 1.75\,K toward the observed value
 and ends 4.4\,K short of it at $+4.31$\,K. Where direct sampling and the weighted estimate both
@@ -415,7 +417,7 @@ a failure of the weighting.}
 
 \begin{figure}[h]
 \centering
-\includegraphics[width=\textwidth,trim=0 0 0 22,clip]{California_HeatWave_2022/aires_trajectory_California_HeatWave_2022_pilot.pdf}
+\makebox[\textwidth][c]{\includegraphics[width=\dimexpr\paperwidth-0.5in\relax,trim=0 0 0 22,clip]{California_HeatWave_2022/aires_trajectory_California_HeatWave_2022_pilot.pdf}}
 \caption{The September 2022 California heat wave, scored over 35 to 41$^\circ$N and 124 to 118$^\circ$W.
 Observed $+4.71$\,K, reached by 25 of 64
 trajectories, most extreme $+6.33$\,K. None of 24 direct GenCast members reaches it, the closest
@@ -425,7 +427,7 @@ stopping at $+4.70$\,K.}
 
 \begin{figure}[h]
 \centering
-\includegraphics[width=\textwidth,trim=0 0 0 22,clip]{p90_20251224/aires_trajectory_p90_20251224_pilot.pdf}
+\makebox[\textwidth][c]{\includegraphics[width=\dimexpr\paperwidth-0.5in\relax,trim=0 0 0 22,clip]{p90_20251224/aires_trajectory_p90_20251224_pilot.pdf}}
 \caption{The CONUS-wide warm week of December 2025, scored over 24 to 50$^\circ$N and 125 to 66$^\circ$W.
 This is the one extreme in
 Table~\ref{tab:results} that direct sampling reaches, with 1 of 24 members at $+3.46$\,K.
@@ -436,7 +438,7 @@ Observed $+3.26$\,K, reached by 46 of 64 trajectories, most extreme $+5.12$\,K. 
 
 \begin{figure}[h]
 \centering
-\includegraphics[width=\textwidth,trim=0 0 0 22,clip]{WinterStorm_Elliott_2022/aires_trajectory_WinterStorm_Elliott_2022_pilot.pdf}
+\makebox[\textwidth][c]{\includegraphics[width=\dimexpr\paperwidth-0.5in\relax,trim=0 0 0 22,clip]{WinterStorm_Elliott_2022/aires_trajectory_WinterStorm_Elliott_2022_pilot.pdf}}
 \caption{Winter Storm Elliott, December 2022, scored over the northern Plains, 43 to 49$^\circ$N and
 106 to 100$^\circ$W. This is the
 deepest cold target in the set relative to the forecast model's own spread. Observed
@@ -447,7 +449,7 @@ stops 4.6\,K short at $-9.83$\,K.}
 
 \begin{figure}[h]
 \centering
-\includegraphics[width=\textwidth,trim=0 0 0 22,clip]{WinterStorm_Uri_2021/aires_trajectory_WinterStorm_Uri_2021_pilot.pdf}
+\makebox[\textwidth][c]{\includegraphics[width=\dimexpr\paperwidth-0.5in\relax,trim=0 0 0 22,clip]{WinterStorm_Uri_2021/aires_trajectory_WinterStorm_Uri_2021_pilot.pdf}}
 \caption{Winter Storm Uri, February 2021, scored over Texas and Oklahoma, 26 to 37$^\circ$N and 106 to
 94$^\circ$W. The sign of the
 score is reversed for a cold event, so the method clones the coldest trajectories rather than the
@@ -459,7 +461,7 @@ members, 16 free-running trajectories or 24 direct FourCastNet~3 members reaches
 
 \begin{figure}[h]
 \centering
-\includegraphics[width=\textwidth,trim=0 0 0 22,clip]{p90_20240802/aires_trajectory_p90_20240802_pilot.pdf}
+\makebox[\textwidth][c]{\includegraphics[width=\dimexpr\paperwidth-0.5in\relax,trim=0 0 0 22,clip]{p90_20240802/aires_trajectory_p90_20240802_pilot.pdf}}
 \caption{The CONUS-wide warm week of August 2024, the first mild control, scored over the CONUS box of
 Figure~\ref{fig:tj_dec25}. Observed
 $+1.06$\,K, reached by 63 of 64 trajectories, most extreme $+2.37$\,K. Direct GenCast reaches it
@@ -471,7 +473,7 @@ sampling error (Section~\ref{sec:scope}, item 2).}
 
 \begin{figure}[h]
 \centering
-\includegraphics[width=\textwidth,trim=0 0 0 22,clip]{p90_20231107/aires_trajectory_p90_20231107_pilot.pdf}
+\makebox[\textwidth][c]{\includegraphics[width=\dimexpr\paperwidth-0.5in\relax,trim=0 0 0 22,clip]{p90_20231107/aires_trajectory_p90_20231107_pilot.pdf}}
 \caption{The CONUS-wide median week of November 2023, the second control, scored over the same CONUS
 box. Observed
 $+0.21$\,K, reached by all 64 trajectories, most extreme $+4.16$\,K. Direct GenCast reaches it
