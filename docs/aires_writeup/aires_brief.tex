@@ -333,6 +333,7 @@ per-forecast cost directly, since the current pair requires an 80\,GB GPU per tr
 
 \clearpage
 \raggedbottom
+\makeatletter\setlength{\@fptop}{0pt}\setlength{\@fpbot}{0pt plus 1fil}\makeatother
 \renewcommand{\topfraction}{0.98}
 \renewcommand{\bottomfraction}{0.98}
 \renewcommand{\textfraction}{0.03}
@@ -365,28 +366,33 @@ per-forecast cost directly, since the current pair requires an 80\,GB GPU per tr
 \label{sec:appendix}
 
 These figures show every forecast trajectory of the nine AI+RES runs in Table~\ref{tab:results},
-from the start of the forecast to the event. They are not counted in the five pages of the
-brief. Figure~\ref{fig:tj_pnw} describes the panels, and Figures~\ref{fig:tj_stx}
-to~\ref{fig:tj_nov23} use the same layout. The 2021 heat dome comes first because its caption
+from the start of the forecast to the event, and beneath each the week-average temperature
+anomaly as maps. They are not counted in the five pages of the brief. Figure~\ref{fig:tj_pnw}
+describes the panels, and Figures~\ref{fig:tj_stx} to~\ref{fig:tj_nov23} use the same layout. The 2021 heat dome comes first because its caption
 describes the layout, and the remaining events follow the order of Table~\ref{tab:results}.
 
 \begin{figure}[h]
 \centering
-\makebox[\textwidth][c]{\includegraphics[width=\dimexpr\paperwidth-0.5in\relax,trim=0 0 0 22,clip]{PNW_HeatDome_2021/aires_trajectory_PNW_HeatDome_2021_pilot.pdf}}
+\makebox[\textwidth][c]{\includegraphics[width=\dimexpr\paperwidth-0.5in\relax,trim=0 0 0 22,clip]{PNW_HeatDome_2021/aires_trajectory_PNW_HeatDome_2021_pilot.pdf}}\\[6pt]
+\makebox[\textwidth][c]{\includegraphics[width=\dimexpr\paperwidth-0.5in\relax]{figs/anom_maps_PNW_HeatDome_2021.png}}
 \caption{The 2021 Pacific Northwest heat dome, scored over 44 to 50$^\circ$N and 124 to 118$^\circ$W, 64
 trajectories, forecast from 21 days out.
-\textbf{Left.} Each line is one trajectory, plotted as its running regional temperature anomaly
+\textbf{Top row, left.} Each line is one trajectory, plotted as its running regional temperature anomaly
 against time. Grey lines were discarded at a resampling step. Coloured lines survived to the
 event and are shaded by the value they reached. The dotted verticals are the five resampling
 steps, labelled by how hard the population was pushed and by how many trajectories were
 discarded. The blue diamonds are the population-average score. The shaded band on the right is
 the week the forecast is scored over. The black line with markers is the observed weather. The
 black dashed curves are the four CFSv2 operational cycles at the same lead, with their average
-drawn as a bar across the scored week. \textbf{Middle.} The distribution of final values for the
+drawn as a bar across the scored week. \textbf{Top row, middle.} The distribution of final values for the
 24-member direct GenCast ensemble in grey, for the AI+RES population in blue, and for the
-weighted estimate as a dashed line. \textbf{Right.} Where each method's members landed, with the
+weighted estimate as a dashed line. \textbf{Top row, right.} Where each method's members landed, with the
 number that reached the observed value printed above each column. Where a direct 24-member
-FourCastNet~3 ensemble was run it appears as a further column. Observed $+7.72$\,K, reached by
+FourCastNet~3 ensemble was run it appears as a further column. \textbf{Bottom row.} The
+week-average temperature anomaly over the scored week as maps, the observed field on the left, the
+AI+RES weighted composite in the middle and the direct GenCast ensemble mean on the right, on one
+shared colour scale. The dashed box is the scored region. The composite shows where the method
+placed its samples and is not a forecast in the ordinary sense. Observed $+7.72$\,K, reached by
 42 of 64 trajectories, most extreme $+10.29$\,K. The direct ensemble reaches it with none of 24
 and stops at $+7.08$\,K.}
 \label{fig:tj_pnw}
@@ -394,7 +400,8 @@ and stops at $+7.08$\,K.}
 
 \begin{figure}[h]
 \centering
-\makebox[\textwidth][c]{\includegraphics[width=\dimexpr\paperwidth-0.5in\relax,trim=0 0 0 22,clip]{SCentral_HeatDome_2023/aires_trajectory_SCentral_HeatDome_2023_pilot.pdf}}
+\makebox[\textwidth][c]{\includegraphics[width=\dimexpr\paperwidth-0.5in\relax,trim=0 0 0 22,clip]{SCentral_HeatDome_2023/aires_trajectory_SCentral_HeatDome_2023_pilot.pdf}}\\[6pt]
+\makebox[\textwidth][c]{\includegraphics[width=\dimexpr\paperwidth-0.5in\relax]{figs/anom_maps_SCentral_HeatDome_2023.png}}
 \caption{The June 2023 S.\ Texas heat dome, scored over 26 to 32$^\circ$N and 106 to 100$^\circ$W, the event
 with no analogue in the 1959 to 2022
 record. The direct column is the 16 free-running GenCast trajectories at 21 days, the only
@@ -406,7 +413,8 @@ closest stopping at $+4.19$\,K.}
 
 \begin{figure}[h]
 \centering
-\makebox[\textwidth][c]{\includegraphics[width=\dimexpr\paperwidth-0.5in\relax,trim=0 0 0 22,clip]{Southwest_HeatWave_2020/aires_trajectory_Southwest_HeatWave_2020_pilot.pdf}}
+\makebox[\textwidth][c]{\includegraphics[width=\dimexpr\paperwidth-0.5in\relax,trim=0 0 0 22,clip]{Southwest_HeatWave_2020/aires_trajectory_Southwest_HeatWave_2020_pilot.pdf}}\\[6pt]
+\makebox[\textwidth][c]{\includegraphics[width=\dimexpr\paperwidth-0.5in\relax]{figs/anom_maps_Southwest_HeatWave_2020.png}}
 \caption{The August 2020 Southwest heat wave, scored over 29 to 35$^\circ$N and 109 to 103$^\circ$W, the one
 target in Table~\ref{tab:results} the method does not reach. Resampling moves the population about 1.75\,K toward the observed value
 and ends 4.4\,K short of it at $+4.31$\,K. Where direct sampling and the weighted estimate both
@@ -417,7 +425,8 @@ a failure of the weighting.}
 
 \begin{figure}[h]
 \centering
-\makebox[\textwidth][c]{\includegraphics[width=\dimexpr\paperwidth-0.5in\relax,trim=0 0 0 22,clip]{California_HeatWave_2022/aires_trajectory_California_HeatWave_2022_pilot.pdf}}
+\makebox[\textwidth][c]{\includegraphics[width=\dimexpr\paperwidth-0.5in\relax,trim=0 0 0 22,clip]{California_HeatWave_2022/aires_trajectory_California_HeatWave_2022_pilot.pdf}}\\[6pt]
+\makebox[\textwidth][c]{\includegraphics[width=\dimexpr\paperwidth-0.5in\relax]{figs/anom_maps_California_HeatWave_2022.png}}
 \caption{The September 2022 California heat wave, scored over 35 to 41$^\circ$N and 124 to 118$^\circ$W.
 Observed $+4.71$\,K, reached by 25 of 64
 trajectories, most extreme $+6.33$\,K. None of 24 direct GenCast members reaches it, the closest
@@ -427,7 +436,8 @@ stopping at $+4.70$\,K.}
 
 \begin{figure}[h]
 \centering
-\makebox[\textwidth][c]{\includegraphics[width=\dimexpr\paperwidth-0.5in\relax,trim=0 0 0 22,clip]{p90_20251224/aires_trajectory_p90_20251224_pilot.pdf}}
+\makebox[\textwidth][c]{\includegraphics[width=\dimexpr\paperwidth-0.5in\relax,trim=0 0 0 22,clip]{p90_20251224/aires_trajectory_p90_20251224_pilot.pdf}}\\[6pt]
+\makebox[\textwidth][c]{\includegraphics[width=\dimexpr\paperwidth-0.5in\relax]{figs/anom_maps_p90_20251224.png}}
 \caption{The CONUS-wide warm week of December 2025, scored over 24 to 50$^\circ$N and 125 to 66$^\circ$W.
 This is the one extreme in
 Table~\ref{tab:results} that direct sampling reaches, with 1 of 24 members at $+3.46$\,K.
@@ -438,7 +448,8 @@ Observed $+3.26$\,K, reached by 46 of 64 trajectories, most extreme $+5.12$\,K. 
 
 \begin{figure}[h]
 \centering
-\makebox[\textwidth][c]{\includegraphics[width=\dimexpr\paperwidth-0.5in\relax,trim=0 0 0 22,clip]{WinterStorm_Elliott_2022/aires_trajectory_WinterStorm_Elliott_2022_pilot.pdf}}
+\makebox[\textwidth][c]{\includegraphics[width=\dimexpr\paperwidth-0.5in\relax,trim=0 0 0 22,clip]{WinterStorm_Elliott_2022/aires_trajectory_WinterStorm_Elliott_2022_pilot.pdf}}\\[6pt]
+\makebox[\textwidth][c]{\includegraphics[width=\dimexpr\paperwidth-0.5in\relax]{figs/anom_maps_WinterStorm_Elliott_2022.png}}
 \caption{Winter Storm Elliott, December 2022, scored over the northern Plains, 43 to 49$^\circ$N and
 106 to 100$^\circ$W. This is the
 deepest cold target in the set relative to the forecast model's own spread. Observed
@@ -449,7 +460,8 @@ stops 4.6\,K short at $-9.83$\,K.}
 
 \begin{figure}[h]
 \centering
-\makebox[\textwidth][c]{\includegraphics[width=\dimexpr\paperwidth-0.5in\relax,trim=0 0 0 22,clip]{WinterStorm_Uri_2021/aires_trajectory_WinterStorm_Uri_2021_pilot.pdf}}
+\makebox[\textwidth][c]{\includegraphics[width=\dimexpr\paperwidth-0.5in\relax,trim=0 0 0 22,clip]{WinterStorm_Uri_2021/aires_trajectory_WinterStorm_Uri_2021_pilot.pdf}}\\[6pt]
+\makebox[\textwidth][c]{\includegraphics[width=\dimexpr\paperwidth-0.5in\relax]{figs/anom_maps_WinterStorm_Uri_2021.png}}
 \caption{Winter Storm Uri, February 2021, scored over Texas and Oklahoma, 26 to 37$^\circ$N and 106 to
 94$^\circ$W. The sign of the
 score is reversed for a cold event, so the method clones the coldest trajectories rather than the
@@ -461,7 +473,8 @@ members, 16 free-running trajectories or 24 direct FourCastNet~3 members reaches
 
 \begin{figure}[h]
 \centering
-\makebox[\textwidth][c]{\includegraphics[width=\dimexpr\paperwidth-0.5in\relax,trim=0 0 0 22,clip]{p90_20240802/aires_trajectory_p90_20240802_pilot.pdf}}
+\makebox[\textwidth][c]{\includegraphics[width=\dimexpr\paperwidth-0.5in\relax,trim=0 0 0 22,clip]{p90_20240802/aires_trajectory_p90_20240802_pilot.pdf}}\\[6pt]
+\makebox[\textwidth][c]{\includegraphics[width=\dimexpr\paperwidth-0.5in\relax]{figs/anom_maps_p90_20240802.png}}
 \caption{The CONUS-wide warm week of August 2024, the first mild control, scored over the CONUS box of
 Figure~\ref{fig:tj_dec25}. Observed
 $+1.06$\,K, reached by 63 of 64 trajectories, most extreme $+2.37$\,K. Direct GenCast reaches it
@@ -473,7 +486,8 @@ sampling error (Section~\ref{sec:scope}, item 2).}
 
 \begin{figure}[h]
 \centering
-\makebox[\textwidth][c]{\includegraphics[width=\dimexpr\paperwidth-0.5in\relax,trim=0 0 0 22,clip]{p90_20231107/aires_trajectory_p90_20231107_pilot.pdf}}
+\makebox[\textwidth][c]{\includegraphics[width=\dimexpr\paperwidth-0.5in\relax,trim=0 0 0 22,clip]{p90_20231107/aires_trajectory_p90_20231107_pilot.pdf}}\\[6pt]
+\makebox[\textwidth][c]{\includegraphics[width=\dimexpr\paperwidth-0.5in\relax]{figs/anom_maps_p90_20231107.png}}
 \caption{The CONUS-wide median week of November 2023, the second control, scored over the same CONUS
 box. Observed
 $+0.21$\,K, reached by all 64 trajectories, most extreme $+4.16$\,K. Direct GenCast reaches it
