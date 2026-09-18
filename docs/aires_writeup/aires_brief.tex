@@ -31,7 +31,8 @@
 \setlength{\parindent}{0pt}
 \setlength{\textfloatsep}{11pt plus 2pt minus 2pt}
 \setlength{\intextsep}{9pt plus 2pt minus 2pt}
-\newcommand{\hit}[1]{\textbf{#1}}
+\newcommand{\hit}[1]{#1$^{\dagger}$}   % reached or passed the observed value
+\newcommand{\near}[1]{{\boldmath\bfseries#1}}  % closest to the observed value of the three methods (cells are math)
 \graphicspath{{../../figures/aires/}}
 
 \title{\vspace{-1.4cm}\large AI+RES: forecasting rare subseasonal weather extremes}
@@ -164,8 +165,8 @@ temperature anomaly, the week-long average over the event's region measured agai
 2019 normal, in kelvin (1\,K $=$ 1.8\,$^\circ$F). The question the table asks is whether each
 method produced at least one forecast member that reproduced the observed anomaly. Each method
 column gives that method's most extreme member, which is the closest any of them came to the
-event. \hit{Bold} marks a method
-that reached or passed the observed value. Percentile is the event's rank against the 1959 to
+event. \near{Bold} marks the method whose member came closest to the observed value in that row,
+and a dagger$^{\dagger}$ marks a method that reached or passed it. Percentile is the event's rank against the 1959 to
 2022 reanalysis record for the same region and calendar season, with the return period estimated
 from a generalised extreme value fit in parentheses. Lead times differ by column and are given
 in Section~\ref{sec:results}.}
@@ -177,20 +178,21 @@ in Section~\ref{sec:results}.}
 event & percentile & {observed} & {AI+RES} & {CFSv2} & {direct sampling} \\
 \midrule
 \multicolumn{6}{@{}l}{\textit{Extremes}}\\
-S.\ Texas heat dome, Jun 2023   & $>$99.96 (no analogue) & $+5.73$  & \hit{$+6.19$}  & $+1.19$  & $+4.19$ \\
-Southwest heat wave, Aug 2020   & 99.96 (1-in-210 y)     & $+5.14$  & $+4.31$        & $+1.60$  & $+3.82$ \\
-California heat wave, Sep 2022  & 99.71 (1-in-37 y)      & $+4.71$  & \hit{$+6.33$}  & $+3.68$  & $+4.70$ \\
-Pacific NW heat dome, Jun 2021  & 99.60 (1-in-22 y)      & $+7.72$  & \hit{$+10.29$} & $+3.42$  & $+7.08$ \\
-CONUS warm week, Dec 2025       & 98.78 (1-in-10 y)      & $+3.26$  & \hit{$+5.12$}  & $+0.22$  & \hit{$+3.46$} \\
-Winter Storm Elliott, Dec 2022  & 98.41 (1-in-5 y)       & $-14.42$ & \hit{$-17.04$} & $-10.74$ & $-9.83$ \\
-Winter Storm Uri, Feb 2021      & 96.80 (1-in-4 y)       & $-7.40$  & \hit{$-10.20$} & $-3.86$  & $-6.51$ \\
+S.\ Texas heat dome, Jun 2023   & $>$99.96 (no analogue) & $+5.73$  & \near{\hit{$+6.19$}}  & $+1.19$  & $+4.19$ \\
+Southwest heat wave, Aug 2020   & 99.96 (1-in-210 y)     & $+5.14$  & \near{$+4.31$}        & $+1.60$  & $+3.82$ \\
+California heat wave, Sep 2022  & 99.71 (1-in-37 y)      & $+4.71$  & \hit{$+6.33$}         & $+3.68$  & \near{$+4.70$} \\
+Pacific NW heat dome, Jun 2021  & 99.60 (1-in-22 y)      & $+7.72$  & \hit{$+10.29$}        & $+3.42$  & \near{$+7.08$} \\
+CONUS warm week, Dec 2025       & 98.78 (1-in-10 y)      & $+3.26$  & \hit{$+5.12$}         & $+0.22$  & \near{\hit{$+3.46$}} \\
+Winter Storm Elliott, Dec 2022  & 98.41 (1-in-5 y)       & $-14.42$ & \near{\hit{$-17.04$}} & $-10.74$ & $-9.83$ \\
+Winter Storm Uri, Feb 2021      & 96.80 (1-in-4 y)       & $-7.40$  & \hit{$-10.20$}        & $-3.86$  & \near{$-6.51$} \\
 \midrule
 \multicolumn{6}{@{}l}{\textit{Mild controls}}\\
-CONUS warm week, Aug 2024       & 94.08 (1-in-4 y)       & $+1.06$  & \hit{$+2.37$}  & \hit{$+1.35$} & \hit{$+1.96$} \\
-CONUS median week, Nov 2023     & 60.10 (typical)        & $+0.21$  & \hit{$+4.16$}  & \hit{$+1.75$} & \hit{$+3.14$} \\
+CONUS warm week, Aug 2024       & 94.08 (1-in-4 y)       & $+1.06$  & \hit{$+2.37$}  & \near{\hit{$+1.35$}} & \hit{$+1.96$} \\
+CONUS median week, Nov 2023     & 60.10 (typical)        & $+0.21$  & \hit{$+4.16$}  & \near{\hit{$+1.75$}} & \hit{$+3.14$} \\
 \midrule
-\multicolumn{2}{@{}l}{\textbf{reached, 7 extremes}} & & \textbf{6 of 7} & \textbf{0 of 7} & \textbf{0 of 7} \\
-\multicolumn{2}{@{}l}{\textbf{reached, all 9}}      & & \textbf{8 of 9} & \textbf{2 of 9} & \textbf{3 of 9} \\
+\multicolumn{2}{@{}l}{\textbf{reached$^{\dagger}$, 7 extremes}} & & \textbf{6 of 7} & \textbf{0 of 7} & \textbf{0 of 7} \\
+\multicolumn{2}{@{}l}{\textbf{reached$^{\dagger}$, all 9}}      & & \textbf{8 of 9} & \textbf{2 of 9} & \textbf{3 of 9} \\
+\multicolumn{2}{@{}l}{\textbf{closest, 7 extremes}}             & & \textbf{3 of 7} & \textbf{0 of 7} & \textbf{4 of 7} \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -199,7 +201,9 @@ CONUS median week, Nov 2023     & 60.10 (typical)        & $+0.21$  & \hit{$+4.1
 that reach it and the two alternatives do not. Where the event is ordinary, which is the case for
 the two controls in Table~\ref{tab:results}, all three methods reach it. The controls are the
 check that the difference between methods is a function of rarity and not of one model being more
-accurate in general.
+accurate in general. Direct sampling's most extreme member is the closest of the three in 4 of the
+7 extremes yet reaches the observed value in only one of them: AI+RES pushes its population past
+the target by design, so its most extreme member overshoots.
 
 \textbf{Lead times are not identical across the columns of Table~\ref{tab:results}.} AI+RES
 forecasts from a 21-day lead. CFSv2 is also at 21 days, as four operational cycles launched 6
@@ -224,14 +228,13 @@ not a measured threshold. The seven extremes
 were chosen as some of the most extreme events of the out-of-sample period, with no formal
 selection rule.
 
-Figure~\ref{fig:maps} shows the 2021 heat dome as maps: the AI+RES population reproduces the dome
-in the observed location and at the observed intensity, and the direct ensemble average from the
-same starting point contains no dome. Figure~\ref{fig:walk} follows the hottest surviving
+Figure~\ref{fig:maps} shows the 2021 heat dome as maps, with the dome in the AI+RES population and
+absent from the direct ensemble average, and Figure~\ref{fig:walk} follows the hottest surviving
 trajectory of that run through the resampling steps.
 
 \begin{figure}[t]
 \centering
-\includegraphics[width=0.80\textwidth]{figs/pnw_anom_maps.png}
+\includegraphics[width=0.68\textwidth]{figs/pnw_anom_maps.png}
 \caption{The 2021 Pacific Northwest heat dome, as maps of the week-average temperature anomaly.
 \textbf{Left.} The observed field. \textbf{Middle.} The AI+RES population three weeks out, with
 the dome in the observed location at the observed intensity. \textbf{Right.} The 24-member direct
@@ -244,7 +247,7 @@ sense.}
 
 \begin{figure}[t]
 \centering
-\includegraphics[width=0.76\textwidth]{figs/pnw_map_walk.png}
+\includegraphics[width=0.66\textwidth]{figs/pnw_map_walk.png}
 \caption{The single hottest surviving trajectory of the 2021 heat-dome run, followed from the
 3-day resampling step to the event, with the instantaneous temperature anomaly shaded and the
 upper-atmosphere pressure pattern contoured. At the 9-day resampling step this trajectory had the
@@ -331,8 +334,8 @@ treating these numbers as a calibrated probability service, for three reasons.
 \item \textbf{The probabilities carry about a factor of two.} They are internally consistent. Where
   direct sampling can resolve a probability, our estimate agrees with it within sampling error.
   The absolute level at 64 trajectories is noisy. The method also returns no
-  usable probability for an event milder than the population it has already concentrated, which
-  is a property of the algorithm rather than a failure of a particular run.
+  usable probability for an event milder than the population it has concentrated, a property of
+  the algorithm rather than of a particular run.
 \item \textbf{The sampled distribution is the forecast model's, not the atmosphere's.} The
   supported claim is that the method reaches the extreme tail of a current forecast model
   efficiently. Whether that model's tail is unbiased against the real climate is a separate
