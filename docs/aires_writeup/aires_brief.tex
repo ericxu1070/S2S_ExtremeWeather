@@ -26,8 +26,8 @@
 \newcommand{\hit}[1]{\textbf{#1}}
 \graphicspath{{../../figures/aires/}}
 
-\title{\vspace{-1.4cm}\large AI+RES: forecasting rare weather extremes three weeks out,\\
-at a fraction of the compute}
+\title{\vspace{-1.4cm}\large AI+RES: forecasting rare subseasonal weather extremes,\\
+three weeks out, at a fraction of the compute}
 \author{\normalsize Eric Xu \and \normalsize Moein Darman \and \normalsize Ashesh Chattopadhyay}
 \date{\normalsize \today}
 
@@ -42,18 +42,17 @@ rarer than 1 in 24, the ensemble returns no member at the observed value and the
 no information about the tail. We report results from AI+RES, a rare-event sampling method that
 runs 64 forecast trajectories (walkers) and resamples them five times over the forecast. At each
 resampling step it scores every walker by its forecast outcome and prunes the population toward
-the extreme. The score comes from a second, more efficient AI weather model, which forecasts each
-walker's outcome from the resampling step to the target lead time and ranks the population by it.
-On the seven test cases at or beyond the 96th percentile of the 1959 to 2022 climatological
+the extreme. The score comes from a second, more efficient AI weather model, which looks at each
+walker's future outcome from the resampling step to the target lead time and ranks the population
+by it. On the seven test cases at or beyond the 96th percentile of the 1959 to 2022 climatological
 distribution, AI+RES produced forecast members that reached the observed anomaly in six cases.
 Direct ensemble sampling reached it in none of the seven, and the operational Climate Forecast
 System version 2 (CFSv2) in none of the seven. One AI+RES forecast takes 7.2 to 8.7 hours and 61
 to 64 H100 GPU-hours on a single eight-GPU node, about \$156 at \$2.50 per GPU-hour. Obtaining
-the same set of extreme trajectories by direct sampling is estimated at 5 to 23 times that cost,
-and the multiple grows with the rarity of the event. Nine test cases support a qualitative
-assessment. They are not enough to establish a hit rate, a skill score, or a calibrated
-probability, and no such claim is made here. Every number below is measured from a run unless it
-is marked as an estimate.
+the same set of extreme trajectories by direct sampling is estimated at 5 to 23 times that cost
+(\hyperref[sec:costmath]{Appendix~\ref*{sec:costmath}} gives the arithmetic), and the multiple
+grows with the rarity of the event. Nine test cases support a qualitative assessment while we
+currently work on a more quantitative result.
 \end{abstract}
 
 \section{The problem}
@@ -94,7 +93,12 @@ method reaches the observed 2021 heat dome with 0 of 64 trajectories.
 
 The trajectory model is GenCast (Google DeepMind) at 0.25-degree resolution. The scoring model is
 FourCastNet~3 (NVIDIA). Both were trained on data ending before 2019, so every event tested here
-is out of sample.
+is out of sample. Neither choice is structural. The algorithm needs a trajectory model that can be
+stopped, checkpointed and restarted, and a scoring model that forecasts to the target lead faster
+than the trajectory model reaches it. Any autoregressive weather model meeting those two
+conditions can take either role, so a more accurate or cheaper model released later can be
+substituted for one of ours. The component that would be rewritten is the adapter that translates
+one model's state into the other's input format, not the sampling algorithm.
 
 The algorithm is AI+RES, introduced by Lancelin et al.\ in Physical Review Letters, 2026
 (\href{https://doi.org/10.1103/b1gc-9c2q}{doi:10.1103/b1gc-9c2q},
@@ -240,34 +244,16 @@ throughput               & about 3 forecasts per node per day \\
 \end{table}
 
 The alternative route to trajectories that reach the event is to run a large plain ensemble until
-some of its members land there by chance. Table~\ref{tab:savings} prices that route. Write $k$ for
-the number of AI+RES trajectories that reached the observed value, $\hat{p}$ for the probability
-AI+RES assigned to the event, $c_{\mathrm{d}}$ for the cost of one plain 21-day GenCast run, and
-$C$ for the cost of one AI+RES forecast. Each member of a plain ensemble lands at or beyond the
-observed value with probability $\hat{p}$, so $n$ runs put $n\hat{p}$ members there on average and
-$n = k/\hat{p}$ runs are needed for that average to equal $k$. The cost of those runs is
-$n\,c_{\mathrm{d}}$, and the cost relative to one AI+RES forecast is
-%
-\begin{equation}
-\frac{n\,c_{\mathrm{d}}}{C} \;=\; \frac{k\,c_{\mathrm{d}}}{\hat{p}\,C},
-\qquad c_{\mathrm{d}} = \$1.00, \qquad C = \$156 .
-\label{eq:multiple}
-\end{equation}
-%
-Both costs are measured. $c_{\mathrm{d}}$ is 0.4 H100-hours per 21-day run at \$2.50 per GPU-hour,
-and $C$ is the range in Table~\ref{tab:cost} rounded to its midpoint. The 2021 Pacific Northwest heat dome
-gives the smallest multiple in the set. There $k = 42$ and $\hat{p} = 0.054$, so $n = 780$ runs at
-\$780, which is $780/156 = 5.0$ times the AI+RES cost. Winter Storm Uri gives the largest. There
-$k = 32$ and $\hat{p} = 0.0090$, so $n = 3{,}560$ runs at \$3,560, which is $3{,}560/156 = 22.8$
-times. The five events priced in Table~\ref{tab:savings} span that 5x to 23x range. Only
-$\hat{p}$ is estimated rather than measured, which is why the whole column is marked as an
-estimate.
+some of its members land there by chance. Table~\ref{tab:savings} prices that route, from the
+probability AI+RES assigned each event and the measured cost of one plain 21-day GenCast run,
+about 0.4 H100-hours or \$1.00. Appendix~\ref{sec:costmath} gives the arithmetic.
 
 \begin{table}[h]
 \centering\small\setlength{\tabcolsep}{7pt}
 \caption{\emph{Estimated, not measured.} Direct-sampling cost to obtain the same tail sample
 AI+RES delivered, against the \$156 AI+RES run of Table~\ref{tab:cost}. Each row is
-Eq.~\eqref{eq:multiple} evaluated at that event's $k$ and $\hat{p}$. No ensemble of this size was
+Eq.~\eqref{eq:multiple} of Appendix~\ref{sec:costmath} evaluated at that event's $k$ and
+$\hat{p}$. No ensemble of this size was
 run, and the probability estimates themselves carry about a factor of two at 64 trajectories, so
 the cost multiples carry the same factor.}
 \label{tab:savings}
@@ -341,12 +327,43 @@ per-forecast cost directly, since the current pair requires an 80\,GB GPU per tr
 \setlength{\intextsep}{14pt plus 2pt minus 2pt}
 \setcounter{page}{1}
 \renewcommand{\thepage}{A\arabic{page}}
-\setcounter{figure}{0}
-\renewcommand{\thefigure}{A\arabic{figure}}
 \setcounter{section}{0}
-\renewcommand{\thesection}{A}
+\renewcommand{\thesection}{\Alph{section}}
+\renewcommand{\thefigure}{\thesection\arabic{figure}}
+\setcounter{equation}{0}
+\renewcommand{\theequation}{\thesection\arabic{equation}}
 
-\section{Appendix. Every trajectory, for four events}
+\section{How the cost multiple is computed}
+\label{sec:costmath}
+
+Write $k$ for the number of AI+RES trajectories that reached the observed value, $\hat{p}$ for the
+probability AI+RES assigned to the event, $c_{\mathrm{d}}$ for the cost of one plain 21-day
+GenCast run, and $C$ for the cost of one AI+RES forecast. Each member of a plain ensemble lands at
+or beyond the observed value with probability $\hat{p}$, so $n$ runs put $n\hat{p}$ members there
+on average, and $n = k/\hat{p}$ runs are needed for that average to equal $k$. The cost of those
+runs is $n\,c_{\mathrm{d}}$, and the cost relative to one AI+RES forecast is
+%
+\begin{equation}
+\frac{n\,c_{\mathrm{d}}}{C} \;=\; \frac{k\,c_{\mathrm{d}}}{\hat{p}\,C},
+\qquad c_{\mathrm{d}} = \$1.00, \qquad C = \$156 .
+\label{eq:multiple}
+\end{equation}
+%
+Both costs are measured. $c_{\mathrm{d}}$ is 0.4 H100-hours per 21-day run at \$2.50 per GPU-hour,
+and $C$ is the range in Table~\ref{tab:cost} rounded to its midpoint. The 2021 Pacific Northwest
+heat dome gives the smallest multiple in the set. There $k = 42$ and $\hat{p} = 0.054$, so
+$n = 780$ runs at \$780, which is $780/156 = 5.0$ times the AI+RES cost. Winter Storm Uri gives
+the largest. There $k = 32$ and $\hat{p} = 0.0090$, so $n = 3{,}560$ runs at \$3,560, which is
+$3{,}560/156 = 22.8$ times. The five events priced in Table~\ref{tab:savings} span that 5x to 23x
+range.
+
+Only $\hat{p}$ is estimated rather than measured, which is why Table~\ref{tab:savings} is marked
+as an estimate. At 64 trajectories $\hat{p}$ carries about a factor of two, and the multiples
+carry the same factor. No ensemble of the sizes in the fourth column of Table~\ref{tab:savings}
+was run.
+
+\setcounter{figure}{0}
+\section{Every trajectory, for four events}
 \label{sec:appendix}
 
 These figures show every forecast trajectory of four AI+RES runs, from the start of the
