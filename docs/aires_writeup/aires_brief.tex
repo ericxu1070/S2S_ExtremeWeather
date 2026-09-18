@@ -40,10 +40,10 @@ three weeks out, at a fraction of the compute}
 A conventional forecast ensemble of 24 members does not produce extreme events. If the event is
 rarer than 1 in 24, the ensemble returns no member at the observed value and the forecast carries
 no information about the tail. We report results from AI+RES, a rare-event sampling method that
-runs 64 forecast trajectories (walkers) and resamples them five times over the forecast. At each
-resampling step it scores every walker by its forecast outcome and prunes the population toward
+runs 64 forecast trajectories and resamples them five times over the forecast. At each
+resampling step it scores every trajectory by its forecast outcome and prunes the population toward
 the extreme. The score comes from a second, more efficient AI weather model, which looks at each
-walker's future outcome from the resampling step to the target lead time and ranks the population
+trajectory's future outcome from the resampling step to the target lead time and ranks the population
 by it. On the seven test cases at or beyond the 96th percentile of the 1959 to 2022 climatological
 distribution, AI+RES produced forecast members that reached the observed anomaly in six cases.
 Direct ensemble sampling reached it in none of the seven, and the operational Climate Forecast
@@ -60,64 +60,26 @@ currently work on a more quantitative result.
 
 Weather forecasts are run as ensembles. The same model is launched many times from slightly
 different starting points, and the spread of the outcomes is the forecast. The number of runs
-sets the smallest probability the ensemble can resolve. With 24 runs, nothing rarer than about
+sets the smallest probability the ensemble can resolve. With 24 runs, the size of the direct ensembles in this brief, nothing rarer than about
 1 in 24 can be distinguished from zero, and a single run landing on the event is
 indistinguishable from chance.
 
-Three weeks out, the events that matter most are the ones in that blind spot. The 2021 Pacific
+At a lead of three weeks, the time from launch to the event, the events that matter most are the
+ones in that blind spot. The 2021 Pacific
 Northwest heat dome ran 7.72\,K above normal over its region for a week, which for that region
-and season is about a 1-in-22-year week (Table~\ref{tab:results}). A 24-member GenCast ensemble
-launched three weeks earlier produced no run that reached it. CFSv2 at the same lead forecast a
-week near normal. Neither model is wrong about the atmosphere. Both are being asked a question
+and season is about a 1-in-22-year week (Table~\ref{tab:results}). A 24-member ensemble of GenCast, the
+AI weather model of Section~\ref{sec:method}, launched three weeks earlier produced no run that
+reached it. The operational Climate Forecast System version 2
+(CFSv2), launched at the same time, forecast a week near normal. Neither model is wrong about the atmosphere. Both are being asked a question
 their sample size cannot answer.
 
 \section{The method}
 \label{sec:method}
 
-The target here is heat waves. A trajectory scores higher the hotter the week it is forecast to
-produce, so the population is pulled toward heat. The direction of the score is the only part of
-the method that changes with the kind of extreme. For a cold outbreak the sign is reversed and a
-trajectory scores higher the colder its forecast week, which is the setting used for Winter Storms
-Uri and Elliott in Table~\ref{tab:results}. For a tropical cyclone the score would be built from
-low mean sea level pressure and high wind speed rather than from temperature. Nothing else in the
-algorithm depends on which extreme is targeted.
-
-Rare-event sampling concentrates a fixed compute budget on the trajectories that approach the
-event, instead of spreading it evenly over the forecast distribution. We launch 64 forecast
-trajectories from the same starting conditions. Every three days we stop them, score each one,
-discard the low scorers, and duplicate the high scorers in their place. The population stays at
-64 members throughout and is progressively concentrated on the trajectories heading toward the
-extreme. Weights carried alongside each trajectory convert the concentrated population back into
-an unbiased probability at the end.
-
-The score is the step that decides the outcome. The standard choice is persistence, the
-trajectory's temperature at the moment it is scored. Persistence does not tell you what the
-trajectory does three weeks later. At the 9-day checkpoint of the 2021 heat dome it ranks the
-trajectories with a rank correlation of 0.06 against where they in fact ended up. We score
-instead with a second, more efficient AI weather model, run forward from each trajectory to the
-event, which gives a general idea of where that trajectory's temperature is heading. The score is
-that model's 6-member ensemble mean of the regional temperature anomaly over the 7 days ending at
-the event peak. The window is 7 days because that is how long the heat wave itself lasts. This
-score reaches a rank correlation of 0.80 at the same 9-day checkpoint. Run on the identical setup
-with only the score exchanged, persistence reaches the observed 2021 heat dome with 0 of 64
-trajectories.
-
-The trajectory model is GenCast (Google DeepMind) at 0.25-degree resolution. The scoring model is
-FourCastNet~3 (NVIDIA). Both were trained on data ending before 2019, so every event tested here
-is out of sample. Neither choice is structural. The algorithm needs a trajectory model that can be
-stopped, checkpointed and restarted, and a scoring model that forecasts to the target lead faster
-than the trajectory model reaches it. Any autoregressive weather model meeting those two
-conditions can take either role, so a more accurate or cheaper model released later can be
-substituted for one of ours. The component that would be rewritten is the adapter that translates
-one model's state into the other's input format, not the sampling algorithm.
-
 The algorithm is AI+RES, introduced by Lancelin et al.\ in Physical Review Letters, 2026
 (\href{https://doi.org/10.1103/b1gc-9c2q}{doi:10.1103/b1gc-9c2q},
 \href{https://arxiv.org/abs/2510.27066}{arXiv:2510.27066}). Figure~\ref{fig:lancelin} is their
-schematic of it. Their demonstration ran an intermediate-complexity climate model as the
-trajectory model, scored by an AI emulator trained on that same model, and targeted heat waves in
-the model's own climate. The work reported here replaces both halves with operational-grade
-weather models at full resolution and targets named events in the observed record.
+schematic of it.
 
 \begin{figure}[t]
 \centering
@@ -129,10 +91,57 @@ and the high scorers duplicated in their place (green crosses). \textbf{(b)} The
 an ensemble forecast made by the AI model from each trajectory's current state out to the target
 time, which is what carries information the trajectory's present state does not. \textbf{(c)} The
 run yields a catalogue of extreme events and \textbf{(d)} an unbiased return-period curve, at a
-fraction of the cost of direct sampling (DS). The configuration reported here follows the same
+fraction of the cost of direct sampling (DS in the panel). The configuration reported here follows the same
 schematic with GenCast as the trajectory model and FourCastNet~3 as the scorer.}
 \label{fig:lancelin}
 \end{figure}
+
+Rare-event sampling concentrates a fixed compute budget on the trajectories that approach the
+event, instead of spreading it evenly over the forecast distribution. We launch 64 forecast
+trajectories from the same starting conditions. Every three days we stop them, score each one,
+discard the low scorers, and duplicate the high scorers in their place. The population stays at
+64 members throughout and is progressively concentrated on the trajectories heading toward the
+extreme. Weights carried alongside each trajectory convert the concentrated population back into
+an unbiased probability at the end.
+
+The score is the step that decides the outcome. The standard choice is persistence, the
+trajectory's temperature at the moment it is scored. Persistence does not tell you what the
+trajectory does three weeks later. At the 9-day resampling step of the 2021 heat dome it ranks the
+trajectories with a rank correlation of 0.06 against where they in fact ended up, where 1 is a
+perfect ordering and 0 is none.
+
+We score
+instead with a second, more efficient AI weather model, run forward from each trajectory to the
+event. The score is
+that model's 6-member ensemble mean of the regional temperature anomaly over the 7 days ending at
+the event peak. The window is 7 days because that is how long the heat wave itself lasts. This
+score reaches a rank correlation of 0.80 at the same 9-day resampling step. Run on the identical setup
+with only the score exchanged, persistence reaches the observed 2021 heat dome with 0 of 64
+trajectories.
+
+The target here is heat waves. A trajectory scores higher the hotter the week it is forecast to
+produce, so the population is pulled toward heat. The direction of the score is the only part of
+the method that changes with the kind of extreme. For a cold outbreak the sign is reversed and a
+trajectory scores higher the colder its forecast week, which is the setting used for Winter Storms
+Uri and Elliott in Table~\ref{tab:results}. For a tropical cyclone the score would be built from
+low mean sea level pressure and high wind speed rather than from temperature.
+
+The trajectory model is GenCast (Google DeepMind) at 0.25-degree resolution. The scoring model is
+FourCastNet~3 (NVIDIA). Both were trained on data ending before 2019, so every event tested here
+is out of sample.
+
+Neither choice is structural. The algorithm needs a trajectory model that can be
+stopped, checkpointed and restarted, and a scoring model that forecasts to the target lead faster
+than the trajectory model reaches it. Any autoregressive weather model meeting those two
+conditions can take either role, so a more accurate or cheaper model released later can be
+substituted for one of ours. The component that would be rewritten is the adapter that translates
+one model's state into the other's input format, not the sampling algorithm.
+
+The demonstration of Lancelin et al.\ ran an intermediate-complexity climate model as the
+trajectory model, scored by an AI emulator trained on that same model, and targeted heat waves in
+the model's own climate. The work reported here replaces both halves with weather models
+trained on the observed atmosphere, at 0.25-degree resolution, and targets named events in the
+observed record.
 
 \section{Results}
 \label{sec:results}
@@ -142,11 +151,11 @@ schematic with GenCast as the trajectory model and FourCastNet~3 as the scorer.}
 \caption{Nine test cases, each forecast from three weeks before the event. $A_L$ is the event's
 temperature anomaly, the week-long average over the event's region measured against the 1990 to
 2019 normal, in kelvin (1\,K $=$ 1.8\,$^\circ$F). Each method column gives that method's most
-extreme member, which is the closest any of its runs came to the event. \hit{Bold} marks a method
+extreme member, which is the closest any of them came to the event. \hit{Bold} marks a method
 that reached or passed the observed value. Percentile is the event's rank against the 1959 to
 2022 reanalysis record for the same region and calendar season, with the return period estimated
 from a generalised extreme value fit in parentheses. Lead times differ by column and are given
-in the text below.}
+in Section~\ref{sec:results}.}
 \label{tab:results}
 \begin{tabular}{@{}l c r r r r@{}}
 \toprule
@@ -173,33 +182,32 @@ CONUS median week, Nov 2023     & 60.10 (typical)        & $+0.21$  & \hit{$+4.1
 \end{tabular}
 \end{table}
 
+\textbf{Rarity is what separates the methods.} Where the event is rare, AI+RES produces members
+that reach it and the two alternatives do not. Where the event is ordinary, which is the case for
+the two controls in Table~\ref{tab:results}, all three methods reach it. The controls are the
+check that the difference between methods is a function of rarity and not of one model being more
+accurate in general.
+
 \textbf{Lead times are not identical across the columns of Table~\ref{tab:results}.} AI+RES
 forecasts from a 21-day lead. CFSv2 is also at 21 days, as four operational cycles launched 6
 hours apart. Direct sampling is a 24-member GenCast ensemble at a 14-day lead in every row except
 the S.\ Texas case, where it is 16 GenCast runs at 21 days. A separate 24-member FourCastNet~3
 ensemble at 21 days was run on five of the nine cases and reached the observed value on one of
 them, the 2021 heat dome, with one member. The direct-sampling column therefore had a one-week
-shorter lead than AI+RES in most rows, which favours it, and it still reached none of the seven
+shorter lead than AI+RES in most rows, which favours that column, and it still reached none of the seven
 extremes.
 
-\textbf{Rarity is what separates the methods.} Where the event is rare, AI+RES produces members
-that reach it and the two alternatives do not. Where the event is ordinary, which is the case for
-the two controls in Table~\ref{tab:results}, all three methods reach it. The controls are the
-check that the difference between methods is a function of rarity and not of one model being more
-accurate in general. The single miss, the 2020 Southwest heat wave, is the rarest case in the set
-by return period. Resampling moved the population 1.75\,K toward the observed value and stopped
-4.4\,K short of it.
-
-\textbf{The bound on what this configuration reaches is qualitative.} On the evidence of these
-nine cases, the configuration tested here, 64 trajectories with five resampling steps at a 21-day
-lead, produces the event for extremes up to about the 99.9th percentile, which is roughly a
-1-in-40-year week for a given region and season. It reached one event with no analogue in the
+\textbf{The bound on what this configuration reaches is qualitative.} The configuration tested here
+is 64 trajectories with five resampling steps at a 21-day lead. On the evidence of these nine cases
+it produces the event for extremes up to about the 99.9th percentile, roughly a 1-in-40-year week
+for a given region and season. It reached one event with no analogue in the
 64-year record, the S.\ Texas heat dome, and missed another, the Southwest heat wave at an
-estimated 1-in-210-year return period. The boundary for this budget is therefore near the
+estimated 1-in-210-year return period. That miss is the rarest case in the set by return period.
+Resampling moved the population 1.75\,K toward the observed value and stopped 4.4\,K short of
+it. The boundary for this budget is therefore near the
 1-in-100-year level rather than beyond it. Past that boundary the limit is population size, which
 scales linearly in compute. Nine cases do not establish a hit rate, and the percentile above
 should be read as a working expectation rather than as a measured threshold.
-
 
 Figure~\ref{fig:maps} shows the 2021 heat dome as fields rather than as a single number. The
 AI+RES population reproduces the dome in the observed location and at the observed intensity, and
@@ -211,8 +219,8 @@ steps and shows what the scoring model was responding to.
 \centering
 \includegraphics[width=0.94\textwidth]{figs/pnw_anom_maps.png}
 \caption{The 2021 Pacific Northwest heat dome, as maps of the week-average temperature anomaly.
-\textbf{Left:} the observed field. \textbf{Middle:} the AI+RES population three weeks out, with
-the dome in the observed location at the observed intensity. \textbf{Right:} the 24-member direct
+\textbf{Left.} The observed field. \textbf{Middle.} The AI+RES population three weeks out, with
+the dome in the observed location at the observed intensity. \textbf{Right.} The 24-member direct
 GenCast ensemble average from the same starting point, which contains no dome. The dashed box is
 the scored region. The middle panel is a weighted composite of trajectories selected for this
 event, so it shows where the method placed its samples and is not a forecast in the ordinary
@@ -224,11 +232,11 @@ sense.}
 \centering
 \includegraphics[width=0.94\textwidth]{figs/pnw_map_walk.png}
 \caption{The single hottest surviving trajectory of the 2021 heat-dome run, followed from the
-3-day checkpoint to the event, with the instantaneous temperature anomaly shaded and the
-upper-atmosphere pressure pattern contoured. At the 9-day checkpoint this trajectory had the
+3-day resampling step to the event, with the instantaneous temperature anomaly shaded and the
+upper-atmosphere pressure pattern contoured. At the 9-day resampling step this trajectory had the
 fourth-coolest surface temperature of the 64 alive and would have ranked near the bottom on the
-conventional score. The scoring model ranked it tenth and gave it the maximum of eleven clones,
-because the ridge that later drives the heat dome was already building offshore while the surface
+persistence score. The scoring model ranked it tenth and made eleven copies of it, the most of any
+trajectory at that step, because the ridge that later drives the heat dome was already building offshore while the surface
 beneath it had not yet warmed.}
 \label{fig:walk}
 \end{figure}
@@ -254,61 +262,58 @@ throughput               & about 3 forecasts per node per day \\
 \end{tabular}
 \end{table}
 
-The alternative route to trajectories that reach the event is to run a large plain ensemble until
+The alternative route to trajectories that reach the event is to run a large direct ensemble until
 some of its members land there by chance. Table~\ref{tab:savings} prices that route, from the
-probability AI+RES assigned each event and the measured cost of one plain 21-day GenCast run,
-about 0.4 H100-hours or \$1.00. Appendix~\ref{sec:costmath} gives the arithmetic.
+probability AI+RES assigned each event and the measured cost of one direct 21-day GenCast run,
+about 0.4 H100-hours or \$1.00.
 
 \begin{table}[h]
 \centering\small\setlength{\tabcolsep}{7pt}
 \caption{\emph{Estimated, not measured.} Direct-sampling cost to obtain the same tail sample
 AI+RES delivered, against the \$156 AI+RES run of Table~\ref{tab:cost}. Each row is
-Eq.~\eqref{eq:multiple} of Appendix~\ref{sec:costmath} evaluated at that event's $k$ and
-$\hat{p}$. No ensemble of this size was
+Eq.~\eqref{eq:multiple} of Appendix~\ref{sec:costmath} evaluated at the first two columns of this table. No ensemble of this size was
 run, and the probability estimates themselves carry about a factor of two at 64 trajectories, so
 the cost multiples carry the same factor.}
 \label{tab:savings}
 \begin{tabular}{@{}l c c r r c@{}}
 \toprule
-event & members AI+RES & event & plain runs & direct-sampling & cost \\
-      & put on target  & probability & needed (est.) & cost (est.) & multiple \\
+event & members AI+RES & forecast & direct runs & direct-sampling & cost \\
+      & put on target  & probability, $\hat{p}$ & needed (est.) & cost (est.) & multiple \\
 \midrule
-Pacific NW heat dome, Jun 2021 & 42 of 64 & 1-in-19    & 780   & \$780   & 5x  \\
-California heat wave, Sep 2022 & 25 of 64 & 1-in-53    & 1,320 & \$1,320 & 8x  \\
-S.\ Texas heat dome, Jun 2023  & 6 of 64  & 1-in-370   & 2,220 & \$2,220 & 14x \\
-Winter Storm Elliott, Dec 2022 & 20 of 64 & 1-in-127   & 2,530 & \$2,530 & 16x \\
-Winter Storm Uri, Feb 2021     & 32 of 64 & 1-in-111   & 3,560 & \$3,560 & 23x \\
+Pacific NW heat dome, Jun 2021 & 42 of 64 & 0.054 & 780   & \$780   & 5x  \\
+California heat wave, Sep 2022 & 25 of 64 & 0.019 & 1,320 & \$1,320 & 8x  \\
+S.\ Texas heat dome, Jun 2023  & 6 of 64  & 0.0027 & 2,220 & \$2,220 & 14x \\
+Winter Storm Elliott, Dec 2022 & 20 of 64 & 0.0079 & 2,530 & \$2,530 & 16x \\
+Winter Storm Uri, Feb 2021     & 32 of 64 & 0.0090 & 3,560 & \$3,560 & 23x \\
 \bottomrule
 \end{tabular}
 \end{table}
 
 The saving in Table~\ref{tab:savings} is not the primary result. At the \$156 budget of
 Table~\ref{tab:cost}, direct sampling returns no members at all on these events, which is the
-measured 0 of 7 in Table~\ref{tab:results}. The cost multiple grows with rarity, from 5x on the
+measured 0 of 7 in Table~\ref{tab:results}, most of it at the shorter 14-day lead. The cost multiple grows with rarity, from 5x on the
 least rare event priced here to 23x on the rarest, because direct-sampling cost scales as the
-reciprocal of the event probability while AI+RES cost is flat in it. The 2020 Southwest heat wave
-is absent from Table~\ref{tab:savings} because neither method reached it. Direct sampling would
-need an estimated 3,300 runs, about \$3,300, for a single member, and AI+RES at this budget did
-not reach it either.
+reciprocal of the event probability while AI+RES cost is flat in it.
+
+The 2020 Southwest heat wave is absent from Table~\ref{tab:savings} because neither method
+reached it. Direct sampling would need at least 3,300 runs, about \$3,300, for a single member.
 
 \section{What the result supports}
 \label{sec:scope}
 
-The result supports a specific claim. On nine out-of-sample cases, concentrating a fixed compute
+On nine out-of-sample cases, concentrating a fixed compute
 budget on the trajectories heading toward an extreme produces forecast members on events that
-direct sampling misses entirely at the same or a larger budget, at a measured \$153 to \$160 and
-7.2 to 8.7 hours per forecast.
+direct sampling misses entirely at the same or a larger budget, at the measured cost of Table~\ref{tab:cost}.
 
-It does not support treating these numbers as a calibrated probability service. Three limits
-qualify the result.
+It does not support treating these numbers as a calibrated probability service.
 
 \begin{enumerate}
 \item \textbf{Nine events do not establish a hit rate.} The 6-of-7 figure of
   Table~\ref{tab:results} carries a wide interval. A 42-case hindcast campaign designed to
   produce a reliability curve is built and staged, and has not been run.
-\item \textbf{The probabilities carry about a factor of two.} They are internally consistent, in
-  that where direct sampling can resolve a probability our estimate agrees with it within
-  sampling error, but the absolute level at 64 trajectories is noisy. The method also returns no
+\item \textbf{The probabilities carry about a factor of two.} They are internally consistent. Where
+  direct sampling can resolve a probability, our estimate agrees with it within sampling error.
+  The absolute level at 64 trajectories is noisy. The method also returns no
   usable probability for an event milder than the population it has already concentrated, which
   is a property of the algorithm rather than a failure of a particular run.
 \item \textbf{The sampled distribution is the forecast model's, not the atmosphere's.} The
@@ -317,7 +322,7 @@ qualify the result.
   question, and this work does not settle it.
 \end{enumerate}
 
-Three lines of work follow. The 42-case calibration campaign, at an estimated \$1,700 of GPU time
+The 42-case calibration campaign, at an estimated \$1,700 of GPU time
 for its first 12-case tier, would replace the qualitative bound of Section~\ref{sec:results} with
 a reliability curve. A scoring function for tropical cyclones is needed because the weekly
 regional average used here averages away a one-day landfall. Lighter model pairs would reduce the
@@ -366,7 +371,8 @@ describes the layout, and the remaining events follow the order of Table~\ref{ta
 \begin{figure}[h]
 \centering
 \includegraphics[width=\textwidth,trim=0 0 0 22,clip]{PNW_HeatDome_2021/aires_trajectory_PNW_HeatDome_2021_pilot.pdf}
-\caption{The 2021 Pacific Northwest heat dome, 64 trajectories, forecast from 21 days out.
+\caption{The 2021 Pacific Northwest heat dome, scored over 44 to 50$^\circ$N and 124 to 118$^\circ$W, 64
+trajectories, forecast from 21 days out.
 \textbf{Left.} Each line is one trajectory, plotted as its running regional temperature anomaly
 against time. Grey lines were discarded at a resampling step. Coloured lines survived to the
 event and are shaded by the value they reached. The dotted verticals are the five resampling
@@ -387,7 +393,8 @@ and stops at $+7.08$\,K.}
 \begin{figure}[h]
 \centering
 \includegraphics[width=\textwidth,trim=0 0 0 22,clip]{SCentral_HeatDome_2023/aires_trajectory_SCentral_HeatDome_2023_pilot.pdf}
-\caption{The June 2023 S.\ Texas heat dome, the event with no analogue in the 1959 to 2022
+\caption{The June 2023 S.\ Texas heat dome, scored over 26 to 32$^\circ$N and 106 to 100$^\circ$W, the event
+with no analogue in the 1959 to 2022
 record. The direct column is the 16 free-running GenCast trajectories at 21 days, the only
 direct baseline for this region (Section~\ref{sec:results}). Observed $+5.73$\,K, reached by 6
 of 64 trajectories, most extreme $+6.19$\,K. None of the 16 direct trajectories reaches it, the
@@ -398,8 +405,8 @@ closest stopping at $+4.19$\,K.}
 \begin{figure}[h]
 \centering
 \includegraphics[width=\textwidth,trim=0 0 0 22,clip]{Southwest_HeatWave_2020/aires_trajectory_Southwest_HeatWave_2020_pilot.pdf}
-\caption{The August 2020 Southwest heat wave, the one target in Table~\ref{tab:results} the
-method does not reach. Resampling moves the population about 1.75\,K toward the observed value
+\caption{The August 2020 Southwest heat wave, scored over 29 to 35$^\circ$N and 109 to 103$^\circ$W, the one
+target in Table~\ref{tab:results} the method does not reach. Resampling moves the population about 1.75\,K toward the observed value
 and ends 4.4\,K short of it at $+4.31$\,K. Where direct sampling and the weighted estimate both
 have members, they agree, so the miss is a limit on how far 64 trajectories can be pushed and not
 a failure of the weighting.}
@@ -409,7 +416,8 @@ a failure of the weighting.}
 \begin{figure}[h]
 \centering
 \includegraphics[width=\textwidth,trim=0 0 0 22,clip]{California_HeatWave_2022/aires_trajectory_California_HeatWave_2022_pilot.pdf}
-\caption{The September 2022 California heat wave. Observed $+4.71$\,K, reached by 25 of 64
+\caption{The September 2022 California heat wave, scored over 35 to 41$^\circ$N and 124 to 118$^\circ$W.
+Observed $+4.71$\,K, reached by 25 of 64
 trajectories, most extreme $+6.33$\,K. None of 24 direct GenCast members reaches it, the closest
 stopping at $+4.70$\,K.}
 \label{fig:tj_ca}
@@ -418,7 +426,8 @@ stopping at $+4.70$\,K.}
 \begin{figure}[h]
 \centering
 \includegraphics[width=\textwidth,trim=0 0 0 22,clip]{p90_20251224/aires_trajectory_p90_20251224_pilot.pdf}
-\caption{The CONUS-wide warm week of December 2025. This is the one extreme in
+\caption{The CONUS-wide warm week of December 2025, scored over 24 to 50$^\circ$N and 125 to 66$^\circ$W.
+This is the one extreme in
 Table~\ref{tab:results} that direct sampling reaches, with 1 of 24 members at $+3.46$\,K.
 Observed $+3.26$\,K, reached by 46 of 64 trajectories, most extreme $+5.12$\,K. The direct
 24-member FourCastNet~3 ensemble at 21 days reaches it with none.}
@@ -428,7 +437,8 @@ Observed $+3.26$\,K, reached by 46 of 64 trajectories, most extreme $+5.12$\,K. 
 \begin{figure}[h]
 \centering
 \includegraphics[width=\textwidth,trim=0 0 0 22,clip]{WinterStorm_Elliott_2022/aires_trajectory_WinterStorm_Elliott_2022_pilot.pdf}
-\caption{Winter Storm Elliott, December 2022, over the northern Plains region. This is the
+\caption{Winter Storm Elliott, December 2022, scored over the northern Plains, 43 to 49$^\circ$N and
+106 to 100$^\circ$W. This is the
 deepest cold target in the set relative to the forecast model's own spread. Observed
 $-14.42$\,K, reached by 20 of 64 trajectories, coldest $-17.04$\,K. The coldest direct member
 stops 4.6\,K short at $-9.83$\,K.}
@@ -438,7 +448,8 @@ stops 4.6\,K short at $-9.83$\,K.}
 \begin{figure}[h]
 \centering
 \includegraphics[width=\textwidth,trim=0 0 0 22,clip]{WinterStorm_Uri_2021/aires_trajectory_WinterStorm_Uri_2021_pilot.pdf}
-\caption{Winter Storm Uri, February 2021, over the Texas and Oklahoma region. The sign of the
+\caption{Winter Storm Uri, February 2021, scored over Texas and Oklahoma, 26 to 37$^\circ$N and 106 to
+94$^\circ$W. The sign of the
 score is reversed for a cold event, so the method clones the coldest trajectories rather than the
 warmest. The schedule is otherwise the one used for the heat waves and was not retuned. Observed
 $-7.40$\,K, reached by 32 of 64 trajectories, coldest $-10.20$\,K. None of 24 direct GenCast
@@ -449,7 +460,8 @@ members, 16 free-running trajectories or 24 direct FourCastNet~3 members reaches
 \begin{figure}[h]
 \centering
 \includegraphics[width=\textwidth,trim=0 0 0 22,clip]{p90_20240802/aires_trajectory_p90_20240802_pilot.pdf}
-\caption{The CONUS-wide warm week of August 2024, the first mild control. Observed
+\caption{The CONUS-wide warm week of August 2024, the first mild control, scored over the CONUS box of
+Figure~\ref{fig:tj_dec25}. Observed
 $+1.06$\,K, reached by 63 of 64 trajectories, most extreme $+2.37$\,K. Direct GenCast reaches it
 with 14 of 24 members, direct FourCastNet~3 with 14 of 24, and CFSv2 with 2 of 4 cycles. Where
 every method resolves the event, the weighted AI+RES estimate agrees with the direct count within
@@ -460,7 +472,8 @@ sampling error (Section~\ref{sec:scope}, item 2).}
 \begin{figure}[h]
 \centering
 \includegraphics[width=\textwidth,trim=0 0 0 22,clip]{p90_20231107/aires_trajectory_p90_20231107_pilot.pdf}
-\caption{The CONUS-wide median week of November 2023, the second control. Observed
+\caption{The CONUS-wide median week of November 2023, the second control, scored over the same CONUS
+box. Observed
 $+0.21$\,K, reached by all 64 trajectories, most extreme $+4.16$\,K. Direct GenCast reaches it
 with 21 of 24 members, direct FourCastNet~3 with 19 of 24, and CFSv2 with 3 of 4 cycles. Every
 trajectory finished past the target, so the population was concentrated entirely beyond it and
@@ -474,10 +487,11 @@ Section~\ref{sec:scope}, item 2.}
 \section{The configuration that produced these results}
 \label{sec:hyper}
 
-Table~\ref{tab:hyper} lists every setting of the runs reported in Table~\ref{tab:results}. One
-line needs a note. The selection strength $C$ sets how hard the population is pushed at each
-resampling time, through a weight $w \propto e^{C\theta}$ on the score $\theta$. It is 0 at the
-first resampling time, which leaves the population untouched, and rises as the remaining forecast
+Table~\ref{tab:hyper} lists every setting of the runs reported in Table~\ref{tab:results}. The
+selection strength $C$ sets how hard the population is pushed at each resampling step, through a
+selection weight $w \propto e^{C\theta}$ on the score $\theta$, the $w$ of Figure~\ref{fig:lancelin}.
+These are not the weights of Section~\ref{sec:method} that give the final probability. $C$ is 0 at
+the first resampling step, which leaves the population untouched, and rises as the remaining forecast
 shortens and the scoring model gains skill over the target week.
 
 \begin{table}[h]
@@ -487,17 +501,19 @@ Table~\ref{tab:results}. The cost of one run at these settings is Table~\ref{tab
 \label{tab:hyper}
 \begin{tabular}{@{}ll@{}}
 \toprule
-trajectory model      & GenCast 0.25$^\circ$, checkpoint trained on data before 2019 \\
+trajectory model      & GenCast 0.25$^\circ$, trained on data before 2019 \\
 trajectory time step  & 12 h, advanced in segments of 6 steps (3 days) \\
 scoring model         & FourCastNet~3, 6-member ensemble per trajectory \\
 trajectories, $N$     & 64, held constant through the run \\
 forecast horizon      & 21 days, initialization to event peak \\
 resampling times      & 3, 6, 9, 12, 15 days \\
-selection strength, $C$ & 0, 1.0, 1.4, 1.8, 2.0, one per resampling time \\
+selection strength, $C$ & 0, 1.0, 1.4, 1.8, 2.0, one per resampling step \\
 resampling scheme     & diffusion Monte Carlo, pivotal sampling, one fixed seed \\
 score, $\theta$       & 6-member mean of the area-weighted regional mean of the \\
                       & 7-day-mean 2\,m temperature anomaly, sign set by the event \\
 scored window         & the 7 days ending at the event peak \\
+scored region         & one fixed latitude-longitude box per event, an input to the score, \\
+                      & given in the captions of Appendix~\ref{sec:appendix} \\
 anomaly baseline      & ERA5 climatology, 1990 to 2019 \\
 trajectory state kept & global, 2 frames, float32 \\
 \bottomrule
@@ -508,20 +524,21 @@ trajectory state kept & global, 2 frames, float32 \\
 \label{sec:costmath}
 
 Write $k$ for the number of AI+RES trajectories that reached the observed value, $\hat{p}$ for the
-probability AI+RES assigned to the event, $c_{\mathrm{d}}$ for the cost of one plain 21-day
-GenCast run, and $C$ for the cost of one AI+RES forecast. Each member of a plain ensemble lands at
+probability AI+RES assigned to the event, the weighted estimate of Section~\ref{sec:method},
+$c_{\mathrm{d}}$ for the cost of one direct 21-day GenCast run, and $c_{\mathrm{a}}$ for the cost
+of one AI+RES forecast. Each member of a direct ensemble lands at
 or beyond the observed value with probability $\hat{p}$, so $n$ runs put $n\hat{p}$ members there
 on average, and $n = k/\hat{p}$ runs are needed for that average to equal $k$. The cost of those
 runs is $n\,c_{\mathrm{d}}$, and the cost relative to one AI+RES forecast is
 %
 \begin{equation}
-\frac{n\,c_{\mathrm{d}}}{C} \;=\; \frac{k\,c_{\mathrm{d}}}{\hat{p}\,C},
-\qquad c_{\mathrm{d}} = \$1.00, \qquad C = \$156 .
+\frac{n\,c_{\mathrm{d}}}{c_{\mathrm{a}}} \;=\; \frac{k\,c_{\mathrm{d}}}{\hat{p}\,c_{\mathrm{a}}},
+\qquad c_{\mathrm{d}} = \$1.00, \qquad c_{\mathrm{a}} = \$156 .
 \label{eq:multiple}
 \end{equation}
 %
 Both costs are measured. $c_{\mathrm{d}}$ is 0.4 H100-hours per 21-day run at \$2.50 per GPU-hour,
-and $C$ is the range in Table~\ref{tab:cost} rounded to its midpoint. The 2021 Pacific Northwest
+and $c_{\mathrm{a}}$ is the range in Table~\ref{tab:cost} rounded to its midpoint. The 2021 Pacific Northwest
 heat dome gives the smallest multiple in the set. There $k = 42$ and $\hat{p} = 0.054$, so
 $n = 780$ runs at \$780, which is $780/156 = 5.0$ times the AI+RES cost. Winter Storm Uri gives
 the largest. There $k = 32$ and $\hat{p} = 0.0090$, so $n = 3{,}560$ runs at \$3,560, which is
