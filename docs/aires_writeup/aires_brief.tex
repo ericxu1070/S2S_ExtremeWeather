@@ -50,7 +50,7 @@ Direct ensemble sampling reached it in none of the seven, and the operational Cl
 System version 2 (CFSv2) in none of the seven. One AI+RES forecast takes 7.2 to 8.7 hours and 61
 to 64 H100 GPU-hours on a single eight-GPU node, about \$156 at \$2.50 per GPU-hour. Obtaining
 the same set of extreme trajectories by direct sampling is estimated at 5 to 23 times that cost
-(\hyperref[sec:costmath]{Appendix~\ref*{sec:costmath}} gives the arithmetic), and the multiple
+(Appendix~\ref{sec:costmath} gives the arithmetic), and the multiple
 grows with the rarity of the event. Nine test cases support a qualitative assessment while we
 currently work on a more quantitative result.
 \end{abstract}
@@ -74,6 +74,14 @@ their sample size cannot answer.
 \section{The method}
 \label{sec:method}
 
+The target here is heat waves. A trajectory scores higher the hotter the week it is forecast to
+produce, so the population is pulled toward heat. The direction of the score is the only part of
+the method that changes with the kind of extreme. For a cold outbreak the sign is reversed and a
+trajectory scores higher the colder its forecast week, which is the setting used for Winter Storms
+Uri and Elliott in Table~\ref{tab:results}. For a tropical cyclone the score would be built from
+low mean sea level pressure and high wind speed rather than from temperature. Nothing else in the
+algorithm depends on which extreme is targeted.
+
 Rare-event sampling concentrates a fixed compute budget on the trajectories that approach the
 event, instead of spreading it evenly over the forecast distribution. We launch 64 forecast
 trajectories from the same starting conditions. Every three days we stop them, score each one,
@@ -82,14 +90,17 @@ discard the low scorers, and duplicate the high scorers in their place. The popu
 extreme. Weights carried alongside each trajectory convert the concentrated population back into
 an unbiased probability at the end.
 
-The score is the step that decides the outcome. The conventional choice is the trajectory's
-current temperature, which three weeks before a heat wave carries no information about which
-trajectory becomes hot. We instead score each trajectory by running a second, independently
-trained AI weather model forward from it and taking its forecast for the target week. At the
-9-day checkpoint of the 2021 heat dome, the AI score ranks the trajectories with a rank
-correlation of 0.80 against where they in fact ended up. The conventional score reaches 0.06 at
-the same checkpoint. Run on the identical setup with only the score exchanged, the conventional
-method reaches the observed 2021 heat dome with 0 of 64 trajectories.
+The score is the step that decides the outcome. The standard choice is persistence, the
+trajectory's temperature at the moment it is scored. Persistence does not tell you what the
+trajectory does three weeks later. At the 9-day checkpoint of the 2021 heat dome it ranks the
+trajectories with a rank correlation of 0.06 against where they in fact ended up. We score
+instead with a second, more efficient AI weather model, run forward from each trajectory to the
+event, which gives a general idea of where that trajectory's temperature is heading. The score is
+that model's 6-member ensemble mean of the regional temperature anomaly over the 7 days ending at
+the event peak. The window is 7 days because that is how long the heat wave itself lasts. This
+score reaches a rank correlation of 0.80 at the same 9-day checkpoint. Run on the identical setup
+with only the score exchanged, persistence reaches the observed 2021 heat dome with 0 of 64
+trajectories.
 
 The trajectory model is GenCast (Google DeepMind) at 0.25-degree resolution. The scoring model is
 FourCastNet~3 (NVIDIA). Both were trained on data ending before 2019, so every event tested here
@@ -332,6 +343,48 @@ per-forecast cost directly, since the current pair requires an 80\,GB GPU per tr
 \renewcommand{\thefigure}{\thesection\arabic{figure}}
 \setcounter{equation}{0}
 \renewcommand{\theequation}{\thesection\arabic{equation}}
+\setcounter{table}{0}
+\renewcommand{\thetable}{\thesection\arabic{table}}
+% hyperref builds destination names from \theH... . The section, figure, table and
+% equation counters are all reset here, so without these the appendix anchors collide
+% with the body's (section.1, table.1, ...) and every link lands on the body object.
+\renewcommand{\theHsection}{appx.\Alph{section}}
+\renewcommand{\theHfigure}{appx.\Alph{section}.\arabic{figure}}
+\renewcommand{\theHtable}{appx.\Alph{section}.\arabic{table}}
+\renewcommand{\theHequation}{appx.\Alph{section}.\arabic{equation}}
+
+\section{The configuration that produced these results}
+\label{sec:hyper}
+
+Table~\ref{tab:hyper} lists every setting of the runs reported in Table~\ref{tab:results}. One
+line needs a note. The selection strength $C$ sets how hard the population is pushed at each
+resampling time, through a weight $w \propto e^{C\theta}$ on the score $\theta$. It is 0 at the
+first resampling time, which leaves the population untouched, and rises as the remaining forecast
+shortens and the scoring model gains skill over the target week.
+
+\begin{table}[h]
+\centering\small\setlength{\tabcolsep}{7pt}
+\caption{The AI+RES configuration, unchanged across all nine events of
+Table~\ref{tab:results}. The cost of one run at these settings is Table~\ref{tab:cost}.}
+\label{tab:hyper}
+\begin{tabular}{@{}ll@{}}
+\toprule
+trajectory model      & GenCast 0.25$^\circ$, checkpoint trained on data before 2019 \\
+trajectory time step  & 12 h, advanced in segments of 6 steps (3 days) \\
+scoring model         & FourCastNet~3, 6-member ensemble per trajectory \\
+trajectories, $N$     & 64, held constant through the run \\
+forecast horizon      & 21 days, initialization to event peak \\
+resampling times      & 3, 6, 9, 12, 15 days \\
+selection strength, $C$ & 0, 1.0, 1.4, 1.8, 2.0, one per resampling time \\
+resampling scheme     & diffusion Monte Carlo, pivotal sampling, one fixed seed \\
+score, $\theta$       & 6-member mean of the area-weighted regional mean of the \\
+                      & 7-day-mean 2\,m temperature anomaly, sign set by the event \\
+scored window         & the 7 days ending at the event peak \\
+anomaly baseline      & ERA5 climatology, 1990 to 2019 \\
+trajectory state kept & global, 2 frames, float32 \\
+\bottomrule
+\end{tabular}
+\end{table}
 
 \section{How the cost multiple is computed}
 \label{sec:costmath}
