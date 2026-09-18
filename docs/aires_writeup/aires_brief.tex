@@ -24,6 +24,7 @@
 \setlength{\parskip}{3pt}
 \setlength{\parindent}{0pt}
 \newcommand{\hit}[1]{\textbf{#1}}
+\graphicspath{{../../figures/aires/}}
 
 \title{\vspace{-1.4cm}\large AI+RES: forecasting rare weather extremes three weeks out,\\
 at a fraction of the compute}
@@ -283,5 +284,85 @@ for its first 12-case tier, would replace the qualitative bound of Section~\ref{
 a reliability curve. A scoring function for tropical cyclones is needed because the weekly
 regional average used here averages away a one-day landfall. Lighter model pairs would reduce the
 per-forecast cost directly, since the current pair requires an 80\,GB GPU per trajectory.
+
+
+\clearpage
+\raggedbottom
+\renewcommand{\topfraction}{0.98}
+\renewcommand{\bottomfraction}{0.98}
+\renewcommand{\textfraction}{0.03}
+\renewcommand{\floatpagefraction}{0.75}
+\setcounter{topnumber}{3}
+\setcounter{bottomnumber}{3}
+\setcounter{totalnumber}{4}
+\setlength{\floatsep}{14pt plus 2pt minus 2pt}
+\setlength{\textfloatsep}{14pt plus 2pt minus 2pt}
+\setlength{\intextsep}{14pt plus 2pt minus 2pt}
+\setcounter{page}{1}
+\renewcommand{\thepage}{A\arabic{page}}
+\setcounter{figure}{0}
+\renewcommand{\thefigure}{A\arabic{figure}}
+\setcounter{section}{0}
+\renewcommand{\thesection}{A}
+
+\section{Appendix. Every trajectory, for four events}
+\label{sec:appendix}
+
+These figures show every forecast trajectory of four AI+RES runs, from the start of the
+forecast to the event. They support Table~\ref{tab:results} and are not counted in the four
+pages of the brief. Figure~\ref{fig:tj_pnw} describes the panels, and Figures~\ref{fig:tj_uri}
+to~\ref{fig:tj_sw} use the same layout.
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=\textwidth,trim=0 0 0 22,clip]{PNW_HeatDome_2021/aires_trajectory_PNW_HeatDome_2021_pilot.pdf}
+\caption{The 2021 Pacific Northwest heat dome, 64 trajectories, forecast from 21 days out.
+\textbf{Left.} Each line is one trajectory, plotted as its running regional temperature anomaly
+against time. Grey lines were discarded at a resampling step. Coloured lines survived to the
+event and are shaded by the value they reached. The dotted verticals are the five resampling
+steps, labelled by how hard the population was pushed and by how many trajectories were
+discarded. The blue diamonds are the population-average score. The shaded band on the right is
+the week the forecast is scored over. The black line with markers is the observed weather. The
+black dashed curves are the four CFSv2 operational cycles at the same lead, with their average
+drawn as a bar across the scored week. \textbf{Middle.} The distribution of final values for the
+24-member direct GenCast ensemble in grey, for the AI+RES population in blue, and for the
+weighted estimate as a dashed line. \textbf{Right.} Where each method's members landed, with the
+number that reached the observed value printed above each column. Observed $+7.72$\,K, reached by
+42 of 64 trajectories, most extreme $+10.29$\,K. The direct ensemble reaches it with none of 24
+and stops at $+7.08$\,K.}
+\label{fig:tj_pnw}
+\end{figure}
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=\textwidth,trim=0 0 0 22,clip]{WinterStorm_Uri_2021/aires_trajectory_WinterStorm_Uri_2021_pilot.pdf}
+\caption{Winter Storm Uri, February 2021, over the Texas and Oklahoma region. The sign of the
+score is reversed for a cold event, so the method clones the coldest trajectories rather than the
+warmest. The schedule is otherwise the one used for the heat waves and was not retuned. Observed
+$-7.40$\,K, reached by 32 of 64 trajectories, coldest $-10.20$\,K. None of 24 direct GenCast
+members, 16 free-running trajectories or 24 direct FourCastNet~3 members reaches it.}
+\label{fig:tj_uri}
+\end{figure}
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=\textwidth,trim=0 0 0 22,clip]{WinterStorm_Elliott_2022/aires_trajectory_WinterStorm_Elliott_2022_pilot.pdf}
+\caption{Winter Storm Elliott, December 2022, over the northern Plains region. This is the
+deepest cold target in the set relative to the forecast model's own spread. Observed
+$-14.42$\,K, reached by 20 of 64 trajectories, coldest $-17.04$\,K. The coldest direct member
+stops 4.6\,K short at $-9.83$\,K.}
+\label{fig:tj_elliott}
+\end{figure}
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=\textwidth,trim=0 0 0 22,clip]{Southwest_HeatWave_2020/aires_trajectory_Southwest_HeatWave_2020_pilot.pdf}
+\caption{The August 2020 Southwest heat wave, the one target in Table~\ref{tab:results} the
+method does not reach. Resampling moves the population about 1.75\,K toward the observed value
+and ends 4.4\,K short of it at $+4.31$\,K. Where direct sampling and the weighted estimate both
+have members, they agree, so the miss is a limit on how far 64 trajectories can be pushed and not
+a failure of the weighting.}
+\label{fig:tj_sw}
+\end{figure}
 
 \end{document}
