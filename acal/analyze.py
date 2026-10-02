@@ -44,6 +44,8 @@ day is commoner in this pool than the anomaly's name suggests, which LOWERS the 
     python -m acal.analyze --stage collect     # runs/acal/analysis/cases.csv
     python -m acal.analyze --stage scorecard   # runs/acal/analysis/scorecard.csv (+ summary.json)
     python -m acal.analyze --stage figures     # figures/acal/acal_*.png
+    python -m acal.analyze --stage rungs       # rungs_cases.csv, rungs_summary.json,
+                                               #   figures/acal/acal_rungs_*.png
     python -m acal.analyze --stage all
 """
 from __future__ import annotations
@@ -689,10 +691,425 @@ def figures() -> list[Path]:
 
 
 # --------------------------------------------------------------------------- #
+# Stage: rungs - conditional reliability at 2 / 3 / 4 K
+# --------------------------------------------------------------------------- #
+# Why conditional. Every case is in the slate because s*obs >= 2 K, so an unconditional
+# reliability test at rung `a` is biased (o = 1 at 2 K for all 42). But if a case's
+# forecast distribution F_i is calibrated, then for any a >= b
+#
+#     P(s A >= a | s A >= b, F_i) = F_i(a) / F_i(b)
+#
+# exactly, and the selection {s*obs >= 2} is a function of the outcome at b = 2 alone, so
+# conditioning on it leaves q_i(a) = F_i(a) / F_i(2) testable against o_i = 1[s*obs >= a]
+# with no selection bias. `Z = exp(log_Z)` multiplies numerator and denominator and
+# cancels, so q is a ratio of weighted walker sums and is free of the normalization_check
+# noise. The assumption is that selection depends only on the outcome at 2 K; two minor
+# deviations are the slate's 10-day declustering and that the valid date is the observed
+# peak (an argmax inside an episode), which can only push outcomes upward.
+RUNG_SPECS = (("3|2", 3.0, 2.0), ("4|2", 4.0, 2.0), ("4|3", 4.0, 3.0))
+RUNGS_CASES_OUT = OUT / "rungs_cases.csv"
+RUNGS_SUMMARY_OUT = OUT / "rungs_summary.json"
+N_BOOT = 2000
+BOOT_SEED = 20261001
+LOGLOSS_EPS = 0.01          # q clipped to [eps, 1 - eps] for the log-loss only
+CLIM_MIN_COND = 5           # pool days at the conditioning rung below which -> all-season
+INTERVAL = 0.90
+
+
+def cond_q(al, w, sign: float, a: float, b: float) -> float:
+    """`sum(w 1[sA >= a]) / sum(w 1[sA >= b])`, rungs `a`, `b` in tail-signed K.
+
+    NaN when no weighted walker reaches `b` (the forecast said `< b` was certain).
+    """
+    al = np.asarray(al, float)
+    w = np.asarray(w, float)
+    den = float(np.sum(w * aceiling.beyond(al, sign * b, sign)))
+    num = float(np.sum(w * aceiling.beyond(al, sign * a, sign)))
+    return num / den if den > 0 else np.nan
+
+
+def boot_q(al, w, sign: float, a: float, b: float, n_boot: int = N_BOOT,
+           rng: np.random.Generator | None = None) -> np.ndarray:
+    """Bootstrap of `cond_q` over the 32 (A, w) final walkers. NaN where a resample has
+    no walker at `b`."""
+    rng = np.random.default_rng(0) if rng is None else rng
+    al = np.asarray(al, float)
+    w = np.asarray(w, float)
+    idx = rng.integers(0, al.size, size=(n_boot, al.size))
+    A_, W_ = al[idx], w[idx]
+    den = np.sum(W_ * (sign * (A_ - sign * b) >= 0), axis=1)
+    num = np.sum(W_ * (sign * (A_ - sign * a) >= 0), axis=1)
+    with np.errstate(invalid="ignore", divide="ignore"):
+        return np.where(den > 0, num / den, np.nan)
+
+
+def poisson_binomial_pmf(p) -> np.ndarray:
+    """Exact pmf of the number of successes of independent Bernoulli(p_i), k = 0..n."""
+    pmf = np.array([1.0])
+    for pi in np.asarray(p, float):
+        pmf = np.convolve(pmf, [1.0 - pi, pi])
+    return pmf
+
+
+def pb_test(p, k: int, level: float = INTERVAL) -> dict:
+    """Two-sided p-value (2 x the smaller tail, capped at 1) and the central `level`
+    range of the count under the Poisson-binomial with success probabilities `p`."""
+    pmf = poisson_binomial_pmf(p)
+    cdf = np.cumsum(pmf)
+    sf = pmf[::-1].cumsum()[::-1]                     # P(X >= k)
+    lo_t = (1 - level) / 2
+    lo = int(np.searchsorted(cdf, lo_t - 1e-12))
+    hi = int(np.searchsorted(cdf, 1 - lo_t - 1e-12))
+    pval = float(min(1.0, 2 * min(cdf[k], sf[k]))) if len(p) else np.nan
+    return dict(expected=float(np.sum(p)), observed=int(k), range_lo=lo, range_hi=hi,
+                p_value=pval, p_le=float(cdf[k]), p_ge=float(sf[k]))
+
+
+def _logloss(q, o, eps: float = LOGLOSS_EPS) -> float:
+    q = np.clip(np.asarray(q, float), eps, 1 - eps)
+    o = np.asarray(o, float)
+    return float(-np.mean(o * np.log(q) + (1 - o) * np.log(1 - q)))
+
+
+def clim_cond(daily: pd.Series, peak, a: float, b: float, sign: float) -> dict:
+    """Climatological `P(>=a) / P(>=b)` from the seasonal pool, falling back to the
+    all-season pool (minus the case's own +/-10 d) when the pool has < CLIM_MIN_COND
+    days at `b`."""
+    pool = clim_pool(daily, peak)
+    _, ka, n = p_clim(pool, sign * a, sign)
+    _, kb, _ = p_clim(pool, sign * b, sign)
+    fallback = kb < CLIM_MIN_COND
+    if fallback:
+        pk = pd.Timestamp(peak)
+        allp = daily[np.abs((daily.index - pk).days) > CLIM_EXCLUDE_DAYS]
+        _, ka, n = p_clim(allp, sign * a, sign)
+        _, kb, _ = p_clim(allp, sign * b, sign)
+    return dict(q_clim=(ka / kb) if kb > 0 else np.nan, k_clim_a=ka, k_clim_b=kb,
+                n_clim_pool=n, clim_fallback=bool(fallback))
+
+
+def rungs_rows(df: pd.DataFrame, cases: list[Case], daily: pd.Series):
+    """(rows DataFrame, {(spec, episode_id): bootstrap array})."""
+    rows, boots = [], {}
+    for i, (r, c) in enumerate(zip(df.itertuples(), cases)):
+        so = c.sign * c.obs
+        for spec, a, b in RUNG_SPECS:
+            if so < b:                                 # not in this conditional sample
+                continue
+            q = cond_q(c.al, c.weights, c.sign, a, b)
+            bq = boot_q(c.al, c.weights, c.sign, a, b,
+                        rng=np.random.default_rng([BOOT_SEED, i, int(10 * a + b)]))
+            boots[(spec, c.episode_id)] = bq
+            ok = np.isfinite(bq)
+            row = dict(episode_id=c.episode_id, family=r.family, slate_rung=int(r.rung),
+                       peak=r.peak, obs=c.obs, s_obs=so, spec=spec, a=a, b=b,
+                       q=q, defined=bool(np.isfinite(q)),
+                       q_lo=float(np.percentile(bq[ok], 5)) if ok.any() else np.nan,
+                       q_hi=float(np.percentile(bq[ok], 95)) if ok.any() else np.nan,
+                       boot_undefined_frac=float(1 - ok.mean()),
+                       outcome=int(so >= a),
+                       F_a_raw=c.p_raw(c.sign * a), F_b_raw=c.p_raw(c.sign * b),
+                       n_beyond_a=c.n_beyond(c.sign * a), n_beyond_b=c.n_beyond(c.sign * b),
+                       normalization_check=c.norm)
+            row["F_a_sn"] = row["F_a_raw"] / c.norm
+            row["F_b_sn"] = row["F_b_raw"] / c.norm
+            row.update(clim_cond(daily, r.peak, a, b, c.sign))
+            rows.append(row)
+    return pd.DataFrame(rows), boots
+
+
+def rung_group_summary(d: pd.DataFrame, boots: dict, spec: str) -> dict:
+    """Expected vs observed hits, Brier / BSS / log-loss, for one (spec, group) slice."""
+    undef = d[~d.defined]
+    g = d[d.defined]
+    out = dict(n=int(len(d)), n_defined=int(len(g)), n_undefined=int(len(undef)),
+               undefined=undef.episode_id.tolist())
+    if not len(g):
+        return out
+    q, o = g.q.values, g.outcome.values
+    out.update(pb_test(q, int(o.sum())))
+    # Expected-count interval from the per-case bootstraps, drawn jointly by replicate.
+    B = np.stack([boots[(spec, e)] for e in g.episode_id])         # (n, N_BOOT)
+    B = np.where(np.isfinite(B), B, q[:, None])
+    tot = B.sum(axis=0)
+    out["expected_boot_lo"], out["expected_boot_hi"] = (float(v) for v in
+                                                       np.percentile(tot, [5, 95]))
+    out["brier"] = float(np.mean((q - o) ** 2))
+    out["logloss"] = _logloss(q, o)
+    qc = g.q_clim.values
+    okc = np.isfinite(qc)
+    out["n_clim_fallback"] = int(g.clim_fallback.sum())
+    out["clim_fallback"] = g.episode_id[g.clim_fallback].tolist()
+    out["n_clim_undefined"] = int((~okc).sum())
+    if okc.any():
+        out["expected_clim"] = float(np.sum(qc[okc]))
+        out["clim_test"] = pb_test(qc[okc], int(o[okc].sum()))
+        out["brier_clim"] = float(np.mean((qc[okc] - o[okc]) ** 2))
+        out["brier_on_clim_cases"] = float(np.mean((q[okc] - o[okc]) ** 2))
+        out["bss"] = (1 - out["brier_on_clim_cases"] / out["brier_clim"]
+                      if out["brier_clim"] > 0 else np.nan)
+        out["logloss_clim"] = _logloss(qc[okc], o[okc])
+    out["n_q_zero"] = int((q == 0).sum())
+    out["n_q_one"] = int((q == 1).sum())
+    # The cases that drove it: every hit, and the misses with the largest q.
+    gg = g.assign(sq=(q - o) ** 2)
+    out["hits"] = [dict(episode_id=x.episode_id, q=float(x.q), q_clim=float(x.q_clim),
+                        s_obs=float(x.s_obs)) for x in gg[gg.outcome == 1].itertuples()]
+    out["worst"] = [dict(episode_id=x.episode_id, q=float(x.q), outcome=int(x.outcome),
+                         sq=float(x.sq)) for x in gg.nlargest(5, "sq").itertuples()]
+    return out
+
+
+def sharpness_2k(df: pd.DataFrame, cases: list[Case], daily: pd.Series) -> pd.DataFrame:
+    """Rung 2 is not testable (o = 1 for all 42): what each forecast gave it."""
+    rows = []
+    for r, c in zip(df.itertuples(), cases):
+        a = c.sign * 2.0
+        pc, kc, nc = p_clim(clim_pool(daily, r.peak), a, c.sign)
+        fr = c.p_raw(a)
+        rows.append(dict(episode_id=c.episode_id, family=r.family, F2_raw=fr,
+                         F2_sn=fr / c.norm, n_beyond_2=c.n_beyond(a), p_clim_2=pc,
+                         k_clim_2=kc, n_clim=nc, lift2_raw=_lift(fr, pc),
+                         lift2_sn=_lift(fr / c.norm, pc)))
+    return pd.DataFrame(rows)
+
+
+def rungs() -> tuple[pd.DataFrame, dict]:
+    df, cases = load_all()
+    daily = load_daily()
+    rc, boots = rungs_rows(df, cases, daily)
+    sh = sharpness_2k(df, cases, daily)
+    s = dict(n_cases=len(cases), n_boot=N_BOOT, interval=INTERVAL,
+             logloss_eps=LOGLOSS_EPS, clim_min_cond=CLIM_MIN_COND,
+             p_value="two-sided, 2 x min(P(X<=k), P(X>=k)), capped at 1",
+             specs={})
+    for spec, a, b in RUNG_SPECS:
+        d = rc[rc.spec == spec]
+        s["specs"][spec] = {grp: rung_group_summary(dd, boots, spec) for grp, dd in
+                            (("all", d), ("heat", d[d.family == "heat"]),
+                             ("cold", d[d.family == "cold"]))}
+    s["rung2_sharpness"] = {
+        grp: dict(n=int(len(dd)), **{k: _q(dd[k]) for k in
+                  ("F2_raw", "F2_sn", "p_clim_2", "lift2_raw", "lift2_sn")},
+                  n_lift2_sn_gt1=int((dd.lift2_sn > 1).sum()),
+                  n_lift2_raw_gt1=int((dd.lift2_raw > 1).sum()),
+                  n_F2_sn_ge_half=int((dd.F2_sn >= 0.5).sum()),
+                  n_F2_zero=int((dd.F2_raw == 0).sum()),
+                  F2_zero=dd.episode_id[dd.F2_raw == 0].tolist())
+        for grp, dd in (("all", sh), ("heat", sh[sh.family == "heat"]),
+                        ("cold", sh[sh.family == "cold"]))}
+    # The forecasts that said "< 2 K was certain": a miss at the 2 K rung.
+    s["undefined_q_2k"] = sh.episode_id[sh.F2_raw == 0].tolist()
+    OUT.mkdir(parents=True, exist_ok=True)
+    rc.to_csv(RUNGS_CASES_OUT, index=False, float_format="%.6g")
+    sh.to_csv(OUT / "rungs_sharpness_2k.csv", index=False, float_format="%.6g")
+    with open(RUNGS_SUMMARY_OUT, "w") as f:
+        json.dump(s, f, indent=2, default=float)
+    print(f"[rungs] {len(rc)} case x rung rows -> {RUNGS_CASES_OUT}")
+    for spec, _, _ in RUNG_SPECS:
+        for grp in ("all", "heat", "cold"):
+            x = s["specs"][spec][grp]
+            if "expected" not in x:
+                continue
+            print(f"  {spec} {grp:4s} n={x['n_defined']:2d} (undef {x['n_undefined']})  "
+                  f"exp {x['expected']:.2f} [{x['expected_boot_lo']:.2f},"
+                  f"{x['expected_boot_hi']:.2f}]  obs {x['observed']}  "
+                  f"90% [{x['range_lo']},{x['range_hi']}]  p={x['p_value']:.3f}  "
+                  f"BS {x['brier']:.3f} vs clim {x.get('brier_clim', np.nan):.3f} "
+                  f"BSS {x.get('bss', np.nan):+.2f}  clim exp "
+                  f"{x.get('expected_clim', np.nan):.2f} (fallback {x['n_clim_fallback']})")
+    a2 = s["rung2_sharpness"]["all"]
+    print(f"  rung 2: F2_sn median {a2['F2_sn']['median']:.3f}  F2_raw median "
+          f"{a2['F2_raw']['median']:.3f}  P_clim(2) median {a2['p_clim_2']['median']:.3f}"
+          f"  lift_sn>1 {a2['n_lift2_sn_gt1']}/{a2['n']}  F2 == 0: {a2['F2_zero']}")
+    print(f"  wrote {RUNGS_SUMMARY_OUT}")
+    return rc, s
+
+
+# --- rungs figures ---------------------------------------------------------- #
+GROUP_COLOR = {"all": "#2b2a28", "heat": FAMILY_COLOR["heat"], "cold": FAMILY_COLOR["cold"]}
+
+
+def reliability_bins(q, o, n_bins: int = 4) -> list[dict]:
+    """Equal-count bins of q (sorted, stable), each with the Poisson-binomial range."""
+    q, o = np.asarray(q, float), np.asarray(o, int)
+    order = np.argsort(q, kind="stable")
+    out = []
+    for idx in np.array_split(order, n_bins):
+        t = pb_test(q[idx], int(o[idx].sum()))
+        n = idx.size
+        out.append(dict(n=n, q_mean=float(q[idx].mean()), q_min=float(q[idx].min()),
+                        q_max=float(q[idx].max()), freq=float(o[idx].mean()),
+                        band_lo=t["range_lo"] / n, band_hi=t["range_hi"] / n,
+                        hits=int(o[idx].sum())))
+    return out
+
+
+def fig_rungs_reliability(rc: pd.DataFrame, plt) -> Path:
+    from matplotlib.lines import Line2D
+    d = rc[rc.spec.isin(["3|2", "4|2"]) & rc.defined].reset_index(drop=True)
+    rng = np.random.default_rng(3)
+    fig, axes = plt.subplots(1, 2, figsize=(10.5, 5.0), sharey=True)
+    for ax, col, title in ((axes[0], "q", "AI+RES:  q = F(a) / F(2)"),
+                           (axes[1], "q_clim", "climatology:  P_clim(a) / P_clim(2)")):
+        dd = d[np.isfinite(d[col])]
+        ax.plot([0, 1], [0, 1], color="0.6", lw=1, ls="--", zorder=1)
+        for b in reliability_bins(dd[col].values, dd.outcome.values):
+            ax.plot([b["q_mean"]] * 2, [b["band_lo"], b["band_hi"]], color="0.78",
+                    lw=7, solid_capstyle="butt", zorder=2)
+            ax.plot([b["q_min"], b["q_max"]], [b["freq"]] * 2, color="0.35", lw=0.9,
+                    zorder=3)
+            ax.scatter(b["q_mean"], b["freq"], s=70, color="#2b2a28", edgecolor="white",
+                       linewidth=1.2, zorder=4)
+            ax.annotate(f"{b['hits']}/{b['n']}", (b["q_mean"], max(b["band_hi"], b["freq"])),
+                        xytext=(0, 9), textcoords="offset points", fontsize=8,
+                        color="0.2", ha="center")
+        for r in dd.itertuples():
+            y = (1.07 if r.outcome else -0.07) + rng.uniform(-0.025, 0.025)
+            ax.scatter(getattr(r, col), y, s=26, marker=RUNG_MARKER[int(r.a)],
+                       color=FAMILY_COLOR[r.family], edgecolor="white", linewidth=0.6,
+                       alpha=0.85, zorder=3, clip_on=False)
+        ax.axhspan(-0.11, -0.03, color="0.96", zorder=0)
+        ax.axhspan(1.03, 1.11, color="0.96", zorder=0)
+        ax.set_xlim(-0.02, 1.02); ax.set_ylim(-0.12, 1.12)
+        ax.set_yticks([0, 0.25, 0.5, 0.75, 1])
+        ax.set_xlabel(f"forecast conditional probability ({col})")
+        ax.set_title(title, fontsize=9.5)
+    axes[0].set_ylabel("observed frequency  (strips: individual misses / hits)")
+    h = [Line2D([], [], ls="none", marker="o", ms=8, color="#2b2a28",
+                label="bin mean (4 equal-count bins; line = q span)"),
+         Line2D([], [], color="0.78", lw=7, label="90% range if calibrated"),
+         Line2D([], [], ls="none", marker="s", ms=6, color="0.45", label="rung 3|2"),
+         Line2D([], [], ls="none", marker="^", ms=6, color="0.45", label="rung 4|2"),
+         Line2D([], [], ls="none", marker="o", ms=6, color=FAMILY_COLOR["heat"],
+                label="heat"),
+         Line2D([], [], ls="none", marker="o", ms=6, color=FAMILY_COLOR["cold"],
+                label="cold")]
+    fig.legend(handles=h, loc="upper center", ncol=6, frameon=False,
+               bbox_to_anchor=(0.5, 1.0), fontsize=8.5)
+    fig.suptitle(f"Conditional reliability, rungs 3 and 4 given s*obs >= 2 K "
+                 f"({len(d)} case x rung pairs, 42 cases; pairs share cases)",
+                 y=1.05, fontsize=10.5)
+    fig.tight_layout(rect=(0, 0, 1, 0.95))
+    p = _save(fig, "acal_rungs_reliability.png")
+    plt.close(fig)
+    return p
+
+
+def fig_rungs_counts(s: dict, plt) -> Path:
+    from matplotlib.lines import Line2D
+    rows = [(spec, grp) for spec, _, _ in RUNG_SPECS for grp in ("all", "heat", "cold")]
+    fig, ax = plt.subplots(figsize=(9.0, 5.6))
+    y = 0.0
+    yt, yl = [], []
+    for i, (spec, grp) in enumerate(rows):
+        if i and grp == "all":
+            y += 0.7
+        x = s["specs"][spec][grp]
+        if "expected" in x:
+            ax.plot([x["range_lo"], x["range_hi"]], [y, y], color="0.82", lw=9,
+                    solid_capstyle="butt", zorder=1)
+            ax.plot([x["expected_boot_lo"], x["expected_boot_hi"]], [y, y], color="0.3",
+                    lw=1.2, zorder=2)
+            ax.plot([x["expected"]] * 2, [y - 0.22, y + 0.22], color="0.1", lw=2, zorder=3)
+            if "expected_clim" in x:
+                ax.scatter(x["expected_clim"], y, s=55, marker="D", facecolor="none",
+                           edgecolor="0.25", linewidth=1.2, zorder=3)
+            ax.scatter(x["observed"], y, s=75, color=GROUP_COLOR[grp],
+                       edgecolor="white", linewidth=1.2, zorder=4)
+            bss = x.get("bss", np.nan)
+            ax.text(1.01, y, f"obs {x['observed']}  exp {x['expected']:.1f}  "
+                    f"p={x['p_value']:.2f}  BSS {bss:+.2f}",
+                    transform=ax.get_yaxis_transform(), va="center", fontsize=8,
+                    color="0.2")
+        yt.append(y)
+        yl.append(f"{spec} K  {grp}  (n={x['n_defined']})")
+        y += 1
+    ax.set_yticks(yt, yl, fontsize=8.5)
+    ax.invert_yaxis()
+    ax.set_xlim(left=-0.3)
+    ax.xaxis.set_major_locator(plt.MaxNLocator(integer=True))
+    ax.set_xlabel("number of cases reaching the rung (hits)")
+    ax.grid(axis="y", visible=False)
+    h = [Line2D([], [], ls="none", marker="o", ms=8, color="#2b2a28", label="observed"),
+         Line2D([], [], color="0.1", lw=2, label="expected = sum q"),
+         Line2D([], [], color="0.3", lw=1.2, label="90% bootstrap of expected"),
+         Line2D([], [], color="0.82", lw=8, label="90% range if calibrated"),
+         Line2D([], [], ls="none", marker="D", ms=6, mfc="none", mec="0.25",
+                label="climatology expected")]
+    fig.legend(handles=h, loc="upper center", ncol=5, frameon=False, fontsize=8,
+               bbox_to_anchor=(0.45, 1.0))
+    fig.suptitle("Expected vs observed hits per rung (a|b: reach a K given b K)",
+                 y=1.04, fontsize=10.5)
+    fig.tight_layout(rect=(0, 0, 1, 0.96))
+    p = _save(fig, "acal_rungs_counts.png")
+    plt.close(fig)
+    return p
+
+
+def fig_rungs_sharpness(sh: pd.DataFrame, plt) -> Path:
+    fig, axes = plt.subplots(1, 2, figsize=(10.0, 4.2))
+    rng = np.random.default_rng(5)
+    cols = (("F2_raw", "raw"), ("F2_sn", "self-\nnorm."), ("p_clim_2", "clim."))
+    ax = axes[0]
+    labels = []
+    for i, (fam, (col, lab)) in enumerate([(f, c) for f in ("heat", "cold") for c in cols]):
+        v = sh[sh.family == fam][col].values
+        ax.scatter(i + rng.uniform(-0.15, 0.15, v.size), v, s=26,
+                   color=FAMILY_COLOR[fam] if col != "p_clim_2" else CLIM_COLOR,
+                   edgecolor="white", linewidth=0.6, alpha=0.9, zorder=3)
+        ax.plot([i - 0.3, i + 0.3], [np.median(v)] * 2, color="0.1", lw=2, zorder=4)
+        labels.append(f"{fam}\n{lab}")
+    ax.set_xticks(range(len(labels)), labels, fontsize=7.5)
+    ax.axhline(1, color="0.6", lw=0.8, ls="--")
+    ax.set_ylabel("P(s A >= 2 K)")
+    ax.set_title("probability given to the 2 K rung (every case reached it)", fontsize=9.5)
+    ax.grid(axis="x", visible=False)
+    ax = axes[1]
+    ax.set_yscale("log")
+    ax.axhline(1, color="0.5", lw=1, ls="--")
+    for i, fam in enumerate(("heat", "cold")):
+        for j, (col, lab) in enumerate((("lift2_raw", "raw"), ("lift2_sn", "self-norm."))):
+            v = sh[sh.family == fam][col].values
+            v = v[np.isfinite(v) & (v > 0)]
+            xx = 2 * i + j
+            ax.scatter(xx + rng.uniform(-0.15, 0.15, v.size), v, s=26,
+                       color=FAMILY_COLOR[fam], edgecolor="white", linewidth=0.6,
+                       alpha=0.9, zorder=3)
+            ax.plot([xx - 0.3, xx + 0.3], [np.median(v)] * 2, color="0.1", lw=2, zorder=4)
+    ax.set_xticks(range(4), ["heat\nraw", "heat\nself-norm.", "cold\nraw",
+                             "cold\nself-norm."], fontsize=7.5)
+    ax.set_ylabel("lift = P_RES(2 K) / P_clim(2 K)")
+    ax.set_title("lift at 2 K (bar = median; P_clim = 0 cases omitted)", fontsize=9.5)
+    ax.grid(axis="x", visible=False)
+    fig.suptitle("Rung 2: sharpness, not reliability (42 cases, all hits by selection)",
+                 fontsize=10.5)
+    fig.tight_layout()
+    p = _save(fig, "acal_rungs_sharpness.png")
+    plt.close(fig)
+    return p
+
+
+def rungs_figures() -> list[Path]:
+    import matplotlib
+    matplotlib.use("Agg")
+    import matplotlib.pyplot as plt
+    _style(plt)
+    for p in (RUNGS_CASES_OUT, RUNGS_SUMMARY_OUT):
+        if not p.exists():
+            raise SystemExit(f"[rungs] no {p}; run --stage rungs")
+    rc = pd.read_csv(RUNGS_CASES_OUT)
+    sh = pd.read_csv(OUT / "rungs_sharpness_2k.csv")
+    s = _read(RUNGS_SUMMARY_OUT)
+    return [fig_rungs_reliability(rc, plt), fig_rungs_counts(s, plt),
+            fig_rungs_sharpness(sh, plt)]
+
+
+# --------------------------------------------------------------------------- #
 def main(argv=None) -> int:
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     ap.add_argument("--stage", required=True,
-                    choices=("collect", "scorecard", "figures", "all"))
+                    choices=("collect", "scorecard", "figures", "rungs", "all"))
     a = ap.parse_args(argv)
     if a.stage in ("collect", "all"):
         collect()
@@ -700,6 +1117,9 @@ def main(argv=None) -> int:
         scorecard()
     if a.stage in ("figures", "all"):
         figures()
+    if a.stage in ("rungs", "all"):
+        rungs()
+        rungs_figures()
     return 0
 
 

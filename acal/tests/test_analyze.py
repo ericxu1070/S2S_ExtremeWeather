@@ -105,3 +105,52 @@ def test_p_clim_is_sign_aware():
     pool = pd.Series([-3.0, -1.0, 0.0, 1.0, 3.0])
     assert Z.p_clim(pool, 1.0, +1.0) == (0.4, 2, 5)
     assert Z.p_clim(pool, -1.0, -1.0) == (0.4, 2, 5)
+
+
+# --------------------------------------------------------------------------- #
+# rungs: conditional reliability
+# --------------------------------------------------------------------------- #
+def test_conditional_q_is_free_of_log_z(heat):
+    """q = F(a) / F(2): Z multiplies both and cancels, so log_Z cannot move it."""
+    w = heat.weights
+    q = Z.cond_q(heat.al, w, heat.sign, 3.0, 2.0)
+    assert 0 < q < 1
+    for lz in (-5.0, -0.6, 0.0, 3.0):
+        c = _case(heat.al, heat.result.final_V, log_z=lz)
+        assert c.p_raw(3.0) / c.p_raw(2.0) == pytest.approx(q, rel=1e-13)
+        assert Z.cond_q(c.al, c.weights, c.sign, 3.0, 2.0) == pytest.approx(q, rel=1e-15)
+    # And so is the self-normalized version: same ratio.
+    assert heat.p_sn(3.0) / heat.p_sn(2.0) == pytest.approx(q, rel=1e-13)
+
+
+def test_conditional_q_undefined_when_nothing_reaches_b(heat):
+    assert np.isnan(Z.cond_q(heat.al, heat.weights, 1.0, 99.0, 98.0))
+    bq = Z.boot_q(heat.al, heat.weights, 1.0, 99.0, 98.0, n_boot=50)
+    assert np.isnan(bq).all()
+
+
+def test_conditional_q_cold_sign_mirrors_heat(heat):
+    q_h = Z.cond_q(heat.al, heat.weights, +1.0, 3.0, 2.0)
+    q_c = Z.cond_q(-heat.al, heat.weights, -1.0, 3.0, 2.0)
+    assert q_c == pytest.approx(q_h, abs=1e-15)
+    bh = Z.boot_q(heat.al, heat.weights, +1.0, 3.0, 2.0, rng=np.random.default_rng(1))
+    bc = Z.boot_q(-heat.al, heat.weights, -1.0, 3.0, 2.0, rng=np.random.default_rng(1))
+    np.testing.assert_array_equal(np.isnan(bh), np.isnan(bc))
+    np.testing.assert_allclose(bh[np.isfinite(bh)], bc[np.isfinite(bc)], atol=1e-15)
+
+
+def test_poisson_binomial_sums_to_one_and_matches_binomial():
+    from scipy import stats
+    rng = np.random.default_rng(2)
+    p = rng.uniform(0, 1, 40)
+    assert Z.poisson_binomial_pmf(p).sum() == pytest.approx(1.0, abs=1e-12)
+    pmf = Z.poisson_binomial_pmf(np.full(25, 0.3))
+    np.testing.assert_allclose(pmf, stats.binom.pmf(np.arange(26), 25, 0.3), atol=1e-13)
+    t = Z.pb_test(np.full(25, 0.3), 7)
+    assert t["expected"] == pytest.approx(7.5)
+    assert t["p_le"] == pytest.approx(stats.binom.cdf(7, 25, 0.3), abs=1e-12)
+    assert t["p_ge"] == pytest.approx(stats.binom.sf(6, 25, 0.3), abs=1e-12)
+    assert t["range_lo"] <= 7 <= t["range_hi"]
+    # Degenerate forecasts: a certain hit and a certain miss.
+    assert Z.pb_test([1.0, 0.0], 1)["p_value"] == pytest.approx(1.0)
+    assert Z.pb_test([1.0, 0.0], 0)["p_value"] == pytest.approx(0.0)

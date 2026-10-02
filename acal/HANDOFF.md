@@ -640,3 +640,48 @@ broken 4 `test_ainsights` tests). aires + acal tests: 432 passed, 1 skipped.
 2. **A per-case box-level slate for heat domes** (regional box A_L, JJA), since the CONUS
    slate is winter swings.
 3. Optional: delete the e33 orphan zarr stores (~5.5 GB) - user decision.
+
+### Per-rung calibration (2026-10-01)
+
+`python -m acal.analyze --stage rungs` (also in `all`; ~20 s CPU). Outputs:
+`runs/acal/analysis/rungs_cases.csv` (96 case x rung rows), `rungs_sharpness_2k.csv`,
+`rungs_summary.json`; `figures/acal/acal_rungs_{reliability,counts,sharpness}.png`.
+
+**Method.** Conditional reliability: selection is on s*obs >= 2 K, so test
+q_i(a) = F_i(a)/F_i(2) = sum(w 1[sA>=a]) / sum(w 1[sA>=2]) against o_i = 1[s*obs >= a].
+Unbiased if F_i is calibrated and selection depends only on the 2 K outcome (deviations:
+10-day declustering; the valid date is the observed peak). Z cancels, so q is the same for
+raw and self-normalized. Count test = exact Poisson-binomial, two-sided p = 2 x min tail.
+q intervals: 2000-walker bootstraps per case (5-95%). q_clim from the same +/-30 d pool;
+all-season fallback when the pool has < 5 days at the conditioning rung (2 cases: e04, e12).
+
+| rung | n | expected [boot 90%] | observed | 90% range | p | BSS vs clim | clim expected |
+|---|---|---|---|---|---|---|---|
+| 3\|2 all | 42 | 14.45 [14.2, 17.3] | 12 | 10-19 | 0.44 | -0.26 | 10.7 |
+| 3\|2 heat | 31 | 9.31 | 6 | 6-13 | 0.16 | -0.15 | 4.6 |
+| 3\|2 cold | 11 | 5.14 | 6 | 3-7 | 0.79 | -0.42 | 6.1 |
+| 4\|2 all | 42 | 3.37 [3.1, 4.7] | 5 | 1-6 | 0.44 | +0.38 | 2.6 |
+| 4\|2 heat | 31 | 2.08 | 3 | 0-4 | 0.66 | +0.38 | 0.75 |
+| 4\|2 cold | 11 | 1.29 | 2 | 0-3 | 0.76 | +0.38 | 1.8 |
+| 4\|3 all | 12 | 4.46 [3.9, 5.6] | 5 | 2-7 | 0.96 | +0.36 | 2.7 |
+| 4\|3 heat | 6 | 2.28 | 3 | 1-4 | 0.82 | +0.22 | 1.0 |
+| 4\|3 cold | 6 | 2.18 | 2 | 1-4 | 1.00 | +0.52 | 1.7 |
+
+**Reading.** No rung rejects calibration (all p >= 0.16). At 3|2 AI+RES over-forecasts
+heat (9.3 expected vs 6) and has WORSE Brier than climatology (BSS -0.26), driven by two
+confident misses with q = 1.0 (e07_h2: all 32 walkers >= 3 K, obs 2.81; e20_c2: all 7
+walkers past 2 K also past 3 K) plus e31/e32/e35/e16 at q 0.56-0.73. At 4 K it beats
+climatology (BSS +0.38 conditional on 2, +0.36 on 3): e33_h4 got q = 0.73, e02_c4 0.34,
+while climatology gave 0.04-0.08. 12 q == 0 at 4|2 (no walker reached 4 K), all misses.
+
+**Undefined q: 0.** Every case has >= 1 walker at 2 K (e11_h2 has exactly 1, F(2) = 4e-4).
+**Rung 2 (sharpness only):** median F(2) raw 0.18, self-normalized 0.35, P_clim 0.12;
+lift_sn > 1 in 30/42 (heat 22/31, cold 8/11). 16/42 have F_sn(2) >= 0.5.
+
+**Caveats.** n is small (12 hits at 3 K, 5 at 4 K): a 2x miscalibration would not be
+detected. N=32 sets q resolution (~1/32 times weights; 3 q == 1 at 3|2). The 3|2 and 4|2
+pairs share cases, so the pooled reliability bins are not independent. The bootstrap of
+the expected count is right-skewed (dropping a heavy walker between 2 and 3 K raises q).
+Climatology is 2021-2025 with the warming trend inside it; the slate is mostly winter.
+`pytest` must be run as `python -m pytest` in `my-env` (bare `pytest` cannot import
+`acal`). acal + aires tests: 436 passed, 1 skipped.
