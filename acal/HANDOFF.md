@@ -3,7 +3,9 @@
 Read `acal/__init__.py` for what this package is for and `ccfg.py` for the knobs. This
 file is what is **actually built**, not what is planned.
 
-Last updated 2026-09-17.
+Last updated 2026-10-01.
+
+The 42-case campaign finished 2026-09-30; the cross-case result is in "Campaign analysis (2026-10-01)" at the end of this file.
 
 ## Built
 
@@ -556,3 +558,85 @@ run that can turn "preallocation is why it passed" into a measurement; and **the
 qualifier**, free if it rides the next campaign case's leg 1 -- set
 `AIRES_XLA_MEM_FRACTION=.70`, confirm `limit=55.42 GiB` and `peak <= 21.5 GiB` in the first
 shard log, and the campaign gains ~17 GB of card slack per GPU.
+
+## Campaign analysis (2026-10-01)
+
+**All 42 cases done (finished 2026-09-30), analysed on the Derecho login node, CPU only.**
+Module `acal/analyze.py` (docstring = the method), tests `acal/tests/test_analyze.py`.
+
+    module load conda && conda activate my-env
+    python -m acal.analyze --stage all      # collect -> scorecard -> figures, ~minutes
+
+Outputs: `runs/acal/analysis/cases.csv` (42 rows: catalog + log_Z, norm check, ESS,
+founders, walker means, wall/host/job), `runs/acal/analysis/scorecard.csv` (42 rows, per-case
+probabilities and lifts), `runs/acal/analysis/summary.json` (pooled medians/IQRs);
+`figures/acal/acal_{scorecard,lift_by_rung,pit,health,curves_grid}.png`.
+
+**Definitions.** `P_RES(obs) = Z * mean(w * 1[s A >= s obs])`, `>=` as in `stage_compare`
+(`DMCResult.exceedance` is strict `>`); `s = run.json tail_sign`, so cold cases are scored on
+-A. Self-normalized `P_sn = P_raw / normalization_check`. Climatology = 2021-2025 daily CONUS
+A_L (`runs/acal/catalog/conus_daily_2021_2025.csv`), days within +/-30 d of the peak
+anniversary minus the case's own +/-10 d (~284 days). Checks: 42/42 recomputed peak A_L match
+the catalog within 1e-3 K; estimator matches `compare_curve.csv` to 5e-6.
+
+**Numbers** (median [IQR], from `summary.json`):
+
+| quantity | value |
+|---|---|
+| P_RES(obs) raw | 0.101 [0.042, 0.177], n=42 |
+| P_RES(obs) self-normalized | 0.116 [0.043, 0.338] |
+| P_clim(obs) | 0.035 [0.018, 0.077] |
+| lift raw = P_RES/P_clim | **1.95 [0.83, 3.86]**, n=36; >1 in **25/36** |
+| lift self-normalized | 2.42 [0.56, 6.63], n=36; >1 in 26/36 |
+| lift raw, conservative (P_clim=0 -> 1/284) | 2.28 [0.91, 4.64], n=42; >1 in 30/42 |
+| lift at the case's rung threshold | 1.60 [1.04, 2.62], n=40; >1 in 31/40 |
+| lift by rung 2/3/4 K | 1.95 (n=27) / 2.38 (n=6) / 1.94 (n=3) |
+| lift heat / cold | **2.59 (n=27) / 1.28 (n=9)** |
+| PIT self-normalized | 0.88 [0.66, 0.96]; 19/42 >= 0.9 |
+| PIT raw | 0.49 [0.28, 1.00]; 11/42 > 1 (raw is not a probability) |
+
+Lift undefined (climatology never reached obs): e02, e03, e04, e12, e30, e42.
+Unresolved, P_RES(obs) = 0 (no walker reached obs): e11, e27. Saturated (all 32 walkers
+beyond obs): e03, e07, e21, e32. normalization_check outside [0.25, 2]: e05 2.29, e07 0.18,
+e21 0.22, e23 3.16, e27 0.16, e28 2.91, e30 0.19, e42 0.17.
+
+**Reading.** AI+RES at 21 d puts ~2x more mass than 2021-2025 climatology on the tail that
+was observed, in about 2 of 3 cases, more for heat than for cold. The self-normalized PIT
+piling up near 1 is mostly the selection, but it also fits a RES-weighted forecast that is
+underdispersed or pulled toward climatology at 21 d.
+
+**Caveats - state these wherever the numbers go.**
+1. **Selected on outcome** (every case |A_L| >= 2 K): no reliability diagram is possible.
+   Lift > 1 means more mass on the observed tail than climatology, NOT calibrated
+   probabilities.
+2. **Climatology is 2021-2025 only**, and the anomaly is against 1990-2019, so the warming
+   trend sits inside it: heat days are commoner in the pool, which lowers heat lift.
+3. **The slate is continental winter swings, not heat domes**: DJF 22, SON 10, MAM 9, JJA 1.
+4. **N=32** resolves probabilities only down to ~1/32 times the weights (hence e11/e27 at 0).
+5. **Estimator variance**: the normalization_check spread (0.16-3.16) is the size of it;
+   raw vs self-normalized lifts differ by up to 3x per case.
+
+**Anomaly verdicts (all benign).**
+- **e27-e42 "2x disk"**: did not reproduce. Every case is ~9.0-9.1 GB, same float32/zlib4
+  encoding. The 18 GB `du` reading coincided with the e27-e42 sync (16:27-17:05 today). No
+  aires/fcn3 commits 2026-09-18 to 10-01.
+- **e33 scores/ ~15 GB**: 8 orphaned FCN3 zarr scratch stores
+  `runs/aires/e33_h4_20250101/res/acal/scores/w0{0..7}_lead06.zarr` (~5.5 GB, mtime
+  2026-09-18 02:05-02:09), from job 1246 cancelled mid score-leg02. The result is from clean
+  job 25512. Deletable; NOT deleted.
+- **e24/e25 ~31 min walls** (jobs 2074/2075): resumes. Jobs 1224/1225 had banked 182/224 and
+  176/224 walker segments and 128/128 score cubes before cancellation 2026-09-18T08:09:36;
+  only walk leg 6 ran. Configs unchanged (N=32, base_seed 20260101, C 0/1/1.4/1.8/2).
+- **e14 2.37 h wall** (job 1222, after 1221 failed): resume, confirmed from
+  `res_result.json` timings - walk1-3 and score1-2 took <0.02 s each (cache hits); walk4-6
+  and score3-5 ran.
+
+**Side fix.** `aires/awalkers.py::discover()` now excludes tag `acal` (the 42 acal runs had
+broken 4 `test_ainsights` tests). aires + acal tests: 432 passed, 1 skipped.
+
+**Next steps.**
+1. **Non-event controls** (same lead, |A_L| < 2 K peaks): the only route to a true
+   reliability test. a3mega GPU, ~17 H100-h per case.
+2. **A per-case box-level slate for heat domes** (regional box A_L, JJA), since the CONUS
+   slate is winter swings.
+3. Optional: delete the e33 orphan zarr stores (~5.5 GB) - user decision.

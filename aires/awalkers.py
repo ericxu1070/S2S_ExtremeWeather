@@ -574,9 +574,14 @@ def plot_run(r: dict, out: Path | None = None) -> Path:
 
 # --------------------------------------------------------------------------- #
 def discover() -> list[tuple[str, str]]:
-    """Every ``(event, tag)`` under ``runs/aires`` that has a reduced ``compare.json``."""
+    """Every ``(event, tag)`` under ``runs/aires`` that has a reduced ``compare.json``.
+
+    The ``acal`` tag is excluded: the 42 calibration cases share this tree but are a
+    population for ``acal.analyze``, not production events for the cross-event figure.
+    """
     return [(p.parents[2].name, p.parent.name)
-            for p in sorted(A.AIRES_ROOT.glob("*/res/*/compare.json"))]
+            for p in sorted(A.AIRES_ROOT.glob("*/res/*/compare.json"))
+            if p.parent.name != "acal"]
 
 
 def main(argv=None) -> int:
