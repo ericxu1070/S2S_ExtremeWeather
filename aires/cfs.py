@@ -425,8 +425,15 @@ def grib_to_cube(path: Path, metric: str, lat: np.ndarray, lon: np.ndarray) -> x
 # Build
 # --------------------------------------------------------------------------- #
 def build(event: str, *, n_cycles: int = N_CYCLES, mode: str = LAG_MODE,
-          force: bool = False, workdir: Path | None = None) -> Path:
-    """Download, regrid and cache the CFSv2 baseline cube for one event."""
+          force: bool = False, workdir: Path | None = None,
+          out: Path | None = None) -> Path:
+    """Download, regrid and cache the CFSv2 baseline cube for one event.
+
+    ``out`` overrides the cache path. ``A.cfs_cube_path`` does not encode the cycle
+    count, so a caller building a different-sized ensemble (acal's 16 cycles) must
+    write elsewhere or it would silently replace the 4-cycle cube every figure reads.
+    With ``out`` set the summary JSON is not written - it is keyed to the default path.
+    """
     ev = F.event(event)
     metric = ev.metric
     if metric not in METRIC_VAR:
@@ -438,7 +445,8 @@ def build(event: str, *, n_cycles: int = N_CYCLES, mode: str = LAG_MODE,
     var = METRIC_VAR[metric]
     init, peak = pd.Timestamp(ev.init), pd.Timestamp(ev.peak)
     lead_days = (peak - init) / pd.Timedelta(days=1)
-    out = A.cfs_cube_path(event, lead_days, metric)
+    custom = out is not None
+    out = Path(out) if custom else A.cfs_cube_path(event, lead_days, metric)
     if out.exists() and not force:
         print(f"[cfs] {event}: cached {out}")
         return out
@@ -512,7 +520,8 @@ def build(event: str, *, n_cycles: int = N_CYCLES, mode: str = LAG_MODE,
     os.replace(tmp, out)
     print(f"[cfs] wrote {out} ({out.stat().st_size / 1e6:.1f} MB)")
 
-    summarize(event, write=True)
+    if not custom:
+        summarize(event, write=True)
     return out
 
 
