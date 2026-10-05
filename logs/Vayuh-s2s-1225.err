@@ -1,0 +1,4 @@
+  [walk-leg01] shard 4 exited 1 -- see /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/aires/e25_h3_20240131/res/acal/logs/walk-leg01-1225-try1-shard4.log
+  [walk-leg01] shard 5 exited 1 -- see /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/aires/e25_h3_20240131/res/acal/logs/walk-leg01-1225-try1-shard5.log
+  [walk-leg01] shard 6 exited 1 -- see /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/aires/e25_h3_20240131/res/acal/logs/walk-leg01-1225-try1-shard6.log
+[2026-09-18T08:09:36.168] error: *** JOB 1225 ON nucla3m-a3meganodeset-2 CANCELLED AT 2026-09-18T08:09:36 DUE to SIGNAL Terminated ***

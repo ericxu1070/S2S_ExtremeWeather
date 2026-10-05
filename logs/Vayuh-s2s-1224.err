@@ -1,0 +1,7 @@
+  [score-leg02] shard 0 exited 1 -- see /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/aires/e24_c3_20240119/res/acal/logs/score-leg02-1224-try1-shard0.log
+  [score-leg02] shard 1 exited 1 -- see /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/aires/e24_c3_20240119/res/acal/logs/score-leg02-1224-try1-shard1.log
+  [score-leg02] shard 2 exited 1 -- see /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/aires/e24_c3_20240119/res/acal/logs/score-leg02-1224-try1-shard2.log
+  [score-leg02] shard 3 exited 1 -- see /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/aires/e24_c3_20240119/res/acal/logs/score-leg02-1224-try1-shard3.log
+  [score-leg02] shard 4 exited 1 -- see /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/aires/e24_c3_20240119/res/acal/logs/score-leg02-1224-try1-shard4.log
+  [score-leg02] shard 5 exited 1 -- see /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/aires/e24_c3_20240119/res/acal/logs/score-leg02-1224-try1-shard5.log
+[2026-09-18T08:09:36.187] error: *** JOB 1224 ON nucla3m-a3meganodeset-4 CANCELLED AT 2026-09-18T08:09:36 DUE to SIGNAL Terminated ***
