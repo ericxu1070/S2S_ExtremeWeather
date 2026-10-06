@@ -34,10 +34,33 @@ Family-matched: cold thresholds use the 11 cold cases, hot ones the 31 hot cases
     python -m acal.maps --stage fields    # runs/acal/analysis/maps_fields.nc (~10 min)
     python -m acal.maps --stage figures   # figures/acal/acal_map_{accuracy,bss}.png
     python -m acal.maps --stage all
+
+CFSv2 as a second forecast source (`acal/CFS_PLAN.md` step 5)
+-------------------------------------------------------------
+`--stage cfs` scores NCEP CFSv2 the same way, from the 16-member lagged cubes of
+`acal.cfsbase`. The 7-day field per member is `aires.aindex.field` (its CONUS mean is
+asserted against the cube's own `al`), the daily fields use `cfsbase.daily_pairs`. The
+probability is the equal-weight member fraction with the same tail-signed `>=` rule,
+
+    P(x, a) = mean_i 1[s_a A_i(x) >= s_a a]
+
+in two variants: `prob_raw` (the headline, same treatment as the walkers: CFS drift is
+inside the score) and `prob_corr`, with the leave-one-year-out CFS member-mean bias of
+`runs/acal/cfs/bias.nc` subtracted per cell (the sensitivity that bounds how much of any
+gap is drift). Truth, climatology and family do not depend on the forecast, so they are
+copied from the AI+RES files (case order asserted) rather than recomputed.
+
+Resolution caveat, printed on every CFS figure: CFS is ~0.94 deg (T126) bilinearly
+regridded to 0.25 deg, so gridpoint skill is resolution-limited. For the CONUS index that
+was measured negligible; for a cell it is not.
+
+    python -m acal.maps --stage cfs   # maps_{fields,daily}_cfs.nc, *_cfs / *_cfscorr /
+                                      # *_diff_cfs figures + land-mean summary (~5 min)
 """
 from __future__ import annotations
 
 import argparse
+import json
 import sys
 from pathlib import Path
 
@@ -48,6 +71,7 @@ import xarray as xr
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from acal import analyze as AN
+from acal import cfsbase
 from acal import ccfg
 from aires import aconfig as A
 from aires import aindex as AI
@@ -55,6 +79,10 @@ from aires import aindex as AI
 THRESHOLDS = (-2.0, -3.0, -4.0, 2.0, 3.0, 4.0)
 FIELDS = AN.OUT / "maps_fields.nc"
 DAILY_FIELDS = AN.OUT / "maps_daily.nc"
+CFS_FIELDS = AN.OUT / "maps_fields_cfs.nc"
+CFS_DAILY_FIELDS = AN.OUT / "maps_daily_cfs.nc"
+CFS_NOTE = ("CFS is ~0.94 deg (T126) bilinearly regridded to 0.25 deg: gridpoint skill is "
+            "resolution-limited (unlike the CONUS index, where this was measured negligible)")
 INDEX_FILES = sorted((ccfg.ACAL_ROOT / "index").glob("era5_t2m_anom_12h_*.nc"))
 WINDOW_FRAMES = 13                        # [peak-6d, peak] at 12 h, both ends inclusive
 CONSISTENCY_TOL = 1e-3                    # K; field CONUS mean vs compare.json A_L
@@ -253,13 +281,14 @@ def land_mask(ds: xr.Dataset) -> xr.DataArray:
     return lsm >= LAND_FRAC
 
 
-def scores(ds: xr.Dataset) -> xr.Dataset:
+def scores(ds: xr.Dataset, prob_var: str = "prob") -> xr.Dataset:
     """Family-matched per-cell scores, one map per threshold, land cells only.
 
     The sample is every (case) for the 7-day fields and every (case, day) for the daily
     ones. Hit rate (POD) = hits / events and CSI = hits / (hits + misses + false alarms)
     give no credit for a correct "no", so unlike accuracy they do not rise as the
-    threshold gets rarer.
+    threshold gets rarer. `prob_var` names the forecast probability to score (AI+RES
+    `prob`, CFS `prob_raw` / `prob_corr`).
     """
     land = land_mask(ds)
     dims = [d for d in ("case", "day") if d in ds.dims]
@@ -269,12 +298,12 @@ def scores(ds: xr.Dataset) -> xr.Dataset:
         fam = "heat" if a > 0 else "cold"
         d = ds.sel(threshold=a).where(ds.family == fam, drop=True)
         o = (np.sign(a) * d.truth >= np.sign(a) * a).astype("float64")
-        yes = (d.prob >= YES).astype("float64")
+        yes = (d[prob_var] >= YES).astype("float64")
         hits, n_ev = (yes * o).sum(dims), o.sum(dims)
         false = (yes * (1 - o)).sum(dims)
         out["accuracy"].append((yes == o).mean(dims))
         out["always_no"].append((1 - o).mean(dims))
-        bs = ((d.prob - o) ** 2).sum(dims)
+        bs = ((d[prob_var] - o) ** 2).sum(dims)
         bsc = ((d.clim - o) ** 2).sum(dims)
         out["bss"].append(1 - bs / bsc.where(bsc > 0))
         out["n_events"].append(n_ev)
@@ -306,7 +335,11 @@ def _row_vmax(sc: xr.Dataset, var: str, ths) -> float:
 
 
 def _figure(sc: xr.Dataset, var: str, title: str, cbar_label: str, vmin: float,
-            name: str) -> Path:
+            name: str, note: str | None = None, diff: bool = False) -> Path:
+    """One 2x3 map figure. `diff=True` draws a difference of two score maps: diverging
+    colormap, symmetric about 0 (a colorbar centred anywhere else would mislead), and the
+    panel subtitle reports the land mean and the share of land where the first source wins.
+    `note` is a footnote (the CFS resolution caveat)."""
     import matplotlib
     matplotlib.use("Agg")
     import matplotlib.pyplot as plt
@@ -321,16 +354,28 @@ def _figure(sc: xr.Dataset, var: str, title: str, cbar_label: str, vmin: float,
     rows = [((-2.0, -3.0, -4.0), "Blues", "cold"), ((2.0, 3.0, 4.0), "Reds", "heat")]
     n_case = dict(zip(THRESHOLDS, sc.attrs["n_case"]))
     for r, (ths, cmap_name, fam) in enumerate(rows):
-        cmap = plt.get_cmap(cmap_name).copy()
-        cmap.set_under("0.82")                 # BSS < 0: no skill over climatology
+        cmap = plt.get_cmap("RdBu_r" if diff else cmap_name).copy()
+        if not diff:
+            cmap.set_under("0.82")             # BSS < 0: no skill over climatology
         cmap.set_bad("white")                  # sea, or BSS undefined
-        vmax = _row_vmax(sc, var, ths)
+        if diff:
+            # BSS is ill-conditioned where the climatological Brier sum is tiny (rare cells
+            # give differences of 10+), so its scale is capped at 1, the skill range.
+            v = np.nanpercentile(np.abs(sc[var].sel(threshold=list(ths)).values), 98)
+            vmax = 1.0 if var == "bss" else max(float(np.ceil(v * 10) / 10), 0.1)
+            vmin = -vmax
+        else:
+            vmax = _row_vmax(sc, var, ths)
         for k, a in enumerate(ths):
             ax = axes[r, k]
             da = sc[var].sel(threshold=a)
             m = _map_panel(ax, da, cmap, vmin, vmax, ccrs, cfeature)
             wts = np.cos(np.deg2rad(da["lat"]))
-            if var == "accuracy":
+            if diff:
+                ok = da.notnull()
+                win = float((da > 0).where(ok).weighted(wts).mean())
+                sub = f"median {float(da.median()):+.2f}   AI+RES better on {win:.0%} of land"
+            elif var == "accuracy":
                 mean = float(da.weighted(wts).mean())
                 base = float(sc.always_no.sel(threshold=a).weighted(wts).mean())
                 sub = f"land mean {mean:.2f}   always-no {base:.2f}"
@@ -343,9 +388,11 @@ def _figure(sc: xr.Dataset, var: str, title: str, cbar_label: str, vmin: float,
             n = f"{n_case[a]} cases x 7 days" if sc.attrs["daily"] else f"{n_case[a]} cases"
             ax.set_title(f"{a:+.0f} K  ({fam}, {n})\n{sub}", fontsize=9)
         cb = fig.colorbar(m, ax=axes[r, :].tolist(), shrink=0.85, pad=0.01,
-                          extend="min" if var == "bss" else "neither")
+                          extend="both" if diff else "min" if var == "bss" else "neither")
         cb.set_label(cbar_label)
     fig.suptitle(title, fontsize=11, y=0.97)
+    if note:
+        fig.text(0.5, 0.03, note, ha="center", va="top", fontsize=8, color="0.3")
     return AN._save(fig, name)
 
 
@@ -373,9 +420,138 @@ def figures() -> list[Path]:
     return out
 
 
+# --------------------------------------------------------------------------- #
+# Stage: cfs (second forecast source)
+# --------------------------------------------------------------------------- #
+def cfs_prob(F: np.ndarray) -> np.ndarray:
+    """(threshold, ...) equal-weight member fraction mean_i 1[s A_i >= s a] over axis 0."""
+    return np.stack([(np.sign(a) * F >= np.sign(a) * a).mean(0) for a in THRESHOLDS]
+                    ).astype("float32")
+
+
+def cfs_member_fields(eid: str, peak: pd.Timestamp, daily: bool) -> xr.DataArray:
+    """(member, lat, lon) 7-day or (member, day, lat, lon) daily CFS anomaly of one case.
+    The CONUS mean of the 7-day field must equal the cube's own recorded `al`."""
+    with xr.open_dataset(cfsbase.cube_path(eid)) as cube:
+        cube = cube.load()
+    if daily:
+        inst = AI._squeeze(AI.instantaneous_field(cube, "t2m_anom"))
+        # daily_pairs puts `day` first; members lead everywhere else here
+        return cfsbase.daily_pairs(inst, peak).transpose("member", "day", ...).astype("float32")
+    f = AI._squeeze(AI.field(cube, peak, "t2m_anom"))
+    al = np.asarray(json.loads(cfsbase.json_path(eid).read_text())["al"], dtype="float64")
+    got = np.asarray(AI.area_mean(f), dtype="float64")
+    if got.shape != al.shape or np.nanmax(np.abs(got - al)) > CONSISTENCY_TOL:
+        raise SystemExit(f"[maps] {eid}: CFS field CONUS means {got} != cube al {al}")
+    return f.astype("float32")
+
+
+def cfs_dataset(src: Path, daily: bool) -> xr.Dataset:
+    """Score-ready dataset: the AI+RES file's truth/clim/family plus CFS prob_raw/prob_corr."""
+    base = xr.open_dataset(src).load()
+    bias = xr.open_dataset(cfsbase.BIAS_NC).load()
+    if list(bias["case"].values) != list(base["case"].values):
+        raise SystemExit("[maps] bias.nc case order != maps file case order")
+    for k in ("lat", "lon"):
+        if not np.allclose(bias[k], base[k]):
+            raise SystemExit(f"[maps] bias.nc {k} != maps file {k}")
+    cases = {c.episode_id: c for c in AN.load_all()[1]}
+    dims = ("case", "day", "threshold", "lat", "lon") if daily else \
+        ("case", "threshold", "lat", "lon")
+    shape = (base.sizes["case"],) + ((7,) if daily else ()) + (len(THRESHOLDS),
+                                                              base.sizes["lat"], base.sizes["lon"])
+    raw, corr = (np.full(shape, np.nan, "float32") for _ in range(2))
+    for i, eid in enumerate(base["case"].values):
+        peak = pd.Timestamp(cases[str(eid)].run["peak"])
+        F = cfs_member_fields(str(eid), peak, daily)
+        if not (np.allclose(F["lat"], base["lat"]) and np.allclose(F["lon"], base["lon"])):
+            raise SystemExit(f"[maps] {eid}: CFS grid != maps grid")
+        b = bias["bias_daily" if daily else "bias7"].isel(case=i).values
+        # (threshold, [day], lat, lon) -> put the day axis before threshold for the daily file
+        pr, pc = cfs_prob(F.values), cfs_prob(F.values - b[None])
+        raw[i], corr[i] = (np.moveaxis(pr, 0, 1), np.moveaxis(pc, 0, 1)) if daily else (pr, pc)
+        print(f"  {eid}  {F.sizes['member']} members", flush=True)
+    d = base.drop_vars("prob")
+    d["prob_raw"] = (dims, raw)
+    d["prob_corr"] = (dims, corr)
+    d.attrs["note"] = ("prob_raw / prob_corr = equal-weight CFSv2 member fraction "
+                       "P(s A >= s a), raw and leave-one-year-out bias corrected; truth, "
+                       "clim, family copied from " + src.name)
+    return d
+
+
+def cfs_fields() -> list[Path]:
+    out = []
+    for src, dst, daily in ((FIELDS, CFS_FIELDS, False), (DAILY_FIELDS, CFS_DAILY_FIELDS, True)):
+        cfs_dataset(src, daily).to_netcdf(dst)
+        print(f"[maps] wrote {dst}")
+        out.append(dst)
+    return out
+
+
+def land_means(sc: xr.Dataset) -> dict:
+    """Cos-latitude weighted land mean of BSS and CSI per threshold, plus the land median
+    of BSS (`bss_med`): the BSS mean is dominated by a few rare-event cells."""
+    w = np.cos(np.deg2rad(sc["lat"]))
+    out = {v: {float(a): float(sc[v].sel(threshold=a).weighted(w).mean())
+               for a in THRESHOLDS} for v in ("bss", "csi")}
+    out["bss_med"] = {float(a): float(sc["bss"].sel(threshold=a).median())
+                      for a in THRESHOLDS}
+    return out
+
+
+def cfs_figures() -> dict:
+    """CFS raw (full set), CFS corrected (BSS, CSI), AI+RES minus CFS raw (BSS, CSI), and
+    the land-mean summary table of all three sources."""
+    summary = {}
+    for tag, label, res_src, cfs_src in (("7d", "7-day mean", FIELDS, CFS_FIELDS),
+                                         ("daily", "daily mean", DAILY_FIELDS, CFS_DAILY_FIELDS)):
+        res_ds = xr.open_dataset(res_src).load()
+        cfs_ds = xr.open_dataset(cfs_src).load()
+        s_res = scores(res_ds)
+        s_raw, s_cor = scores(cfs_ds, "prob_raw"), scores(cfs_ds, "prob_corr")
+        summary[tag] = {"AI+RES": land_means(s_res), "CFS raw": land_means(s_raw),
+                        "CFS corrected": land_means(s_cor)}
+        n = CFS_NOTE
+        if tag == "7d":
+            _figure(s_raw, "accuracy", "CFSv2 accuracy per cell (yes = member fraction >= 0.5)",
+                    "accuracy", 0.0, "acal_map_accuracy_cfs.png", n)
+            _figure(s_raw, "bss", "CFSv2 Brier skill score vs climatology per cell "
+                    "(grey = BSS < 0)", "Brier skill score", 0.0, "acal_map_bss_cfs.png", n)
+        _figure(s_raw, "pod", f"CFSv2 hit rate per cell, {label} extremes "
+                "(yes = member fraction >= 0.5)", "hit rate (POD)", 0.0,
+                f"acal_map_pod_{tag}_cfs.png", n)
+        _figure(s_raw, "csi", f"CFSv2 critical success index per cell, {label} extremes",
+                "CSI", 0.0, f"acal_map_csi_{tag}_cfs.png", n)
+        if tag == "7d":
+            _figure(s_cor, "bss", "CFSv2 bias-corrected Brier skill score per cell, "
+                    "7-day mean (grey = BSS < 0)", "Brier skill score", 0.0,
+                    "acal_map_bss_cfscorr.png", n)
+        _figure(s_cor, "csi", f"CFSv2 bias-corrected CSI per cell, {label} extremes",
+                "CSI", 0.0, f"acal_map_csi_{tag}_cfscorr.png", n)
+        for var, nm in (("bss", "BSS"), ("csi", "CSI")):
+            dd = s_res.copy(deep=True)
+            dd[var] = s_res[var] - s_raw[var]
+            _figure(dd, var, f"{nm} difference per cell, AI+RES minus CFSv2 (raw), {label} "
+                    f"extremes (red = AI+RES better)", f"{nm} difference", 0.0,
+                    f"acal_map_{var}_{tag}_diff_cfs.png", n, diff=True)
+    print("[maps] land mean (cos-lat weighted) BSS / CSI; bss_med = land median BSS")
+    for tag, per in summary.items():
+        for v in ("bss", "bss_med", "csi"):
+            print(f"  {tag} {v.upper()}  " + "  ".join(f"{a:+.0f}K" for a in THRESHOLDS))
+            for src, m in per.items():
+                print(f"    {src:14s}" + "  ".join(f"{m[v][a]:+.3f}" for a in THRESHOLDS))
+    return summary
+
+
+def cfs() -> dict:
+    cfs_fields()
+    return cfs_figures()
+
+
 def main(argv=None) -> int:
     p = argparse.ArgumentParser(description=__doc__.split("\n")[0])
-    p.add_argument("--stage", choices=("fields", "daily", "figures", "all"), default="all")
+    p.add_argument("--stage", choices=("fields", "daily", "figures", "cfs", "all"), default="all")
     a = p.parse_args(argv)
     if a.stage in ("fields", "all"):
         fields()
@@ -383,6 +559,8 @@ def main(argv=None) -> int:
         daily()
     if a.stage in ("figures", "all"):
         figures()
+    if a.stage == "cfs":
+        cfs()
     return 0
 
 
