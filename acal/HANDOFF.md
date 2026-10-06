@@ -3,9 +3,9 @@
 Read `acal/__init__.py` for what this package is for and `ccfg.py` for the knobs. This
 file is what is **actually built**, not what is planned.
 
-Last updated 2026-10-01.
+Last updated 2026-10-06.
 
-The 42-case campaign finished 2026-09-30; the cross-case result is in "Campaign analysis (2026-10-01)" at the end of this file.
+The 42-case campaign finished 2026-09-30; the cross-case result is in "Campaign analysis (2026-10-01)", and the head-to-head against NCEP CFSv2 is in "CFSv2 operational baseline (2026-10-05/06)", both at the end of this file.
 
 ## Built
 
@@ -685,3 +685,141 @@ the expected count is right-skewed (dropping a heavy walker between 2 and 3 K ra
 Climatology is 2021-2025 with the warming trend inside it; the slate is mostly winter.
 `pytest` must be run as `python -m pytest` in `my-env` (bare `pytest` cannot import
 `acal`). acal + aires tests: 436 passed, 1 skipped.
+
+## CFSv2 operational baseline (2026-10-05/06)
+
+**Built and run on the Derecho login node, CPU + internet, env `my-env`.** Question: on the
+same 42 cases, same 21 d lead, same CONUS `A_L`, does AI+RES put more probability on the
+observed tail than NCEP CFSv2? Plan: `acal/CFS_PLAN.md`. Code: `acal/cfsbase.py` (docstring =
+the method), `--stage cfs` of `acal/maps.py`, tests `acal/tests/test_cfsbase.py`
+(acal + aires: 449 passed, 1 skipped).
+
+    module load conda && conda activate my-env
+    python -m acal.cfsbase --stage build             # 42 cubes, ~50 min (download), 2.8 GB
+    python -m acal.cfsbase --stage hind --workers 4  # 191 (case, year) jobs, ~1 h, 148 MB
+    python -m acal.cfsbase --stage bias              # seconds
+    python -m acal.cfsbase --stage all               # score + paired, seconds
+    python -m acal.maps --stage cfs                  # CFS fields + figures, ~5 min
+
+`runs/acal/cfs/` is 3.0 GB in total (cubes, `hind/`, `bias.nc`).
+
+**Ensemble.** 16 trailing 6-hourly cycles ending on the AI+RES init (leads 21.0-24.75 d),
+equal weights, 42/42 cases with 16 members and no skipped cycle. Anomaly = CFS minus the ERA5
+1990-2019 climatology, raw, as for the walkers. The last 4 members are the aires-convention
+subset (`sub_emp`).
+
+**Outputs.**
+- `runs/acal/cfs/`: `<case>_cfs16.{nc,json}`, `build.csv` (members, `al_mean`, `n_reach`,
+  archives), `hind/` (per case x year), `bias.nc` (CONUS scalar and 105x237 field bias, 7-day
+  and daily), `bias.csv` (per case: years, `bias_conus`, `bias_sd`).
+- `runs/acal/analysis/`: `cfs_scorecard.csv`, `cfs_paired.csv`, `cfs_summary.json` (variants +
+  `paired`), `maps_fields_cfs.nc`, `maps_daily_cfs.nc`.
+- `figures/acal/`: `acal_cfs_scorecard.png`, `acal_cfs_paired.png`,
+  `acal_map_{accuracy,bss}_cfs.png`, `acal_map_{pod,csi}_{7d,daily}_cfs.png`,
+  `acal_map_bss_cfscorr.png`, `acal_map_csi_{7d,daily}_cfscorr.png`,
+  `acal_map_{bss,csi}_{7d,daily}_diff_cfs.png` (AI+RES minus CFS raw, red = AI+RES better).
+
+**Environment.** `cfgrib` and `eccodes` were pip-installed into `my-env` on 2026-10-05; the
+env had no GRIB reader. `aires/cfs.py::build` gained an optional `out=` path, because
+`aconfig.cfs_cube_path` does not encode the cycle count and a 16-member cube there would have
+replaced the 4-member aires cube. No other aires or existing acal output was modified.
+
+**Validation.**
+- The own-year hindcast reproduces the build cube's member `A_L` bit-identically.
+- ERA5 `A_L` of e02_c4 matches the catalog (-5.176 K).
+- Maps: CFS 7-day CONUS field means match the cube `al` to 1e-3 K (asserted in
+  `cfs_member_fields`).
+- The AI+RES maps reproduce byte-identically after the maps refactor.
+
+**CFS bias (leave-one-year-out, `bias.csv`).** Mean CFS minus ERA5 CONUS bias -0.67 K over
+42 cases (heat -0.57 K, n=31; cold -0.96 K, n=11); negative in 37/42 cases (counted from
+`bias.csv`). 4-5 other years per case. Year-to-year sd of the bias is ~1.3 K (mean of
+`bias_sd`), so ~0.6 K per-case uncertainty on a 4-5 year mean. Part of the negative bias is
+the warming trend: the anomaly is against 1990-2019 and the hindcast years are 2021-2026.
+Hindcast member spread averages 1.25 K.
+
+**Scorecard** (median, `cfs_summary.json`; AI+RES self-normalized p_obs 0.116, raw lift 1.95,
+>1 in 25/36). Lift against the same `P_clim` (median 0.035); "lift>1" counts the 36 cases
+with defined lift, "cons" counts the conservative lift (P_clim = 0 -> 1/284) over 42.
+
+| variant | p_obs | lift (n=36) | lift>1 | lift cons | cons>1 (heat/cold) | PIT | zero-obs cases |
+|---|---|---|---|---|---|---|---|
+| raw_emp (headline) | 0.0625 | 0.58 | 15/36 | 0.41 | 17/42 (10/7) | 0.938 | 20 |
+| raw_gauss | 0.043 | 1.08 | 18/36 | 1.64 | 23/42 (15/8) | 0.957 | 0 |
+| corr_emp | 0.0625 | 1.87 | 22/36 | 1.78 | 24/42 (20/4) | 0.938 | 15 |
+| corr_gauss | 0.087 | 1.58 | 21/36 | 2.12 | 26/42 (22/4) | 0.913 | 0 |
+| sub_emp (4 members) | 0.0 | 0.0 | 6/36 | 0.0 | 8/42 (5/3) | 1.0 | 34 |
+
+Raw empirical lift by family (median): heat 0.32 (n=27), cold 1.78 (n=9). Corrected empirical:
+heat 2.22, cold 0.59. Correction lifts heat and lowers cold, consistent with the cold-biased
+raw CFS (it already puts mass on cold tails and loses it when the bias is removed).
+
+**Paired head-to-head (AI+RES self-normalized vs CFS; log ratio log(P_RES/P_CFS), positive =
+AI+RES better; Wilcoxon p; bootstrap 90% CI of the mean).**
+
+| comparison | subset | mean log ratio [90% CI] | W/L | p |
+|---|---|---|---|---|
+| vs raw_emp | all (42) | +0.49 [0.19, 0.79] | 24/18 | 0.026 |
+| vs raw_emp | heat (31) | +0.78 [0.43, 1.12] | 21/10 | 0.003 |
+| vs raw_emp | cold (11) | -0.33 [-0.71, 0.06] | 3/8 | 0.24 |
+| vs corr_emp | all | +0.18 [-0.09, 0.44] | 24/18 | 0.33 |
+| vs corr_emp | heat / cold | +0.20 / +0.12 | 18/13, 6/5 | 0.30 / 0.50 |
+| vs raw_gauss | all | +0.47 [0.17, 0.76] | 25/17 | 0.026 |
+| vs sub_emp | all | -0.53 [-0.81, -0.24] | 14/27 | 0.007 |
+
+Brier (CFS minus AI+RES, positive = AI+RES better), vs raw_emp, all cases:
+- 2 K: +0.270 (30 wins of 42, p = 0.001), heat +0.366, cold +0.001. Every case has o = 1 at
+  2 K by selection, so this is only mass on the observed tail. vs corr_emp it is +0.203.
+- 3 K: +0.019 [-0.047, 0.083], p = 0.69, W/T/L 14/3/25. Mean Brier 0.224 (AI+RES) vs 0.243.
+- 4 K: +0.026 [-0.001, 0.064], p = 0.11, W/T/L 6/12/24. Mean Brier 0.077 vs 0.103.
+- vs corr_emp: 3 K +0.006 (p = 0.95), 4 K +0.010 (p = 0.23).
+The median Brier difference at 3 and 4 K is ~0 (most cases are ties or tiny); the means are
+carried by a few confident misses, as in the rung calibration above. By rung, AI+RES is
+worse at 3 K and 4 K for the rung-2 cases (mean -0.061, p = 0.0005, and -0.003, p = 0.016).
+
+**Gridpoint maps** (`maps_fields_cfs.nc`, 7-day mean; thresholds +K = heat, -K = cold;
+cos-latitude land mean, median in brackets for BSS). CFS is ~0.94 deg regridded to 0.25 deg.
+
+| 7-day BSS | +2 K | +3 K | -2 K | -3 K |
+|---|---|---|---|---|
+| AI+RES | 0.211 [0.226] | 0.035 [0.175] | 0.058 [0.221] | -0.694 [0.159] |
+| CFS raw | -0.140 [-0.082] | -0.666 [-0.063] | -0.014 [0.261] | -5.533 [0.225] |
+| CFS corrected | 0.042 [0.053] | 0.032 [0.065] | 0.000 [0.087] | -1.742 [0.083] |
+
+7-day CSI land mean at +2 K / -2 K: AI+RES 0.559 / 0.321, CFS raw 0.304 / 0.311, CFS
+corrected 0.420 / 0.171. At +4 K / -4 K BSS means are dominated by rare cells (AI+RES -0.37 /
+-2.03, CFS raw -8.89 / -27.94): use the medians (AI+RES 0.126 / 0.114, CFS raw -0.026 /
+0.170). Daily means (BSS median, +2 K / -2 K): AI+RES 0.030 / 0.052, CFS raw -0.062 / 0.109,
+corrected -0.074 / -0.044; daily CSI at +2 K: 0.481 vs 0.325 (raw) vs 0.406 (corrected).
+
+**Reading.** AI+RES beats raw CFSv2 on mass-on-the-observed-tail (paired log ratio +0.49,
+p = 0.026), and the gap is driven by heat (+0.78, 21 of 31 wins). Most of the gap is CFS cold
+drift: against the bias-corrected CFS the log ratio falls to +0.18 (p = 0.33, CI spans zero)
+and the 2 K Brier gap falls from +0.270 to +0.203. There is no Brier difference at 3 K or
+4 K (p = 0.69, 0.11). Against the 4-member subset CFS is better (-0.53), which shows the 16
+member lag ensemble is the fair baseline, not the 4-cycle one. At the gridpoint level AI+RES
+is better for heat broadly (7-day BSS median +0.226 vs -0.082 at +2 K), while raw CFS is
+slightly better for cold 7-day BSS (median 0.261 vs 0.221 at -2 K; land mean -0.014 vs 0.058
+goes the other way, so this is a tail-cell effect).
+
+**Caveats - state these wherever the numbers go.**
+1. **Selected on outcome** (all |A_L| >= 2 K): the comparison says which forecast put more
+   mass on what happened, not which is calibrated; it is silent on false alarms.
+2. **Not the same ensemble**: 16 equal-weight lagged members (0-3.75 d staler than the init)
+   vs 32 importance-weighted walkers, with a different resolution of probabilities (1/16 vs
+   1/32 times the weights). Raw empirical CFS has 20 of 42 cases at P(obs) = 0.
+3. **Resolution**: CFS is ~0.94 deg. Negligible for the CONUS index (<0.17 K), not for the
+   gridpoint maps, where a coarse model cannot verify sharp local anomalies. Printed on the
+   figures.
+4. **The bias correction is noisy**: 4-5 years per case, ~0.6 K per-case uncertainty, and it
+   absorbs the warming trend against 1990-2019 and the 6 h vs 12 h frame sampling. Treat the
+   corrected rows as a bound on drift, not as the better forecast. Cases share seasons (DJF
+   22), so the bootstrap CIs are optimistic.
+5. **Archive**: NCEI lacks 2024 and Dec 2025, so the AWS mirror was used (from 2023-04-22).
+   Archives per case: NCEI 15, AWS 15, both 12. 7 cycles lacked an inventory file and were
+   fetched whole.
+
+**Next steps.**
+1. Optional tighter bias: add +/-7 d and +/-14 d inits in the other years (~5x samples,
+   ~3 h download).
+2. Non-event controls remain the route to real reliability for both forecasts.

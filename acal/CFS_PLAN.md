@@ -1,6 +1,6 @@
 # Plan: CFSv2 operational baseline for the acal campaign
 
-Status: PLAN, nothing built. Drafted 2026-10-05.
+Status: BUILT 2026-10-06 - results in acal/HANDOFF.md
 
 Question: on the same 42 cases (21 d lead, CONUS `A_L`, 31 heat / 11 cold), does AI+RES put
 more probability on the observed tail than NCEP's operational CFSv2?
