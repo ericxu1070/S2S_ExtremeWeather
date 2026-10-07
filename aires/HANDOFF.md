@@ -2644,6 +2644,29 @@ Two facts found while writing it, both worth keeping:
 7. **Calibration seasonal coverage is thin in summer**: the 90 p90 ICs have 0 June and 2
    July frames. The held-out June 7 PNW case passed anyway, so it generalises, but a
    summer-heavy fit would be a cheap improvement if Gate 2 disappoints.
+8. **Every walk leg recompiles GenCast; the persistent JAX cache never holds it** (found
+   2026-10-06 from the acal timings; NOT fixed). `run_aires.py::run_pool` launches 8 fresh
+   single-GPU processes per leg, so each leg pays checkpoint load + XLA compile again: 6
+   times per case. `slurm/aires_env.sh` sets `JAX_COMPILATION_CACHE_DIR=runs/models/
+   jax_cache_0p25`, but every walk-leg shard log carries
+   `Error writing persistent compilation cache entry for 'jit_apply_fn': ... size must be
+   smaller than 2GiB: 4171376048` - the 0.25 deg executable is 4.17 GB, over protobuf's hard
+   2 GiB limit, so nothing is ever written and the cache is a silent no-op for GenCast.
+   Cost, estimated from the 39 full acal runs (not timed directly - the logs do not split
+   load from compile): legs 2-5 average 22.0 min for 1 segment per walker, leg 6 35.4 min
+   for 2, so ~34 s per GenCast step and **~8.6 min of fixed overhead per leg**; Gate 3
+   measured ~15 min of compile for the first leg with 8 concurrent workers. That is ~50 min
+   of the ~2.4 h walk per case, on all 8 cards: ~7 H100-h per case, ~280 H100-h over the
+   42-case campaign. FCN3 scoring has the same per-leg relaunch but is not affected the
+   same way (its legs are flat at sd 0.03 h across runs). Fix when next touching the
+   runner: keep the walk workers alive across legs (one long-lived process per GPU that
+   takes leg k's segment list, rolls it, waits for the resample, then takes leg k+1), so
+   each card compiles once per case. Must preserve: per-segment caching/resume (a killed
+   job resumes from disk, as e14/e23/e24/e25/e33 did), the whole-pool retry in `run_pool`
+   (GPUs are not reliably ours), and bit-identical walkers for a fixed seed. ~2-3 h of work
+   plus a one-node smoke test comparing walker states against a cached acal case. Worth
+   doing before the non-event controls (acal next step 1). Splitting the executable to get
+   under 2 GiB is not a realistic alternative.
 
 ## Start here for Phase 4 (on a3mega)
 

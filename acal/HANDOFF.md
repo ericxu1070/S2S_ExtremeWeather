@@ -823,6 +823,10 @@ goes the other way, so this is a tail-cell effect).
 1. Optional tighter bias: add +/-7 d and +/-14 d inits in the other years (~5x samples,
    ~3 h download).
 2. Non-event controls remain the route to real reliability for both forecasts.
+3. Before the next GPU campaign: every walk leg recompiles GenCast (~8.6 min/leg, ~7
+   H100-h per case) because the 4.17 GB executable exceeds the JAX cache's 2 GiB limit.
+   Persistent walk workers would recover ~40 min wall per case. NOT done; details and fix
+   plan in `aires/HANDOFF.md`, "Open problems" item 8.
 
 ## AI+RES vs CFSv2 side by side (2026-10-07)
 
