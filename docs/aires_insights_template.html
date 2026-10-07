@@ -1,0 +1,561 @@
+<title>AI+RES Insights</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Spectral:wght@500;600&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<style>
+:root{
+  --ground:#f4f6f8; --surface:#ffffff; --surface-2:#eef1f5;
+  --ink:#111b25; --ink-2:#33475a; --muted:#63788b;
+  --line:#d8e0e8; --line-2:#c2cedb;
+  --accent:#1f77b4; --accent-deep:#155582; --accent-wash:#e6f0f8;
+  --obs:#c0392f; --obs-wash:#fbeae8;
+  --good:#2a7f4f; --heat:#a8511f; --cold:#22698f; --neutral:#5c6f80;
+  --shadow:0 1px 2px rgba(17,27,37,.06), 0 8px 24px rgba(17,27,37,.05);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --ground:#0b1219; --surface:#121c25; --surface-2:#182533;
+    --ink:#e4ecf3; --ink-2:#b3c4d2; --muted:#8298ab;
+    --line:#25333f; --line-2:#33444f;
+    --accent:#5ba7dc; --accent-deep:#8cc4ec; --accent-wash:#132c3f;
+    --obs:#e8756a; --obs-wash:#3a1f1d;
+    --good:#63c08c; --heat:#d99356; --cold:#69b6dd; --neutral:#93a7b8;
+    --shadow:0 1px 2px rgba(0,0,0,.4), 0 8px 24px rgba(0,0,0,.3);
+  }
+}
+:root[data-theme="dark"]{
+  --ground:#0b1219; --surface:#121c25; --surface-2:#182533;
+  --ink:#e4ecf3; --ink-2:#b3c4d2; --muted:#8298ab;
+  --line:#25333f; --line-2:#33444f;
+  --accent:#5ba7dc; --accent-deep:#8cc4ec; --accent-wash:#132c3f;
+  --obs:#e8756a; --obs-wash:#3a1f1d;
+  --good:#63c08c; --heat:#d99356; --cold:#69b6dd; --neutral:#93a7b8;
+  --shadow:0 1px 2px rgba(0,0,0,.4), 0 8px 24px rgba(0,0,0,.3);
+}
+
+*{box-sizing:border-box}
+body{
+  margin:0; background:var(--ground); color:var(--ink);
+  font-family:"IBM Plex Sans",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  font-size:16px; line-height:1.62; -webkit-font-smoothing:antialiased;
+}
+.wrap{max-width:1280px; margin:0 auto; padding:0 28px 96px}
+.measure{max-width:70ch}
+
+h1,h2,h3{font-family:Spectral,Georgia,"Times New Roman",serif; text-wrap:balance;
+  font-weight:600; line-height:1.18; margin:0}
+a{color:var(--accent-deep); text-underline-offset:.18em}
+a:focus-visible{outline:2px solid var(--accent); outline-offset:3px}
+code,.mono,.num{font-family:"IBM Plex Mono",ui-monospace,Menlo,monospace;
+  font-variant-numeric:tabular-nums}
+
+/* ---------- masthead ---------- */
+.mast{border-bottom:1px solid var(--line); background:var(--surface);
+  padding:56px 0 40px; margin-bottom:44px}
+.eyebrow{font-family:"IBM Plex Mono",monospace; font-size:11.5px; letter-spacing:.16em;
+  text-transform:uppercase; color:var(--muted); margin:0 0 18px}
+.mast h1{font-size:clamp(34px,5vw,52px); letter-spacing:-.015em}
+.mast .sub{font-size:19px; color:var(--ink-2); margin:18px 0 0; max-width:68ch}
+.defn{margin:34px 0 0; padding:20px 24px; background:var(--surface-2);
+  border-left:3px solid var(--accent); border-radius:2px; max-width:82ch}
+.defn p{margin:0 0 10px; font-size:15px; color:var(--ink-2)}
+.defn p:last-child{margin-bottom:0}
+.defn .eq{display:block; margin:10px 0; font-size:15px; color:var(--ink)}
+
+/* ---------- tables ---------- */
+.tablewrap{overflow-x:auto; border:1px solid var(--line); border-radius:3px;
+  background:var(--surface); box-shadow:var(--shadow); margin:28px 0 0}
+table{border-collapse:collapse; width:100%; min-width:880px; font-size:14px}
+th,td{padding:10px 13px; text-align:left; border-bottom:1px solid var(--line)}
+thead th{font-family:"IBM Plex Mono",monospace; font-size:10.5px; letter-spacing:.1em;
+  text-transform:uppercase; color:var(--muted); font-weight:500;
+  background:var(--surface-2); border-bottom:1px solid var(--line-2); white-space:nowrap}
+tbody tr:last-child td{border-bottom:none}
+tbody tr:hover{background:var(--surface-2)}
+td.n{text-align:right; font-family:"IBM Plex Mono",monospace;
+  font-variant-numeric:tabular-nums; white-space:nowrap}
+td.nm{font-weight:500; color:var(--ink)}
+tr.control td{color:var(--muted); background:var(--surface-2)}
+tr.lonely td.nm{color:var(--obs)}
+
+.pill{display:inline-block; padding:2px 9px; border-radius:11px; font-size:11.5px;
+  font-family:"IBM Plex Mono",monospace; letter-spacing:.03em; white-space:nowrap;
+  border:1px solid transparent}
+.pill.hit{color:#fff; background:var(--accent)}
+.pill.miss{color:var(--obs); background:var(--obs-wash); border-color:var(--obs)}
+.pill.pinned{color:var(--obs); background:transparent; border-color:var(--obs)}
+.pill.anchor{color:var(--good); background:transparent; border-color:var(--good)}
+.pill.control{color:var(--ink-2); background:var(--surface-2); border-color:var(--line-2)}
+.pill.absent{color:var(--muted); background:transparent; border-color:var(--line-2);
+  border-style:dashed}
+
+/* ---------- sections ---------- */
+section{margin:0; padding:64px 0 0; scroll-margin-top:12px}
+.sec-head{display:flex; align-items:baseline; gap:14px; flex-wrap:wrap;
+  border-top:2px solid var(--ink); padding-top:16px}
+.sec-head h2{font-size:clamp(26px,3.2vw,34px); letter-spacing:-.01em}
+.sec-head .rungtag{font-family:"IBM Plex Mono",monospace; font-size:11.5px;
+  letter-spacing:.12em; text-transform:uppercase; color:var(--muted);
+  margin-right:auto; align-self:center}
+h3{font-size:20px; margin:44px 0 0}
+h3 .panelno{font-family:"IBM Plex Mono",monospace; font-size:12px; color:var(--muted);
+  letter-spacing:.1em; text-transform:uppercase; display:block; margin-bottom:6px;
+  font-weight:400}
+.src{font-family:"IBM Plex Mono",monospace; font-size:11.5px; line-height:1.75;
+  color:var(--muted); margin:10px 0 0; max-width:96ch; overflow-wrap:anywhere}
+.src b{font-size:10px; letter-spacing:.12em; text-transform:uppercase; font-weight:500;
+  color:var(--ink-2); margin-right:9px}
+.src code{background:var(--surface-2); padding:1px 5px; border-radius:2px; color:var(--ink-2)}
+
+.lede{font-size:17.5px; color:var(--ink); margin:20px 0 0; max-width:70ch}
+.body{font-size:15.5px; color:var(--ink-2); margin:16px 0 0; max-width:70ch}
+.body.wide{max-width:82ch}
+ul.body{padding-left:1.25em}
+ul.body li{margin:0 0 8px}
+
+/* record card */
+.record{display:grid; gap:1px; background:var(--line);
+  grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
+  border:1px solid var(--line); border-radius:3px; margin:28px 0 0; overflow:hidden}
+.cell{background:var(--surface); padding:13px 16px}
+.cell .k{font-family:"IBM Plex Mono",monospace; font-size:10.5px; letter-spacing:.09em;
+  text-transform:uppercase; color:var(--muted); display:block; margin-bottom:5px}
+.cell .v{font-family:"IBM Plex Mono",monospace; font-size:17px; color:var(--ink);
+  font-variant-numeric:tabular-nums; line-height:1.3}
+.cell .v.big{font-size:21px}
+.cell .v.obs{color:var(--obs)}
+.cell .v.res{color:var(--accent-deep)}
+.cell .note{font-size:11.5px; color:var(--muted); margin-top:4px; line-height:1.45}
+
+/* figures */
+figure{margin:30px 0 0; background:var(--surface); border:1px solid var(--line);
+  border-radius:3px; padding:14px; box-shadow:var(--shadow)}
+figure img{display:block; width:100%; height:auto; border-radius:2px}
+figcaption{font-size:13px; color:var(--muted); margin-top:12px; padding:0 4px;
+  max-width:92ch; line-height:1.6}
+figcaption b{color:var(--ink-2); font-weight:600}
+.gridfigs{display:grid; gap:22px; grid-template-columns:repeat(auto-fit,minmax(430px,1fr));
+  margin:0}
+.gridfigs figure{margin:0}
+
+.callout{margin:28px 0 0; padding:18px 22px; border:1px solid var(--line-2);
+  border-left:3px solid var(--obs); border-radius:2px; background:var(--surface);
+  font-size:14.5px; color:var(--ink-2); max-width:84ch}
+.callout.good{border-left-color:var(--good)}
+.callout.neutral{border-left-color:var(--accent)}
+.callout b{color:var(--ink)}
+.callout p{margin:0 0 10px}
+.callout p:last-child{margin-bottom:0}
+
+.foot{margin-top:76px; padding-top:26px; border-top:1px solid var(--line);
+  font-size:13px; color:var(--muted); max-width:84ch}
+.foot h3{font-size:17px; color:var(--ink); margin:0 0 10px}
+.foot p{margin:0 0 12px}
+.foot code{font-size:12.5px; background:var(--surface-2); padding:1px 5px;
+  border-radius:2px; color:var(--ink-2)}
+
+@media (max-width:720px){
+  .wrap{padding:0 18px 64px}
+  .mast{padding:38px 0 30px}
+  body{font-size:15px}
+  .gridfigs{grid-template-columns:1fr}
+}
+@media (prefers-reduced-motion:reduce){*{animation:none!important; transition:none!important}}
+
+/* ---------- print / PDF ---------- */
+@page{size:letter landscape; margin:12mm}
+@media print{
+  :root, :root[data-theme="dark"], :root:not([data-theme="light"]){
+    --ground:#ffffff; --surface:#ffffff; --surface-2:#f1f4f7;
+    --ink:#111b25; --ink-2:#33475a; --muted:#5b6f81;
+    --line:#c9d4de; --line-2:#b2c0cd;
+    --accent:#1f77b4; --accent-deep:#155582; --accent-wash:#e6f0f8;
+    --obs:#b8352b; --obs-wash:#fbeae8;
+    --good:#1f6b40; --heat:#a8511f; --cold:#22698f; --neutral:#5c6f80;
+    --shadow:none;
+  }
+  html,body{background:#fff}
+  *{-webkit-print-color-adjust:exact; print-color-adjust:exact; box-shadow:none!important}
+  body{font-size:10pt; line-height:1.5}
+  .wrap{max-width:none; padding:0}
+  .tablewrap{overflow:visible; border-radius:0}
+  table{min-width:0; width:100%; font-size:7pt; table-layout:auto}
+  th,td{padding:3px 4px; white-space:normal; overflow-wrap:break-word}
+  thead{display:table-header-group}
+  td.n{white-space:normal}
+  tbody tr{break-inside:avoid; page-break-inside:avoid}
+  figure{break-inside:avoid; page-break-inside:avoid; margin:14px 0 0; padding:8px}
+  figure img{width:auto; max-width:100%; max-height:6.0in; margin:0 auto}
+  figcaption{break-inside:avoid; font-size:8.5pt; max-width:none}
+  .gridfigs{display:block}
+  .gridfigs figure{margin:14px 0 0}
+  .callout,.defn,.record,.cell{break-inside:avoid; page-break-inside:avoid}
+  h1,h2,h3{break-after:avoid; page-break-after:avoid}
+  .sec-head{break-after:avoid; break-before:page; page-break-before:always;
+    border-top-width:1.5px}
+  p{orphans:3; widows:3}
+  .lede,.body,.measure,.foot,.defn,.callout{max-width:none}
+  .foot{break-before:page; page-break-before:always; margin-top:0}
+  .mast{padding:0 0 18px; margin-bottom:22px; border-bottom-width:1.5px}
+  .mast h1{font-size:24pt}
+  .mast .sub{font-size:11pt}
+}
+</style>
+
+<header class="mast">
+  <div class="wrap">
+    <p class="eyebrow">GenCast walkers &middot; FourCastNet 3 score &middot; 21-day lead &middot; N = 64 &middot; nine CONUS events</p>
+    <h1>AI+RES Insights</h1>
+    <p class="sub">What rare-event resampling can say about a week-3 forecast that a contingency table cannot: a probability for events the whole ensemble misses, the depth at which it stops working, and the two places where the answer can be checked against direct sampling.</p>
+
+    <div class="defn">
+      <p>Every number on this page reduces to one observable:</p>
+      <span class="eq mono">A<sub>L</sub> = cos(lat)-weighted mean, over the event box, of the 7-day-mean 2 m temperature anomaly ending at the event peak</span>
+      <p>GenCast 0.25&deg; is initialised 21 days before that peak and rolled as 64 walkers. At each of five barriers FourCastNet 3 scores every walker's expected A<sub>L</sub>; high scorers are cloned, the rest are killed, and a weight w<sub>i</sub> corrects for the resulting tilt, so the surviving population still estimates GenCast's own probabilities. Each walker carries a probability mass p<sub>i</sub> = Z&middot;w<sub>i</sub>/N, the headline P(A<sub>L</sub> &ge; obs) is the sum of p<sub>i</sub> over the walkers past the observation, and &sum;p<sub>i</sub> over the whole population is the run's own normalization check.</p>
+      <p><b>&sum;p<sub>i</sub> should be 1 and is not.</b> It runs 0.568 to 1.769 across the nine productions and reaches 8.75 on the persistence control. That is why no probability appears anywhere on this page without it.</p>
+    </div>
+
+    <div class="callout neutral" style="margin-top:30px">
+      <p><b>What carries the uncertainty here, and what does not.</b> A founder-lineage bootstrap over the walker population was considered and deliberately left unbuilt: the weights are not exchangeable, the estimator under resampling is not obvious, and this experiment has a documented case of failing silently and plausibly. So exactly three already-measured numbers do the work, and no new statistic is invented:</p>
+      <p>1. the <b>direct-sampling comparison with its 95% Wilson interval</b>, wherever direct sampling resolves at all; 2. the <b>weight ESS</b> out of 64, which is 2.24 on Winter Storm Uri and 1.01 on the control; 3. the run's own <b>normalization check</b> &sum;p<sub>i</sub>. Every AI+RES probability on this page is a point value with no interval, on purpose.</p>
+    </div>
+  </div>
+</header>
+
+<div class="wrap">
+
+<!-- ================= SECTION A ================= -->
+<section id="a">
+  <div class="sec-head"><span class="rungtag">Section A</span><h2>What was run</h2></div>
+
+  <p class="lede">Nine CONUS extreme events plus one attribution control, all at week-3 lead, all N = 64, all on one frozen resampling schedule that was tuned once on the Pacific Northwest case and never re-tuned.</p>
+
+  <p class="body">The configuration is identical on every row: N = 64 walkers, M = 6 score members, K = 5 resampling steps at leads 3, 6, 9, 12 and 15 days, C<sub>k</sub> = (0, 1.0, 1.4, 1.8, 2.0), horizon 21 days. Events are ordered by <b>&sigma;-depth</b>, how far the observation fell outside the direct ensemble's own spread, which is the axis the rest of this deck is built on.</p>
+
+  <div class="tablewrap">
+    <table>
+      <thead><tr>
+        <th>event</th><th>box</th><th>init</th><th>peak</th><th>tail</th>
+        <th>observed A<sub>L</sub></th><th>&sigma;-depth</th><th>reach</th>
+        <th>weighted P</th><th>&sum;p<sub>i</sub></th><th>wESS</th><th>direct</th>
+      </tr></thead>
+      <tbody>
+        <tr><td class="nm">Southwest Heat Wave 2020</td><td>SW/S Plains</td><td class="n">2020-07-26</td><td class="n">2020-08-16</td><td><span class="pill heat">warm</span></td><td class="n">+5.14 K</td><td class="n">+3.32</td><td class="n">0/64</td><td class="n"><span class="pill miss">0 &nbsp;(&lt; 3.2e-04)</span></td><td class="n">1.0623</td><td class="n">18.81</td><td class="n">0/24</td></tr>
+        <tr><td class="nm">California Heat Wave 2022</td><td>California</td><td class="n">2022-08-16</td><td class="n">2022-09-06</td><td><span class="pill heat">warm</span></td><td class="n">+4.71 K</td><td class="n">+2.85</td><td class="n">25/64</td><td class="n"><span class="pill hit">0.0186</span></td><td class="n">0.7771</td><td class="n">11.03</td><td class="n">0/24</td></tr>
+        <tr><td class="nm">Winter Storm Elliott 2022</td><td>N Plains</td><td class="n">2022-12-02</td><td class="n">2022-12-23</td><td><span class="pill cold">cold</span></td><td class="n">&minus;14.42 K</td><td class="n">+2.81</td><td class="n">20/64</td><td class="n"><span class="pill hit">0.0079</span></td><td class="n">0.8108</td><td class="n">8.61</td><td class="n">0/24</td></tr>
+        <tr><td class="nm">Winter Storm Uri 2021</td><td>TX/OK</td><td class="n">2021-01-25</td><td class="n">2021-02-15</td><td><span class="pill cold">cold</span></td><td class="n">&minus;7.40 K</td><td class="n">+2.28</td><td class="n">32/64</td><td class="n"><span class="pill hit">0.0090</span></td><td class="n">1.7688</td><td class="n">2.24</td><td class="n">0/24</td></tr>
+        <tr><td class="nm">South-Central Heat Dome 2023</td><td>S Texas</td><td class="n">2023-06-06</td><td class="n">2023-06-27</td><td><span class="pill heat">warm</span></td><td class="n">+5.73 K</td><td class="n">+2.24</td><td class="n">6/64</td><td class="n"><span class="pill hit">0.0027</span></td><td class="n">1.2672</td><td class="n">11.40</td><td class="n">0/16</td></tr>
+        <tr><td class="nm">Pacific Northwest Heat Dome 2021</td><td>PNW</td><td class="n">2021-06-07</td><td class="n">2021-06-28</td><td><span class="pill heat">warm</span></td><td class="n">+7.72 K</td><td class="n">+1.98</td><td class="n">42/64</td><td class="n"><span class="pill hit">0.0539</span></td><td class="n">0.5684</td><td class="n">5.68</td><td class="n">0/24</td></tr>
+        <tr class="control"><td class="nm">&nbsp;&nbsp;&nbsp;same event, persistence score</td><td>PNW</td><td class="n">2021-06-07</td><td class="n">2021-06-28</td><td><span class="pill control">control</span></td><td class="n">+7.72 K</td><td class="n">+1.98</td><td class="n">0/64</td><td class="n"><span class="pill miss">0 &nbsp;(&lt; 2.6e-04)</span></td><td class="n">8.7497</td><td class="n">1.01</td><td class="n">0/24</td></tr>
+        <tr><td class="nm">p90 2025-12-24 (nationwide warm spell)</td><td>CONUS</td><td class="n">2025-12-03</td><td class="n">2025-12-24</td><td><span class="pill heat">warm</span></td><td class="n">+3.26 K</td><td class="n">+1.91</td><td class="n">46/64</td><td class="n"><span class="pill anchor">0.0661</span></td><td class="n">0.6890</td><td class="n">7.24</td><td class="n">1/24</td></tr>
+        <tr><td class="nm">p90 2024-08-02 (the median check)</td><td>CONUS</td><td class="n">2024-07-12</td><td class="n">2024-08-02</td><td><span class="pill heat">warm</span></td><td class="n">+1.06 K</td><td class="n">&minus;0.00</td><td class="n">63/64</td><td class="n"><span class="pill anchor">0.649</span></td><td class="n">0.7039</td><td class="n">3.36</td><td class="n">14/24</td></tr>
+        <tr><td class="nm">p90 2023-11-07 (below the median)</td><td>CONUS</td><td class="n">2023-10-17</td><td class="n">2023-11-07</td><td><span class="pill heat">warm</span></td><td class="n">+0.21 K</td><td class="n">&minus;0.97</td><td class="n">64/64</td><td class="n"><span class="pill pinned">0.5827 pinned</span></td><td class="n">0.5827</td><td class="n">7.04</td><td class="n">21/24</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3><span class="panelno">Panel 1</span>The slate, and the coverage a reader has to see first</h3>
+  <p class="src"><b>source</b> <code>figures/aires/aires_insights_slate.png</code> &middot; from <code>runs/aires/aires_lift.json</code>, <code>runs/aires/aires_walkers.csv</code>, <code>runs/aires/&lt;event&gt;/ds_baseline.json</code>, <code>aires/aindex.py::EVENT_BOXES</code></p>
+
+  <p class="body wide"><b>The baselines are not uniform, and the deck says so before it shows a single curve.</b> <code>ds_baseline.json</code> carries up to three direct-sampling ensembles per event, and most events do not have three. Eight of nine have the 24-member 0.25&deg; GenCast cube; South-Central does not, and its 16 free-running Gate 3 walkers are promoted into that slot. Five of nine have the 24-member FourCastNet 3 ensemble. Three have the Gate 3 walkers. <b>Four events carry exactly one</b>: South-Central, California, Southwest and Elliott. A later panel with one baseline curve instead of three is showing what was run, not reporting that an ensemble missed.</p>
+
+  <p class="body wide">CFSv2 is the one baseline that <em>is</em> complete: all nine events carry four members, from the four 6-hourly cycles ending at the AI+RES initialisation, so leads run 21.0 to 21.75 days and no member sits at a shorter lead than the thing it is a baseline for.</p>
+
+  <p class="body wide">Two notations in that table. A weighted P written as <code>0 (&lt; 3.2e-04)</code> is a run where nothing reached the observation: the estimate is exactly 0 and the bracketed number is the probability mass of the single walker that came closest, i.e. the finest the run could have resolved had one walker crossed. <code>0.5827 pinned</code> is a run where every walker reached, so P collapses onto &sum;p<sub>i</sub> and the two columns print the same number; section C takes that case apart.</p>
+
+  <figure><img src="DATA" alt="The AI+RES slate and its baseline coverage"><figcaption><b>The slate and its baseline coverage.</b> Upper table: the ten runs, hardest target first, with each event's box and its extent, the initialisation and peak dates, the tail sign, the observed A<sub>L</sub>, the derived &sigma;-depth, the reach count, the weighted P, the run's normalization check and the weight ESS. The persistence control is greyed and the pinned run is tinted. Lower table: which direct-sampling ensemble each event actually has. Events in red carry exactly one. The &sigma;-depth column is derived from each run's own files by the formula printed under the figure, never quoted from prose, and ddof = 1 is load-bearing.</figcaption></figure>
+</section>
+
+<!-- ================= SECTION B ================= -->
+<section id="b">
+  <div class="sec-head"><span class="rungtag">Section B</span><h2>The result</h2></div>
+
+  <p class="lede">On six of the nine events every member of the direct ensemble misses the observation: 0 of 24, or 0 of 16 on South-Central. A contingency table sees TP = 0, FP = 0, TPR = 0 on all six and cannot tell California's 0.01 K miss from Elliott's 4.60 K one. AI+RES returns a number in every case, and the number tracks how deep the observation sat in the model's own distribution.</p>
+
+  <h3><span class="panelno">Panel 2</span>The severity ladder</h3>
+  <p class="src"><b>source</b> <code>figures/aires/aires_insights_ladder.png</code> &middot; from <code>runs/aires/&lt;event&gt;/ds_baseline.json</code>, <code>runs/aires/&lt;event&gt;/res/&lt;tag&gt;/compare.json</code></p>
+
+  <p class="body wide">This is the source deck's magnitude axis done properly. Fixed &plusmn;2/3/4 &deg;C thresholds are thresholds on the <em>observation</em>; the quantity that actually predicts whether resampling reaches an event is a property of the <em>forecast distribution</em>:</p>
+
+  <div class="defn" style="max-width:70ch">
+    <span class="eq mono">&sigma; = tail_sign &times; (observed &minus; mean(direct)) / sd(direct, ddof = 1)</span>
+    <p>using the first available of the GenCast xres cube, the Gate 3 walkers and FCN3. Derived from each run's own <code>compare.json</code> and <code>ds_baseline.json</code>, and it reproduces the published ladder. ddof = 1 is not cosmetic: the population sd moves the Pacific Northwest from +1.98 to +2.02 and the Southwest from +3.32 to +3.39.</p>
+  </div>
+
+  <p class="body wide">Winter Storm Elliott at &minus;14.42 K is reached. The Southwest heat wave at +5.14 K is not, and in absolute terms the Southwest is the <em>shallower</em> event. The difference is that Elliott sits +2.81 &sigma; into GenCast's own week-3 spread and the Southwest sits +3.32 &sigma;. <b>The reach boundary lies between +2.85 &sigma; (California, reached) and +3.32 &sigma; (Southwest, not reached).</b></p>
+
+  <figure><img src="DATA" alt="The severity ladder"><figcaption><b>The severity ladder.</b> One point per run. x is the &sigma;-depth of the observation in the direct ensemble; y is the weighted P(A<sub>L</sub> &ge; obs) on a log axis. A filled marker is a run that reached the observation, so P is an estimate. A hollow marker with a down arrow is a run that reached nothing: P is exactly 0, which no log axis can show and which is not the honest statement either, so the point is drawn at the deepest level the run resolved and read as an upper bound. The purple square is the pinned run, where P collapses onto the normalization check. Brown squares are direct sampling with its 95% Wilson interval, and brown down-triangles are the events where direct read 0/n and can offer only a 95% upper bound. The lower strip is each run's own &sum;p<sub>i</sub> at the same x, so no probability on this figure appears without its normalization check.</figcaption></figure>
+
+  <div class="callout"><p><b>Read the two ends of this figure carefully.</b> The Southwest point is an upper bound, not an estimate, and the p90 2023-11-07 point is not a probability at all. Neither is a small number that happens to be uncertain; each is a different kind of statement, and the marker shape is what distinguishes them.</p></div>
+
+  <h3><span class="panelno">Panel 3</span>Every walker, its anomaly, the mass it carries</h3>
+  <p class="src"><b>source</b> <code>figures/aires/aires_walkers.png</code> &middot; from <code>runs/aires/aires_walkers.csv</code></p>
+
+  <p class="body wide">The raw material every other figure on this page reduces. Each panel carries a line at 1/N, which is what a walker would be worth under direct sampling: draw N members independently and each one carries exactly 1/N and no more. AI+RES buys reach by giving that uniformity up, and then charges for it. <b>The Pacific Northwest's hottest walker carries 2.5% of what a single direct member is worth.</b> Reach is bought and then priced, and this panel shows the exchange rate per walker.</p>
+
+  <figure><img src="DATA" alt="Every AI+RES walker across all ten runs"><figcaption><b>The population, all ten runs.</b> One panel per run, ordered by &sigma;-depth. Each dot is a walker coloured by founder lineage; brown ticks are direct-sampling members at their own 1/n; the red dashed line is the observation and the shaded side of it is the mass that sums to P. Walkers stacked at one height are clones of a single parent at the final resampling and carry identical mass by construction, so the number of <em>distinct</em> masses in a panel, not 64, is how many independent pieces of information the estimate rests on. Uri's 64 walkers hold 34 distinct masses. &sum;p<sub>i</sub> over a whole panel is that run's normalization check and is printed in each corner beside the weight ESS.</figcaption></figure>
+
+  <h3><span class="panelno">Panel 4</span>The population as a density</h3>
+  <p class="src"><b>source</b> <code>figures/aires/aires_kde.png</code> &middot; from <code>runs/aires/aires_walkers.csv</code></p>
+
+  <p class="body wide">The same 64 walkers smoothed into a probability density over A<sub>L</sub>. Three curves per run: weighted by p<sub>i</sub>, which is the estimator's own reconstruction of GenCast's forecast law; unweighted, which is where resampling actually pushed the population and is <em>not</em> a probability; and the direct ensemble, which estimates the same law as the weighted curve and is therefore the like-for-like comparison.</p>
+
+  <p class="body wide">Every curve stops at its own most extreme member. A Gaussian kernel is never zero, so an unclipped curve puts mass past an observation that nothing reached, and on the persistence control it would show 0.035 of probability beyond a target that 0 of 24 direct members attained. The panel titles print the <em>exact</em> subset sum P, never a kernel integral: unclipped smoothing overstates P by 1.15&times; to 1.75&times; depending on the run.</p>
+
+  <figure><img src="DATA" alt="The walker population as a density"><figcaption><b>The population as a density.</b> Weighted, unweighted and direct, one bandwidth shared by both walker curves (Scott's rule on the 64 unweighted positions). The gap between the weighted and unweighted curves is the tilt that resampling introduced and the weights are undoing. Note where the weighted curve's support <em>ends</em> on the left of p90 2025-12-24: resampling killed every walker below +1.25 K, so no reweighting can put mass down there. That is a support limitation, not a weighting error.</figcaption></figure>
+
+  <h3><span class="panelno">Panel 5</span>Per-event exceedance, with every available baseline</h3>
+  <p class="src"><b>source</b> <code>figures/aires/&lt;event&gt;/aires_exceedance_&lt;event&gt;_pilot.png</code> &middot; from <code>runs/aires/&lt;event&gt;/res/pilot/compare.json</code></p>
+
+  <p class="body wide">The per-event detail behind the ladder. <b>The mid-curve region is the calibration evidence.</b> Through the whole range that 24 direct members can resolve, the weighted curve tracks direct sampling to within about two binomial standard errors, and only then extends about two decades deeper. Where a run does lean it leans the same way at every threshold, and the direction is the one panel 8 reads off the normalization check. On the Southwest, P(&ge; +2.23 K) reads 0.077 against 0.083 and P(&ge; +3.03 K) reads 0.026 against 0.042 before the curve continues to ~3e-04 at +4.31 K. On California, P(&ge; +2.99) reads 0.114 against 0.125 and P(&ge; +3.99) reads 0.045 against 0.042. Some events carry one baseline curve and some carry three, for the reason in panel 1.</p>
+
+  <div class="gridfigs">
+    <figure><img src="DATA" alt="Exceedance curve for Southwest Heat Wave"><figcaption><b>Southwest, +3.32 &sigma;.</b> The honest miss. 0/64 walkers and 0/24 direct members reach +5.14 K; the run resolves only to 3.2e-04 at its most extreme walker. The mid-curve agreement is what makes the miss informative rather than a failure.</figcaption></figure>
+    <figure><img src="DATA" alt="Exceedance curve for California Heat Wave"><figcaption><b>California, +2.85 &sigma;.</b> 25/64 reach +4.71 K where direct sampling scored 0/24 with its best member grazing at +4.70. Weighted P = 0.0186, &sum;p<sub>i</sub> = 0.7771, weight ESS 11.03.</figcaption></figure>
+    <figure><img src="DATA" alt="Exceedance curve for Winter Storm Elliott"><figcaption><b>Elliott, +2.81 &sigma;.</b> The deepest reach of the experiment. 20/64 reach &minus;14.42 K, most extreme &minus;17.04 K; direct sampling's best member is &minus;9.83 K, 4.6 K short. Weighted P = 0.0079, &sum;p<sub>i</sub> = 0.8108, weight ESS 8.61.</figcaption></figure>
+    <figure><img src="DATA" alt="Exceedance curve for Winter Storm Uri"><figcaption><b>Uri, +2.28 &sigma;.</b> 32/64 reach &minus;7.40 K, weighted P = 0.0090. This run has the worst normalization check of the nine at 1.7688 and the lowest weight ESS at 2.24 of 64; its curve is the one to read with the most caution. Through the range its two GenCast baselines resolve it leans slightly low at every threshold: 0.247 against 0.250 and 0.292 at &minus;1.67 K, 0.165 against 0.188 and 0.208 at &minus;2.95 K, 0.095 against 0.125 and 0.125 at &minus;3.38 K, and 0.054 against 0.063 and 0.083 at &minus;5.09 K.</figcaption></figure>
+    <figure><img src="DATA" alt="Exceedance curve for South-Central Heat Dome"><figcaption><b>South-Central, +2.24 &sigma;.</b> 6/64 reach +5.73 K against a 16-walker Gate 3 baseline that tops out at +4.19 K. The frozen C<sub>k</sub> schedule, ported unchanged from a Pacific ridge to a subtropical one, still reaches and prices the event.</figcaption></figure>
+    <figure><img src="DATA" alt="Exceedance curve for Pacific Northwest Heat Dome"><figcaption><b>Pacific Northwest, +1.98 &sigma;.</b> The flagship. 42/64 reach +7.72 K, most extreme +10.29 K, weighted P = 0.0539 where 0 of 40 direct members (24 xres plus 16 Gate 3) reach it at all. &sum;p<sub>i</sub> = 0.5684, the lowest of the nine, weight ESS 5.68.</figcaption></figure>
+    <figure><img src="DATA" alt="Exceedance curve for The Nationwide Warm Spell"><figcaption><b>p90 2025-12-24, +1.91 &sigma;.</b> The warm-side calibration anchor. At the observation the weighted curve reads 0.0661 against direct sampling's 0.0417, inside its interval, with &sum;p<sub>i</sub> = 0.6890 and a weight ESS of 7.24. Through the mid range it leans high by about a factor of two: 0.481 against 0.250 at +1.28 K and 0.331 against 0.167 at +1.49 K, which is 2.2 to 2.6 binomial standard errors at n = 24. Not clearly significant on 24 members, but it leans the same way at every threshold.</figcaption></figure>
+    <figure><img src="DATA" alt="Exceedance curve for The Normal-Day Test"><figcaption><b>p90 2024-08-02, 0.00 &sigma;.</b> The no-harm control, with the observation exactly at the ensemble median. Agreement is exact at the observation and leans high in the mid range (0.630 against 0.375 to 0.417 at +1.28 K, and lower still at +1.43 K) before converging by +1.5 K. The curve is visibly coarse there, which is what an effective sample size near 10 looks like.</figcaption></figure>
+    <figure><img src="DATA" alt="Exceedance curve for The Below-Median Day"><figcaption><b>p90 2023-11-07, &minus;0.97 &sigma;.</b> The negative result. The observation lies below every walker, so the exceedance curve has no knot at the observation at all and the reported value is the whole population's mass. Section C is where this is taken apart.</figcaption></figure>
+  </div>
+</section>
+
+<!-- ================= SECTION C ================= -->
+<section id="c">
+  <div class="sec-head"><span class="rungtag">Section C</span><h2>Is it calibrated</h2></div>
+
+  <p class="lede">The reliability question, answered at the precision the data actually supports: two anchors deep in the tail where direct sampling still returns a non-zero count, one median check that passes, and one below-median case where the estimator degenerates and returns a plausible-looking number that is wrong.</p>
+
+  <h3><span class="panelno">Panel 6</span>The two calibration anchors</h3>
+  <p class="src"><b>source</b> <code>figures/aires/aires_insights_anchors.png</code> &middot; from <code>runs/aires/p90_20251224/res/pilot/compare.json</code>, <code>runs/aires/WinterStorm_Elliott_2022/res/pilot/compare.json</code>, <code>aires/aceiling.py::wilson</code></p>
+
+  <p class="body wide">At the depth AI+RES operates, direct sampling reads 0 of 24 on six of the nine events, so on those six the weighted curve has nothing at all to be checked against at the observation. Two rungs are the exception in the tail, and both come back at exactly 1 of 24. The second one is free: <code>aindex.indices()</code> records a CONUS mean alongside the box index on every run, so Elliott's CONUS index cost no additional GPU time.</p>
+
+  <figure><img src="DATA" alt="The two calibration anchors"><figcaption><b>The two anchors.</b> Each panel is one comparison on a log probability axis: direct sampling's k/n with its 95% Wilson interval as the shaded band, and the AI+RES weighted P as a point with no interval of its own. Both AI+RES estimates sit inside the direct interval. The corner block carries the run's normalization check, its weight ESS and the direct ensemble's mean and spread, because the point estimate alone is not a reportable result in this experiment.</figcaption></figure>
+
+  <div class="record">
+    <div class="cell"><span class="k">p90 2025-12-24, box</span><span class="v big res">0.0661</span><span class="note">AI+RES weighted, 46/64 walkers</span></div>
+    <div class="cell"><span class="k">direct sampling</span><span class="v big">0.0417</span><span class="note">1/24, 95% Wilson [0.0074, 0.202]</span></div>
+    <div class="cell"><span class="k">&sum;p<sub>i</sub> / weight ESS</span><span class="v">0.6890 / 7.24</span><span class="note">check below 1; 7.24 of 64 walkers</span></div>
+    <div class="cell"><span class="k">Elliott, CONUS index</span><span class="v big res">0.1359</span><span class="note">AI+RES weighted, 32/64 walkers</span></div>
+    <div class="cell"><span class="k">direct sampling</span><span class="v big">0.0417</span><span class="note">1/24, 95% Wilson [0.0074, 0.202]</span></div>
+    <div class="cell"><span class="k">&sum;p<sub>i</sub> / weight ESS</span><span class="v">0.8108 / 8.61</span><span class="note">check below 1; 8.61 of 64 walkers</span></div>
+  </div>
+
+  <div class="callout"><p><b>Elliott's CONUS number is a second anchor, not Elliott's score.</b> The event is scored on its N Plains box, where the observation is &minus;14.42 K at +2.81 &sigma; and direct sampling reads 0/24. On the CONUS mean the same week verifies at &minus;2.73 K, which is +1.89 &sigma; and where direct reads 1/24. Both are real; they are different quantities and the deck never substitutes one for the other.</p>
+  <p>The reason this matters beyond one label: on the CONUS index <b>four of the nine events sit at or below the median</b>, the Pacific Northwest among them at &minus;0.93 &sigma;: the 2021 heat dome is +7.72 K over its own box and +0.64 K over CONUS, and 19 of 24 direct members are already past that. That is precisely the regime the next panel shows the estimator has no resolution in, and it is why the box index is the observable everywhere else on this page.</p></div>
+
+  <p class="body wide">Both intervals span a factor of 27, because 1 of 24 is the shallowest non-zero a 24-member ensemble can report. That width is the result's precision, and it is the reason the cheapest available upgrade to this experiment is extending the direct-sampling reference rather than running new events: GenCast member seeds are <code>fold_in(PRNGKey(0), i)</code>, so the existing 24-member cube extends by rolling members 24 onward, at roughly 24 H100-hours per event.</p>
+
+  <h3><span class="panelno">Panel 7</span>The control that passes and the case that fails, at the same size</h3>
+  <p class="src"><b>source</b> <code>figures/aires/p90_20240802/aires_walkers_p90_20240802_pilot.png</code>, <code>figures/aires/p90_20231107/aires_walkers_p90_20231107_pilot.png</code>, <code>figures/aires/p90_20240802/aires_pdf_conus_p90_20240802_pilot.png</code> &middot; from <code>runs/aires/p90_20240802/res/pilot/compare.json</code>, <code>runs/aires/p90_20231107/res/pilot/compare.json</code></p>
+
+  <p class="body wide">Two more comparisons resolve against direct sampling, but in the middle of the distribution rather than in the tail, so they are checks rather than anchors. One is the method working where it should and one is the method failing where it must, and putting them on one page at the same size is the deck's credibility.</p>
+
+  <div class="gridfigs">
+    <figure><img src="DATA" alt="Per-walker anomaly and probability for The Normal-Day Test"><figcaption><b>p90 2024-08-02, 0.00 &sigma;: the median check passes.</b> ERA5 observed +1.06 K; AI+RES returns weighted P = 0.649 against direct sampling's 14/24 = 0.583, 95% Wilson [0.388, 0.755], and FCN3 independently also 14/24. The run's own &sum;p<sub>i</sub> is 0.7039 and its weight ESS 3.36. If the estimator had reported 0.05 for a median target it would be broken. It reports 0.65.</figcaption></figure>
+    <figure><img src="DATA" alt="Per-walker anomaly and probability for The Below-Median Day"><figcaption><b>p90 2023-11-07, &minus;0.97 &sigma;: the estimator degenerates.</b> The observation at +0.21 K lies below the population's <em>minimum</em> of +1.498 K, so the indicator 1{A<sub>L</sub> &ge; obs} is identically 1 over all 64 walkers and the estimate collapses to Z &times; mean(w), which is exactly the normalization check: 0.582662 against 0.582662, to every printed digit. Direct sampling gives 21/24 = 0.875.</figcaption></figure>
+  </div>
+
+  <div class="callout"><p><b>This is the deck's most useful negative result and it is reported at full size.</b> AI+RES has no resolution at a target the tilt has already carried the entire population past. The usable operating range is targets the resampled population still <em>straddles</em>: p90 2024-08-02 straddles its target (population minimum +0.39 K against a target of +1.06 K) and answers correctly; p90 2023-11-07 does not and returns a pinned value.</p>
+  <p>Two things make it worth publishing rather than burying. First, the failure is <b>silent</b>: nothing inside the run reveals it, and a reader of <code>compare.json</code> alone would take 0.5827 at face value. Self-normalising is no better, returning exactly 1.000, because "every walker reached it" is the whole of what the population retains. Second, <b>run health does not detect it</b>: this run has the healthiest sampler of the nine, with per-step ESS/N of 1.00 / 0.41 / 0.62 / 0.53 / 0.53 and a minimum of 0.41, the highest minimum on the slate. A healthy sampler can still return a meaningless probability if the target is on the wrong side of the tilt.</p></div>
+
+  <p class="body wide">The spatial evidence on the median check is the cleanest agreement anywhere in the experiment. At the derived per-grid-point threshold of +3.952 K, the p95 of the observed field, the weighted population gives <b>0.0727</b> against direct GenCast's <b>0.0702</b>, agreement to 4%, while the unweighted population gives 0.1627, which is 2.3&times; too heavy. The weights do their job on the spatial distribution and not only on the scalar. Do <em>not</em> quote the 63/64 reach count as a headline here: 63 of 64 walkers reaching a median target is a statement about where the tilt pushed the population and carries no information.</p>
+
+  <figure><img src="DATA" alt="Spatial tail probabilities for The Normal-Day Test"><figcaption><b>Per-grid-point tail probabilities, p90 2024-08-02.</b> The threshold is derived as the p95 of the observed field. AI+RES weighted 0.0727, direct GenCast 0.0702, ERA5 truth 0.0468, FCN3 0.0543, unweighted AI+RES 0.1627. The gap between the weighted and unweighted numbers is what the weights are for.</figcaption></figure>
+
+  <h3><span class="panelno">Panel 8</span>Run health, beside every probability</h3>
+  <p class="src"><b>source</b> <code>figures/aires/&lt;event&gt;/aires_diagnostics_&lt;event&gt;_pilot.png</code> &middot; from <code>runs/aires/&lt;event&gt;/res/&lt;tag&gt;/compare.json</code></p>
+
+  <p class="body wide">Per-leg ESS/N, maximum clone multiplicity, surviving founder count, log Z and the normalization check, one figure per run. These belong on the same page as the probabilities and not in an appendix, given that &sum;p<sub>i</sub> ranges 0.568 to 1.769 across the nine productions and reaches 8.75 on the control.</p>
+
+  <div class="callout neutral"><p><b>A diagnostic lead, and it is a lead and not a finding.</b> Across wave 2 the normalization check and the <em>direction</em> of the mid-curve discrepancy are anti-correlated: a check below 1 goes with a weighted curve that reads high against direct sampling (0.689, 0.811, 0.704, 0.583), and a check above 1 goes with one that reads low (Uri, 1.769). If that holds up it is a usable per-run correction indicator. At n = 5 it is not one yet, and no curve on this page has been corrected by it.</p></div>
+
+  <div class="gridfigs">
+    <figure><img src="DATA" alt="Run health for Southwest Heat Wave"><figcaption><b>Southwest.</b> log Z &minus;0.8660, check 1.0623, 16/64 founders. ESS/N crashed to 0.11 at step 3 with a maximum multiplicity of 23, then partly recovered. The clone-correlation problem is doing real damage to reach on this run, which is the deepest target of the nine.</figcaption></figure>
+    <figure><img src="DATA" alt="Run health for California Heat Wave"><figcaption><b>California.</b> log Z &minus;1.2488, check 0.7771, 16/64 founders, ESS/N 0.22 / 0.18 / 0.25 / 0.47 - the earliest collapse of wave 1.</figcaption></figure>
+    <figure><img src="DATA" alt="Run health for Winter Storm Elliott"><figcaption><b>Elliott.</b> log Z &minus;1.1612, check 0.8108, the closest to 1 of wave 2, 14/64 founders. ESS/N takes its worst hit at step 3 (0.29) and then recovers to 0.59. Weight ESS 8.61, the healthiest of wave 2.</figcaption></figure>
+    <figure><img src="DATA" alt="Run health for Winter Storm Uri"><figcaption><b>Uri.</b> log Z &minus;0.6735, check <b>1.7688</b>, the furthest from 1 in either direction. Weights span 0.0108 to 144 and the weight ESS is 2.24 of 64. The scalar exceedance survives that; the spatial panel does not, and is marked accordingly.</figcaption></figure>
+    <figure><img src="DATA" alt="Run health for South-Central Heat Dome"><figcaption><b>South-Central.</b> log Z &minus;0.7771, check 1.2672, 17/64 founders, final ESS/N 0.65.</figcaption></figure>
+    <figure><img src="DATA" alt="Run health for Pacific Northwest Heat Dome"><figcaption><b>Pacific Northwest.</b> check 0.5684, the lowest of the nine, 5.68 weight ESS. Read the P = 0.0539 headline with this number beside it.</figcaption></figure>
+    <figure><img src="DATA" alt="Run health for The Nationwide Warm Spell"><figcaption><b>p90 2025-12-24.</b> The best-behaved production: log Z &minus;1.1846, check 0.6890, ESS/N 1.00 / 0.32 / 0.56 / 0.54 / 0.69, recovering after the first barrier instead of degrading, with the maximum multiplicity peaking at 9 and falling to 3. Clone-correlation damage is much milder at a +1.91 &sigma; target than at a +3.3 &sigma; one.</figcaption></figure>
+    <figure><img src="DATA" alt="Run health for The Normal-Day Test"><figcaption><b>p90 2024-08-02.</b> log Z &minus;0.6063, check 0.7039, 15/64 founders, ESS/N 1.00 / 0.53 / 0.37 / 0.30 / 0.40.</figcaption></figure>
+    <figure><img src="DATA" alt="Run health for The Below-Median Day"><figcaption><b>p90 2023-11-07.</b> log Z &minus;1.0156, 15/64 founders, ESS/N 1.00 / 0.41 / 0.62 / 0.53 / 0.53, minimum 0.41, the highest minimum of the nine and so the <em>healthiest</em> sampler on the slate, and the one that returned a meaningless probability. Health metrics do not detect the pinning failure.</figcaption></figure>
+  </div>
+</section>
+
+<!-- ================= SECTION D ================= -->
+<section id="d">
+  <div class="sec-head"><span class="rungtag">Section D</span><h2>Against the alternatives</h2></div>
+
+  <p class="lede">Two comparisons the experiment can make on every event: the operational dynamical model at the same lead, and the same AI+RES machinery with the score function swapped out.</p>
+
+  <h3><span class="panelno">Panel 9</span>The CFSv2 operational baseline</h3>
+  <p class="src"><b>source</b> <code>figures/aires/&lt;event&gt;/aires_trajectory_&lt;event&gt;_pilot.png</code> &middot; from <code>runs/aires/&lt;event&gt;/cfs/&lt;event&gt;_cfs_lead21_t2m_anom.json</code></p>
+
+  <p class="body wide">NCEP's operational CFSv2 9-month run, initialised at the AI+RES initialisation and verified over the identical 7-day window through the identical reduction, four members from the four 6-hourly cycles ending at the init. All nine events carry it.</p>
+
+  <div class="tablewrap">
+    <table>
+      <thead><tr><th>event</th><th>CFS mean A<sub>L</sub></th><th>CFS best member</th><th>AI+RES mean</th><th>observed</th><th>CFS reaching</th><th>AI+RES reaching</th></tr></thead>
+      <tbody>
+        <tr><td class="nm">Pacific Northwest Heat Dome</td><td class="n">+0.30</td><td class="n">+3.42</td><td class="n">+8.24</td><td class="n">+7.72</td><td class="n">0/4</td><td class="n">42/64</td></tr>
+        <tr><td class="nm">South-Central Heat Dome</td><td class="n">&minus;0.14</td><td class="n">+1.19</td><td class="n">+4.10</td><td class="n">+5.73</td><td class="n">0/4</td><td class="n">6/64</td></tr>
+        <tr><td class="nm">Southwest Heat Wave</td><td class="n">+1.05</td><td class="n">+1.60</td><td class="n">+2.47</td><td class="n">+5.14</td><td class="n">0/4</td><td class="n">0/64</td></tr>
+        <tr><td class="nm">California Heat Wave</td><td class="n">+2.41</td><td class="n">+3.68</td><td class="n">+4.11</td><td class="n">+4.71</td><td class="n">0/4</td><td class="n">25/64</td></tr>
+        <tr><td class="nm">Winter Storm Elliott</td><td class="n">&minus;2.81</td><td class="n">&minus;10.74</td><td class="n">&minus;11.86</td><td class="n">&minus;14.42</td><td class="n">0/4</td><td class="n">20/64</td></tr>
+        <tr><td class="nm">Winter Storm Uri</td><td class="n">+0.54</td><td class="n">&minus;3.86</td><td class="n">&minus;6.78</td><td class="n">&minus;7.40</td><td class="n">0/4</td><td class="n">32/64</td></tr>
+        <tr><td class="nm">p90 2025-12-24</td><td class="n">&minus;1.35</td><td class="n">+0.22</td><td class="n">+3.83</td><td class="n">+3.26</td><td class="n">0/4</td><td class="n">46/64</td></tr>
+        <tr><td class="nm">p90 2023-11-07</td><td class="n">+0.99</td><td class="n">+1.75</td><td class="n">+3.23</td><td class="n">+0.21</td><td class="n"><b>3/4</b></td><td class="n">64/64</td></tr>
+        <tr><td class="nm">p90 2024-08-02</td><td class="n">+1.05</td><td class="n">+1.35</td><td class="n">+1.93</td><td class="n">+1.06</td><td class="n"><b>2/4</b></td><td class="n">63/64</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <p class="body wide"><b>CFSv2 reaches the observation on 0 of 4 members on all six genuinely extreme events, and on the warm-spell anchor as well, seven of the nine in all. The only two it reaches are the two mildest</b>, at 3 of 4 and 2 of 4, on the +0.21 K and +1.06 K CONUS-mean days. That pattern, the operational baseline being competitive exactly where the event is not extreme, is the cleanest single statement of what this method is for. "Reaching" is sign-aware, so on the two cold events it means far enough below.</p>
+
+  <p class="body wide">Two caveats belong with that table, both measured rather than argued. <b>Resolution is not the explanation.</b> Round-tripping each event's ERA5 truth field through CFS's own T126 grid and re-scoring it costs a mean of +0.010 K and a maximum of 0.134 K, and a native-cell estimator that does no regridding at all differs by at most 0.167 K, against gaps of 2.3 to 11.6 K on the six genuinely extreme events. A<sub>L</sub> is a 7-day mean over a box that is 36 deg&sup2; at its smallest, 132 deg&sup2; on Uri and the whole of CONUS on the three p90 cases, and coarsening a field that is about to be averaged over an area that size barely moves the average. Resolution <em>would</em> matter for a point maximum, a spatial percentile or a precipitation extreme; it does not matter for this index. <b>The two mild rungs carry an error bar comparable to their own gap.</b> p90 2024-08-02's gap is +0.01 K, the same order as the discretisation term, so "CFS was exactly right there" is not a precise result.</p>
+
+  <p class="body wide">The spread between four cycles six hours apart is itself worth noticing: the Pacific Northwest runs &minus;2.03 to +3.42 K and Elliott &minus;10.74 to +3.93 K. That is the lagged ensemble's own spread at S2S lead. Do not read a single cycle as "what CFS said".</p>
+
+  <div class="gridfigs">
+    <figure><img src="DATA" alt="CFSv2 and walker trajectories for Southwest Heat Wave"><figcaption><b>Southwest.</b> A<sub>L</sub> against lead for every branch the run rolled: killed lineages grey, the 64 survivors coloured, vertical lines at the resampling barriers, the shaded interval the 7-day verification window, the observation red and the four CFSv2 members black dashed.</figcaption></figure>
+    <figure><img src="DATA" alt="CFSv2 and walker trajectories for California Heat Wave"><figcaption><b>California.</b> CFS mean +2.41 K, best member +3.68 K, against an observation of +4.71 K. The closest CFS comes on any of the six extreme events.</figcaption></figure>
+    <figure><img src="DATA" alt="CFSv2 and walker trajectories for Winter Storm Elliott"><figcaption><b>Elliott.</b> The four CFS cycles span &minus;10.74 to +3.93 K, a 14.7 K spread between initialisations six hours apart, with a mean of &minus;2.81 K against an observed &minus;14.42 K.</figcaption></figure>
+    <figure><img src="DATA" alt="CFSv2 and walker trajectories for Winter Storm Uri"><figcaption><b>Uri.</b> CFS mean +0.54 K, on the wrong side of climatology for a freeze that verified at &minus;7.40 K; its best member reaches &minus;3.86 K.</figcaption></figure>
+    <figure><img src="DATA" alt="CFSv2 and walker trajectories for South-Central Heat Dome"><figcaption><b>South-Central.</b> CFS mean &minus;0.14 K against an observed +5.73 K.</figcaption></figure>
+    <figure><img src="DATA" alt="CFSv2 and walker trajectories for Pacific Northwest Heat Dome"><figcaption><b>Pacific Northwest.</b> CFS mean +0.30 K, a lower bar than GenCast direct sampling's own +2.46 K, with the AI+RES walker mean at +8.24 K against an observed +7.72 K.</figcaption></figure>
+    <figure><img src="DATA" alt="CFSv2 and walker trajectories for The Nationwide Warm Spell"><figcaption><b>p90 2025-12-24.</b> The exception to the mild-rung pattern: a +3.26 K CONUS-mean event that CFS misses by 4.6 K, with its ensemble mean on the <em>wrong side</em> of climatology at &minus;1.35 K.</figcaption></figure>
+    <figure><img src="DATA" alt="CFSv2 and walker trajectories for The Normal-Day Test"><figcaption><b>p90 2024-08-02.</b> CFS mean +1.05 K against an observed +1.06 K, and 2 of 4 members reach it. Read with the ~0.1 K discretisation error bar, not as an exact hit.</figcaption></figure>
+    <figure><img src="DATA" alt="CFSv2 and walker trajectories for The Below-Median Day"><figcaption><b>p90 2023-11-07.</b> CFS mean +0.99 K against an observed +0.21 K, and 3 of 4 members reach it - the best CFS does anywhere on the slate, on the mildest event on the slate.</figcaption></figure>
+  </div>
+
+  <h3><span class="panelno">Panel 10</span>The attribution control</h3>
+  <p class="src"><b>source</b> <code>figures/aires/PNW_HeatDome_2021/aires_exceedance_PNW_HeatDome_2021_persist.png</code>, <code>figures/aires/PNW_HeatDome_2021/aires_walkers_PNW_HeatDome_2021_persist.png</code>, <code>figures/aires/PNW_HeatDome_2021/aires_diagnostics_PNW_HeatDome_2021_persist.png</code> &middot; from <code>runs/aires/PNW_HeatDome_2021/res/persist/compare.json</code>, <code>runs/aires/PNW_HeatDome_2021/res/pilot/compare.json</code></p>
+
+  <p class="body wide">Same walkers, same resampling, same C<sub>k</sub> schedule, same seeds. The only thing swapped is the score function, from FourCastNet 3 to persistence, which asks "who is hottest right now" instead of "who is heading for the event".</p>
+
+  <div class="record">
+    <div class="cell"><span class="k">FCN3-scored AI+RES</span><span class="v big res">42/64</span><span class="note">max +10.29 K, weighted P = 0.0539</span></div>
+    <div class="cell"><span class="k">persistence-scored control</span><span class="v big obs">0/64</span><span class="note">max +7.33 K, nothing reaches +7.72 K</span></div>
+    <div class="cell"><span class="k">control &sum;p<sub>i</sub></span><span class="v big obs">8.75</span><span class="note">against 0.5684 on the scored run</span></div>
+    <div class="cell"><span class="k">control weight ESS</span><span class="v big obs">1.01 / 64</span><span class="note">3 of 64 founders survive</span></div>
+  </div>
+
+  <p class="body wide">The control is not merely worse; it is <b>degenerate</b>, and that is itself the point. Its weights span 0.013 to 869, its per-step ESS/N falls to 0.04 and 0.02 at steps 3 and 4 with maximum multiplicities of 39 and 49, and its weighted mean is +0.29 K, meaning the weights have cancelled the tilt entirely. The persistence selection is noise at this lead. Cloning on a skilful forecast of the event beats cloning on who is hottest now, and the entire gain is attributable to the score function.</p>
+
+  <div class="gridfigs">
+    <figure><img src="DATA" alt="Persistence-scored control exceedance curve"><figcaption><b>The control's exceedance curve.</b> Nothing reaches the observation, so the curve stops short of it. Compare against the Pacific Northwest curve in panel 5, drawn from the identical walkers.</figcaption></figure>
+    <figure><img src="DATA" alt="Per-walker anomaly and probability for the persistence control"><figcaption><b>The control, per walker.</b> The mass distribution shows the degeneracy directly: a handful of enormous weights against a population that resampling pushed nowhere useful.</figcaption></figure>
+  </div>
+
+  <figure><img src="DATA" alt="Run health for the persistence control"><figcaption><b>The control's run health.</b> &sum;p<sub>i</sub> = 8.7497 and a weight ESS of 1.01 out of 64. This is what the diagnostics look like when the score function carries no information, and it is the reference against which the productions' checks of 0.568 to 1.769 should be read.</figcaption></figure>
+</section>
+
+<!-- ================= SECTION E ================= -->
+<section id="e">
+  <div class="sec-head"><span class="rungtag">Section E</span><h2>Space, and how far this can be pushed</h2></div>
+
+  <p class="lede">A box mean can be attained by a field with the wrong structure, and a 21-day rollout can stop being an atmosphere without saying so. Both are measured here.</p>
+
+  <h3><span class="panelno">Panel 11</span>Does a walker that scores the event look like the event</h3>
+  <p class="src"><b>source</b> <code>figures/aires/&lt;event&gt;/aires_map_compare_&lt;event&gt;_pilot.png</code>, <code>figures/aires/PNW_HeatDome_2021/aires_map_walk_PNW_HeatDome_2021_pilot.png</code>, <code>figures/aires/PNW_HeatDome_2021/aires_map_error_PNW_HeatDome_2021_pilot.png</code>, <code>figures/aires/PNW_HeatDome_2021/aires_map_spread_PNW_HeatDome_2021_pilot.png</code> &middot; from <code>aires/amaps.py</code> through <code>aires/aindex.py::field</code></p>
+
+  <p class="body wide">Every panel below is the same reduction through the same <code>aindex.field</code> call on the same 105 &times; 237 grid, so walkers, direct members and ERA5 truth are directly subtractable. The area mean of each field over the black box <em>is</em> A<sub>L</sub>. These panels answer what the scalar cannot: whether a walker that reproduces the number also reproduces the pattern, or is a displaced ridge that happens to average the same.</p>
+
+  <div class="gridfigs">
+    <figure><img src="DATA" alt="AI+RES map comparison for Southwest Heat Wave"><figcaption><b>Southwest.</b> ERA5 truth is titled in red; the remaining panels are the AI+RES population and each available direct baseline. One baseline row here, per panel 1.</figcaption></figure>
+    <figure><img src="DATA" alt="AI+RES map comparison for California Heat Wave"><figcaption><b>California.</b> One baseline row.</figcaption></figure>
+    <figure><img src="DATA" alt="AI+RES map comparison for Winter Storm Elliott"><figcaption><b>Elliott.</b> One baseline row. The cold layer is signed throughout: the extreme tail of A<sub>L</sub> is the negative side.</figcaption></figure>
+    <figure><img src="DATA" alt="AI+RES map comparison for Winter Storm Uri"><figcaption><b>Uri.</b> All three baseline rows.</figcaption></figure>
+    <figure><img src="DATA" alt="AI+RES map comparison for South-Central Heat Dome"><figcaption><b>South-Central.</b> One baseline row, and it is the Gate 3 walkers promoted into the direct-GenCast slot: this event has no xres cube.</figcaption></figure>
+    <figure><img src="DATA" alt="AI+RES map comparison for Pacific Northwest Heat Dome"><figcaption><b>Pacific Northwest.</b> All three baseline rows. The observed maximum reached about 52&deg;N into British Columbia, outside the 50&deg;N crop, so this box sees the southern two thirds of the event.</figcaption></figure>
+    <figure><img src="DATA" alt="AI+RES map comparison for The Nationwide Warm Spell"><figcaption><b>p90 2025-12-24.</b> Two baseline rows. The box here is CONUS itself.</figcaption></figure>
+    <figure><img src="DATA" alt="AI+RES map comparison for The Normal-Day Test"><figcaption><b>p90 2024-08-02.</b> Two baseline rows, box CONUS.</figcaption></figure>
+    <figure><img src="DATA" alt="AI+RES map comparison for The Below-Median Day"><figcaption><b>p90 2023-11-07.</b> Two baseline rows, box CONUS.</figcaption></figure>
+  </div>
+
+  <p class="body wide">Three further map reductions, shown for the Pacific Northwest as the exemplar since every event carries the same set:</p>
+
+  <div class="gridfigs">
+    <figure><img src="DATA" alt="Walker composite maps for the Pacific Northwest Heat Dome"><figcaption><b>Walker composites.</b> What the population looks like as a field, weighted and unweighted, against the truth.</figcaption></figure>
+    <figure><img src="DATA" alt="Per-member error maps for the Pacific Northwest Heat Dome"><figcaption><b>Error maps.</b> Each field minus the ERA5 truth on the shared grid, so a displaced ridge shows as a dipole rather than as a small mean error.</figcaption></figure>
+  </div>
+
+  <figure><img src="DATA" alt="Ensemble spread maps for the Pacific Northwest Heat Dome"><figcaption><b>Spread maps.</b> Where the AI+RES population and each direct ensemble disagree with themselves, on one shared scale. Resampling narrows the population by construction, so a spread map of walkers is not comparable to a spread map of independent members without the weights.</figcaption></figure>
+
+  <h3><span class="panelno">Panel 12</span>Spatial tail probabilities</h3>
+  <p class="src"><b>source</b> <code>figures/aires/&lt;event&gt;/aires_pdf_box_&lt;event&gt;_pilot.png</code>, <code>figures/aires/&lt;event&gt;/aires_pdf_conus_&lt;event&gt;_pilot.png</code> where the box is CONUS &middot; from <code>aires/apdfs.py</code></p>
+
+  <p class="body wide">Per-grid-point exceedance against ERA5's own, at a threshold derived from each event's observed field. Six events are scored over their event-centered box; the three p90 cases have CONUS as their registered box, so their box panel and their CONUS panel are the same figure. p90 2024-08-02's is in section C, where it is the no-harm evidence.</p>
+
+  <div class="callout"><p><b>Carry Uri's caveat onto its panel.</b> Uri's weight ESS is 2.24 of 64, so its spatial PDF is effectively two walkers wide and should be read as <em>shape</em>, not level. On its per-grid-point tail, ERA5 truth gives P(point &le; &minus;15.46 K) = 0.0630 where all three direct ensembles give exactly 0.0000 and AI+RES gives 0.00003 weighted and 0.0030 unweighted. AI+RES is the only method that puts any mass there at all, and it is still far short of what ERA5 did.</p></div>
+
+  <div class="gridfigs">
+    <figure><img src="DATA" alt="Spatial tail probabilities for Southwest Heat Wave"><figcaption><b>Southwest</b>, event box.</figcaption></figure>
+    <figure><img src="DATA" alt="Spatial tail probabilities for California Heat Wave"><figcaption><b>California</b>, event box.</figcaption></figure>
+    <figure><img src="DATA" alt="Spatial tail probabilities for Winter Storm Elliott"><figcaption><b>Elliott</b>, event box, cold tail.</figcaption></figure>
+    <figure><img src="DATA" alt="Spatial tail probabilities for Winter Storm Uri"><figcaption><b>Uri</b>, event box, cold tail. Shape, not level - see the caveat above.</figcaption></figure>
+    <figure><img src="DATA" alt="Spatial tail probabilities for South-Central Heat Dome"><figcaption><b>South-Central</b>, event box.</figcaption></figure>
+    <figure><img src="DATA" alt="Spatial tail probabilities for Pacific Northwest Heat Dome"><figcaption><b>Pacific Northwest</b>, event box.</figcaption></figure>
+    <figure><img src="DATA" alt="Spatial tail probabilities for The Nationwide Warm Spell"><figcaption><b>p90 2025-12-24</b>, CONUS, which is also this event's registered box.</figcaption></figure>
+    <figure><img src="DATA" alt="Spatial tail probabilities for The Below-Median Day"><figcaption><b>p90 2023-11-07</b>, CONUS. At the derived +3.697 K threshold ERA5 gives 0.0496 and direct GenCast 0.1629, while AI+RES gives 0.1976 weighted and 0.4131 unweighted. Weighted is close to direct, but <em>both models</em> are about 3&times; heavier than the observed field in that tail, which is a forecast-bias statement about the event rather than an AI+RES one.</figcaption></figure>
+  </div>
+
+  <h3><span class="panelno">Panel 13</span>How far the walker and the scorer can be rolled</h3>
+  <p class="src"><b>source</b> <code>figures/astab/stability.png</code>, <code>figures/astab/ensemble_PNW_HeatDome_2021_wk08.png</code> &middot; from <code>runs/astab/stability.csv</code> via <code>astab.reduce</code>, <code>runs/astab/ensemble_PNW_HeatDome_2021_wk08.json</code></p>
+
+  <p class="body wide">The source deck's lead-time page runs from day 14 to day 27 and says nothing about why it stops there. This experiment measured the limit. Two events, three models, nine leads from week 4 to week 20, out to 140 days. Verdicts come from the reduce step, where the thresholds are applied, and never from the raw status column: taking the first failing row per chain instead reports a GenCast failure at day 24 of the week-4 chain.</p>
+
+  <div class="record">
+    <div class="cell"><span class="k">GenCast walker</span><span class="v big">week 6 (42 d)</span><span class="note">every chain clean; tested at weeks 4, 6, 8, 10</span></div>
+    <div class="cell"><span class="k">FourCastNet 3 scorer</span><span class="v big">week 14 (98 d)</span><span class="note">every rollout of both arms; tested to week 20</span></div>
+    <div class="cell"><span class="k">the source deck's lead axis</span><span class="v big good">days 14 to 27</span><span class="note">entirely inside the measured stable range</span></div>
+    <div class="cell"><span class="k">week-8 ensemble divergence</span><span class="v big">9 of 100</span><span class="note">by 56 d; 95% Wilson 5 to 16%</span></div>
+  </div>
+
+  <p class="body wide">GenCast diverged on 3 of the 8 chains, all of them past week 6: both chains at week 8, at 45 and 51 days, and one of the two at week 10, at 30 days. It is not monotonic in lead, which is why the verdict is week 6 and not the deepest clean chain. FCN3 diverges only at week 16 and beyond, on the Pacific Northwest chains, while every Uri rollout is clean to 140 days. The consequence for a lead-time sweep of this experiment is a useful one: <b>every lead the source deck plots is a budget question rather than a physics question</b>, since the walker is stable across the whole of it.</p>
+
+  <div class="callout"><p><b>The result worth featuring here is a diagnostic finding, not the limit itself.</b> A calibrated CONUS-only diagnostic panel caught <b>1 of GenCast's 3 divergences</b>. A crude global all-variable bounds check caught <b>3 of 3</b>. Two chains held a textbook CONUS troposphere on top of a 1211 K polar stratosphere, and A<sub>L</sub> is a CONUS box mean that would have cloned those walkers happily. Any long-lead production must gate on the global state, not on the observable.</p></div>
+
+  <div class="gridfigs">
+    <figure><img src="DATA" alt="Lead-time stability of the walker and the scorer"><figcaption><b>The stability sweep.</b> Per-chain diagnostics against measured bands, for the GenCast walker and both FCN3 arms, at weeks 4 through 20. A (model, week) pair the walker never rolled to the peak is dropped rather than counted clean, so three days of walker rollout at an FCN3-extension lead cannot read as a clean 140-day chain.</figcaption></figure>
+    <figure><img src="DATA" alt="Week-8 GenCast ensemble divergence"><figcaption><b>The week-8 ensemble follow-up.</b> 100 GenCast member chains from one ERA5 initialisation, each a distinct diffusion draw. 9 diverged by 56 days, none before 39 days, and 100% were clean through 36 days. Every divergence was loud, and all of them started on negative 850 hPa specific humidity.</figcaption></figure>
+  </div>
+</section>
+
+<!-- ================= SECTION F ================= -->
+<section id="f">
+  <div class="sec-head"><span class="rungtag">Section F</span><h2>What this does not say</h2></div>
+
+  <p class="lede">This page is a page, not a footnote. The nine events answer one question well and several adjacent questions not at all, and the difference is structural rather than a matter of sample size that more compute would fix.</p>
+
+  <h3><span class="panelno">Panel 14</span>The limits</h3>
+  <p class="src"><b>source</b> no figure &middot; numbers from <code>runs/aires/&lt;event&gt;/res/&lt;tag&gt;/compare.json</code>, <code>runs/aires/aires_walkers.csv</code>, <code>runs/xres/0p25/week3/cache/HurricaneIan_2022_cube.nc</code></p>
+
+  <p class="body wide"><b>The unit of analysis is the event, and there are nine of them.</b> A hindcast verification climatology's unit is the (date, gridcell) sample and it has between 2.3&times;10<sup>5</sup> and 7.0&times;10<sup>5</sup> of them; skill is a contingency table summed over that population and every stratification is a partition of it. Nine events are not a partition of anything. Worse, the 64 walkers of one event are not 64 samples of that kind: they are one importance-weighted estimate of one tail probability, and their weight ESS is 5.68 for the Pacific Northwest, 2.24 for Uri, 7.24 for the warm anchor and 1.01 for the control. The honest count is nine independent probability estimates, several resting on the equivalent of two to seven independent pieces of information.</p>
+
+  <ul class="body wide">
+    <li><b>No ROC curve and no AUC.</b> Nine events give a nine-point ROC whose AUC has a standard error near 0.2, which cannot distinguish 0.5 from 0.9. Reaching a precision where differences of 0.01 to 0.05 are meaningful needs of order 10<sup>3</sup> events, which at ~64 H100-hours each is of order 6&times;10<sup>4</sup> H100-hours. That is a design mismatch, not a funding gap: AI+RES is expensive precisely because it does something a bulk-skill metric does not need.</li>
+    <li><b>No per-gridcell skill map of any kind</b>, for the same reason from the other side: a per-cell frequency needs many dates per cell, and this experiment has one initialisation per event. A per-cell count over nine events is 0, 1/9 or 2/9.</li>
+    <li><b>No by-year, by-season or per-market panel.</b> The nine events span 2020 to 2025 and three seasons, with <em>zero</em> in spring. Five events per season is twenty events, roughly 1,280 H100-hours, and would still leave binomial intervals spanning about 0.2 to 0.8. The boxes are event-centered windows, 6&deg; &times; 6&deg; on five of the six named events, rather than service territories, and A<sub>L</sub> is a box mean, so re-boxing is a full re-run of every event.</li>
+    <li><b>No calibration in the bulk of the distribution, and one outright wrong answer.</b> This is a measured property of the estimator and not a sample-size limit: on p90 2023-11-07, at &minus;0.97 &sigma;, it returned <b>0.5827</b> against a true <b>0.875</b> from direct sampling's 21/24, and 0.5827 is exactly that run's own normalization check. It has no resolution at a target the tilt has already carried the whole population past, it gives no sign of it from inside the run, and the run's health metrics were the best on the slate. A verification deck's central region, where the base rate is around a quarter, is exactly where this method is worst.</li>
+    <li><b>No claim of unbiasedness.</b> The design says so explicitly, because a large same-model direct-sampling reference was descoped. What the experiment supports is that resampling efficiently reaches the tail of GenCast's forecast distribution and recovers observed extremes a 24-member ensemble misses. Every probability here is unbiased for P <em>as GenCast defines it</em>; if the model's own conditional tail is wrong, every stream inherits that and no amount of reweighting reveals it.</li>
+    <li><b>Nothing about precipitation or wind at this lead.</b> Hurricanes were evaluated and rejected: on its registered 850 hPa wind-speed metric, Hurricane Ian puts the observation at <b>&minus;0.60 &sigma;</b>, below the ensemble mean, with 17 of 24 direct members already exceeding it. A 7-day-mean box-mean wind washes out a one-day landfall. That is a property of the reduction, not a tuning problem.</li>
+    <li><b>The nine events are not a sample of anything.</b> They were selected because they happened and because they were extreme. Treating them as a draw would be selection-biased in exactly the direction that flatters the method.</li>
+    <li><b>No interval on any AI+RES probability.</b> A founder-lineage bootstrap is the obvious next statistic and it was deliberately not built: only 11 to 17 of 64 founders survive per run, the weights are not exchangeable, and whether Z is recomputed per draw and how the tied mass blocks are handled are both open. Inventing that here is the single highest-risk act available, and section C is the standing proof that this experiment can fail silently and plausibly.</li>
+  </ul>
+
+  <p class="body wide">Two extensions are specified and unbuilt, both requiring GPU time. A <b>lead-time sweep</b> of 3 events &times; 4 leads at days 14, 18, 24 and 27 costs about 768 H100-hours and would turn panel 13 from a stability statement into a skill statement; it is inside the walker's measured stable range. <b>Extending the direct-sampling reference</b> from 24 to 96 members costs about 24 H100-hours per event, roughly 216 for all nine, and is the cheapest single upgrade available: it widens the range over which the weighted curve can be checked at all, which is what panels 5 and 6 rest on.</p>
+</section>
+
+<div class="foot">
+  <h3>Provenance</h3>
+  <p>Every figure and every number on this page comes from files already on disk under <code>runs/aires/</code> and <code>runs/astab/</code>. The three new figures are drawn by <code>aires/ainsights.py</code>; the rest were written by <code>aires/aplots.py</code>, <code>aires/awalkers.py</code>, <code>aires/akde.py</code>, <code>aires/amaps.py</code>, <code>aires/apdfs.py</code> and <code>astab/plots.py</code> and are collected, not regenerated. <code>scripts/embed_insights.py</code> inlines each one as a WebP data URI, because the Artifact content policy blocks every external host.</p>
+  <p>The &sigma;-depths are derived from each run's own <code>compare.json</code> and <code>ds_baseline.json</code> rather than quoted, the walker masses are <code>aires.alift.walker_mass</code> imported rather than reimplemented, the only interval anywhere is <code>aires.aceiling.wilson</code> applied to a direct-sampling count, and the stability verdict comes from <code>astab.reduce</code>. Contract tests for all four are in <code>aires/tests/test_ainsights.py</code>.</p>
+  <p>Cost of what is shown: about 232 H100-hours for wave 1 (five runs plus one gate) and about 318 for wave 2 (five productions plus one gate), at roughly 64 H100-hours and 8 hours of wall time on one 8&times;H100 node per production.</p>
+</div>
+
+</div>

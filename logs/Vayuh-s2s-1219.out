@@ -1,0 +1,103 @@
+Host: nucla3m-a3meganodeset-0
+Start: Thu Sep 17 20:01:52 UTC 2026
+GPU 0: NVIDIA H100 80GB HBM3 (UUID: GPU-37e52afa-581c-7406-4e75-b6208674ab27)
+GPU 1: NVIDIA H100 80GB HBM3 (UUID: GPU-062a9eff-bbc8-a8df-45eb-360eaf6cade6)
+GPU 2: NVIDIA H100 80GB HBM3 (UUID: GPU-37414005-a1c1-39ec-78e0-975e3800ac11)
+GPU 3: NVIDIA H100 80GB HBM3 (UUID: GPU-d42878e7-5278-edf8-1b92-23864c2f21b2)
+GPU 4: NVIDIA H100 80GB HBM3 (UUID: GPU-199a84b2-d15c-9b6a-e818-f9e3e82d1dc6)
+GPU 5: NVIDIA H100 80GB HBM3 (UUID: GPU-ab698064-cb49-4739-46dc-89163740ef28)
+GPU 6: NVIDIA H100 80GB HBM3 (UUID: GPU-7fc0a419-0766-cec9-6944-a48f1c1ba8b7)
+GPU 7: NVIDIA H100 80GB HBM3 (UUID: GPU-5b93631f-846d-8229-ab6a-67bbb500d938)
+acal case 1 (rung>=3): event=e12_c3_20221121 tag=acal N=32 M=6
+AI+RES acal - e12_c3_20221121  (init 2022-10-31, peak 2022-11-21, metric t2m_anom)
+e12_c3_20221121: primary box CONUS (24-50N, 125W-66W)
+    the whole verification window; what Gate 2 used
+
+  N walkers        32
+  score backend    fcn3   M = 6
+  tail             LOW (cold event: clone the most negative A_L)
+  C_k              0, 1, 1.4, 1.8, 2 at 3 d, 6 d, 9 d, 12 d, 15 d
+  legs
+    1: 0 -> 3 d, segments [1], C = 0
+    2: 3 -> 6 d, segments [2], C = 1
+    3: 6 -> 9 d, segments [3], C = 1.4
+    4: 9 -> 12 d, segments [4], C = 1.8
+    5: 12 -> 15 d, segments [5], C = 2
+    6: 15 -> 21 d, segments [6, 7], carry to the horizon (no resampling)
+
+  prerequisites
+    walker init frames  OK   /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/xres/0p25/week3/inputs/e12_c3_20221121_inputs.nc
+    derived calibration OK   /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/aires/calib/derived_calib.nc
+    xres reference cube absent   /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/xres/0p25/week3/cache/e12_c3_20221121_cube.nc   (physical check on the first segment; not required)
+
+  cached            32/224 walker segments, 0/128 score cubes (32 states resident)
+
+  budget            walk 1,152 GenCast steps ~16.6 GPU-h (~125 min over 8 GPUs)
+                    score 32,256 FCN3 steps ~12.5 GPU-h (~94 min over 8 GPUs)
+                    total ~29.2 H100-h, ~3.6 h wall on one node
+
+  disk              states 46 GB peak (3 segments resident x 32 x 477 MB, --keep-states 2), diagnostics 8 GB, score cubes 1 GB
+                    ~55 GB needed, 475 GB free
+
+  configuration frozen at /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/aires/e12_c3_20221121/res/acal/run.json
+
+  READY: yes
+--- res: Thu Sep 17 20:01:55 UTC 2026 ---
+[res] e12_c3_20221121 tag=acal N=32 M=6 backend=fcn3 C=(0.0, 1.0, 1.4, 1.8, 2.0)
+[res] host=nucla3m-a3meganodeset-0 shards=8 visible GPUs=8 seed=20260819
+  [score] leg 1 (skipped(C=0)): theta over the box mean +2.186, sd 0.220
+  [dmc] step 1: C=0.00 R=1.0000 ESS=32.0/32 killed=0 max_mult=1
+  [walk] leg 2: 32/32 segment(s) to roll (3 -> 6 d)
+  [walk-leg02] attempt 1/3: 8 shard(s)
+  [walk] leg 2: pool finished in 22.0 min
+  [score] leg 2: 32/32 forecast(s) to run (6 x 60 x 6 h from 6 d to the peak; 11,520 FCN3 steps)
+  [score-leg02] attempt 1/3: 8 shard(s)
+  [score] leg 2: pool finished in 39.3 min
+  [score] leg 2 (fcn3): theta over the box mean +0.434, sd 0.810
+  [dmc] step 2: C=1.00 R=1.5971 ESS=15.1/32 killed=12 max_mult=5
+  [walk] pruned walker states at segments <= 1 (15.1 GB freed; --keep-states 2)
+  [walk] leg 3: 32/32 segment(s) to roll (6 -> 9 d)
+  [walk-leg03] attempt 1/3: 8 shard(s)
+  [walk] leg 3: pool finished in 19.9 min
+  [score] leg 3: 32/32 forecast(s) to run (6 x 48 x 6 h from 9 d to the peak; 9,216 FCN3 steps)
+  [score-leg03] attempt 1/3: 8 shard(s)
+  [score] leg 3: pool finished in 29.5 min
+  [score] leg 3 (fcn3): theta over the box mean -0.055, sd 1.039
+  [dmc] step 3: C=1.40 R=0.9600 ESS=14.5/32 killed=13 max_mult=4
+  [walk] pruned walker states at segments <= 2 (15.1 GB freed; --keep-states 2)
+  [walk] leg 4: 32/32 segment(s) to roll (9 -> 12 d)
+  [walk-leg04] attempt 1/3: 8 shard(s)
+  [walk] leg 4: pool finished in 19.7 min
+  [score] leg 4: 32/32 forecast(s) to run (6 x 36 x 6 h from 12 d to the peak; 6,912 FCN3 steps)
+  [score-leg04] attempt 1/3: 8 shard(s)
+  [score] leg 4: pool finished in 23.1 min
+  [score] leg 4 (fcn3): theta over the box mean -1.100, sd 1.518
+  [dmc] step 4: C=1.80 R=0.5854 ESS=14.4/32 killed=10 max_mult=5
+  [walk] pruned walker states at segments <= 3 (15.1 GB freed; --keep-states 2)
+  [walk] leg 5: 32/32 segment(s) to roll (12 -> 15 d)
+  [walk-leg05] attempt 1/3: 8 shard(s)
+  [walk] leg 5: pool finished in 19.6 min
+  [score] leg 5: 32/32 forecast(s) to run (6 x 24 x 6 h from 15 d to the peak; 4,608 FCN3 steps)
+  [score-leg05] attempt 1/3: 8 shard(s)
+  [score] leg 5: pool finished in 16.7 min
+  [score] leg 5 (fcn3): theta over the box mean -1.519, sd 1.459
+  [dmc] step 5: C=2.00 R=0.4741 ESS=22.0/32 killed=8 max_mult=4
+  [walk] pruned walker states at segments <= 4 (15.1 GB freed; --keep-states 2)
+  [walk] leg 6: 64/64 segment(s) to roll (15 -> 21 d)
+  [walk-leg06] attempt 1/3: 8 shard(s)
+  [walk] leg 6: pool finished in 32.8 min
+
+  step   C_k      R_k     ESS  ESS/N  killed  max mult
+     1  0.00   1.0000   32.00   1.00       0         1
+     2  1.00   1.5971   15.08   0.47      12         5
+     3  1.40   0.9600   14.54   0.45      13         4
+     4  1.80   0.5854   14.39   0.45      10         5
+     5  2.00   0.4741   21.96   0.69       8         4
+  log Z = -0.8544   normalization check = 1.2689 (should be ~1)
+  founders surviving: 11/32
+
+[res] finished in 223.4 min -> /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/aires/e12_c3_20221121/res/acal/res_result.json
+[res] now reduce on the login node:
+  PYTHONPATH=. python -m aires.run_aires --stage ds --event e12_c3_20221121
+  PYTHONPATH=. python -m aires.run_aires --stage compare --event e12_c3_20221121 --tag acal
+End: Thu Sep 17 23:45:19 UTC 2026

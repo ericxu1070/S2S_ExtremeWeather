@@ -1,0 +1,14 @@
+Host: nucla3m-a3meganodeset-4  Start: Wed Aug 19 01:26:53 UTC 2026
+[diag] load_gencast kwargs: {'params_file': 'GenCast 0p25deg <2019.npz', 'res': 0.25}
+[model] ensemble 1 not a multiple of 8 devices -> using 8 members
+[model] serial infer on 8 device(s); ensemble=8 (8 sample(s), one at a time). task pressure levels: 13
+  [walker] grid-node channels: inputs 176 + targets 504 + forcings 24; 6 step(s) from 2021-06-07 00:00:00
+[diag] B walker(6-step batch) step 1: valid 2021-06-07 12:00:00  CONUS-mean t2m 292.426
+[diag] B walker(6-step batch) step 2: valid 2021-06-08 00:00:00  CONUS-mean t2m 298.672
+[diag] A xres  (21-day batch) step 1: valid 2021-06-07 12:00:00  CONUS-mean t2m 292.424
+[diag] A xres  (21-day batch) step 2: valid 2021-06-08 00:00:00  CONUS-mean t2m 298.678
+
+[diag] valid                 xres cube m0     A (21d batch)   B (walker batch)
+[diag] 2021-06-07 12:00:00       292.424         292.424            292.426
+[diag] 2021-06-08 00:00:00       298.672         298.678            298.672
+End: Wed Aug 19 01:35:38 UTC 2026

@@ -1,0 +1,5 @@
+[walk] host=nucla3m-a3meganodeset-4 shard 6/8: ['WinterStorm_Uri_2021@wk8 ']
+[walk] SMOKE: chains truncated to 1 segment(s). This does NOT reach the peak and produces no verdict - it exercises the loop.
+[walk] WinterStorm_Uri_2021@wk8 : 1 segment(s), 6 steps, init 2020-12-21 00:00:00 -> peak 2021-02-15 00:00:00
+[walk] WinterStorm_Uri_2021@wk8 : SMOKE complete (1 segment(s), lead 3 d of 56 d). Not checked against the peak - a truncated chain is not supposed to reach it.
+[walk] shard 6: 0 segment(s) rolled, 0 s total

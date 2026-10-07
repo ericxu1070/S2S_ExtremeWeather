@@ -1,0 +1,18 @@
+[compare] e11_h2_20220321 tag=acal: assembling 32 trajectories across the genealogy
+
+  DMC diagnostics
+  step   C_k      R_k     ESS  ESS/N  killed  max mult
+     1  0.00   1.0000   32.00   1.00       0         1
+     2  1.00   1.7050   12.43   0.39      16         7
+     3  1.40   0.6128   13.58   0.42      14         6
+     4  1.80   0.6303   17.67   0.55      10         4
+     5  2.00   0.6507   10.87   0.34      11         9
+  log Z = -0.8473   normalization check = 1.3473 (should be ~1)
+  founders surviving: 8/32
+
+  realized A_L over the 32 final walkers (weighted by exp(-V_K), which is what makes the estimate unbiased)
+    unweighted   mean  +0.909  sd 0.509  range [-0.71, +2.03]
+    weighted     mean  -0.297   (weights span 0.0329 .. 69.5)
+
+[compare] -> /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/aires/e11_h2_20220321/res/acal/compare.json
+[compare] -> /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/aires/e11_h2_20220321/res/acal/compare_curve.csv

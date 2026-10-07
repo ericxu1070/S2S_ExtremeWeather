@@ -1,0 +1,1 @@
+/var/spool/slurmd/job01213/slurm_script: line 86: 254588 Killed                  python -m aires.run_aires --stage res --event "$EVENT" --tag "$TAG"

@@ -1,0 +1,48 @@
+
+[prep] ---- PNW_HeatDome_2021 (t2m_anom) ----
+[prep] PNW_HeatDome_2021: adapter IC cached -> /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/aires/gate2/ic/PNW_HeatDome_2021_adapter_ic.nc
+
+[prep] ---- HurricaneIan_2022 (u850_speed) ----
+[prep] HurricaneIan_2022: calibration = aires.calibrate fit on 90 ERA5 frames
+[prep] HurricaneIan_2022: 69/72 channels bit-identical to the native IC
+[prep]   u100m  rmse 0.5688  bias -0.0114  absmax 6.506
+[prep]   v100m  rmse 0.5585  bias +0.0494  absmax 5.384
+[prep]   tcwv   rmse 1.0129  bias -0.1372  absmax 8.723
+[prep] wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/aires/gate2/ic/HurricaneIan_2022_adapter_ic.nc (299 MB)
+[prep] wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/aires/gate2/scores/HurricaneIan_2022_ic_diff.json
+
+[prep] ---- WinterStorm_Uri_2021 (t2m_anom) ----
+[prep] WinterStorm_Uri_2021: calibration = aires.calibrate fit on 90 ERA5 frames
+[prep] WinterStorm_Uri_2021: 69/72 channels bit-identical to the native IC
+[prep]   u100m  rmse 0.5512  bias -0.0227  absmax 5.825
+[prep]   v100m  rmse 0.5338  bias +0.0305  absmax 4.960
+[prep]   tcwv   rmse 1.0617  bias +0.1406  absmax 7.429
+[prep] wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/aires/gate2/ic/WinterStorm_Uri_2021_adapter_ic.nc (299 MB)
+[prep] wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/aires/gate2/scores/WinterStorm_Uri_2021_ic_diff.json
+
+[prep] ---- p90_20231107 (t2m_anom) ----
+[prep] p90_20231107: calibration = aires.calibrate fit on 90 ERA5 frames
+[prep] p90_20231107: 69/72 channels bit-identical to the native IC
+[prep]   u100m  rmse 0.5431  bias -0.0300  absmax 6.375
+[prep]   v100m  rmse 0.5036  bias +0.0040  absmax 5.269
+[prep]   tcwv   rmse 0.9358  bias -0.0305  absmax 6.888
+[prep] wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/aires/gate2/ic/p90_20231107_adapter_ic.nc (299 MB)
+[prep] wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/aires/gate2/scores/p90_20231107_ic_diff.json
+
+[prep] ---- p90_20240802 (t2m_anom) ----
+[prep] p90_20240802: calibration = aires.calibrate fit on 90 ERA5 frames
+[prep] p90_20240802: 69/72 channels bit-identical to the native IC
+[prep]   u100m  rmse 0.5985  bias -0.0370  absmax 6.675
+[prep]   v100m  rmse 0.5987  bias +0.0595  absmax 5.750
+[prep]   tcwv   rmse 0.9600  bias -0.0267  absmax 7.560
+[prep] wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/aires/gate2/ic/p90_20240802_adapter_ic.nc (299 MB)
+[prep] wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/aires/gate2/scores/p90_20240802_ic_diff.json
+
+[prep] ---- p90_20251224 (t2m_anom) ----
+[prep] p90_20251224: calibration = aires.calibrate fit on 90 ERA5 frames
+[prep] p90_20251224: 69/72 channels bit-identical to the native IC
+[prep]   u100m  rmse 0.5308  bias -0.0346  absmax 5.082
+[prep]   v100m  rmse 0.5307  bias -0.0007  absmax 5.024
+[prep]   tcwv   rmse 0.8488  bias +0.0473  absmax 6.371
+[prep] wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/aires/gate2/ic/p90_20251224_adapter_ic.nc (299 MB)
+[prep] wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/aires/gate2/scores/p90_20251224_ic_diff.json

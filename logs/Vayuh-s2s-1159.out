@@ -1,0 +1,32 @@
+Host: nucla3m-a3meganodeset-4  Start: Wed Aug 19 01:37:06 UTC 2026
+[diag] load_gencast kwargs: {'params_file': 'GenCast 0p25deg <2019.npz', 'res': 0.25}
+[model] ensemble 1 not a multiple of 8 devices -> using 8 members
+[model] serial infer on 8 device(s); ensemble=8 (8 sample(s), one at a time). task pressure levels: 13
+  [walker] grid-node channels: inputs 176 + targets 504 + forcings 24; 6 step(s) from 2021-06-07 00:00:00
+[diag] B walker batch, xres rng step 1: valid 2021-06-07 12:00:00  CONUS-mean t2m 292.420
+[diag] B walker batch, xres rng step 2: valid 2021-06-08 00:00:00  CONUS-mean t2m 298.673
+[diag] B walker batch, xres rng step 3: valid 2021-06-08 12:00:00  CONUS-mean t2m 292.750
+[diag] B walker batch, xres rng step 4: valid 2021-06-09 00:00:00  CONUS-mean t2m 298.554
+[diag] B walker batch, xres rng step 5: valid 2021-06-09 12:00:00  CONUS-mean t2m 292.373
+[diag] B walker batch, xres rng step 6: valid 2021-06-10 00:00:00  CONUS-mean t2m 298.724
+[diag] C walker batch, segment_key(1,1) step 1: valid 2021-06-07 12:00:00  CONUS-mean t2m 292.512
+[diag] C walker batch, segment_key(1,1) step 2: valid 2021-06-08 00:00:00  CONUS-mean t2m 298.567
+[diag] C walker batch, segment_key(1,1) step 3: valid 2021-06-08 12:00:00  CONUS-mean t2m 292.601
+[diag] C walker batch, segment_key(1,1) step 4: valid 2021-06-09 00:00:00  CONUS-mean t2m 298.574
+[diag] C walker batch, segment_key(1,1) step 5: valid 2021-06-09 12:00:00  CONUS-mean t2m 292.474
+[diag] C walker batch, segment_key(1,1) step 6: valid 2021-06-10 00:00:00  CONUS-mean t2m 298.772
+[diag] A xres 21-day batch, xres rng step 1: valid 2021-06-07 12:00:00  CONUS-mean t2m 292.422
+[diag] A xres 21-day batch, xres rng step 2: valid 2021-06-08 00:00:00  CONUS-mean t2m 298.672
+[diag] A xres 21-day batch, xres rng step 3: valid 2021-06-08 12:00:00  CONUS-mean t2m 292.753
+[diag] A xres 21-day batch, xres rng step 4: valid 2021-06-09 00:00:00  CONUS-mean t2m 298.550
+[diag] A xres 21-day batch, xres rng step 5: valid 2021-06-09 12:00:00  CONUS-mean t2m 292.382
+[diag] A xres 21-day batch, xres rng step 6: valid 2021-06-10 00:00:00  CONUS-mean t2m 298.744
+
+[diag] valid                 xres cube m0   A (21d batch)  B (walker,xres rng)  C (walker,seg key)
+[diag] 2021-06-07 12:00:00       292.424         292.422              292.420            292.512
+[diag] 2021-06-08 00:00:00       298.672         298.672              298.673            298.567
+[diag] 2021-06-08 12:00:00       292.751         292.753              292.750            292.601
+[diag] 2021-06-09 00:00:00       298.554         298.550              298.554            298.574
+[diag] 2021-06-09 12:00:00       292.386         292.382              292.373            292.474
+[diag] 2021-06-10 00:00:00       298.733         298.744              298.724            298.772
+End: Wed Aug 19 01:52:19 UTC 2026

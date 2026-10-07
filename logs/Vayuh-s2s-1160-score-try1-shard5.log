@@ -1,0 +1,85 @@
+[check] torch-harmonics DISCO CUDA extension: PRESENT -> FCN3 runs bf16
+[score] host=nucla3m-a3meganodeset-4 shard 5/8: 10 task(s), 0 cached, 10 to run
+[score] calibration = aires.calibrate fit on 90 ERA5 frames
+[model] loaded cache fcn3_model_2.11.0+cu128_th0.8.1_a305be3ecd79.pt in 17.0 s
+[score] w01@3d: 6 member(s) x 72 x 6 h from 2021-06-10 00:00:00 -> peak 2021-06-28  (seed 1810000901, vars ['t2m'])
+[32m2026-08-19 02:57:58.310[0m | [1mINFO    [0m | [36mearth2studio.run[0m:[36mensemble[0m:[36m400[0m - [1mRunning ensemble inference![0m
+[32m2026-08-19 02:57:58.311[0m | [1mINFO    [0m | [36mearth2studio.run[0m:[36mensemble[0m:[36m407[0m - [1mInference device: cuda[0m
+[32m2026-08-19 02:58:06.612[0m | [32m[1mSUCCESS [0m | [36mearth2studio.run[0m:[36mensemble[0m:[36m428[0m - [32m[1mFetched data from GenCastICSource[0m
+[32m2026-08-19 02:58:06.922[0m | [1mINFO    [0m | [36mearth2studio.run[0m:[36mensemble[0m:[36m472[0m - [1mStarting 6 Member Ensemble Inference with             6 number of batches.[0m
+[32m2026-08-19 03:07:54.186[0m | [32m[1mSUCCESS [0m | [36mearth2studio.run[0m:[36mensemble[0m:[36m544[0m - [32m[1m
+Inference complete[0m
+[score] w01@3d: 595.9 s (8.28 s/step) -> w01_lead03_cube.nc (27 MB)
+[score] w02@12d: 6 member(s) x 36 x 6 h from 2021-06-19 00:00:00 -> peak 2021-06-28  (seed 795212538, vars ['t2m'])
+[32m2026-08-19 03:09:06.365[0m | [1mINFO    [0m | [36mearth2studio.run[0m:[36mensemble[0m:[36m400[0m - [1mRunning ensemble inference![0m
+[32m2026-08-19 03:09:06.365[0m | [1mINFO    [0m | [36mearth2studio.run[0m:[36mensemble[0m:[36m407[0m - [1mInference device: cuda[0m
+[32m2026-08-19 03:09:08.698[0m | [32m[1mSUCCESS [0m | [36mearth2studio.run[0m:[36mensemble[0m:[36m428[0m - [32m[1mFetched data from GenCastICSource[0m
+[32m2026-08-19 03:09:09.020[0m | [1mINFO    [0m | [36mearth2studio.run[0m:[36mensemble[0m:[36m472[0m - [1mStarting 6 Member Ensemble Inference with             6 number of batches.[0m
+[32m2026-08-19 03:13:41.171[0m | [32m[1mSUCCESS [0m | [36mearth2studio.run[0m:[36mensemble[0m:[36m544[0m - [32m[1m
+Inference complete[0m
+[score] w02@12d: 274.8 s (7.63 s/step) -> w02_lead12_cube.nc (12 MB)
+[score] w04@6d: 6 member(s) x 60 x 6 h from 2021-06-13 00:00:00 -> peak 2021-06-28  (seed 461936780, vars ['t2m'])
+[32m2026-08-19 03:14:07.186[0m | [1mINFO    [0m | [36mearth2studio.run[0m:[36mensemble[0m:[36m400[0m - [1mRunning ensemble inference![0m
+[32m2026-08-19 03:14:07.186[0m | [1mINFO    [0m | [36mearth2studio.run[0m:[36mensemble[0m:[36m407[0m - [1mInference device: cuda[0m
+[32m2026-08-19 03:14:09.514[0m | [32m[1mSUCCESS [0m | [36mearth2studio.run[0m:[36mensemble[0m:[36m428[0m - [32m[1mFetched data from GenCastICSource[0m
+[32m2026-08-19 03:14:09.853[0m | [1mINFO    [0m | [36mearth2studio.run[0m:[36mensemble[0m:[36m472[0m - [1mStarting 6 Member Ensemble Inference with             6 number of batches.[0m
+[32m2026-08-19 03:21:41.687[0m | [32m[1mSUCCESS [0m | [36mearth2studio.run[0m:[36mensemble[0m:[36m544[0m - [32m[1m
+Inference complete[0m
+[score] w04@6d: 454.5 s (7.58 s/step) -> w04_lead06_cube.nc (23 MB)
+[score] w05@15d: 6 member(s) x 24 x 6 h from 2021-06-22 00:00:00 -> peak 2021-06-28  (seed 822177626, vars ['t2m'])
+[32m2026-08-19 03:22:32.542[0m | [1mINFO    [0m | [36mearth2studio.run[0m:[36mensemble[0m:[36m400[0m - [1mRunning ensemble inference![0m
+[32m2026-08-19 03:22:32.543[0m | [1mINFO    [0m | [36mearth2studio.run[0m:[36mensemble[0m:[36m407[0m - [1mInference device: cuda[0m
+[32m2026-08-19 03:22:34.854[0m | [32m[1mSUCCESS [0m | [36mearth2studio.run[0m:[36mensemble[0m:[36m428[0m - [32m[1mFetched data from GenCastICSource[0m
+[32m2026-08-19 03:22:35.136[0m | [1mINFO    [0m | [36mearth2studio.run[0m:[36mensemble[0m:[36m472[0m - [1mStarting 6 Member Ensemble Inference with             6 number of batches.[0m
+[32m2026-08-19 03:25:35.784[0m | [32m[1mSUCCESS [0m | [36mearth2studio.run[0m:[36mensemble[0m:[36m544[0m - [32m[1m
+Inference complete[0m
+[score] w05@15d: 183.2 s (7.64 s/step) -> w05_lead15_cube.nc (8 MB)
+[score] w07@9d: 6 member(s) x 48 x 6 h from 2021-06-16 00:00:00 -> peak 2021-06-28  (seed 188187930, vars ['t2m'])
+[32m2026-08-19 03:25:56.109[0m | [1mINFO    [0m | [36mearth2studio.run[0m:[36mensemble[0m:[36m400[0m - [1mRunning ensemble inference![0m
+[32m2026-08-19 03:25:56.110[0m | [1mINFO    [0m | [36mearth2studio.run[0m:[36mensemble[0m:[36m407[0m - [1mInference device: cuda[0m
+[32m2026-08-19 03:25:58.468[0m | [32m[1mSUCCESS [0m | [36mearth2studio.run[0m:[36mensemble[0m:[36m428[0m - [32m[1mFetched data from GenCastICSource[0m
+[32m2026-08-19 03:25:58.813[0m | [1mINFO    [0m | [36mearth2studio.run[0m:[36mensemble[0m:[36m472[0m - [1mStarting 6 Member Ensemble Inference with             6 number of batches.[0m
+[32m2026-08-19 03:31:59.619[0m | [32m[1mSUCCESS [0m | [36mearth2studio.run[0m:[36mensemble[0m:[36m544[0m - [32m[1m
+Inference complete[0m
+[score] w07@9d: 363.5 s (7.57 s/step) -> w07_lead09_cube.nc (16 MB)
+[score] w09@3d: 6 member(s) x 72 x 6 h from 2021-06-10 00:00:00 -> peak 2021-06-28  (seed 1810000901, vars ['t2m'])
+[32m2026-08-19 03:32:28.018[0m | [1mINFO    [0m | [36mearth2studio.run[0m:[36mensemble[0m:[36m400[0m - [1mRunning ensemble inference![0m
+[32m2026-08-19 03:32:28.018[0m | [1mINFO    [0m | [36mearth2studio.run[0m:[36mensemble[0m:[36m407[0m - [1mInference device: cuda[0m
+[32m2026-08-19 03:32:30.383[0m | [32m[1mSUCCESS [0m | [36mearth2studio.run[0m:[36mensemble[0m:[36m428[0m - [32m[1mFetched data from GenCastICSource[0m
+[32m2026-08-19 03:32:30.766[0m | [1mINFO    [0m | [36mearth2studio.run[0m:[36mensemble[0m:[36m472[0m - [1mStarting 6 Member Ensemble Inference with             6 number of batches.[0m
+[32m2026-08-19 03:41:30.592[0m | [32m[1mSUCCESS [0m | [36mearth2studio.run[0m:[36mensemble[0m:[36m544[0m - [32m[1m
+Inference complete[0m
+[score] w09@3d: 542.6 s (7.54 s/step) -> w09_lead03_cube.nc (27 MB)
+[score] w10@12d: 6 member(s) x 36 x 6 h from 2021-06-19 00:00:00 -> peak 2021-06-28  (seed 795212538, vars ['t2m'])
+[32m2026-08-19 03:42:36.100[0m | [1mINFO    [0m | [36mearth2studio.run[0m:[36mensemble[0m:[36m400[0m - [1mRunning ensemble inference![0m
+[32m2026-08-19 03:42:36.101[0m | [1mINFO    [0m | [36mearth2studio.run[0m:[36mensemble[0m:[36m407[0m - [1mInference device: cuda[0m
+[32m2026-08-19 03:42:38.474[0m | [32m[1mSUCCESS [0m | [36mearth2studio.run[0m:[36mensemble[0m:[36m428[0m - [32m[1mFetched data from GenCastICSource[0m
+[32m2026-08-19 03:42:38.840[0m | [1mINFO    [0m | [36mearth2studio.run[0m:[36mensemble[0m:[36m472[0m - [1mStarting 6 Member Ensemble Inference with             6 number of batches.[0m
+[32m2026-08-19 03:47:09.987[0m | [32m[1mSUCCESS [0m | [36mearth2studio.run[0m:[36mensemble[0m:[36m544[0m - [32m[1m
+Inference complete[0m
+[score] w10@12d: 273.9 s (7.61 s/step) -> w10_lead12_cube.nc (12 MB)
+[score] w12@6d: 6 member(s) x 60 x 6 h from 2021-06-13 00:00:00 -> peak 2021-06-28  (seed 461936780, vars ['t2m'])
+[32m2026-08-19 03:47:33.302[0m | [1mINFO    [0m | [36mearth2studio.run[0m:[36mensemble[0m:[36m400[0m - [1mRunning ensemble inference![0m
+[32m2026-08-19 03:47:33.302[0m | [1mINFO    [0m | [36mearth2studio.run[0m:[36mensemble[0m:[36m407[0m - [1mInference device: cuda[0m
+[32m2026-08-19 03:47:35.506[0m | [32m[1mSUCCESS [0m | [36mearth2studio.run[0m:[36mensemble[0m:[36m428[0m - [32m[1mFetched data from GenCastICSource[0m
+[32m2026-08-19 03:47:35.814[0m | [1mINFO    [0m | [36mearth2studio.run[0m:[36mensemble[0m:[36m472[0m - [1mStarting 6 Member Ensemble Inference with             6 number of batches.[0m
+[32m2026-08-19 03:55:07.376[0m | [32m[1mSUCCESS [0m | [36mearth2studio.run[0m:[36mensemble[0m:[36m544[0m - [32m[1m
+Inference complete[0m
+[score] w12@6d: 454.1 s (7.57 s/step) -> w12_lead06_cube.nc (24 MB)
+[score] w13@15d: 6 member(s) x 24 x 6 h from 2021-06-22 00:00:00 -> peak 2021-06-28  (seed 822177626, vars ['t2m'])
+[32m2026-08-19 03:55:58.667[0m | [1mINFO    [0m | [36mearth2studio.run[0m:[36mensemble[0m:[36m400[0m - [1mRunning ensemble inference![0m
+[32m2026-08-19 03:55:58.667[0m | [1mINFO    [0m | [36mearth2studio.run[0m:[36mensemble[0m:[36m407[0m - [1mInference device: cuda[0m
+[32m2026-08-19 03:56:00.845[0m | [32m[1mSUCCESS [0m | [36mearth2studio.run[0m:[36mensemble[0m:[36m428[0m - [32m[1mFetched data from GenCastICSource[0m
+[32m2026-08-19 03:56:01.162[0m | [1mINFO    [0m | [36mearth2studio.run[0m:[36mensemble[0m:[36m472[0m - [1mStarting 6 Member Ensemble Inference with             6 number of batches.[0m
+[32m2026-08-19 03:59:02.604[0m | [32m[1mSUCCESS [0m | [36mearth2studio.run[0m:[36mensemble[0m:[36m544[0m - [32m[1m
+Inference complete[0m
+[score] w13@15d: 183.9 s (7.66 s/step) -> w13_lead15_cube.nc (8 MB)
+[score] w15@9d: 6 member(s) x 48 x 6 h from 2021-06-16 00:00:00 -> peak 2021-06-28  (seed 188187930, vars ['t2m'])
+[32m2026-08-19 03:59:22.256[0m | [1mINFO    [0m | [36mearth2studio.run[0m:[36mensemble[0m:[36m400[0m - [1mRunning ensemble inference![0m
+[32m2026-08-19 03:59:22.257[0m | [1mINFO    [0m | [36mearth2studio.run[0m:[36mensemble[0m:[36m407[0m - [1mInference device: cuda[0m
+[32m2026-08-19 03:59:24.522[0m | [32m[1mSUCCESS [0m | [36mearth2studio.run[0m:[36mensemble[0m:[36m428[0m - [32m[1mFetched data from GenCastICSource[0m
+[32m2026-08-19 03:59:24.842[0m | [1mINFO    [0m | [36mearth2studio.run[0m:[36mensemble[0m:[36m472[0m - [1mStarting 6 Member Ensemble Inference with             6 number of batches.[0m
+[32m2026-08-19 04:05:26.982[0m | [32m[1mSUCCESS [0m | [36mearth2studio.run[0m:[36mensemble[0m:[36m544[0m - [32m[1m
+Inference complete[0m
+[score] w15@9d: 364.7 s (7.60 s/step) -> w15_lead09_cube.nc (16 MB)
+[score] shard 5: all 10 task(s) done

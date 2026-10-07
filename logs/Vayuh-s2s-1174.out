@@ -1,0 +1,36 @@
+Host: nucla3m-debugnodeset-0
+Start: Sun Aug 23 07:51:57 UTC 2026
+AI+RES PDFs: event=PNW_HeatDome_2021 tag=pilot extra=''
+python: /home/ubuntu/miniconda3/envs/moe/bin/python
+
+=== stage build ===
+[apdfs] build: PNW_HeatDome_2021 tag=pilot metric=t2m_anom box=PNW (44-50N, 124W-118W)
+[apdfs] gate G4  max |w - compare.json| 0.00e+00   sum w = 92.354498   Z*mean(w) = 0.5683748752526481   ESS = 5.68   PASS
+[apdfs] window segments [5, 6, 7] of [1, 2, 3, 4, 5, 6, 7] (derived from time coverage; 2m_temperature only)
+[apdfs] build: 64/64 walkers (13 frames each, 2021-06-22 00:00:00 .. 2021-06-28 00:00:00)
+[apdfs] gate G1  max |A_L - compare.json|  box 0.00e+00  conus 0.00e+00   (tol 1e-06)   PASS
+[apdfs] gate G13 max |direct A_L - compare.json ds| 0.00e+00   PASS
+[apdfs] wrote runs/aires/PNW_HeatDome_2021/res/pilot/pdf/pdf_fields.nc (13.0 MB; vars a_box, a_conus, aires, era5, fcn3, gencast_walkers, gencast_xres, hrrr, lineage, weight)
+[apdfs] weighted P(A_L >= observed +7.71645) = 0.094799 self-normalized, 0.053881 Z-scaled
+
+=== stage figs ===
+[apdfs] figs: PNW_HeatDome_2021 tag=pilot: pdf_conus, pdf_box, anom_maps
+  conus: 100 shared bins over [-8.2215, +11.0324] K
+    ERA5 truth             mass 1.00000   P(point >= 9 K) 0.00321
+    AI+RES weighted        mass 0.99980   P(point >= 9 K) 0.00263
+    AI+RES unweighted      mass 0.99732   P(point >= 9 K) 0.01539
+    GenCast direct         mass 1.00000   P(point >= 9 K) 0.00007
+    Gate-3 walkers         mass 1.00000   P(point >= 9 K) 0.00084
+    FCN3 direct            mass 1.00000   P(point >= 9 K) 0.00032
+  wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/figures/aires/aires_pdf_conus_PNW_HeatDome_2021_pilot.png (444 kB)
+  box: 100 shared bins over [-5.8860, +14.0490] K
+    ERA5 truth             mass 1.00000   P(point >= 9 K) 0.08480
+    AI+RES weighted        mass 1.00000   P(point >= 9 K) 0.05053
+    AI+RES unweighted      mass 1.00000   P(point >= 9 K) 0.39120
+    GenCast direct         mass 1.00000   P(point >= 9 K) 0.00107
+    Gate-3 walkers         mass 0.99970   P(point >= 9 K) 0.01760
+    FCN3 direct            mass 1.00000   P(point >= 9 K) 0.00793
+  wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/figures/aires/aires_pdf_box_PNW_HeatDome_2021_pilot.png (441 kB)
+  wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/figures/aires/aires_anom_maps_PNW_HeatDome_2021_pilot.png (396 kB)
+
+End: Sun Aug 23 07:52:34 UTC 2026

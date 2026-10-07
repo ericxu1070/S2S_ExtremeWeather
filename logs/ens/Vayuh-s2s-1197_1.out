@@ -1,0 +1,70 @@
+Host: nucla3m-a3meganodeset-6
+Start: Thu Sep  3 21:47:04 UTC 2026
+GPU 0: NVIDIA H100 80GB HBM3 (UUID: GPU-b8ea1035-0007-7515-3dd6-af91b019c0d5)
+GPU 1: NVIDIA H100 80GB HBM3 (UUID: GPU-d6d50080-e779-0925-0ed6-43a4555a210a)
+GPU 2: NVIDIA H100 80GB HBM3 (UUID: GPU-511024c1-3c7e-7c77-1079-2f1703c3eab2)
+GPU 3: NVIDIA H100 80GB HBM3 (UUID: GPU-5af99110-d654-920b-c96a-2bd40ba27b5f)
+GPU 4: NVIDIA H100 80GB HBM3 (UUID: GPU-d99414f2-afb8-63e6-e2f0-9c1d091423da)
+GPU 5: NVIDIA H100 80GB HBM3 (UUID: GPU-85259381-d999-65b3-d62c-cdcff9d594cb)
+GPU 6: NVIDIA H100 80GB HBM3 (UUID: GPU-dee27eeb-a837-8f09-94f0-3f975e31b9e4)
+GPU 7: NVIDIA H100 80GB HBM3 (UUID: GPU-af7e590f-89d8-8ce1-c223-d556791a6b06)
+astab-ens: events=PNW_HeatDome_2021 weeks=8 members=100
+           array task 1 of 4 node(s) x 8 GPU(s) = 32 shard(s); this node runs global shards 8..15
+AI+RES lead-time stability sweep  (tag 'stab')
+  100 chain(s): 1 event(s) x 1 lead(s) x 100 member(s), 1 walker member, 1 FCN3 member each
+  walker to the peak at week(s) [8]; FCN3-only extension at week(s) - (walker rolls 3 d there, to launch the adapter-fed arm)
+  ENSEMBLE MODE: GenCast only. No FCN3 arm is planned, priced or checked for a member chain -
+  its score/prune/maps stages are refused and its FCN3 path helpers raise.
+
+                         chain        init       peak   walk segs steps tail   fcn3  cached
+  (100 member chains, rows suppressed)  2021-05-03 2021-06-28    56d   19   112    4      -  0/100 member(s) complete
+
+  prerequisites
+    PNW_HeatDome_2021@wk8  m000  walker init frames  OK   /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/xres/0p25/week8/inputs/PNW_HeatDome_2021_inputs.nc
+                                  derived calibration  OK   /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/aires/calib/derived_calib.nc
+                                  measured bands       OK   /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/astab/refs/bands.json
+               PNW_HeatDome_2021  ERA5 reference     OK   /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/astab/refs/PNW_HeatDome_2021_era5_ref.nc
+               PNW_HeatDome_2021  week-4 anchor cube OK   /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/xres/0p25/week4/cache/PNW_HeatDome_2021_cube.nc   (the same-init physics gate)
+                                  climatology grid   OK   {'hour': 4, 'dayofyear': 366, 'lat': 105, 'lon': 237}   (expect lat=105 lon=237; CLAUDE.md's stale-2deg trap)
+
+  budget
+    walker      11,194 GenCast steps  ~161.7 GPU-h  (52 s/step, run_aires.SECONDS_PER_GENCAST_STEP)
+    scorer           0 FCN3 steps     ~  0.0 GPU-h  (1.40 s/step, job 1161)
+    wall clock  walk: the longest chain left to roll, 112 steps at 28-52 s = 0.9-1.6 h, plus ~15 min model load and 1-2 XLA compiles
+                score: the longest rollout, 0 FCN3 steps at 1.40 s = 0.0 h, plus a ~9 min model load per pool
+    disk        states ~0.0 GB retained (0 state(s)), diag ~67.2 GB, FCN3 Zarrs ~0.0 GB until --stage prune
+                ^ these are the SWEEP's rules (states retained, diag unslimmed). A member chain releases its states and slims its diag - see the ensemble block below for what this run actually costs.
+    free        286 GB on /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/astab
+
+  ensemble
+    PNW_HeatDome_2021 @ week 8 (56 d): init 2021-05-03 -> peak 2021-06-28
+    members     100  (m000..m099); seed = the member index, so each is a distinct GenCast diffusion draw from ONE deterministic ERA5 init
+    per member  19 segment(s) x 6 steps (tail 4) = 112 GenCast steps to 56 d
+    to roll     11,194 step(s) of 11,200 (100 member-chain(s) still have work)
+    GPU-h       ~89 at 28.6 s/step (measured, job 1189, 8 concurrent serial bf16 workers)
+                ~162 at 52 s/step (the conservative ceiling)
+    wall        the worst shard: 448 step(s) = 3.6-6.5 h, plus ~13 min of startup per worker
+    compile     the JAX cache /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/models/jax_cache_0p25 is effectively empty - budget one ~5 min XLA compile per worker, not per job
+    disk        slim diag ('2m_temperature',) ~1.1 GB over 1,900 segment(s); records ~0.02 GB
+                states are TRANSIENT: <= 2 x 0.477 GB per live worker = ~31 GB across 32 shard(s), released at each member's chain end
+                kept afterwards: final state of member(s) [2] = 0.48 GB (AIRES_ENS_KEEP_STATE_MEMBERS)
+    shards      [4, 4, 4, 4, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3] chain(s) each; step load 336..448
+
+  shards      100 chain(s) over 32 GPU(s): [4, 4, 4, 4, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3]
+
+  READY: yes
+--- walk phase: Thu Sep  3 21:47:18 UTC 2026 ---
+  walk: attempt 1/3
+  launched walk global shard 8 on GPU 0 (pid 3826053, +0s)
+  launched walk global shard 9 on GPU 1 (pid 3826054, +20s)
+  launched walk global shard 10 on GPU 2 (pid 3826055, +40s)
+  launched walk global shard 11 on GPU 3 (pid 3826056, +60s)
+  launched walk global shard 12 on GPU 4 (pid 3826057, +80s)
+  launched walk global shard 13 on GPU 5 (pid 3826058, +100s)
+  launched walk global shard 14 on GPU 6 (pid 3826059, +120s)
+  launched walk global shard 15 on GPU 7 (pid 3826060, +140s)
+End: Fri Sep  4 01:20:11 UTC 2026
+Now reduce on the login node in moe (safe while other tasks are still running -
+the reduce reports partial members rather than mixing them into the denominator):
+  PYTHONPATH=. python -m astab.run --stage reduce --stage figs --ens 100 --events PNW_HeatDome_2021 --weeks 8
+  ls -la figures/astab/ensemble_PNW_HeatDome_2021_wk08.png runs/astab/ensemble_PNW_HeatDome_2021_wk08*.{csv,json}

@@ -1,0 +1,8 @@
+[walk] host=nucla3m-a3meganodeset-4 shard 2/8: ['PNW_HeatDome_2021@wk8 ', 'WinterStorm_Uri_2021@wk6 ']
+[walk] PNW_HeatDome_2021@wk8 : 19 segment(s), 112 steps, init 2021-05-03 00:00:00 -> peak 2021-06-28 00:00:00
+[walk] PNW_HeatDome_2021@wk8 : final state pruned; landing verified from stab.json
+[walk] PNW_HeatDome_2021@wk8 : complete, landed exactly on the peak 2021-06-28 00:00:00 (0 s elapsed on this shard)
+[walk] WinterStorm_Uri_2021@wk6 : 14 segment(s), 84 steps, init 2021-01-04 00:00:00 -> peak 2021-02-15 00:00:00
+[walk] WinterStorm_Uri_2021@wk6 : final state pruned; landing verified from stab.json
+[walk] WinterStorm_Uri_2021@wk6 : complete, landed exactly on the peak 2021-02-15 00:00:00 (0 s elapsed on this shard)
+[walk] shard 2: 0 segment(s) rolled, 0 s total

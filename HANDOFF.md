@@ -6,7 +6,15 @@ combined verification-week PDFs (FCN3 vs GenCast vs ERA5 truth), (2) per-event s
 ensemble-mean RMSE, bias, ACC, spread-error), (3) a **hardware-matched runtime comparison**
 of the cost to generate a 24-member ensemble.
 
-Everything runs on **this box** (a3mega Slurm / H100). Derecho is not involved.
+Everything **runs** on **this box** (a3mega Slurm / H100). Derecho runs none of it, but as
+of 2026-08-17 it holds a **full copy of the results** for offline analysis — see "Artifact
+sync to Derecho" below.
+
+> **This experiment is complete.** Live work has moved to the **`aires` branch** (AI+RES:
+> GenCast walkers, FCN3 score), which reuses this stack's cubes, ICs and event registry.
+> Its state lives in **`aires/HANDOFF.md`** and its design in **`aires.md`** — read those,
+> not this file, for anything AI+RES. The section "AI+RES — what a Derecho session can do"
+> below is the only part of it that belongs here, because it concerns this file's sync.
 
 ## Live jobs
 
@@ -146,11 +154,16 @@ a labelled cross-machine reference bar.
 
 ## Derecho smoke test (validate the FCN3 path before spending an 8xH100 node)
 
-**Why:** as of 2026-07-23 FCN3 has **never completed a model build or a single forecast
-step** anywhere. Three attempts died for unrelated reasons (697 cancelled: no CUDA kernel;
-700: CPU thread thrash, GPUs idle 80+ min; 707: cancelled while queued). Everything about
-the driver below is therefore *unproven at runtime*, and a3mega nodes are scarce. One
-A100 smoke on Derecho de-risks the machine-independent half cheaply.
+> **SUPERSEDED (2026-08-17).** This section is kept for history. FCN3 has since
+> **completed the full 6-event week-3 run on a3mega** — 6 cubes in
+> `runs/fcn3/week3/cache/`, per-event timing, and `fcn3_vs_gencast_scores.csv`. The
+> de-risking smoke below is no longer a prerequisite for anything.
+
+**Why (as written 2026-07-23):** at that time FCN3 had **never completed a model build or a
+single forecast step** anywhere. Three attempts died for unrelated reasons (697 cancelled:
+no CUDA kernel; 700: CPU thread thrash, GPUs idle 80+ min; 707: cancelled while queued).
+Everything about the driver below was therefore *unproven at runtime*, and a3mega nodes are
+scarce. One A100 smoke on Derecho de-risked the machine-independent half cheaply.
 
 **What a Derecho smoke DOES prove** (all machine-independent, none of it ever executed):
 the event registry and init arithmetic, that FCN3 constructs at all with the pinned
@@ -280,6 +293,51 @@ finished.
 
 ---
 
+## Artifact sync to Derecho (2026-08-17)
+
+Derecho now holds a **complete copy of the finished experiment data** so the analysis can be
+re-run there. It computed none of it; a3mega remains where the work happens. Access, the
+`ControlMaster`/Duo recipe, and the byte-verification snippet are documented under "Reaching
+Derecho from a3mega" in `CLAUDE.md`.
+
+Moved with `scripts/sync_a3mega_to_derecho.sh` (manifest-driven, never deletes) plus a
+second pass for what the manifest did not cover. **~89.5 GB total.** After both passes,
+**93 directories are byte-identical (348.20 GB)**.
+
+**Since 2026-08-18 the default manifest also carries the AI+RES Gate 2 artifacts**
+(~530 MB: the adapter ensemble cube, the adapter IC, the verdict JSON/CSV, the calibration)
+plus an optional `--with-walkers` group. The adapter cube is the only file in the manifest
+Derecho cannot rebuild for itself. See "AI+RES — what a Derecho session can do" below.
+
+| Pass | Contents | Size |
+|---|---|---|
+| 1 (manifest) | 6 FCN3 cubes, 6 ICs, 7 timing JSONs, scores CSV, 3 GenCast 0.25° p90 cubes, 3 p90 init frames, 3 ERA5 p90 truth | 22.95 GB / 29 files |
+| 2 (gap fill) | `runs/p90_t2m/**` (90 cubes, 90 ICs, 180 truth, 90 timing, 90 maps, 3 scores), the 0.25° climatology, 3 p90 verif members, `figures/p90_t2m/`, `runs/xres/figures/` | 66.51 GB |
+
+**Deliberately NOT synced** (and should stay that way):
+
+| Path | Why |
+|---|---|
+| `runs/models/jax_cache_0p25` | machine-specific JAX compile cache — copying it is harmful |
+| `runs/fcn3/.cache/model` (4.18 GB) | FCN3 weights, re-downloadable |
+| `runs/fcn3/week3/shards` (1.63 GB) | regenerable zarr intermediates (`--with-shards`) |
+| `*/cache/claims/` | work-stealing lock files, 0 bytes |
+
+**Two gotchas this exposed**, both worth remembering before trusting a cross-machine figure:
+
+1. **The sync script verifies file COUNTS, not bytes.** It reported `ok` on every group
+   while Derecho still held a wrong-resolution climatology. Diff byte totals after any sync.
+2. **`runs/models/clim_1990_2019_t2m_conus.nc` was same-name/different-grid** — 105x237
+   (0.25°) here vs 14x30 (~2°) there. Since cubes are `lat=105, lon=237` and anomalies are
+   formed against this file, the stale copy would have crashed or silently corrupted every
+   anomaly on Derecho. Fixed; the old file is kept as `...nc.bak-2deg`. Check the grid with
+   `ncdump -h` rather than assuming the filename means the same thing on both boxes.
+
+Note `figures/p90_t2m/` is **untracked in git** — it reached Derecho only via this sync, not
+via the branch.
+
+---
+
 ## FCN3 environment (`fcn3` conda env on THIS box)
 
 `earth2studio 0.17.0a0`, `torch 2.11.0+cu128`, `torch-harmonics 0.8.1` (source-built with
@@ -376,7 +434,67 @@ earth2studio's `[tool.uv.sources]` pins (`>=0.8.0` + that commit) — not a regr
 
 ---
 
-*Last updated: Thu Jul 23 2026 — Derecho smoke (job 6857923) run: DISCO bf16 kernel rebuilt
-& confirmed, model builds in 2.1 min, rollout starts, but the forward OOMs on the A100-40GB
-(~50 GiB peak) — FCN3 needs the 80 GB H100. Machine-independent half proven; a3mega H100 run
-is the next step. See "Smoke result" above.*
+## AI+RES — what a Derecho session can do (2026-08-18)
+
+Branch `aires`. Phase 1 is complete except Gate 3. Full state: `aires/HANDOFF.md`.
+
+**Where the work happened.** Gate 1 (channel fidelity) was built on Derecho and
+**re-verified on a3mega with identical numbers**. Gate 2 (forecast equivalence) ran here —
+Slurm job 1153, ~11 min on one 8×H100 node — because it needs FCN3, which does not fit an
+A100-40GB. `aires/walker.py` (the global, restartable GenCast walker Gate 3 depends on) is
+written, tested and exercised on an H100 (job 1154).
+
+**Gate 2's result, in one paragraph.** Two FCN3 ensembles from the same ERA5 analysis at
+the same init, differing only in how the 72 channels were assembled, with seeds matched
+shard-for-shard against the cached 24-member `PNW_HeatDome_2021` cube (so the native side
+cost no GPU time). `|Δ mean A_L|` = 0.083 K (**PASS**, threshold 0.25 K); paired Spearman
+at the 21 d window = 0.107 (**FAIL**, threshold 0.95); max ratio of the adapter's
+divergence to FCN3's own internal-noise divergence = 0.990 (**PASS**, added criterion).
+The gate's purpose is met — the score a walker receives is an ensemble mean and it is
+reproduced — but the rank-correlation criterion as written is not a valid discriminator at
+21 d lead, where any IC difference has saturated. Resolved by lead, the two ensembles are
+rank-equivalent out to 8.5 d. **Whether to amend that criterion in `aires.md` is an open
+decision**, recorded in `aires/HANDOFF.md`.
+
+**To re-derive Gate 2 on Derecho.** It is CPU-only — no GPU, no network — but it needs one
+file Derecho cannot produce:
+
+```bash
+# 1. ON a3mega, push the aires group (now in the DEFAULT manifest, ~530 MB).
+#    Needs a live ControlMaster (see "Reaching Derecho from a3mega" in CLAUDE.md).
+bash scripts/sync_a3mega_to_derecho.sh --census-only     # what will move
+bash scripts/sync_a3mega_to_derecho.sh                   # then verify BYTES, not counts
+
+# 2. ON Derecho
+module load conda && conda activate my-env
+cd /glade/derecho/scratch/exu/S2S_ExtremeWeather
+git fetch && git checkout aires && git pull
+
+ncdump -h runs/models/clim_1990_2019_t2m_conus.nc | sed -n '2,8p'   # expect lat=105 lon=237
+PYTHONPATH=. python -m pytest aires/tests/ -q            # 48 pass, 1 skipped, ~100 s
+PYTHONPATH=. python -m aires.calibrate --fit --gate1     # ~2 min, must reproduce Gate 1
+PYTHONPATH=. python -m aires.gate2 --stage score         # re-derives the Gate 2 verdict
+```
+
+`--stage score` reads two cubes and writes the verdict JSON, the per-member CSV and
+`figures/aires/PNW_HeatDome_2021/gate2_PNW_HeatDome_2021.png`. It needs `scipy` and `matplotlib` in `my-env`.
+
+| file | on Derecho? | note |
+|---|---|---|
+| `runs/fcn3/week3/cache/PNW_HeatDome_2021_cube.nc` | **yes** | native side, from the 2026-08-17 sync |
+| `runs/aires/gate2/cache/PNW_HeatDome_2021_adapter_cube.nc` | **only after the sync** | **cannot be rebuilt there** — needs FCN3 on an 80 GB H100 |
+| `runs/aires/calib/derived_calib.nc` | rebuildable | `--fit` regenerates it in ~2 min, deterministically |
+| `runs/aires/gate2/ic/*_adapter_ic.nc` | rebuildable | CPU only, from the GenCast init frames |
+| `runs/aires/*/walkers/**` | no | `--with-walkers` if ever needed; Derecho cannot score them |
+
+**What Derecho still cannot do for AI+RES:** anything producing new FCN3 or 0.25° GenCast
+output — Gate 3, the walker rolls, the production RES run. Those stay on a3mega.
+
+---
+
+*Last updated: Tue Aug 18 2026 — this experiment is complete; live work is on branch
+`aires`. Added the AI+RES section above: Gate 2 ran on a3mega (job 1153) with a split
+verdict, `aires/walker.py` rolled on an H100 (job 1154), and the sync manifest now carries
+the Gate 2 artifacts so Derecho can re-derive the analysis. The Jul 23 Derecho smoke result
+(job 6857923: FCN3 OOMs on an A100-40GB, ~50 GiB peak, needs the 80 GB H100) still stands
+and is why AI+RES scoring is a3mega-only — see "Smoke result" above.*

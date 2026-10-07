@@ -1,0 +1,54 @@
+[calibrate] PNW_HeatDome_2021: scanning 16 Gate 3 walkers
+  [calibrate] PNW_HeatDome_2021 w00: 7 segment(s)
+  [calibrate] PNW_HeatDome_2021 w01: 7 segment(s)
+  [calibrate] PNW_HeatDome_2021 w02: 7 segment(s)
+  [calibrate] PNW_HeatDome_2021 w03: 7 segment(s)
+  [calibrate] PNW_HeatDome_2021 w04: 7 segment(s)
+  [calibrate] PNW_HeatDome_2021 w05: 7 segment(s)
+  [calibrate] PNW_HeatDome_2021 w06: 7 segment(s)
+  [calibrate] PNW_HeatDome_2021 w07: 7 segment(s)
+  [calibrate] PNW_HeatDome_2021 w08: 7 segment(s)
+  [calibrate] PNW_HeatDome_2021 w09: 7 segment(s)
+  [calibrate] PNW_HeatDome_2021 w10: 7 segment(s)
+  [calibrate] PNW_HeatDome_2021 w11: 7 segment(s)
+  [calibrate] PNW_HeatDome_2021 w12: 7 segment(s)
+  [calibrate] PNW_HeatDome_2021 w13: 7 segment(s)
+  [calibrate] PNW_HeatDome_2021 w14: 7 segment(s)
+  [calibrate] PNW_HeatDome_2021 w15: 7 segment(s)
+[calibrate] WinterStorm_Uri_2021: scanning 16 Gate 3 walkers
+  [calibrate] WinterStorm_Uri_2021 w00: 7 segment(s)
+  [calibrate] WinterStorm_Uri_2021 w01: 7 segment(s)
+  [calibrate] WinterStorm_Uri_2021 w02: 7 segment(s)
+  [calibrate] WinterStorm_Uri_2021 w03: 7 segment(s)
+  [calibrate] WinterStorm_Uri_2021 w04: 7 segment(s)
+  [calibrate] WinterStorm_Uri_2021 w05: 7 segment(s)
+  [calibrate] WinterStorm_Uri_2021 w06: 7 segment(s)
+  [calibrate] WinterStorm_Uri_2021 w07: 7 segment(s)
+  [calibrate] WinterStorm_Uri_2021 w08: 7 segment(s)
+  [calibrate] WinterStorm_Uri_2021 w09: 7 segment(s)
+  [calibrate] WinterStorm_Uri_2021 w10: 7 segment(s)
+  [calibrate] WinterStorm_Uri_2021 w11: 7 segment(s)
+  [calibrate] WinterStorm_Uri_2021 w12: 7 segment(s)
+  [calibrate] WinterStorm_Uri_2021 w13: 7 segment(s)
+  [calibrate] WinterStorm_Uri_2021 w14: 7 segment(s)
+  [calibrate] WinterStorm_Uri_2021 w15: 7 segment(s)
+[calibrate] wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/aires/astab/gate3_panel.csv (224 rows)
+
+  measured bands (224 samples from 16 walkers x 2 event(s), out to 21 d)
+                        metric         p05        p50        p95   band
+    PNW_HeatDome_2021
+                t2m_anom_conus       0.077      1.892      2.956   [-2.670, 4.679]  n=112
+               t2m_conus_drift      -0.470      0.636      1.711   [-3.314, 3.423]  n=112
+                 diurnal_ratio       0.935      1.061      1.216   [0.704, 1.401]  n=112
+                  conus_t2m_sd       5.687      6.409      7.095   [4.202, 7.987]  n=112
+       z500_hi_wavenumber_frac       0.002      0.003      0.005   [0.001, 0.007]  n=112
+    WinterStorm_Uri_2021
+                t2m_anom_conus      -2.584      0.624      2.963   [-6.456, 6.693]  n=112
+               t2m_conus_drift      -1.032      1.703      4.569   [-5.063, 8.836]  n=112
+                 diurnal_ratio       0.773      0.964      1.280   [0.558, 1.518]  n=112
+                  conus_t2m_sd       8.918     10.719     13.141   [6.526, 15.989]  n=112
+       z500_hi_wavenumber_frac       0.001      0.002      0.003   [0.000, 0.005]  n=112
+
+  wrote /home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/runs/aires/astab/bands.json
+  NOTE: Measured to 21 d only. Beyond that every band is an EXTRAPOLATION and is labelled as such wherever it is drawn.
+=== calibrate rc=0 Thu Aug 27 01:32:30 UTC 2026 ===

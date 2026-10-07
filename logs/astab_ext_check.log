@@ -1,0 +1,51 @@
+[check] PNW_HeatDome_2021@wk12: state valid 2021-04-05 00:00:00, 721x1440 global, 12 prognostic + 2 static
+  [walker] grid-node channels: inputs 176 + targets 504 + forcings 24; 6 step(s) from 2021-04-05 00:00:00
+[check] PNW_HeatDome_2021@wk12: a 6-step segment builds cleanly (standard)
+[check] PNW_HeatDome_2021@wk12: 1 segment(s) tile the 3 d WALK exactly, landing on 2021-04-08 00:00:00   (FCN3-extension lead: the walker stops there; both FCN3 arms still roll the full 84 d to 2021-06-28 00:00:00)
+[check] OK
+[check] PNW_HeatDome_2021@wk14: state valid 2021-03-22 00:00:00, 721x1440 global, 12 prognostic + 2 static
+  [walker] grid-node channels: inputs 176 + targets 504 + forcings 24; 6 step(s) from 2021-03-22 00:00:00
+[check] PNW_HeatDome_2021@wk14: a 6-step segment builds cleanly (standard)
+[check] PNW_HeatDome_2021@wk14: 1 segment(s) tile the 3 d WALK exactly, landing on 2021-03-25 00:00:00   (FCN3-extension lead: the walker stops there; both FCN3 arms still roll the full 98 d to 2021-06-28 00:00:00)
+[check] OK
+[check] PNW_HeatDome_2021@wk16: state valid 2021-03-08 00:00:00, 721x1440 global, 12 prognostic + 2 static
+  [walker] grid-node channels: inputs 176 + targets 504 + forcings 24; 6 step(s) from 2021-03-08 00:00:00
+[check] PNW_HeatDome_2021@wk16: a 6-step segment builds cleanly (standard)
+[check] PNW_HeatDome_2021@wk16: 1 segment(s) tile the 3 d WALK exactly, landing on 2021-03-11 00:00:00   (FCN3-extension lead: the walker stops there; both FCN3 arms still roll the full 112 d to 2021-06-28 00:00:00)
+[check] OK
+[check] PNW_HeatDome_2021@wk18: state valid 2021-02-22 00:00:00, 721x1440 global, 12 prognostic + 2 static
+  [walker] grid-node channels: inputs 176 + targets 504 + forcings 24; 6 step(s) from 2021-02-22 00:00:00
+[check] PNW_HeatDome_2021@wk18: a 6-step segment builds cleanly (standard)
+[check] PNW_HeatDome_2021@wk18: 1 segment(s) tile the 3 d WALK exactly, landing on 2021-02-25 00:00:00   (FCN3-extension lead: the walker stops there; both FCN3 arms still roll the full 126 d to 2021-06-28 00:00:00)
+[check] OK
+[check] PNW_HeatDome_2021@wk20: state valid 2021-02-08 00:00:00, 721x1440 global, 12 prognostic + 2 static
+  [walker] grid-node channels: inputs 176 + targets 504 + forcings 24; 6 step(s) from 2021-02-08 00:00:00
+[check] PNW_HeatDome_2021@wk20: a 6-step segment builds cleanly (standard)
+[check] PNW_HeatDome_2021@wk20: 1 segment(s) tile the 3 d WALK exactly, landing on 2021-02-11 00:00:00   (FCN3-extension lead: the walker stops there; both FCN3 arms still roll the full 140 d to 2021-06-28 00:00:00)
+[check] OK
+[check] WinterStorm_Uri_2021@wk12: state valid 2020-11-23 00:00:00, 721x1440 global, 12 prognostic + 2 static
+  [walker] grid-node channels: inputs 176 + targets 504 + forcings 24; 6 step(s) from 2020-11-23 00:00:00
+[check] WinterStorm_Uri_2021@wk12: a 6-step segment builds cleanly (standard)
+[check] WinterStorm_Uri_2021@wk12: 1 segment(s) tile the 3 d WALK exactly, landing on 2020-11-26 00:00:00   (FCN3-extension lead: the walker stops there; both FCN3 arms still roll the full 84 d to 2021-02-15 00:00:00)
+[check] OK
+[check] WinterStorm_Uri_2021@wk14: state valid 2020-11-09 00:00:00, 721x1440 global, 12 prognostic + 2 static
+  [walker] grid-node channels: inputs 176 + targets 504 + forcings 24; 6 step(s) from 2020-11-09 00:00:00
+[check] WinterStorm_Uri_2021@wk14: a 6-step segment builds cleanly (standard)
+[check] WinterStorm_Uri_2021@wk14: 1 segment(s) tile the 3 d WALK exactly, landing on 2020-11-12 00:00:00   (FCN3-extension lead: the walker stops there; both FCN3 arms still roll the full 98 d to 2021-02-15 00:00:00)
+[check] OK
+[check] WinterStorm_Uri_2021@wk16: state valid 2020-10-26 00:00:00, 721x1440 global, 12 prognostic + 2 static
+  [walker] grid-node channels: inputs 176 + targets 504 + forcings 24; 6 step(s) from 2020-10-26 00:00:00
+[check] WinterStorm_Uri_2021@wk16: a 6-step segment builds cleanly (standard)
+[check] WinterStorm_Uri_2021@wk16: 1 segment(s) tile the 3 d WALK exactly, landing on 2020-10-29 00:00:00   (FCN3-extension lead: the walker stops there; both FCN3 arms still roll the full 112 d to 2021-02-15 00:00:00)
+[check] OK
+[check] WinterStorm_Uri_2021@wk18: state valid 2020-10-12 00:00:00, 721x1440 global, 12 prognostic + 2 static
+  [walker] grid-node channels: inputs 176 + targets 504 + forcings 24; 6 step(s) from 2020-10-12 00:00:00
+[check] WinterStorm_Uri_2021@wk18: a 6-step segment builds cleanly (standard)
+[check] WinterStorm_Uri_2021@wk18: 1 segment(s) tile the 3 d WALK exactly, landing on 2020-10-15 00:00:00   (FCN3-extension lead: the walker stops there; both FCN3 arms still roll the full 126 d to 2021-02-15 00:00:00)
+[check] OK
+[check] WinterStorm_Uri_2021@wk20: state valid 2020-09-28 00:00:00, 721x1440 global, 12 prognostic + 2 static
+  [walker] grid-node channels: inputs 176 + targets 504 + forcings 24; 6 step(s) from 2020-09-28 00:00:00
+[check] WinterStorm_Uri_2021@wk20: a 6-step segment builds cleanly (standard)
+[check] WinterStorm_Uri_2021@wk20: 1 segment(s) tile the 3 d WALK exactly, landing on 2020-10-01 00:00:00   (FCN3-extension lead: the walker stops there; both FCN3 arms still roll the full 140 d to 2021-02-15 00:00:00)
+[check] OK
+[check] OK over 10 chain(s)

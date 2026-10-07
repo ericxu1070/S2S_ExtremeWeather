@@ -34,11 +34,19 @@ This checkout lives on the **a3mega Slurm GPU cluster** (GCP; hostnames start wi
 GPUs live on 8 whole-node `a3mega` nodes (H100s) plus small CPU `debug` nodes, reachable
 **only via `sbatch`**. The conda env here is **`moe`**. Derecho — where the GenCast
 experiments ran — is a **different machine** (NCAR, PBS Pro,
-`/glade/derecho/scratch/exu/S2S_ExtremeWeather`, env `my-env`) and is **not reachable from
-this box**.
+`/glade/derecho/scratch/exu/S2S_ExtremeWeather`, env `my-env`). It **is reachable over SSH
+from this box** — what blocks an agent is not routing but **interactive Duo 2FA**, which
+cannot be answered unattended. See "Reaching Derecho from a3mega" below.
 
 Traps this split sets:
 
+- **`sinfo` "idle" does not mean the GPUs are free.** Teammates run non-Slurm processes
+  on the a3mega nodes (vLLM servers, `continuum/inkling` probes, whisper/pyannote
+  services) that hold 63-81 GB per card while Slurm shows the node idle; on 2026-09-03
+  five of the eight nodes were unusable that way and a walker job placed on one died in
+  14 s. Survey over SSH before booking nodes (`ssh nucla3m-a3meganodeset-N nvidia-smi`;
+  the loop is in `aires/HANDOFF.md` under "GPU contention") and route around the busy
+  ones with `sbatch --exclude=...`. Never kill what you find; it is not yours.
 - This box has `qstat`/`qsub` binaries, but they are **Slurm's PBS-compat wrappers for the
   local cluster**. `qstat -u exu` exits 0 with EMPTY output — that means "wrong machine",
   not "no jobs". Every PBS/qstat command in this file and in `HANDOFF.md` is Derecho-only.
@@ -49,6 +57,10 @@ Traps this split sets:
   Never launch infer directly on the login node (no GPU), and note the HRRR overlay build
   (`xhrrr`, `C.HRRR_NC`) is still Derecho-only (`/glade` path) — the synced
   `runs/observations/*_hrrr_verif_*.nc` files cover it here.
+- **AI+RES (branch `aires`) is a3mega-native.** Its scorer is FCN3, which needs ~64 GB of
+  VRAM and therefore an 80 GB H100 — a Derecho A100-40GB OOMs (confirmed, job 6857923). On
+  Derecho you can do the CPU half (the adapter, the calibration, Gate 1, and re-scoring
+  Gate 2 from cached cubes) but you cannot produce any new FCN3 or 0.25° GenCast output.
 - What this box holds of GenCast: full source, model checkpoints (`runs/models/`), the
   original horizon-experiment outputs (`runs/week{2,3,4}/`), and — since Jul 15–16 2026 —
   the **complete xres data tree** (`runs/xres/`, ~234 GB: week2 cubes/verif synced from
@@ -56,6 +68,82 @@ Traps this split sets:
   figures (`figures/xres/`). Derecho is no longer required for xres analysis.
 - The **downscaler and xres analysis are the live projects on this machine**; only new
   Derecho PBS runs (or HRRR truth rebuilds) need a Derecho session.
+
+## Reaching Derecho from a3mega
+
+Derecho **is** reachable from this box: DNS resolves `derecho.hpc.ucar.edu`, port 22 is
+open, and `rsync` over SSH sustains ~47 MB/s. The blocker is authentication, not routing —
+the server offers only `publickey,keyboard-interactive`, no local key is authorized, and
+NCAR's `keyboard-interactive` is **Duo 2FA**. A human must clear it; an agent cannot.
+
+The workaround is SSH connection multiplexing — authenticate **once**, then every later
+non-interactive command rides the same socket:
+
+```bash
+# One-time, in a REAL terminal on nucla3m-login-001 as `ubuntu`:
+ssh -fN derecho          # Duo prompt -> backgrounds, no shell; master persists 8 h
+
+ssh -O check derecho     # is the master up?
+ssh -O exit  derecho     # tear it down early
+```
+
+`~/.ssh/config` carries the `Host derecho` block (User `exu`, `ControlMaster auto`,
+`ControlPath ~/.ssh/cm-%r@%h:%p`, `ControlPersist 8h`). It also forces
+`PreferredAuthentications keyboard-interactive` on purpose: this box has ~8 SSH keys, none
+authorized on Derecho, and offering them all exhausts the server's `MaxAuthTries` **before**
+the Duo prompt is ever reached.
+
+Traps:
+
+- **`!`-prefixed commands in Claude Code cannot do Duo** — they run without a TTY
+  (`Pseudo-terminal will not be allocated`). It must be a real terminal.
+- The master socket is a **file**, so it is per-machine: it must be created on
+  **`nucla3m-login-001`** as **`ubuntu`** for a session on this box to reuse it.
+
+### Moving data there
+
+`scripts/sync_a3mega_to_derecho.sh` is the manifest-driven push (run it **on a3mega**;
+`--census-only` is read-only and safe on either box). It never deletes — there is no
+`--delete` anywhere in it. `--with-p90`, `--with-shards` and `--with-walkers` add optional
+groups.
+
+The default manifest includes the **AI+RES Gate 2 artifacts** (~530 MB). The adapter
+ensemble cube is the one file in it that Derecho cannot rebuild — that takes FCN3 — so
+without a sync a Derecho session can read the Gate 2 verdict from git but cannot re-derive
+it. Walker states (~477 MB each) are behind `--with-walkers` and are normally not worth
+moving, since Derecho cannot score them.
+
+**Its post-transfer verification compares file COUNTS only.** That is not sufficient, and it
+has already missed a real defect (below). After any sync, compare **bytes**, not counts:
+
+```bash
+# per-directory file count + byte total; run both sides and diff
+for d in $(find runs figures -maxdepth 5 -type d | sort); do
+  n=$(find "$d" -maxdepth 1 -type f | wc -l)
+  b=$(find "$d" -maxdepth 1 -type f -printf '%s\n' | awk '{s+=$1} END{print s+0}')
+  [ "$n" -gt 0 ] && printf '%s\t%s\t%s\n' "$d" "$n" "$b"
+done
+```
+
+### The climatology trap (bit this once, 2026-08-17)
+
+`runs/models/clim_1990_2019_t2m_conus.nc` existed on **both** boxes with the **same name and
+different grids**: 105x237 (0.25°, 145.7 MB) here, 14x30 (~2°, 2.5 MB) on Derecho. Cubes are
+`lat=105, lon=237`, `fcn3/run_fcn3.py` crops "to match the climatology grid exactly", and the
+compare subtracts a climatology sampled on that grid — so the stale file would have made
+`compare_fcn3_gencast.py` either hard-fail on shape mismatch or emit **silently wrong
+anomalies**. Count-based verification reported `ok` throughout.
+
+The correct 0.25° file is now on Derecho; the old one is kept as
+`clim_1990_2019_t2m_conus.nc.bak-2deg`. **Verify the grid, not the filename**, before
+trusting any cross-machine anomaly figure:
+
+```bash
+ncdump -h runs/models/clim_1990_2019_t2m_conus.nc | sed -n '2,8p'   # expect lat=105 lon=237
+```
+
+Never sync `runs/models/jax_cache_0p25` (machine-specific JAX compile cache) or the
+`cache/claims/` directories (work-stealing locks).
 
 ## GPU nodes are for GPU compute ONLY (STRICT)
 
@@ -92,19 +180,21 @@ GPU pays — never compound it with prep/downloads. (Incident 2026-07-15: `xres`
 
 ## What this is
 
-**Two independent stacks live in this repo.** They share a scientific goal (skillful,
-high-resolution forecasts of CONUS extreme events) but share **no code**, and their live
-homes are different clusters. (They are not fully separate *environments*: the `moe` env
-here imports both stacks, which is exactly why the machine check above matters.) Figure out
-which one you are working on before touching anything:
+**Three stacks live in this repo.** They share a scientific goal (skillful,
+high-resolution forecasts of CONUS extreme events); the downscaler shares **no code** with
+the other two, while AI+RES is built *on top of* the GenCast stack. (They are not fully
+separate *environments*: the `moe` env here imports GenCast and the downscaler both, which
+is exactly why the machine check above matters. FCN3 is the exception — it needs its own
+`fcn3` env, so anything spanning GenCast and FCN3 hands off through disk.) Figure out which
+one you are working on before touching anything:
 
-| | **GenCast S2S** (original) | **Downscaler** (extension) |
-|---|---|---|
-| Dirs | `gencast_s2s/`, `xres/`, `pbs/`, `runs/` | `downscaler/` (self-contained) |
-| Framework | JAX / GraphCast | PyTorch (DDP) |
-| Runs on | **Derecho** (PBS, `my-env`) — not reachable from here | **this cluster** (a3mega Slurm, `moe` env) |
-| Does | ensemble forecasts at 1.0° & 0.25°, weeks 2–4 lead | super-resolves 1° → 3 km |
-| Docs | this file + `HANDOFF.md` | `downscaler/README.md` + `downscaler/bash/README.md` |
+| | **GenCast S2S** (original) | **AI+RES** (`aires`, branch) | **Downscaler** (extension) |
+|---|---|---|---|
+| Dirs | `gencast_s2s/`, `xres/`, `pbs/`, `runs/` | `aires/`, `fcn3/`, `astab/` | `downscaler/` (self-contained) |
+| Framework | JAX / GraphCast | JAX walker + PyTorch/earth2studio scorer | PyTorch (DDP) |
+| Runs on | **Derecho** (PBS, `my-env`) — SSH-reachable, Duo-gated | **this cluster** (a3mega Slurm; FCN3 needs an 80 GB H100) | **this cluster** (a3mega Slurm, `moe` env) |
+| Does | ensemble forecasts at 1.0° & 0.25°, weeks 2–4 lead | rare-event sampling: GenCast walkers, FCN3 score | super-resolves 1° → 3 km |
+| Docs | this file + `HANDOFF.md` | `aires.md` (design) + `aires/HANDOFF.md` (state) | `downscaler/README.md` + `downscaler/bash/README.md` |
 
 ### 1. GenCast S2S ensemble forecasting (`gencast_s2s/`, `xres/`)
 
@@ -128,6 +218,70 @@ climatology, ERA5 truth under `runs/observations/`), but writes to a separate tr
 **Read `HANDOFF.md` first** when resuming work — it tracks live PBS job IDs, what data is
 already built, known failure modes, and per-job triage steps. Update it after resubmitting
 jobs.
+
+### 1b. AI+RES rare-event sampling (`aires/`, branch `aires`) — GenCast walkers, FCN3 score
+
+A port of Lancelin et al.'s AI+RES (arXiv:2510.27066, PRL 2026) with the roles inverted:
+GenCast is the **walker** (the thing being propagated and resampled) and FourCastNet 3 is
+the **score function** that decides which walkers to clone and which to kill. `aires.md`
+is the experiment design and phase plan; `aires/HANDOFF.md` is the live state — **read the
+HANDOFF, not the plan, for what is actually built**.
+
+`aires/` imports from `gencast_s2s`, `xres` and `fcn3` without modifying them, the same way
+`xres/` builds on `gencast_s2s/`. It writes to `runs/aires/`.
+
+**`astab/` is the lead-time stability sweep** — how far the walker and the scorer can be
+rolled before either stops producing a physical atmosphere. It stands to `aires/` as
+`xres/` stands to `gencast_s2s/`: it imports the walker, the adapter, the scorer and the
+index and modifies none of them, and it writes to its own tree, `runs/astab/` +
+`figures/astab/`. Driver: `python -m astab.run --stage ...`; read `astab/__init__.py` for
+what it found. (Until 2026-08-27 it was `aires/astab.py` writing into a `stab` tag under
+`runs/aires/<event>/res/` — nothing lives there any more.)
+
+**Two sets of leads, and they are not the same experiment.** Weeks **4/6/8/10** are full
+chains: the GenCast walker is rolled to the event peak and both FCN3 arms alongside it.
+Weeks **12/14/16/18/20** (up to 140 d) are the **FCN3-only extension** — the walker rolls
+one 3-day segment to launch the adapter-fed arm and nothing more, because job 1189 measured
+GenCast's limit (diverged on 3 of 8 chains by week 6) but never reached FCN3's (clean at
+week 10 on every rollout of both arms). Job 1194 then ran the extension: FCN3 is clean
+through week 14 (98 d) on both arms and both events, and diverges at week 16+ on the PNW
+chains only (75 to 129 d) while Uri is clean to 140 d. `astab.sconfig.STAB_WALK_WEEKS` is
+the switch.
+Consequence to respect: **the sweep may not report a GenCast verdict at an extension lead**
+— every row of `stability.csv` carries `reached_peak` and `reduce._model_survival` drops
+the (model, week) pairs where it is 0, or three clean days would read as a clean 140-day
+chain.
+
+**`--ens N` is the ensemble follow-up**: N GenCast member chains of ONE (event, lead),
+GenCast-only, each member a distinct diffusion draw from the same ERA5 init. It writes
+under `runs/astab/<event>/ens/wk<NN>/m<MMM>/` and never into the frozen sweep's
+`walkers/` tree; `score`/`prune`/`maps` are refused under it. Launcher:
+`slurm/aires_stab_ens.slurm` (a Slurm array, one node per task; the array width and
+`AIRES_ENS_NODES` must agree). Read `astab/ensemble.py` for what the survival curve does
+and does not say. First result (job 1197, PNW week 8): 9 of 100 members diverged by 56 d,
+none before 39 d, all loud, all starting on negative 850 hPa humidity.
+
+Structural things to know before touching it:
+
+- **Two conda envs, one experiment.** The walker is JAX (`moe`), the scorer is
+  PyTorch/earth2studio (`fcn3`). They cannot share a process, so walker and scorer hand off
+  through disk. `aires/aconfig.py`, `aires/adapter.py` and `aires/gate2.py` are written to
+  import cleanly in **both** envs so one driver can span the handoff; do not add a JAX
+  import to any of them. `aires/walker.py` is JAX-only by nature and `moe`-only.
+- **The adapter is the join.** `aires/adapter.py` turns a GenCast state into FCN3's
+  72-channel IC. 69 channels are a rename plus a latitude flip (GenCast ascends, FCN3
+  descends) and are **bit-identical**; only `u100m`, `v100m` and `tcwv` are derived, from a
+  calibration fitted once (`aires/calibrate.py`, ~2 min CPU, rebuildable on either box).
+- **Walker states must be GLOBAL.** `xres/xinference.py` crops to CONUS before the host
+  transfer, so its cached cubes cannot restart a walker or initialise FCN3.
+  `aires/walker.py` keeps a rolling 2-frame global buffer and writes the CONUS crop
+  separately.
+- **A CONUS-only diagnostic panel is blind to two thirds of what goes wrong.** The
+  stability sweep's verdict: the calibrated CONUS panel caught 1 of GenCast's 3
+  divergences, the crude GLOBAL all-variable bounds check caught 3 of 3 — two chains held
+  a textbook CONUS troposphere on top of a 1211 K polar stratosphere. `A_L` is a CONUS box
+  mean and would have cloned those walkers happily, so any long-lead production must gate
+  on the global state, not on the observable.
 
 ### 2. ERA5→HRRR downscaler (`downscaler/`) — the extension
 
@@ -245,6 +399,46 @@ patch (i.e., rerun `setup_env.sh`). `runs/` (all data/outputs) is also gitignore
   walltime cap is 12 h.
 - Only post-2019 events are valid (the `<2019` checkpoints would otherwise be scored on
   their training period).
+- **The 0.25° checkpoint occupies ~64 GB of an 80 GB H100** (measured, a3mega job 1154).
+  That is the direct reason an A100-40GB OOMs on it, and it leaves no room for a second
+  concurrent member per GPU — serial infer is not a workaround at this resolution, it is
+  the only option.
+
+## AI+RES constraints that bite (`aires/`)
+
+- **A walker checkpoint must be float32, never float16.** `aires.md` proposes float16 to
+  halve the 0.70 GB global 2-frame state. Geopotential at 50 hPa is ~2×10⁵ m² s⁻² against
+  float16's 65504 ceiling, so a float16 archive silently stores `inf` for the top of every
+  column — on write, with no error. float32 + zlib gets the file to **477 MB** measured,
+  which is the halving that was wanted anyway.
+  (`aires/tests/test_walker.py::test_float16_would_overflow_geopotential` pins this.)
+- **The "267 grid-node input channels" figure in `gencast_s2s/inference.py` is
+  informational and does not generalise.** Targets and forcings both scale with the number
+  of rollout steps, so an arbitrary walker segment gives a different total (704 for 6
+  steps). Never assert on it. The failure it was standing in for — a static variable that
+  leaks a `time` axis and becomes two input channels instead of one — is asserted
+  structurally by `aires/walker.py::check_batch_structure`.
+- **`total_precipitation_12hr` is a GenCast target but NOT an input.** A restart state does
+  not need it. The 12 prognostic + 2 static variables in `aconfig.STATE_*` are the contract.
+- **Cropping a rollout chunk with `.sel(lat=..., lon=...)` returns a VIEW, not a copy.**
+  Basic slice indexing pins the whole global array alive, so accumulating crops retains
+  every global frame and the process grows ~0.35 GB per step. `aires/walker.py`
+  deep-copies on purpose; this is the memory failure the xres CONUS crop was avoiding.
+- **Short FCN3 jobs are dominated by the model load, not compute.** Eight shards reading
+  the shared 4.18 GB model pickle off NFS concurrently sit in `D` state for ~9 minutes with
+  the GPUs idle (a3mega job 1153: 11 min total for ~2 min of rollout). Still far cheaper
+  than 8 concurrent model builds, but do not size a walltime from the compute alone.
+- **Measure the noise floor before setting a threshold on an ensemble statistic.** Gate 2
+  specified `|Δ mean A_L| < 0.25 K` at M=6; the per-member spread of `A_L` for that event
+  is 0.62 K, so two 6-member ensemble means differ by 0.36 K from sampling noise alone and
+  a *perfect* adapter would have failed about half the time. The cached 24-member ensemble
+  made this measurable rather than hypothetical. The same trap applies to any paired-member
+  rank-correlation test at S2S lead: past the predictability horizon (~8.5 d here for CONUS
+  T2m) it measures chaos, not the thing under test.
+- **Matched seeds are verifiable, not assumable.** If two ensembles that are supposed to
+  share internal-noise streams actually do, their paired divergence starts near zero and
+  grows; if the seeding silently diverged, it equals the ensemble's own spread from the
+  first step. Check the shape of the curve before trusting a paired comparison.
 
 ## Downscaler (`downscaler/`) — the live project on this machine
 
@@ -315,6 +509,9 @@ not already in the config need a `+` prefix — e.g. `+stats.n_samples=500` for
 
 ### Downscaler constraints that bite
 
+- **HRRR 2019-2021 WAS DELETED 2026-09-14** (383 GB, for the acal campaign) - the index and
+  norm stats are stale and training will crash at the first batch until rebuilt. See
+  `downscaler/docs/HRRR_GAP.md`.
 - **Real data is on disk and `use_dummy: false` is now the default.** ERA5 (16,072 files)
   and HRRR (16,019 files, `hrrr_nc_v3_rebuilt/`) both cover 2015–2025 6-hourly, and the
   config's paths/coord names/variable names are verified against them. `use_dummy=true`

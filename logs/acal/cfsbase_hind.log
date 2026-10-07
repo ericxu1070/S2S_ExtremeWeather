@@ -1,0 +1,1663 @@
+[cfsbase] hind: 191 (case, year) jobs, 191 to run, 4 workers
+  [1/191] e01_h2_20210119 2025: n=16 CFS +0.61 ERA5 -0.60 bias +1.21
+  [2/191] e01_h2_20210119 2024: n=16 CFS -0.19 ERA5 -3.46 bias +3.27
+  [3/191] e01_h2_20210119 2023: n=16 CFS +1.59 ERA5 +2.43 bias -0.84
+  [4/191] e01_h2_20210119 2022: n=16 CFS -2.31 ERA5 +0.79 bias -3.10
+  [5/191] e02_c4_20210218 2022: n=16 CFS -1.14 ERA5 +0.20 bias -1.34
+  [6/191] e01_h2_20210119 2026: n=16 CFS +0.67 ERA5 +1.40 bias -0.73
+  [7/191] e02_c4_20210218 2024: n=16 CFS -0.36 ERA5 +0.34 bias -0.70
+  [8/191] e02_c4_20210218 2023: n=16 CFS +0.38 ERA5 +0.99 bias -0.61
+  [9/191] e02_c4_20210218 2026: n=16 CFS +0.06 ERA5 +2.94 bias -2.87
+  [10/191] e02_c4_20210218 2025: n=16 CFS -0.41 ERA5 -2.09 bias +1.67
+  [11/191] e03_h2_20210411 2022: n=16 CFS -0.00 ERA5 +0.57 bias -0.58
+  [12/191] e03_h2_20210411 2025: n=16 CFS +0.58 ERA5 -0.19 bias +0.77
+  [13/191] e03_h2_20210411 2024: n=16 CFS -0.75 ERA5 +0.02 bias -0.77
+  [14/191] e03_h2_20210411 2023: n=16 CFS -1.05 ERA5 -0.44 bias -0.60
+  [15/191] e04_h2_20210610 2023: n=16 CFS +0.01 ERA5 +0.00 bias +0.01
+  [16/191] e04_h2_20210610 2022: n=16 CFS +0.33 ERA5 +0.54 bias -0.21
+  [17/191] e04_h2_20210610 2024: n=16 CFS +0.41 ERA5 +1.50 bias -1.09
+  [18/191] e04_h2_20210610 2025: n=16 CFS +0.78 ERA5 +0.94 bias -0.15
+  [19/191] e05_h2_20211011 2022: n=16 CFS +0.71 ERA5 -0.06 bias +0.77
+  [20/191] e05_h2_20211011 2023: n=16 CFS +0.38 ERA5 +0.69 bias -0.31
+  [21/191] e05_h2_20211011 2024: n=16 CFS +1.42 ERA5 +2.15 bias -0.73
+  [22/191] e03_h2_20210411 2026: n=16 CFS +0.57 ERA5 +1.04 bias -0.47
+  [23/191] e06_h2_20211206 2022: n=16 CFS +1.10 ERA5 +0.08 bias +1.02
+  [24/191] e06_h2_20211206 2023: n=16 CFS -0.50 ERA5 +1.40 bias -1.90
+  [25/191] e04_h2_20210610 2026: n=16 CFS +0.88 ERA5 +1.36 bias -0.48
+  [26/191] e06_h2_20211206 2024: n=16 CFS +0.23 ERA5 -1.56 bias +1.79
+  [27/191] e06_h2_20211206 2025: n=16 CFS +0.07 ERA5 -1.68 bias +1.75
+  [28/191] e07_h2_20211217 2022: n=16 CFS -0.56 ERA5 +0.24 bias -0.80
+  [29/191] e07_h2_20211217 2023: n=16 CFS +0.06 ERA5 +1.48 bias -1.42
+  [30/191] e07_h2_20211217 2024: n=16 CFS +0.24 ERA5 +0.79 bias -0.55
+  [31/191] e07_h2_20211217 2025: n=16 CFS -0.08 ERA5 +0.22 bias -0.29
+  [32/191] e08_h2_20211229 2022: n=16 CFS -1.01 ERA5 -2.16 bias +1.15
+  [33/191] e08_h2_20211229 2023: n=16 CFS +0.83 ERA5 +2.97 bias -2.14
+  [34/191] e08_h2_20211229 2024: n=16 CFS +1.07 ERA5 +3.03 bias -1.96
+  [35/191] e08_h2_20211229 2025: n=16 CFS -0.00 ERA5 +4.02 bias -4.02
+  [36/191] e05_h2_20211011 2025: n=16 CFS +0.27 ERA5 +1.47 bias -1.20
+  [37/191] e09_c2_20220228 2021: n=16 CFS -0.65 ERA5 +1.45 bias -2.09
+  [38/191] e09_c2_20220228 2023: n=16 CFS -0.60 ERA5 -0.55 bias -0.04
+  [39/191] e09_c2_20220228 2024: n=16 CFS -0.69 ERA5 +2.88 bias -3.57
+  [40/191] e09_c2_20220228 2025: n=16 CFS -0.04 ERA5 +2.04 bias -2.07
+  [41/191] e10_c2_20220314 2021: n=16 CFS +0.19 ERA5 +1.73 bias -1.53
+  [42/191] e10_c2_20220314 2023: n=16 CFS -1.69 ERA5 -0.21 bias -1.48
+  [43/191] e10_c2_20220314 2024: n=16 CFS +0.16 ERA5 +1.54 bias -1.38
+  [44/191] e10_c2_20220314 2025: n=16 CFS -1.35 ERA5 +1.53 bias -2.88
+  [45/191] e11_h2_20220321 2021: n=16 CFS -0.82 ERA5 +0.26 bias -1.08
+  [46/191] e11_h2_20220321 2023: n=16 CFS -1.58 ERA5 -2.01 bias +0.44
+  [47/191] e11_h2_20220321 2024: n=16 CFS -0.34 ERA5 +0.96 bias -1.30
+  [48/191] e11_h2_20220321 2025: n=16 CFS +0.24 ERA5 +1.24 bias -1.01
+  [49/191] e10_c2_20220314 2026: n=16 CFS +0.90 ERA5 +3.45 bias -2.55
+  [50/191] e09_c2_20220228 2026: n=16 CFS +0.56 ERA5 +1.06 bias -0.50
+  [51/191] e12_c3_20221121 2021: n=16 CFS +0.19 ERA5 +1.05 bias -0.86
+  [52/191] e12_c3_20221121 2024: n=16 CFS +1.21 ERA5 +1.41 bias -0.20
+  [53/191] e12_c3_20221121 2025: n=16 CFS +1.44 ERA5 +2.45 bias -1.01
+  [54/191] e12_c3_20221121 2023: n=16 CFS +0.07 ERA5 +2.19 bias -2.12
+  [55/191] e13_c3_20221225 2021: n=16 CFS +0.37 ERA5 +0.96 bias -0.59
+  [56/191] e13_c3_20221225 2023: n=16 CFS +0.87 ERA5 +2.74 bias -1.87
+  [57/191] e13_c3_20221225 2024: n=16 CFS +2.31 ERA5 +1.16 bias +1.15
+  [58/191] e13_c3_20221225 2025: n=16 CFS +0.30 ERA5 +3.39 bias -3.09
+  [59/191] e14_h4_20230104 2021: n=16 CFS -0.05 ERA5 +1.13 bias -1.18
+  [60/191] e11_h2_20220321 2026: n=16 CFS +1.25 ERA5 +1.77 bias -0.52
+  [61/191] e14_h4_20230104 2022: n=16 CFS +0.12 ERA5 +0.36 bias -0.24
+  [62/191] e14_h4_20230104 2024: n=16 CFS +0.78 ERA5 +1.29 bias -0.51
+  [63/191] e14_h4_20230104 2025: n=16 CFS +2.70 ERA5 +2.82 bias -0.11
+  [64/191] e14_h4_20230104 2026: n=16 CFS +0.83 ERA5 +0.66 bias +0.17
+  [65/191] e15_h2_20230118 2021: n=16 CFS +0.83 ERA5 +2.05 bias -1.22
+  [66/191] e15_h2_20230118 2022: n=16 CFS -1.80 ERA5 +0.76 bias -2.57
+  [67/191] e15_h2_20230118 2024: n=16 CFS +0.21 ERA5 -3.40 bias +3.61
+  [68/191] e15_h2_20230118 2025: n=16 CFS +0.18 ERA5 -0.66 bias +0.84
+  [69/191] e15_h2_20230118 2026: n=16 CFS +0.84 ERA5 +1.63 bias -0.79
+  [70/191] e16_c2_20230205 2022: n=16 CFS -0.46 ERA5 -1.47 bias +1.01
+  [71/191] e16_c2_20230205 2024: n=16 CFS -0.31 ERA5 +3.14 bias -3.45
+  [72/191] e16_c2_20230205 2025: n=16 CFS +0.03 ERA5 +1.97 bias -1.95
+  [73/191] e16_c2_20230205 2021: n=16 CFS -0.50 ERA5 +0.63 bias -1.14
+  [74/191] e16_c2_20230205 2026: n=16 CFS -0.62 ERA5 -0.88 bias +0.26
+  [75/191] e17_c2_20230322 2022: n=16 CFS +0.47 ERA5 +2.26 bias -1.80
+  [76/191] e17_c2_20230322 2024: n=16 CFS -0.54 ERA5 +0.42 bias -0.96
+  [77/191] e17_c2_20230322 2021: n=16 CFS -0.96 ERA5 +0.51 bias -1.47
+  [78/191] e17_c2_20230322 2025: n=16 CFS +0.16 ERA5 +0.83 bias -0.67
+  [79/191] e18_h2_20231006 2021: n=16 CFS +0.41 ERA5 +1.37 bias -0.96
+  [80/191] e18_h2_20231006 2022: n=16 CFS +0.44 ERA5 +0.07 bias +0.37
+  [81/191] e18_h2_20231006 2024: n=16 CFS +0.86 ERA5 +2.26 bias -1.39
+  [82/191] e18_h2_20231006 2025: n=16 CFS +0.24 ERA5 +1.96 bias -1.73
+  [83/191] e19_h2_20231025 2021: n=16 CFS +0.41 ERA5 +0.86 bias -0.45
+  [84/191] e19_h2_20231025 2022: n=16 CFS +1.23 ERA5 +0.38 bias +0.86
+  [85/191] e19_h2_20231025 2024: n=16 CFS +1.32 ERA5 +1.88 bias -0.56
+  [86/191] e20_c2_20231103 2021: n=16 CFS +0.75 ERA5 +0.48 bias +0.27
+  [87/191] e20_c2_20231103 2022: n=16 CFS -0.02 ERA5 +1.10 bias -1.12
+  [88/191] e17_c2_20230322 2026: n=16 CFS +1.13 ERA5 +2.22 bias -1.09
+  [89/191] e20_c2_20231103 2024: n=16 CFS +0.73 ERA5 +1.96 bias -1.22
+  [90/191] e21_h2_20231120 2021: n=16 CFS -0.02 ERA5 +1.06 bias -1.09
+  [91/191] e21_h2_20231120 2022: n=16 CFS +0.09 ERA5 -3.82 bias +3.91
+  [92/191] e21_h2_20231120 2024: n=16 CFS +0.56 ERA5 +1.41 bias -0.85
+  [93/191] e21_h2_20231120 2025: n=16 CFS +1.07 ERA5 +2.56 bias -1.49
+  [94/191] e19_h2_20231025 2025: n=16 CFS +0.71 ERA5 +0.95 bias -0.24
+  [95/191] e22_h2_20231210 2021: n=16 CFS +0.25 ERA5 +1.42 bias -1.17
+  [96/191] e22_h2_20231210 2024: n=16 CFS -0.37 ERA5 +0.17 bias -0.54
+  [97/191] e22_h2_20231210 2022: n=16 CFS +0.60 ERA5 +1.18 bias -0.58
+  [98/191] e22_h2_20231210 2025: n=16 CFS -0.74 ERA5 -0.85 bias +0.10
+  [99/191] e20_c2_20231103 2025: n=16 CFS +0.54 ERA5 +0.02 bias +0.52
+  [100/191] e23_h3_20231228 2021: n=16 CFS +0.13 ERA5 +2.21 bias -2.08
+  [101/191] e23_h3_20231228 2022: n=16 CFS -0.55 ERA5 -3.05 bias +2.50
+  [102/191] e23_h3_20231228 2024: n=16 CFS +1.19 ERA5 +2.14 bias -0.94
+  [103/191] e23_h3_20231228 2025: n=16 CFS +0.11 ERA5 +4.15 bias -4.04
+  [104/191] e24_c3_20240119 2021: n=16 CFS +0.72 ERA5 +2.22 bias -1.50
+  [105/191] e24_c3_20240119 2022: n=16 CFS -2.31 ERA5 +0.79 bias -3.10
+  [106/191] e24_c3_20240119 2023: n=16 CFS +1.59 ERA5 +2.43 bias -0.84
+  [107/191] e24_c3_20240119 2025: n=16 CFS +0.61 ERA5 -0.60 bias +1.21
+  [108/191] e24_c3_20240119 2026: n=16 CFS +0.67 ERA5 +1.40 bias -0.73
+  [109/191] e25_h3_20240131 2021: n=16 CFS -0.14 ERA5 -0.51 bias +0.36
+  [110/191] e25_h3_20240131 2022: n=16 CFS -1.56 ERA5 -1.84 bias +0.27
+  [111/191] e25_h3_20240131 2023: n=16 CFS -0.81 ERA5 -0.74 bias -0.07
+  [112/191] e25_h3_20240131 2025: n=16 CFS -1.25 ERA5 +0.17 bias -1.42
+  [113/191] e25_h3_20240131 2026: n=16 CFS +0.24 ERA5 -3.60 bias +3.84
+  [114/191] e26_h2_20240211 2022: n=16 CFS -1.04 ERA5 +0.28 bias -1.32
+  [115/191] e26_h2_20240211 2023: n=16 CFS -0.38 ERA5 +1.99 bias -2.36
+  [116/191] e26_h2_20240211 2021: n=16 CFS -0.15 ERA5 -1.49 bias +1.33
+  [117/191] e26_h2_20240211 2025: n=16 CFS -0.06 ERA5 +0.99 bias -1.05
+  [118/191] e27_h2_20240228 2021: n=16 CFS -0.65 ERA5 +1.45 bias -2.09
+  [119/191] e26_h2_20240211 2026: n=16 CFS +0.84 ERA5 +1.59 bias -0.75
+  [120/191] e27_h2_20240228 2022: n=16 CFS +0.97 ERA5 -2.64 bias +3.61
+  [121/191] e27_h2_20240228 2023: n=16 CFS -0.60 ERA5 -0.55 bias -0.04
+  [122/191] e27_h2_20240228 2025: n=16 CFS -0.04 ERA5 +2.04 bias -2.07
+  [123/191] e28_h2_20240318 2021: n=16 CFS -0.20 ERA5 +0.62 bias -0.82
+  [124/191] e28_h2_20240318 2025: n=16 CFS +0.36 ERA5 +2.15 bias -1.79
+  [125/191] e28_h2_20240318 2023: n=16 CFS -2.33 ERA5 -0.82 bias -1.51
+  [126/191] e28_h2_20240318 2022: n=16 CFS -0.29 ERA5 +0.33 bias -0.61
+  [127/191] e29_h2_20240418 2022: n=16 CFS -0.92 ERA5 -0.67 bias -0.25
+  [128/191] e29_h2_20240418 2021: n=16 CFS -0.08 ERA5 -0.29 bias +0.21
+  [129/191] e29_h2_20240418 2023: n=16 CFS -1.07 ERA5 +1.35 bias -2.42
+  [130/191] e29_h2_20240418 2025: n=16 CFS -0.16 ERA5 +1.35 bias -1.51
+  [131/191] e27_h2_20240228 2026: n=16 CFS +0.56 ERA5 +1.06 bias -0.50
+  [132/191] e30_h2_20241001 2021: n=16 CFS +0.25 ERA5 +0.93 bias -0.68
+  [133/191] e30_h2_20241001 2022: n=16 CFS +0.34 ERA5 +0.57 bias -0.22
+  [134/191] e30_h2_20241001 2023: n=16 CFS +0.47 ERA5 +1.80 bias -1.32
+  [135/191] e30_h2_20241001 2025: n=16 CFS +0.43 ERA5 +2.03 bias -1.60
+  [136/191] e28_h2_20240318 2026: n=16 CFS +1.30 ERA5 +1.06 bias +0.25
+  [137/191] e31_h2_20241027 2022: n=16 CFS +0.54 ERA5 +0.97 bias -0.43
+  [138/191] e31_h2_20241027 2021: n=16 CFS +0.45 ERA5 +1.30 bias -0.85
+  [139/191] e29_h2_20240418 2026: n=16 CFS +0.73 ERA5 +2.47 bias -1.73
+  [140/191] e31_h2_20241027 2023: n=16 CFS +0.91 ERA5 +2.05 bias -1.14
+  [141/191] e32_h2_20241221 2021: n=16 CFS +1.40 ERA5 +1.61 bias -0.21
+  [142/191] e32_h2_20241221 2022: n=16 CFS -0.97 ERA5 -1.77 bias +0.80
+  [143/191] e32_h2_20241221 2023: n=16 CFS +0.29 ERA5 +2.44 bias -2.15
+  [144/191] e32_h2_20241221 2025: n=16 CFS +1.04 ERA5 +1.91 bias -0.87
+  [145/191] e33_h4_20250101 2022: n=16 CFS -0.13 ERA5 +1.94 bias -2.07
+  [146/191] e33_h4_20250101 2023: n=16 CFS +0.06 ERA5 +2.06 bias -2.00
+  [147/191] e33_h4_20250101 2024: n=16 CFS +0.65 ERA5 +2.10 bias -1.44
+  [148/191] e34_c4_20250125 2021: n=16 CFS +0.96 ERA5 +0.76 bias +0.20
+  [149/191] e33_h4_20250101 2026: n=16 CFS +0.80 ERA5 +1.73 bias -0.93
+  [150/191] e34_c4_20250125 2022: n=16 CFS -1.38 ERA5 -1.31 bias -0.06
+  [151/191] e34_c4_20250125 2023: n=16 CFS +1.08 ERA5 +0.91 bias +0.17
+  [152/191] e34_c4_20250125 2024: n=16 CFS -0.89 ERA5 -0.10 bias -0.79
+  [153/191] e34_c4_20250125 2026: n=16 CFS +0.38 ERA5 -1.76 bias +2.14
+  [154/191] e35_h2_20250209 2022: n=16 CFS -1.55 ERA5 -1.39 bias -0.16
+  [155/191] e35_h2_20250209 2021: n=16 CFS -0.36 ERA5 -0.42 bias +0.07
+  [156/191] e35_h2_20250209 2023: n=16 CFS -0.45 ERA5 +0.68 bias -1.13
+  [157/191] e35_h2_20250209 2024: n=16 CFS +0.37 ERA5 +2.44 bias -2.07
+  [158/191] e35_h2_20250209 2026: n=16 CFS +1.98 ERA5 +1.08 bias +0.90
+  [159/191] e31_h2_20241027 2025: n=16 CFS +0.90 ERA5 +0.84 bias +0.07
+  [160/191] e36_c3_20250223 2021: n=16 CFS -0.67 ERA5 -2.30 bias +1.63
+  [161/191] e36_c3_20250223 2022: n=16 CFS -0.55 ERA5 +0.06 bias -0.61
+  [162/191] e36_c3_20250223 2023: n=16 CFS -0.44 ERA5 +0.52 bias -0.96
+  [163/191] e36_c3_20250223 2024: n=16 CFS -0.88 ERA5 +0.79 bias -1.67
+  [164/191] e37_h3_20250302 2021: n=16 CFS -1.13 ERA5 +1.35 bias -2.48
+  [165/191] e37_h3_20250302 2022: n=16 CFS +0.99 ERA5 -1.95 bias +2.94
+  [166/191] e37_h3_20250302 2024: n=16 CFS -0.33 ERA5 +1.85 bias -2.18
+  [167/191] e36_c3_20250223 2026: n=16 CFS -0.89 ERA5 +1.27 bias -2.16
+  [168/191] e37_h3_20250302 2023: n=16 CFS -0.59 ERA5 -0.01 bias -0.58
+  [169/191] e38_h2_20250317 2021: n=16 CFS -0.22 ERA5 +0.83 bias -1.05
+  [170/191] e38_h2_20250317 2023: n=16 CFS -2.36 ERA5 -0.45 bias -1.91
+  [171/191] e38_h2_20250317 2022: n=16 CFS -0.55 ERA5 -0.51 bias -0.04
+  [172/191] e38_h2_20250317 2024: n=16 CFS -0.23 ERA5 +2.26 bias -2.49
+  [173/191] e39_h2_20250331 2021: n=16 CFS -0.21 ERA5 +1.23 bias -1.44
+  [174/191] e39_h2_20250331 2022: n=16 CFS -0.05 ERA5 +0.43 bias -0.48
+  [175/191] e39_h2_20250331 2023: n=16 CFS -0.66 ERA5 -1.35 bias +0.69
+  [176/191] e39_h2_20250331 2024: n=16 CFS -0.80 ERA5 -0.88 bias +0.07
+  [177/191] e37_h3_20250302 2026: n=16 CFS +0.33 ERA5 +2.15 bias -1.82
+  [178/191] e40_h2_20250930 2021: n=16 CFS -0.17 ERA5 +0.88 bias -1.05
+  [179/191] e40_h2_20250930 2022: n=16 CFS +0.43 ERA5 +0.59 bias -0.16
+  [180/191] e38_h2_20250317 2026: n=16 CFS +1.22 ERA5 +1.71 bias -0.49
+  [181/191] e40_h2_20250930 2023: n=16 CFS +0.49 ERA5 +1.65 bias -1.15
+  [182/191] e40_h2_20250930 2024: n=16 CFS +0.73 ERA5 +2.63 bias -1.90
+  [183/191] e41_h2_20251120 2022: n=16 CFS +0.09 ERA5 -3.82 bias +3.91
+  [184/191] e41_h2_20251120 2021: n=16 CFS -0.02 ERA5 +1.06 bias -1.09
+  [185/191] e41_h2_20251120 2023: n=16 CFS +0.46 ERA5 +2.21 bias -1.75
+  [186/191] e41_h2_20251120 2024: n=16 CFS +0.56 ERA5 +1.41 bias -0.85
+  [187/191] e42_h4_20251228 2021: n=16 CFS +0.13 ERA5 +2.21 bias -2.08
+  [188/191] e42_h4_20251228 2022: n=16 CFS -0.55 ERA5 -3.05 bias +2.50
+  [189/191] e42_h4_20251228 2023: n=16 CFS +1.06 ERA5 +3.03 bias -1.97
+  [190/191] e42_h4_20251228 2024: n=16 CFS +1.19 ERA5 +2.14 bias -0.94
+  [191/191] e39_h2_20250331 2026: n=16 CFS +1.29 ERA5 +2.72 bias -1.43
+    2022-12-25 18Z  absent from NCEI, served by AWS
+    no inventory for 2023-01-26 06Z on NCEI; fetching the whole run instead
+    2023-01-27 06Z  absent from NCEI, served by AWS
+    no inventory for 2023-03-17 06Z on NCEI; fetching the whole run instead
+    no inventory for 2023-03-21 00Z on NCEI; fetching the whole run instead
+    2024-05-16 06Z  absent from NCEI, served by AWS
+    2024-05-16 12Z  absent from NCEI, served by AWS
+    2024-05-16 18Z  absent from NCEI, served by AWS
+    2024-05-17 00Z  absent from NCEI, served by AWS
+    2024-05-17 06Z  absent from NCEI, served by AWS
+    2024-05-17 12Z  absent from NCEI, served by AWS
+    2024-05-17 18Z  absent from NCEI, served by AWS
+    2024-05-18 00Z  absent from NCEI, served by AWS
+    2024-05-18 06Z  absent from NCEI, served by AWS
+    2024-05-18 12Z  absent from NCEI, served by AWS
+    2024-05-18 18Z  absent from NCEI, served by AWS
+    2024-05-19 00Z  absent from NCEI, served by AWS
+    2024-05-19 06Z  absent from NCEI, served by AWS
+    2024-05-19 12Z  absent from NCEI, served by AWS
+    2024-05-19 18Z  absent from NCEI, served by AWS
+    2024-05-20 00Z  absent from NCEI, served by AWS
+    no inventory for 2022-09-17 00Z on NCEI; fetching the whole run instead
+    2024-09-16 06Z  absent from NCEI, served by AWS
+    2024-09-16 12Z  absent from NCEI, served by AWS
+    2024-09-16 18Z  absent from NCEI, served by AWS
+    2024-09-17 00Z  absent from NCEI, served by AWS
+    2024-09-17 06Z  absent from NCEI, served by AWS
+    2024-09-17 12Z  absent from NCEI, served by AWS
+    2024-09-17 18Z  absent from NCEI, served by AWS
+    2024-09-18 00Z  absent from NCEI, served by AWS
+    2024-09-18 06Z  absent from NCEI, served by AWS
+    2024-09-18 12Z  absent from NCEI, served by AWS
+    2024-09-18 18Z  absent from NCEI, served by AWS
+    2024-09-19 00Z  absent from NCEI, served by AWS
+    2024-09-19 06Z  absent from NCEI, served by AWS
+    2024-09-19 12Z  absent from NCEI, served by AWS
+    2024-09-19 18Z  absent from NCEI, served by AWS
+    2024-09-20 00Z  absent from NCEI, served by AWS
+    2024-11-11 06Z  absent from NCEI, served by AWS
+    2024-11-11 12Z  absent from NCEI, served by AWS
+    2024-11-11 18Z  absent from NCEI, served by AWS
+    2024-11-12 00Z  absent from NCEI, served by AWS
+    2024-11-12 06Z  absent from NCEI, served by AWS
+    2024-11-12 12Z  absent from NCEI, served by AWS
+    2024-11-12 18Z  absent from NCEI, served by AWS
+    2024-11-13 00Z  absent from NCEI, served by AWS
+    2024-11-13 06Z  absent from NCEI, served by AWS
+    2024-11-13 12Z  absent from NCEI, served by AWS
+    2024-11-13 18Z  absent from NCEI, served by AWS
+    2024-11-14 00Z  absent from NCEI, served by AWS
+    2024-11-14 06Z  absent from NCEI, served by AWS
+    2024-11-14 12Z  absent from NCEI, served by AWS
+    2024-11-14 18Z  absent from NCEI, served by AWS
+    2024-11-15 00Z  absent from NCEI, served by AWS
+    2023-11-22 06Z  absent from NCEI, served by AWS
+    2023-11-22 12Z  absent from NCEI, served by AWS
+    2023-11-22 18Z  absent from NCEI, served by AWS
+    2023-11-23 00Z  absent from NCEI, served by AWS
+    2023-11-23 06Z  absent from NCEI, served by AWS
+    2023-11-23 12Z  absent from NCEI, served by AWS
+    2023-11-23 18Z  absent from NCEI, served by AWS
+    2023-11-24 00Z  absent from NCEI, served by AWS
+    2023-11-24 06Z  absent from NCEI, served by AWS
+    2023-11-24 12Z  absent from NCEI, served by AWS
+    2023-11-24 18Z  absent from NCEI, served by AWS
+    2023-11-25 00Z  absent from NCEI, served by AWS
+    2023-11-25 06Z  absent from NCEI, served by AWS
+    2023-11-25 12Z  absent from NCEI, served by AWS
+    2023-11-25 18Z  absent from NCEI, served by AWS
+    2023-11-26 00Z  absent from NCEI, served by AWS
+    2022-12-07 12Z  absent from NCEI, served by AWS
+    2022-12-08 00Z  absent from NCEI, served by AWS
+    2025-12-04 06Z  absent from NCEI, served by AWS
+    2025-12-04 12Z  absent from NCEI, served by AWS
+    2025-12-04 18Z  absent from NCEI, served by AWS
+    2025-12-05 00Z  absent from NCEI, served by AWS
+    2025-12-05 06Z  absent from NCEI, served by AWS
+    2025-12-05 12Z  absent from NCEI, served by AWS
+    2025-12-05 18Z  absent from NCEI, served by AWS
+    2025-12-06 00Z  absent from NCEI, served by AWS
+    2025-12-06 06Z  absent from NCEI, served by AWS
+    2025-12-06 12Z  absent from NCEI, served by AWS
+    2025-12-06 18Z  absent from NCEI, served by AWS
+    2025-12-07 00Z  absent from NCEI, served by AWS
+    2025-12-07 06Z  absent from NCEI, served by AWS
+    2025-12-07 12Z  absent from NCEI, served by AWS
+    2025-12-07 18Z  absent from NCEI, served by AWS
+    2025-12-08 00Z  absent from NCEI, served by AWS
+    2024-02-03 06Z  absent from NCEI, served by AWS
+    2024-02-03 12Z  absent from NCEI, served by AWS
+    2024-02-03 18Z  absent from NCEI, served by AWS
+    2024-02-04 00Z  absent from NCEI, served by AWS
+    2024-02-04 06Z  absent from NCEI, served by AWS
+    2024-02-04 12Z  absent from NCEI, served by AWS
+    2024-02-04 18Z  absent from NCEI, served by AWS
+    2024-02-05 00Z  absent from NCEI, served by AWS
+    2024-02-05 06Z  absent from NCEI, served by AWS
+    2024-02-05 12Z  absent from NCEI, served by AWS
+    2024-02-05 18Z  absent from NCEI, served by AWS
+    2024-02-06 00Z  absent from NCEI, served by AWS
+    2024-02-06 06Z  absent from NCEI, served by AWS
+    2024-02-06 12Z  absent from NCEI, served by AWS
+    2024-02-06 18Z  absent from NCEI, served by AWS
+    2024-02-07 00Z  absent from NCEI, served by AWS
+    2023-02-17 18Z  absent from NCEI, served by AWS
+    2023-02-19 00Z  absent from NCEI, served by AWS
+    no inventory for 2026-02-17 06Z on NCEI; fetching the whole run instead
+    no inventory for 2026-02-17 12Z on NCEI; fetching the whole run instead
+    no inventory for 2026-02-17 18Z on NCEI; fetching the whole run instead
+    no inventory for 2026-02-18 00Z on NCEI; fetching the whole run instead
+    no inventory for 2026-02-18 06Z on NCEI; fetching the whole run instead
+    no inventory for 2026-02-18 12Z on NCEI; fetching the whole run instead
+    no inventory for 2026-02-18 18Z on NCEI; fetching the whole run instead
+    2026-02-19 00Z  absent from NCEI, served by AWS
+    2026-02-19 06Z  absent from NCEI, served by AWS
+    2026-02-19 12Z  absent from NCEI, served by AWS
+    2026-02-19 18Z  absent from NCEI, served by AWS
+    2026-02-20 00Z  absent from NCEI, served by AWS
+    2026-02-20 06Z  absent from NCEI, served by AWS
+    no inventory for 2026-02-20 12Z on NCEI; fetching the whole run instead
+    2026-02-20 18Z  absent from NCEI, served by AWS
+    no inventory for 2026-02-21 00Z on NCEI; fetching the whole run instead
+    no inventory for 2023-10-30 18Z on NCEI; fetching the whole run instead
+    2024-11-30 06Z  absent from NCEI, served by AWS
+    2024-11-30 12Z  absent from NCEI, served by AWS
+    2024-11-30 18Z  absent from NCEI, served by AWS
+    2024-12-01 00Z  absent from NCEI, served by AWS
+    2024-12-01 06Z  absent from NCEI, served by AWS
+    2024-12-01 12Z  absent from NCEI, served by AWS
+    2024-12-01 18Z  absent from NCEI, served by AWS
+    2024-12-02 00Z  absent from NCEI, served by AWS
+    2024-12-02 06Z  absent from NCEI, served by AWS
+    2024-12-02 12Z  absent from NCEI, served by AWS
+    2024-12-02 18Z  absent from NCEI, served by AWS
+    2024-12-03 00Z  absent from NCEI, served by AWS
+    2024-12-03 06Z  absent from NCEI, served by AWS
+    2024-12-03 12Z  absent from NCEI, served by AWS
+    2024-12-03 18Z  absent from NCEI, served by AWS
+    2024-12-04 00Z  absent from NCEI, served by AWS
+    2020-12-24 06Z  absent from NCEI, served by AWS
+    2020-12-24 12Z  absent from NCEI, served by AWS
+    2020-12-28 00Z  absent from NCEI, served by AWS
+    2025-12-24 06Z  absent from NCEI, served by AWS
+    2025-12-24 12Z  absent from NCEI, served by AWS
+    2025-12-24 18Z  absent from NCEI, served by AWS
+    2025-12-25 00Z  absent from NCEI, served by AWS
+    2025-12-25 06Z  absent from NCEI, served by AWS
+    2025-12-25 12Z  absent from NCEI, served by AWS
+    2025-12-25 18Z  absent from NCEI, served by AWS
+    2025-12-26 00Z  absent from NCEI, served by AWS
+    2025-12-26 06Z  absent from NCEI, served by AWS
+    2025-12-26 12Z  absent from NCEI, served by AWS
+    2025-12-26 18Z  absent from NCEI, served by AWS
+    2025-12-27 00Z  absent from NCEI, served by AWS
+    2025-12-27 06Z  absent from NCEI, served by AWS
+    2025-12-27 12Z  absent from NCEI, served by AWS
+    2025-12-27 18Z  absent from NCEI, served by AWS
+    2025-12-28 00Z  absent from NCEI, served by AWS
+    2022-02-25 06Z  absent from NCEI, served by AWS
+    2022-02-27 00Z  absent from NCEI, served by AWS
+    no inventory for 2026-02-25 06Z on NCEI; fetching the whole run instead
+    no inventory for 2026-02-25 12Z on NCEI; fetching the whole run instead
+    no inventory for 2026-02-25 18Z on NCEI; fetching the whole run instead
+    no inventory for 2026-02-26 00Z on NCEI; fetching the whole run instead
+    no inventory for 2026-02-26 06Z on NCEI; fetching the whole run instead
+    no inventory for 2026-02-26 12Z on NCEI; fetching the whole run instead
+    no inventory for 2026-02-26 18Z on NCEI; fetching the whole run instead
+    no inventory for 2026-02-27 00Z on NCEI; fetching the whole run instead
+    2026-02-27 06Z  absent from NCEI, served by AWS
+    2026-02-27 12Z  absent from NCEI, served by AWS
+    2026-02-27 18Z  absent from NCEI, served by AWS
+    no inventory for 2026-02-28 00Z on NCEI; fetching the whole run instead
+    no inventory for 2026-02-28 06Z on NCEI; fetching the whole run instead
+    no inventory for 2026-02-28 12Z on NCEI; fetching the whole run instead
+    no inventory for 2026-02-28 18Z on NCEI; fetching the whole run instead
+    2026-03-01 00Z  absent from NCEI, served by AWS
+    2021-10-28 00Z  absent from NCEI, served by AWS
+    no inventory for 2021-10-29 06Z on NCEI; fetching the whole run instead
+    2024-10-26 06Z  absent from NCEI, served by AWS
+    2024-10-26 12Z  absent from NCEI, served by AWS
+    2024-10-26 18Z  absent from NCEI, served by AWS
+    2024-10-27 00Z  absent from NCEI, served by AWS
+    2024-10-27 06Z  absent from NCEI, served by AWS
+    2024-10-27 12Z  absent from NCEI, served by AWS
+    2024-10-27 18Z  absent from NCEI, served by AWS
+    2024-10-28 00Z  absent from NCEI, served by AWS
+    2024-10-28 06Z  absent from NCEI, served by AWS
+    2024-10-28 12Z  absent from NCEI, served by AWS
+    2024-10-28 18Z  absent from NCEI, served by AWS
+    2024-10-29 00Z  absent from NCEI, served by AWS
+    2024-10-29 06Z  absent from NCEI, served by AWS
+    2024-10-29 12Z  absent from NCEI, served by AWS
+    2024-10-29 18Z  absent from NCEI, served by AWS
+    2024-10-30 00Z  absent from NCEI, served by AWS
+    2021-11-15 12Z  absent from NCEI, served by AWS
+    no inventory for 2021-11-17 12Z on NCEI; fetching the whole run instead
+    2021-11-19 00Z  absent from NCEI, served by AWS
+    2025-11-15 06Z  absent from NCEI, served by AWS
+    2025-11-15 12Z  absent from NCEI, served by AWS
+    2025-11-15 18Z  absent from NCEI, served by AWS
+    2025-11-16 00Z  absent from NCEI, served by AWS
+    2025-11-16 06Z  absent from NCEI, served by AWS
+    2025-11-16 12Z  absent from NCEI, served by AWS
+    2025-11-16 18Z  absent from NCEI, served by AWS
+    2025-11-17 00Z  absent from NCEI, served by AWS
+    2025-11-17 06Z  absent from NCEI, served by AWS
+    2025-11-17 12Z  absent from NCEI, served by AWS
+    2025-11-17 18Z  absent from NCEI, served by AWS
+    2025-11-18 00Z  absent from NCEI, served by AWS
+    2025-11-18 06Z  absent from NCEI, served by AWS
+    2025-11-18 12Z  absent from NCEI, served by AWS
+    2025-11-18 18Z  absent from NCEI, served by AWS
+    2025-11-19 00Z  absent from NCEI, served by AWS
+    2024-12-03 06Z  absent from NCEI, served by AWS
+    2024-12-03 12Z  absent from NCEI, served by AWS
+    2024-12-03 18Z  absent from NCEI, served by AWS
+    2024-12-04 00Z  absent from NCEI, served by AWS
+    2024-12-04 06Z  absent from NCEI, served by AWS
+    2024-12-04 12Z  absent from NCEI, served by AWS
+    2024-12-04 18Z  absent from NCEI, served by AWS
+    2024-12-05 00Z  absent from NCEI, served by AWS
+    2024-12-05 06Z  absent from NCEI, served by AWS
+    2024-12-05 12Z  absent from NCEI, served by AWS
+    2024-12-05 18Z  absent from NCEI, served by AWS
+    2024-12-06 00Z  absent from NCEI, served by AWS
+    2024-12-06 06Z  absent from NCEI, served by AWS
+    2024-12-06 12Z  absent from NCEI, served by AWS
+    2024-12-06 18Z  absent from NCEI, served by AWS
+    2024-12-07 00Z  absent from NCEI, served by AWS
+    2022-12-25 18Z  absent from NCEI, served by AWS
+    2025-02-21 06Z  absent from NCEI, served by AWS
+    2025-02-21 12Z  absent from NCEI, served by AWS
+    2025-02-21 18Z  absent from NCEI, served by AWS
+    2025-02-22 00Z  absent from NCEI, served by AWS
+    2025-02-22 06Z  absent from NCEI, served by AWS
+    2025-02-22 12Z  absent from NCEI, served by AWS
+    2025-02-22 18Z  absent from NCEI, served by AWS
+    2025-02-23 00Z  absent from NCEI, served by AWS
+    2025-02-23 06Z  absent from NCEI, served by AWS
+    2025-02-23 12Z  absent from NCEI, served by AWS
+    2025-02-23 18Z  absent from NCEI, served by AWS
+    2025-02-24 00Z  absent from NCEI, served by AWS
+    2025-02-24 06Z  absent from NCEI, served by AWS
+    2025-02-24 12Z  absent from NCEI, served by AWS
+    2025-02-24 18Z  absent from NCEI, served by AWS
+    2025-02-25 00Z  absent from NCEI, served by AWS
+    no inventory for 2026-02-21 06Z on NCEI; fetching the whole run instead
+    no inventory for 2026-02-21 12Z on NCEI; fetching the whole run instead
+    no inventory for 2026-02-21 18Z on NCEI; fetching the whole run instead
+    no inventory for 2026-02-22 00Z on NCEI; fetching the whole run instead
+    no inventory for 2026-02-22 06Z on NCEI; fetching the whole run instead
+    no inventory for 2026-02-22 12Z on NCEI; fetching the whole run instead
+    no inventory for 2026-02-22 18Z on NCEI; fetching the whole run instead
+    no inventory for 2026-02-23 00Z on NCEI; fetching the whole run instead
+    no inventory for 2026-02-23 06Z on NCEI; fetching the whole run instead
+    2026-02-23 12Z  absent from NCEI, served by AWS
+    no inventory for 2026-02-23 18Z on NCEI; fetching the whole run instead
+    no inventory for 2026-02-24 00Z on NCEI; fetching the whole run instead
+    no inventory for 2026-02-24 06Z on NCEI; fetching the whole run instead
+    no inventory for 2026-02-24 12Z on NCEI; fetching the whole run instead
+    no inventory for 2026-02-24 18Z on NCEI; fetching the whole run instead
+    no inventory for 2026-02-25 00Z on NCEI; fetching the whole run instead
+    no inventory for 2023-10-05 00Z on NCEI; fetching the whole run instead
+    2023-11-26 06Z  absent from NCEI, served by AWS
+    2023-11-26 12Z  absent from NCEI, served by AWS
+    2023-11-26 18Z  absent from NCEI, served by AWS
+    2023-11-27 00Z  absent from NCEI, served by AWS
+    2023-11-27 06Z  absent from NCEI, served by AWS
+    2023-11-27 12Z  absent from NCEI, served by AWS
+    2023-11-27 18Z  absent from NCEI, served by AWS
+    2023-11-28 00Z  absent from NCEI, served by AWS
+    2023-11-28 06Z  absent from NCEI, served by AWS
+    2023-11-28 12Z  absent from NCEI, served by AWS
+    2023-11-28 18Z  absent from NCEI, served by AWS
+    2023-11-29 00Z  absent from NCEI, served by AWS
+    2023-11-29 06Z  absent from NCEI, served by AWS
+    2023-11-29 12Z  absent from NCEI, served by AWS
+    2023-11-29 18Z  absent from NCEI, served by AWS
+    2023-11-30 00Z  absent from NCEI, served by AWS
+    2022-12-07 12Z  absent from NCEI, served by AWS
+    2022-12-08 00Z  absent from NCEI, served by AWS
+    2026-01-15 06Z  absent from NCEI, served by AWS
+    2026-01-15 12Z  absent from NCEI, served by AWS
+    2026-01-15 18Z  absent from NCEI, served by AWS
+    2026-01-16 00Z  absent from NCEI, served by AWS
+    2026-01-16 06Z  absent from NCEI, served by AWS
+    2026-01-16 12Z  absent from NCEI, served by AWS
+    2026-01-16 18Z  absent from NCEI, served by AWS
+    2026-01-17 00Z  absent from NCEI, served by AWS
+    2026-01-17 06Z  absent from NCEI, served by AWS
+    2026-01-17 12Z  absent from NCEI, served by AWS
+    2026-01-17 18Z  absent from NCEI, served by AWS
+    2026-01-18 00Z  absent from NCEI, served by AWS
+    2026-01-18 06Z  absent from NCEI, served by AWS
+    2026-01-18 12Z  absent from NCEI, served by AWS
+    2026-01-18 18Z  absent from NCEI, served by AWS
+    2026-01-19 00Z  absent from NCEI, served by AWS
+    no inventory for 2023-02-02 00Z on NCEI; fetching the whole run instead
+    no inventory for 2026-02-05 06Z on NCEI; fetching the whole run instead
+    no inventory for 2026-02-05 12Z on NCEI; fetching the whole run instead
+    no inventory for 2026-02-05 18Z on NCEI; fetching the whole run instead
+    no inventory for 2026-02-06 00Z on NCEI; fetching the whole run instead
+    no inventory for 2026-02-06 06Z on NCEI; fetching the whole run instead
+    no inventory for 2026-02-06 12Z on NCEI; fetching the whole run instead
+    no inventory for 2026-02-06 18Z on NCEI; fetching the whole run instead
+    no inventory for 2026-02-07 00Z on NCEI; fetching the whole run instead
+    no inventory for 2026-02-07 06Z on NCEI; fetching the whole run instead
+    no inventory for 2026-02-07 12Z on NCEI; fetching the whole run instead
+    no inventory for 2026-02-07 18Z on NCEI; fetching the whole run instead
+    no inventory for 2026-02-08 00Z on NCEI; fetching the whole run instead
+    no inventory for 2026-02-08 06Z on NCEI; fetching the whole run instead
+    no inventory for 2026-02-08 12Z on NCEI; fetching the whole run instead
+    no inventory for 2026-02-08 18Z on NCEI; fetching the whole run instead
+    no inventory for 2026-02-09 00Z on NCEI; fetching the whole run instead
+    2022-09-07 12Z  absent from NCEI, served by AWS
+    2024-09-05 06Z  absent from NCEI, served by AWS
+    2024-09-05 12Z  absent from NCEI, served by AWS
+    2024-09-05 18Z  absent from NCEI, served by AWS
+    2024-09-06 00Z  absent from NCEI, served by AWS
+    2024-09-06 06Z  absent from NCEI, served by AWS
+    2024-09-06 12Z  absent from NCEI, served by AWS
+    2024-09-06 18Z  absent from NCEI, served by AWS
+    2024-09-07 00Z  absent from NCEI, served by AWS
+    2024-09-07 06Z  absent from NCEI, served by AWS
+    2024-09-07 12Z  absent from NCEI, served by AWS
+    2024-09-07 18Z  absent from NCEI, served by AWS
+    2024-09-08 00Z  absent from NCEI, served by AWS
+    2024-09-08 06Z  absent from NCEI, served by AWS
+    2024-09-08 12Z  absent from NCEI, served by AWS
+    2024-09-08 18Z  absent from NCEI, served by AWS
+    2024-09-09 00Z  absent from NCEI, served by AWS
+    2022-12-03 12Z  absent from NCEI, served by AWS
+    2024-12-25 06Z  absent from NCEI, served by AWS
+    2024-12-25 12Z  absent from NCEI, served by AWS
+    2024-12-25 18Z  absent from NCEI, served by AWS
+    2024-12-26 00Z  absent from NCEI, served by AWS
+    2024-12-26 06Z  absent from NCEI, served by AWS
+    2024-12-26 12Z  absent from NCEI, served by AWS
+    2024-12-26 18Z  absent from NCEI, served by AWS
+    2024-12-27 00Z  absent from NCEI, served by AWS
+    2024-12-27 06Z  absent from NCEI, served by AWS
+    2024-12-27 12Z  absent from NCEI, served by AWS
+    2024-12-27 18Z  absent from NCEI, served by AWS
+    2024-12-28 00Z  absent from NCEI, served by AWS
+    2024-12-28 06Z  absent from NCEI, served by AWS
+    2024-12-28 12Z  absent from NCEI, served by AWS
+    2024-12-28 18Z  absent from NCEI, served by AWS
+    2024-12-29 00Z  absent from NCEI, served by AWS
+    2025-12-25 06Z  absent from NCEI, served by AWS
+    2025-12-25 12Z  absent from NCEI, served by AWS
+    2025-12-25 18Z  absent from NCEI, served by AWS
+    2025-12-26 00Z  absent from NCEI, served by AWS
+    2025-12-26 06Z  absent from NCEI, served by AWS
+    2025-12-26 12Z  absent from NCEI, served by AWS
+    2025-12-26 18Z  absent from NCEI, served by AWS
+    2025-12-27 00Z  absent from NCEI, served by AWS
+    2025-12-27 06Z  absent from NCEI, served by AWS
+    2025-12-27 12Z  absent from NCEI, served by AWS
+    2025-12-27 18Z  absent from NCEI, served by AWS
+    2025-12-28 00Z  absent from NCEI, served by AWS
+    2025-12-28 06Z  absent from NCEI, served by AWS
+    2025-12-28 12Z  absent from NCEI, served by AWS
+    2025-12-28 18Z  absent from NCEI, served by AWS
+    2025-12-29 00Z  absent from NCEI, served by AWS
+    2026-01-24 06Z  absent from NCEI, served by AWS
+    2026-01-24 12Z  absent from NCEI, served by AWS
+    2026-01-24 18Z  absent from NCEI, served by AWS
+    2026-01-25 00Z  absent from NCEI, served by AWS
+    2026-01-25 06Z  absent from NCEI, served by AWS
+    2026-01-25 12Z  absent from NCEI, served by AWS
+    2026-01-25 18Z  absent from NCEI, served by AWS
+    2026-01-26 00Z  absent from NCEI, served by AWS
+    2026-01-26 06Z  absent from NCEI, served by AWS
+    2026-01-26 12Z  absent from NCEI, served by AWS
+    2026-01-26 18Z  absent from NCEI, served by AWS
+    2026-01-27 00Z  absent from NCEI, served by AWS
+    2026-01-27 06Z  absent from NCEI, served by AWS
+    2026-01-27 12Z  absent from NCEI, served by AWS
+    2026-01-27 18Z  absent from NCEI, served by AWS
+    2026-01-28 00Z  absent from NCEI, served by AWS
+    2024-03-17 06Z  absent from NCEI, served by AWS
+    2024-03-17 12Z  absent from NCEI, served by AWS
+    2024-03-17 18Z  absent from NCEI, served by AWS
+    2024-03-18 00Z  absent from NCEI, served by AWS
+    2024-03-18 06Z  absent from NCEI, served by AWS
+    2024-03-18 12Z  absent from NCEI, served by AWS
+    2024-03-18 18Z  absent from NCEI, served by AWS
+    2024-03-19 00Z  absent from NCEI, served by AWS
+    2024-03-19 06Z  absent from NCEI, served by AWS
+    2024-03-19 12Z  absent from NCEI, served by AWS
+    2024-03-19 18Z  absent from NCEI, served by AWS
+    2024-03-20 00Z  absent from NCEI, served by AWS
+    2024-03-20 06Z  absent from NCEI, served by AWS
+    2024-03-20 12Z  absent from NCEI, served by AWS
+    2024-03-20 18Z  absent from NCEI, served by AWS
+    2024-03-21 00Z  absent from NCEI, served by AWS
+    2023-05-17 06Z  absent from NCEI, served by AWS
+    2023-05-17 12Z  absent from NCEI, served by AWS
+    2023-05-17 18Z  absent from NCEI, served by AWS
+    2023-09-17 00Z  absent from NCEI, served by AWS
+    2023-09-17 06Z  absent from NCEI, served by AWS
+    2023-09-17 12Z  absent from NCEI, served by AWS
+    2023-09-17 18Z  absent from NCEI, served by AWS
+    no inventory for 2025-09-16 06Z on NCEI; fetching the whole run instead
+    no inventory for 2025-09-16 12Z on NCEI; fetching the whole run instead
+    no inventory for 2025-09-16 18Z on NCEI; fetching the whole run instead
+    no inventory for 2025-09-17 00Z on NCEI; fetching the whole run instead
+    no inventory for 2025-09-17 06Z on NCEI; fetching the whole run instead
+    no inventory for 2025-09-17 12Z on NCEI; fetching the whole run instead
+    no inventory for 2025-09-17 18Z on NCEI; fetching the whole run instead
+    no inventory for 2025-09-18 00Z on NCEI; fetching the whole run instead
+    no inventory for 2025-09-18 06Z on NCEI; fetching the whole run instead
+    no inventory for 2025-09-18 12Z on NCEI; fetching the whole run instead
+    no inventory for 2025-09-18 18Z on NCEI; fetching the whole run instead
+    2025-09-19 00Z  absent from NCEI, served by AWS
+    2025-09-19 06Z  absent from NCEI, served by AWS
+    2025-09-19 12Z  absent from NCEI, served by AWS
+    2025-09-19 18Z  absent from NCEI, served by AWS
+    no inventory for 2025-09-20 00Z on NCEI; fetching the whole run instead
+    2024-02-18 06Z  absent from NCEI, served by AWS
+    2024-02-18 12Z  absent from NCEI, served by AWS
+    2024-02-18 18Z  absent from NCEI, served by AWS
+    2024-02-19 00Z  absent from NCEI, served by AWS
+    2024-02-19 06Z  absent from NCEI, served by AWS
+    2024-02-19 12Z  absent from NCEI, served by AWS
+    2024-02-19 18Z  absent from NCEI, served by AWS
+    2024-02-20 00Z  absent from NCEI, served by AWS
+    2024-02-20 06Z  absent from NCEI, served by AWS
+    2024-02-20 12Z  absent from NCEI, served by AWS
+    2024-02-20 18Z  absent from NCEI, served by AWS
+    2024-02-21 00Z  absent from NCEI, served by AWS
+    2024-02-21 06Z  absent from NCEI, served by AWS
+    2024-02-21 12Z  absent from NCEI, served by AWS
+    2024-02-21 18Z  absent from NCEI, served by AWS
+    2024-02-22 00Z  absent from NCEI, served by AWS
+    no inventory for 2021-02-26 12Z on NCEI; fetching the whole run instead
+    2024-02-25 06Z  absent from NCEI, served by AWS
+    2024-02-25 12Z  absent from NCEI, served by AWS
+    2024-02-25 18Z  absent from NCEI, served by AWS
+    2024-02-26 00Z  absent from NCEI, served by AWS
+    2024-02-26 06Z  absent from NCEI, served by AWS
+    2024-02-26 12Z  absent from NCEI, served by AWS
+    2024-02-26 18Z  absent from NCEI, served by AWS
+    2024-02-27 00Z  absent from NCEI, served by AWS
+    2024-02-27 06Z  absent from NCEI, served by AWS
+    2024-02-27 12Z  absent from NCEI, served by AWS
+    2024-02-27 18Z  absent from NCEI, served by AWS
+    2024-02-28 00Z  absent from NCEI, served by AWS
+    2024-02-28 06Z  absent from NCEI, served by AWS
+    2024-02-28 12Z  absent from NCEI, served by AWS
+    2024-02-28 18Z  absent from NCEI, served by AWS
+    2024-02-29 00Z  absent from NCEI, served by AWS
+    no inventory for 2026-02-24 06Z on NCEI; fetching the whole run instead
+    no inventory for 2026-02-24 12Z on NCEI; fetching the whole run instead
+    no inventory for 2026-02-24 18Z on NCEI; fetching the whole run instead
+    no inventory for 2026-02-25 00Z on NCEI; fetching the whole run instead
+    no inventory for 2026-02-25 06Z on NCEI; fetching the whole run instead
+    no inventory for 2026-02-25 12Z on NCEI; fetching the whole run instead
+    no inventory for 2026-02-25 18Z on NCEI; fetching the whole run instead
+    no inventory for 2026-02-26 00Z on NCEI; fetching the whole run instead
+    no inventory for 2026-02-26 06Z on NCEI; fetching the whole run instead
+    no inventory for 2026-02-26 12Z on NCEI; fetching the whole run instead
+    no inventory for 2026-02-26 18Z on NCEI; fetching the whole run instead
+    no inventory for 2026-02-27 00Z on NCEI; fetching the whole run instead
+    2026-02-27 06Z  absent from NCEI, served by AWS
+    2026-02-27 12Z  absent from NCEI, served by AWS
+    2026-02-27 18Z  absent from NCEI, served by AWS
+    no inventory for 2026-02-28 00Z on NCEI; fetching the whole run instead
+    2025-12-10 06Z  absent from NCEI, served by AWS
+    2025-12-10 12Z  absent from NCEI, served by AWS
+    2025-12-10 18Z  absent from NCEI, served by AWS
+    2025-12-11 00Z  absent from NCEI, served by AWS
+    2025-12-11 06Z  absent from NCEI, served by AWS
+    2025-12-11 12Z  absent from NCEI, served by AWS
+    2025-12-11 18Z  absent from NCEI, served by AWS
+    2025-12-12 00Z  absent from NCEI, served by AWS
+    2025-12-12 06Z  absent from NCEI, served by AWS
+    2025-12-12 12Z  absent from NCEI, served by AWS
+    2025-12-12 18Z  absent from NCEI, served by AWS
+    2025-12-13 00Z  absent from NCEI, served by AWS
+    2025-12-13 06Z  absent from NCEI, served by AWS
+    2025-12-13 12Z  absent from NCEI, served by AWS
+    2025-12-13 18Z  absent from NCEI, served by AWS
+    2025-12-14 00Z  absent from NCEI, served by AWS
+    2024-12-24 06Z  absent from NCEI, served by AWS
+    2024-12-24 12Z  absent from NCEI, served by AWS
+    2024-12-24 18Z  absent from NCEI, served by AWS
+    2024-12-25 00Z  absent from NCEI, served by AWS
+    2024-12-25 06Z  absent from NCEI, served by AWS
+    2024-12-25 12Z  absent from NCEI, served by AWS
+    2024-12-25 18Z  absent from NCEI, served by AWS
+    2024-12-26 00Z  absent from NCEI, served by AWS
+    2024-12-26 06Z  absent from NCEI, served by AWS
+    2024-12-26 12Z  absent from NCEI, served by AWS
+    2024-12-26 18Z  absent from NCEI, served by AWS
+    2024-12-27 00Z  absent from NCEI, served by AWS
+    2024-12-27 06Z  absent from NCEI, served by AWS
+    2024-12-27 12Z  absent from NCEI, served by AWS
+    2024-12-27 18Z  absent from NCEI, served by AWS
+    2024-12-28 00Z  absent from NCEI, served by AWS
+    2024-01-11 06Z  absent from NCEI, served by AWS
+    2024-01-11 12Z  absent from NCEI, served by AWS
+    2024-01-11 18Z  absent from NCEI, served by AWS
+    2024-01-12 00Z  absent from NCEI, served by AWS
+    2024-01-12 06Z  absent from NCEI, served by AWS
+    2024-01-12 12Z  absent from NCEI, served by AWS
+    2024-01-12 18Z  absent from NCEI, served by AWS
+    2024-01-13 00Z  absent from NCEI, served by AWS
+    2024-01-13 06Z  absent from NCEI, served by AWS
+    2024-01-13 12Z  absent from NCEI, served by AWS
+    2024-01-13 18Z  absent from NCEI, served by AWS
+    2024-01-14 00Z  absent from NCEI, served by AWS
+    2024-01-14 06Z  absent from NCEI, served by AWS
+    2024-01-14 12Z  absent from NCEI, served by AWS
+    2024-01-14 18Z  absent from NCEI, served by AWS
+    2024-01-15 00Z  absent from NCEI, served by AWS
+    no inventory for 2021-02-26 12Z on NCEI; fetching the whole run instead
+    2022-09-12 18Z  absent from NCEI, served by AWS
+    2022-09-14 12Z  absent from NCEI, served by AWS
+    2021-09-30 18Z  absent from NCEI, served by AWS
+    2025-09-30 06Z  absent from NCEI, served by AWS
+    2025-09-30 12Z  absent from NCEI, served by AWS
+    2025-09-30 18Z  absent from NCEI, served by AWS
+    2025-10-01 00Z  absent from NCEI, served by AWS
+    2025-10-01 06Z  absent from NCEI, served by AWS
+    2025-10-01 12Z  absent from NCEI, served by AWS
+    2025-10-01 18Z  absent from NCEI, served by AWS
+    no inventory for 2025-10-02 00Z on NCEI; fetching the whole run instead
+    no inventory for 2025-10-02 06Z on NCEI; fetching the whole run instead
+    no inventory for 2025-10-02 12Z on NCEI; fetching the whole run instead
+    no inventory for 2025-10-02 18Z on NCEI; fetching the whole run instead
+    no inventory for 2025-10-03 00Z on NCEI; fetching the whole run instead
+    no inventory for 2025-10-03 06Z on NCEI; fetching the whole run instead
+    no inventory for 2025-10-03 12Z on NCEI; fetching the whole run instead
+    no inventory for 2025-10-03 18Z on NCEI; fetching the whole run instead
+    no inventory for 2025-10-04 00Z on NCEI; fetching the whole run instead
+    2024-11-15 06Z  absent from NCEI, served by AWS
+    2024-11-15 12Z  absent from NCEI, served by AWS
+    2024-11-15 18Z  absent from NCEI, served by AWS
+    2024-11-16 00Z  absent from NCEI, served by AWS
+    2024-11-16 06Z  absent from NCEI, served by AWS
+    2024-11-16 12Z  absent from NCEI, served by AWS
+    2024-11-16 18Z  absent from NCEI, served by AWS
+    2024-11-17 00Z  absent from NCEI, served by AWS
+    2024-11-17 06Z  absent from NCEI, served by AWS
+    2024-11-17 12Z  absent from NCEI, served by AWS
+    2024-11-17 18Z  absent from NCEI, served by AWS
+    2024-11-18 00Z  absent from NCEI, served by AWS
+    2024-11-18 06Z  absent from NCEI, served by AWS
+    2024-11-18 12Z  absent from NCEI, served by AWS
+    2024-11-18 18Z  absent from NCEI, served by AWS
+    2024-11-19 00Z  absent from NCEI, served by AWS
+    2020-12-28 00Z  absent from NCEI, served by AWS
+    2025-12-25 06Z  absent from NCEI, served by AWS
+    2025-12-25 12Z  absent from NCEI, served by AWS
+    2025-12-25 18Z  absent from NCEI, served by AWS
+    2025-12-26 00Z  absent from NCEI, served by AWS
+    2025-12-26 06Z  absent from NCEI, served by AWS
+    2025-12-26 12Z  absent from NCEI, served by AWS
+    2025-12-26 18Z  absent from NCEI, served by AWS
+    2025-12-27 00Z  absent from NCEI, served by AWS
+    2025-12-27 06Z  absent from NCEI, served by AWS
+    2025-12-27 12Z  absent from NCEI, served by AWS
+    2025-12-27 18Z  absent from NCEI, served by AWS
+    2025-12-28 00Z  absent from NCEI, served by AWS
+    2025-12-28 06Z  absent from NCEI, served by AWS
+    2025-12-28 12Z  absent from NCEI, served by AWS
+    2025-12-28 18Z  absent from NCEI, served by AWS
+    2025-12-29 00Z  absent from NCEI, served by AWS
+    2021-02-05 00Z  absent from NCEI, served by AWS
+    no inventory for 2023-02-23 00Z on NCEI; fetching the whole run instead
+    no inventory for 2021-03-26 12Z on NCEI; fetching the whole run instead
+    2025-03-24 06Z  absent from NCEI, served by AWS
+    2025-03-24 12Z  absent from NCEI, served by AWS
+    2025-03-24 18Z  absent from NCEI, served by AWS
+    2025-03-25 00Z  absent from NCEI, served by AWS
+    2025-03-25 06Z  absent from NCEI, served by AWS
+    2025-03-25 12Z  absent from NCEI, served by AWS
+    2025-03-25 18Z  absent from NCEI, served by AWS
+    2025-03-26 00Z  absent from NCEI, served by AWS
+    2025-03-26 06Z  absent from NCEI, served by AWS
+    2025-03-26 12Z  absent from NCEI, served by AWS
+    2025-03-26 18Z  absent from NCEI, served by AWS
+    2025-03-27 00Z  absent from NCEI, served by AWS
+    2025-03-27 06Z  absent from NCEI, served by AWS
+    2025-03-27 12Z  absent from NCEI, served by AWS
+    2025-03-27 18Z  absent from NCEI, served by AWS
+    2025-03-28 00Z  absent from NCEI, served by AWS
+    no inventory for 2021-09-08 06Z on NCEI; fetching the whole run instead
+    no inventory for 2023-09-08 06Z on NCEI; fetching the whole run instead
+    no inventory for 2021-10-05 18Z on NCEI; fetching the whole run instead
+    no inventory for 2021-11-27 06Z on NCEI; fetching the whole run instead
+    2025-11-26 06Z  absent from NCEI, served by AWS
+    2025-11-26 12Z  absent from NCEI, served by AWS
+    2025-11-26 18Z  absent from NCEI, served by AWS
+    2025-11-27 00Z  absent from NCEI, served by AWS
+    2025-11-27 06Z  absent from NCEI, served by AWS
+    2025-11-27 12Z  absent from NCEI, served by AWS
+    2025-11-27 18Z  absent from NCEI, served by AWS
+    2025-11-28 00Z  absent from NCEI, served by AWS
+    2025-11-28 06Z  absent from NCEI, served by AWS
+    2025-11-28 12Z  absent from NCEI, served by AWS
+    2025-11-28 18Z  absent from NCEI, served by AWS
+    2025-11-29 00Z  absent from NCEI, served by AWS
+    2025-11-29 06Z  absent from NCEI, served by AWS
+    2025-11-29 12Z  absent from NCEI, served by AWS
+    2025-11-29 18Z  absent from NCEI, served by AWS
+    2025-11-30 00Z  absent from NCEI, served by AWS
+    2023-12-07 06Z  absent from NCEI, served by AWS
+    2023-12-07 12Z  absent from NCEI, served by AWS
+    2023-12-07 18Z  absent from NCEI, served by AWS
+    2023-12-08 00Z  absent from NCEI, served by AWS
+    2023-12-08 06Z  absent from NCEI, served by AWS
+    2023-12-08 12Z  absent from NCEI, served by AWS
+    2023-12-08 18Z  absent from NCEI, served by AWS
+    2023-12-09 00Z  absent from NCEI, served by AWS
+    2023-12-09 06Z  absent from NCEI, served by AWS
+    2023-12-09 12Z  absent from NCEI, served by AWS
+    2023-12-09 18Z  absent from NCEI, served by AWS
+    2023-12-10 00Z  absent from NCEI, served by AWS
+    2023-12-10 06Z  absent from NCEI, served by AWS
+    2023-12-10 12Z  absent from NCEI, served by AWS
+    2023-12-10 18Z  absent from NCEI, served by AWS
+    2023-12-11 00Z  absent from NCEI, served by AWS
+    2022-01-03 12Z  absent from NCEI, served by AWS
+    2025-12-31 06Z  absent from NCEI, served by AWS
+    2025-12-31 12Z  absent from NCEI, served by AWS
+    2025-12-31 18Z  absent from NCEI, served by AWS
+    2026-01-01 00Z  absent from NCEI, served by AWS
+    2026-01-01 06Z  absent from NCEI, served by AWS
+    2026-01-01 12Z  absent from NCEI, served by AWS
+    2026-01-01 18Z  absent from NCEI, served by AWS
+    2026-01-02 00Z  absent from NCEI, served by AWS
+    2026-01-02 06Z  absent from NCEI, served by AWS
+    2026-01-02 12Z  absent from NCEI, served by AWS
+    2026-01-02 18Z  absent from NCEI, served by AWS
+    2026-01-03 00Z  absent from NCEI, served by AWS
+    2026-01-03 06Z  absent from NCEI, served by AWS
+    2026-01-03 12Z  absent from NCEI, served by AWS
+    2026-01-03 18Z  absent from NCEI, served by AWS
+    2026-01-04 00Z  absent from NCEI, served by AWS
+    2023-01-15 12Z  absent from NCEI, served by AWS
+    2026-01-29 06Z  absent from NCEI, served by AWS
+    2026-01-29 12Z  absent from NCEI, served by AWS
+    2026-01-29 18Z  absent from NCEI, served by AWS
+    2026-01-30 00Z  absent from NCEI, served by AWS
+    2026-01-30 06Z  absent from NCEI, served by AWS
+    2026-01-30 12Z  absent from NCEI, served by AWS
+    2026-01-30 18Z  absent from NCEI, served by AWS
+    no inventory for 2026-01-31 00Z on NCEI; fetching the whole run instead
+    no inventory for 2026-01-31 06Z on NCEI; fetching the whole run instead
+    2026-01-31 12Z  absent from NCEI, served by AWS
+    2026-01-31 18Z  absent from NCEI, served by AWS
+    2026-02-01 00Z  absent from NCEI, served by AWS
+    2026-02-01 06Z  absent from NCEI, served by AWS
+    2026-02-01 12Z  absent from NCEI, served by AWS
+    2026-02-01 18Z  absent from NCEI, served by AWS
+    no inventory for 2026-02-02 00Z on NCEI; fetching the whole run instead
+    no inventory for 2022-02-23 00Z on NCEI; fetching the whole run instead
+    no inventory for 2022-02-23 18Z on NCEI; fetching the whole run instead
+    2021-03-06 06Z  absent from NCEI, served by AWS
+    2021-03-06 12Z  absent from NCEI, served by AWS
+    2021-03-06 18Z  absent from NCEI, served by AWS
+    2021-03-07 00Z  absent from NCEI, served by AWS
+    2021-03-07 06Z  absent from NCEI, served by AWS
+    2021-03-07 12Z  absent from NCEI, served by AWS
+    2021-03-07 18Z  absent from NCEI, served by AWS
+    2021-03-08 00Z  absent from NCEI, served by AWS
+    2021-03-08 06Z  absent from NCEI, served by AWS
+    2021-03-08 12Z  absent from NCEI, served by AWS
+    2021-03-08 18Z  absent from NCEI, served by AWS
+    2021-03-09 00Z  absent from NCEI, served by AWS
+    2021-03-09 06Z  absent from NCEI, served by AWS
+    2021-03-09 12Z  absent from NCEI, served by AWS
+    2021-03-09 18Z  absent from NCEI, served by AWS
+    no inventory for 2026-03-06 06Z on NCEI; fetching the whole run instead
+    no inventory for 2026-03-06 12Z on NCEI; fetching the whole run instead
+    no inventory for 2026-03-06 18Z on NCEI; fetching the whole run instead
+    no inventory for 2026-03-07 00Z on NCEI; fetching the whole run instead
+    no inventory for 2026-03-07 06Z on NCEI; fetching the whole run instead
+    no inventory for 2026-03-07 12Z on NCEI; fetching the whole run instead
+    no inventory for 2026-03-07 18Z on NCEI; fetching the whole run instead
+    no inventory for 2026-03-08 00Z on NCEI; fetching the whole run instead
+    no inventory for 2026-03-08 06Z on NCEI; fetching the whole run instead
+    no inventory for 2026-03-08 12Z on NCEI; fetching the whole run instead
+    no inventory for 2026-03-08 18Z on NCEI; fetching the whole run instead
+    no inventory for 2026-03-09 00Z on NCEI; fetching the whole run instead
+    no inventory for 2026-03-09 06Z on NCEI; fetching the whole run instead
+    no inventory for 2026-03-09 12Z on NCEI; fetching the whole run instead
+    no inventory for 2026-03-09 18Z on NCEI; fetching the whole run instead
+    2026-03-10 00Z  absent from NCEI, served by AWS
+    2023-12-25 06Z  absent from NCEI, served by AWS
+    2023-12-25 12Z  absent from NCEI, served by AWS
+    2023-12-25 18Z  absent from NCEI, served by AWS
+    2023-12-26 00Z  absent from NCEI, served by AWS
+    2023-12-26 06Z  absent from NCEI, served by AWS
+    2023-12-26 12Z  absent from NCEI, served by AWS
+    2023-12-26 18Z  absent from NCEI, served by AWS
+    2023-12-27 00Z  absent from NCEI, served by AWS
+    2023-12-27 06Z  absent from NCEI, served by AWS
+    2023-12-27 12Z  absent from NCEI, served by AWS
+    2023-12-27 18Z  absent from NCEI, served by AWS
+    2023-12-28 00Z  absent from NCEI, served by AWS
+    2023-12-28 06Z  absent from NCEI, served by AWS
+    2023-12-28 12Z  absent from NCEI, served by AWS
+    2023-12-28 18Z  absent from NCEI, served by AWS
+    2023-12-29 00Z  absent from NCEI, served by AWS
+    2022-05-16 18Z  absent from NCEI, served by AWS
+    2022-05-19 00Z  absent from NCEI, served by AWS
+    no inventory for 2026-05-16 06Z on NCEI; fetching the whole run instead
+    no inventory for 2026-05-16 12Z on NCEI; fetching the whole run instead
+    no inventory for 2026-05-16 18Z on NCEI; fetching the whole run instead
+    no inventory for 2026-05-17 00Z on NCEI; fetching the whole run instead
+    no inventory for 2026-05-17 06Z on NCEI; fetching the whole run instead
+    no inventory for 2026-05-17 12Z on NCEI; fetching the whole run instead
+    no inventory for 2026-05-17 18Z on NCEI; fetching the whole run instead
+    no inventory for 2026-05-18 00Z on NCEI; fetching the whole run instead
+    no inventory for 2026-05-18 06Z on NCEI; fetching the whole run instead
+    no inventory for 2026-05-18 12Z on NCEI; fetching the whole run instead
+    no inventory for 2026-05-18 18Z on NCEI; fetching the whole run instead
+    no inventory for 2026-05-19 00Z on NCEI; fetching the whole run instead
+    no inventory for 2026-05-19 06Z on NCEI; fetching the whole run instead
+    no inventory for 2026-05-19 12Z on NCEI; fetching the whole run instead
+    no inventory for 2026-05-19 18Z on NCEI; fetching the whole run instead
+    no inventory for 2026-05-20 00Z on NCEI; fetching the whole run instead
+    2022-11-23 12Z  absent from NCEI, served by AWS
+    2025-11-22 06Z  absent from NCEI, served by AWS
+    2025-11-22 12Z  absent from NCEI, served by AWS
+    2025-11-22 18Z  absent from NCEI, served by AWS
+    2025-11-23 00Z  absent from NCEI, served by AWS
+    2025-11-23 06Z  absent from NCEI, served by AWS
+    2025-11-23 12Z  absent from NCEI, served by AWS
+    2025-11-23 18Z  absent from NCEI, served by AWS
+    2025-11-24 00Z  absent from NCEI, served by AWS
+    2025-11-24 06Z  absent from NCEI, served by AWS
+    2025-11-24 12Z  absent from NCEI, served by AWS
+    2025-11-24 18Z  absent from NCEI, served by AWS
+    2025-11-25 00Z  absent from NCEI, served by AWS
+    2025-11-25 06Z  absent from NCEI, served by AWS
+    2025-11-25 12Z  absent from NCEI, served by AWS
+    2025-11-25 18Z  absent from NCEI, served by AWS
+    2025-11-26 00Z  absent from NCEI, served by AWS
+    2024-12-04 06Z  absent from NCEI, served by AWS
+    2024-12-04 12Z  absent from NCEI, served by AWS
+    2024-12-04 18Z  absent from NCEI, served by AWS
+    2024-12-05 00Z  absent from NCEI, served by AWS
+    2024-12-05 06Z  absent from NCEI, served by AWS
+    2024-12-05 12Z  absent from NCEI, served by AWS
+    2024-12-05 18Z  absent from NCEI, served by AWS
+    2024-12-06 00Z  absent from NCEI, served by AWS
+    2024-12-06 06Z  absent from NCEI, served by AWS
+    2024-12-06 12Z  absent from NCEI, served by AWS
+    2024-12-06 18Z  absent from NCEI, served by AWS
+    2024-12-07 00Z  absent from NCEI, served by AWS
+    2024-12-07 06Z  absent from NCEI, served by AWS
+    2024-12-07 12Z  absent from NCEI, served by AWS
+    2024-12-07 18Z  absent from NCEI, served by AWS
+    2024-12-08 00Z  absent from NCEI, served by AWS
+    2021-02-17 12Z  absent from NCEI, served by AWS
+    2021-02-18 18Z  absent from NCEI, served by AWS
+    2025-02-18 00Z  absent from NCEI, served by AWS
+    2025-02-18 06Z  absent from NCEI, served by AWS
+    2025-02-18 12Z  absent from NCEI, served by AWS
+    2025-02-18 18Z  absent from NCEI, served by AWS
+    2025-02-19 00Z  absent from NCEI, served by AWS
+    2025-02-19 06Z  absent from NCEI, served by AWS
+    2025-02-19 12Z  absent from NCEI, served by AWS
+    2025-02-19 18Z  absent from NCEI, served by AWS
+    2025-02-20 00Z  absent from NCEI, served by AWS
+    2025-02-20 06Z  absent from NCEI, served by AWS
+    2025-02-20 12Z  absent from NCEI, served by AWS
+    2025-02-20 18Z  absent from NCEI, served by AWS
+    2025-02-21 00Z  absent from NCEI, served by AWS
+    2023-02-27 06Z  absent from NCEI, served by AWS
+    2023-02-27 18Z  absent from NCEI, served by AWS
+    2025-02-24 06Z  absent from NCEI, served by AWS
+    2025-02-24 12Z  absent from NCEI, served by AWS
+    2025-02-24 18Z  absent from NCEI, served by AWS
+    2025-02-25 00Z  absent from NCEI, served by AWS
+    2025-02-25 06Z  absent from NCEI, served by AWS
+    2025-02-25 12Z  absent from NCEI, served by AWS
+    2025-02-25 18Z  absent from NCEI, served by AWS
+    2025-02-26 00Z  absent from NCEI, served by AWS
+    2025-02-26 06Z  absent from NCEI, served by AWS
+    2025-02-26 12Z  absent from NCEI, served by AWS
+    2025-02-26 18Z  absent from NCEI, served by AWS
+    2025-02-27 00Z  absent from NCEI, served by AWS
+    2025-02-27 06Z  absent from NCEI, served by AWS
+    2025-02-27 12Z  absent from NCEI, served by AWS
+    2025-02-27 18Z  absent from NCEI, served by AWS
+    2021-10-28 00Z  absent from NCEI, served by AWS
+    no inventory for 2021-10-29 06Z on NCEI; fetching the whole run instead
+    2025-10-27 06Z  absent from NCEI, served by AWS
+    2025-10-27 12Z  absent from NCEI, served by AWS
+    2025-10-27 18Z  absent from NCEI, served by AWS
+    2025-10-28 00Z  absent from NCEI, served by AWS
+    2025-10-28 06Z  absent from NCEI, served by AWS
+    2025-10-28 12Z  absent from NCEI, served by AWS
+    2025-10-28 18Z  absent from NCEI, served by AWS
+    2025-10-29 00Z  absent from NCEI, served by AWS
+    2025-10-29 06Z  absent from NCEI, served by AWS
+    2025-10-29 12Z  absent from NCEI, served by AWS
+    2025-10-29 18Z  absent from NCEI, served by AWS
+    2025-10-30 00Z  absent from NCEI, served by AWS
+    2025-10-30 06Z  absent from NCEI, served by AWS
+    2025-10-30 12Z  absent from NCEI, served by AWS
+    2025-10-30 18Z  absent from NCEI, served by AWS
+    2025-10-31 00Z  absent from NCEI, served by AWS
+    2023-11-30 06Z  absent from NCEI, served by AWS
+    2023-11-30 12Z  absent from NCEI, served by AWS
+    2023-11-30 18Z  absent from NCEI, served by AWS
+    2023-12-01 00Z  absent from NCEI, served by AWS
+    2023-12-01 06Z  absent from NCEI, served by AWS
+    2023-12-01 12Z  absent from NCEI, served by AWS
+    2023-12-01 18Z  absent from NCEI, served by AWS
+    2023-12-02 00Z  absent from NCEI, served by AWS
+    2023-12-02 06Z  absent from NCEI, served by AWS
+    2023-12-02 12Z  absent from NCEI, served by AWS
+    2023-12-02 18Z  absent from NCEI, served by AWS
+    2023-12-03 00Z  absent from NCEI, served by AWS
+    2023-12-03 06Z  absent from NCEI, served by AWS
+    2023-12-03 12Z  absent from NCEI, served by AWS
+    2023-12-03 18Z  absent from NCEI, served by AWS
+    2023-12-04 00Z  absent from NCEI, served by AWS
+    2020-12-13 00Z  absent from NCEI, served by AWS
+    2024-12-10 06Z  absent from NCEI, served by AWS
+    2024-12-10 12Z  absent from NCEI, served by AWS
+    2024-12-10 18Z  absent from NCEI, served by AWS
+    2024-12-11 00Z  absent from NCEI, served by AWS
+    2024-12-11 06Z  absent from NCEI, served by AWS
+    2024-12-11 12Z  absent from NCEI, served by AWS
+    2024-12-11 18Z  absent from NCEI, served by AWS
+    2024-12-12 00Z  absent from NCEI, served by AWS
+    2024-12-12 06Z  absent from NCEI, served by AWS
+    2024-12-12 12Z  absent from NCEI, served by AWS
+    2024-12-12 18Z  absent from NCEI, served by AWS
+    2024-12-13 00Z  absent from NCEI, served by AWS
+    2024-12-13 06Z  absent from NCEI, served by AWS
+    2024-12-13 12Z  absent from NCEI, served by AWS
+    2024-12-13 18Z  absent from NCEI, served by AWS
+    2024-12-14 00Z  absent from NCEI, served by AWS
+    2023-12-24 06Z  absent from NCEI, served by AWS
+    2023-12-24 12Z  absent from NCEI, served by AWS
+    2023-12-24 18Z  absent from NCEI, served by AWS
+    2023-12-25 00Z  absent from NCEI, served by AWS
+    2023-12-25 06Z  absent from NCEI, served by AWS
+    2023-12-25 12Z  absent from NCEI, served by AWS
+    2023-12-25 18Z  absent from NCEI, served by AWS
+    2023-12-26 00Z  absent from NCEI, served by AWS
+    2023-12-26 06Z  absent from NCEI, served by AWS
+    2023-12-26 12Z  absent from NCEI, served by AWS
+    2023-12-26 18Z  absent from NCEI, served by AWS
+    2023-12-27 00Z  absent from NCEI, served by AWS
+    2023-12-27 06Z  absent from NCEI, served by AWS
+    2023-12-27 12Z  absent from NCEI, served by AWS
+    2023-12-27 18Z  absent from NCEI, served by AWS
+    2023-12-28 00Z  absent from NCEI, served by AWS
+    2022-01-13 06Z  absent from NCEI, served by AWS
+    2026-01-11 06Z  absent from NCEI, served by AWS
+    2026-01-11 12Z  absent from NCEI, served by AWS
+    2026-01-11 18Z  absent from NCEI, served by AWS
+    2026-01-12 00Z  absent from NCEI, served by AWS
+    2026-01-12 06Z  absent from NCEI, served by AWS
+    2026-01-12 12Z  absent from NCEI, served by AWS
+    2026-01-12 18Z  absent from NCEI, served by AWS
+    2026-01-13 00Z  absent from NCEI, served by AWS
+    2026-01-13 06Z  absent from NCEI, served by AWS
+    2026-01-13 12Z  absent from NCEI, served by AWS
+    2026-01-13 18Z  absent from NCEI, served by AWS
+    2026-01-14 00Z  absent from NCEI, served by AWS
+    2026-01-14 06Z  absent from NCEI, served by AWS
+    2026-01-14 12Z  absent from NCEI, served by AWS
+    2026-01-14 18Z  absent from NCEI, served by AWS
+    2026-01-15 00Z  absent from NCEI, served by AWS
+    2025-02-25 06Z  absent from NCEI, served by AWS
+    2025-02-25 12Z  absent from NCEI, served by AWS
+    2025-02-25 18Z  absent from NCEI, served by AWS
+    2025-02-26 00Z  absent from NCEI, served by AWS
+    2025-02-26 06Z  absent from NCEI, served by AWS
+    2025-02-26 12Z  absent from NCEI, served by AWS
+    2025-02-26 18Z  absent from NCEI, served by AWS
+    2025-02-27 00Z  absent from NCEI, served by AWS
+    2025-02-27 06Z  absent from NCEI, served by AWS
+    2025-02-27 12Z  absent from NCEI, served by AWS
+    2025-02-27 18Z  absent from NCEI, served by AWS
+    2024-09-11 06Z  absent from NCEI, served by AWS
+    2024-09-11 12Z  absent from NCEI, served by AWS
+    2024-09-11 18Z  absent from NCEI, served by AWS
+    2024-09-12 00Z  absent from NCEI, served by AWS
+    2024-09-12 06Z  absent from NCEI, served by AWS
+    2024-09-12 12Z  absent from NCEI, served by AWS
+    2024-09-12 18Z  absent from NCEI, served by AWS
+    2024-09-13 00Z  absent from NCEI, served by AWS
+    2024-09-13 06Z  absent from NCEI, served by AWS
+    2024-09-13 12Z  absent from NCEI, served by AWS
+    2024-09-13 18Z  absent from NCEI, served by AWS
+    2024-09-14 00Z  absent from NCEI, served by AWS
+    2024-09-14 06Z  absent from NCEI, served by AWS
+    2024-09-14 12Z  absent from NCEI, served by AWS
+    2024-09-14 18Z  absent from NCEI, served by AWS
+    2024-09-15 00Z  absent from NCEI, served by AWS
+    2022-10-04 00Z  absent from NCEI, served by AWS
+    2024-10-09 06Z  absent from NCEI, served by AWS
+    2024-10-09 12Z  absent from NCEI, served by AWS
+    2024-10-09 18Z  absent from NCEI, served by AWS
+    2024-10-10 00Z  absent from NCEI, served by AWS
+    2024-10-10 06Z  absent from NCEI, served by AWS
+    2024-10-10 12Z  absent from NCEI, served by AWS
+    2024-10-10 18Z  absent from NCEI, served by AWS
+    2024-10-11 00Z  absent from NCEI, served by AWS
+    2024-10-11 06Z  absent from NCEI, served by AWS
+    2024-10-11 12Z  absent from NCEI, served by AWS
+    2024-10-11 18Z  absent from NCEI, served by AWS
+    2024-10-12 00Z  absent from NCEI, served by AWS
+    2024-10-12 06Z  absent from NCEI, served by AWS
+    2024-10-12 12Z  absent from NCEI, served by AWS
+    2024-10-12 18Z  absent from NCEI, served by AWS
+    2024-10-13 00Z  absent from NCEI, served by AWS
+    2025-10-26 06Z  absent from NCEI, served by AWS
+    2025-10-26 12Z  absent from NCEI, served by AWS
+    2025-10-26 18Z  absent from NCEI, served by AWS
+    2025-10-27 00Z  absent from NCEI, served by AWS
+    2025-10-27 06Z  absent from NCEI, served by AWS
+    2025-10-27 12Z  absent from NCEI, served by AWS
+    2025-10-27 18Z  absent from NCEI, served by AWS
+    2025-10-28 00Z  absent from NCEI, served by AWS
+    2025-10-28 06Z  absent from NCEI, served by AWS
+    2025-10-28 12Z  absent from NCEI, served by AWS
+    2025-10-28 18Z  absent from NCEI, served by AWS
+    2025-10-29 00Z  absent from NCEI, served by AWS
+    2025-10-29 06Z  absent from NCEI, served by AWS
+    2025-10-29 12Z  absent from NCEI, served by AWS
+    2025-10-29 18Z  absent from NCEI, served by AWS
+    2025-10-30 00Z  absent from NCEI, served by AWS
+    no inventory for 2022-11-15 06Z on NCEI; fetching the whole run instead
+    no inventory for 2022-11-17 12Z on NCEI; fetching the whole run instead
+    2022-12-03 12Z  absent from NCEI, served by AWS
+    no inventory for 2021-01-06 18Z on NCEI; fetching the whole run instead
+    2026-01-06 06Z  absent from NCEI, served by AWS
+    2026-01-06 12Z  absent from NCEI, served by AWS
+    2026-01-06 18Z  absent from NCEI, served by AWS
+    2026-01-07 00Z  absent from NCEI, served by AWS
+    2026-01-07 06Z  absent from NCEI, served by AWS
+    2026-01-07 12Z  absent from NCEI, served by AWS
+    2026-01-07 18Z  absent from NCEI, served by AWS
+    2026-01-08 00Z  absent from NCEI, served by AWS
+    2026-01-08 06Z  absent from NCEI, served by AWS
+    2026-01-08 12Z  absent from NCEI, served by AWS
+    2026-01-08 18Z  absent from NCEI, served by AWS
+    2026-01-09 00Z  absent from NCEI, served by AWS
+    2026-01-09 06Z  absent from NCEI, served by AWS
+    2026-01-09 12Z  absent from NCEI, served by AWS
+    2026-01-09 18Z  absent from NCEI, served by AWS
+    2026-01-10 00Z  absent from NCEI, served by AWS
+    no inventory for 2022-02-23 00Z on NCEI; fetching the whole run instead
+    no inventory for 2022-02-23 18Z on NCEI; fetching the whole run instead
+    2023-03-24 06Z  absent from NCEI, served by AWS
+    no inventory for 2026-03-24 06Z on NCEI; fetching the whole run instead
+    no inventory for 2026-03-24 12Z on NCEI; fetching the whole run instead
+    no inventory for 2026-03-24 18Z on NCEI; fetching the whole run instead
+    no inventory for 2026-03-25 00Z on NCEI; fetching the whole run instead
+    no inventory for 2026-03-25 06Z on NCEI; fetching the whole run instead
+    no inventory for 2026-03-25 12Z on NCEI; fetching the whole run instead
+    no inventory for 2026-03-25 18Z on NCEI; fetching the whole run instead
+    no inventory for 2026-03-26 00Z on NCEI; fetching the whole run instead
+    no inventory for 2026-03-26 06Z on NCEI; fetching the whole run instead
+    no inventory for 2026-03-26 12Z on NCEI; fetching the whole run instead
+    no inventory for 2026-03-26 18Z on NCEI; fetching the whole run instead
+    no inventory for 2026-03-27 00Z on NCEI; fetching the whole run instead
+    no inventory for 2026-03-27 06Z on NCEI; fetching the whole run instead
+    no inventory for 2026-03-27 12Z on NCEI; fetching the whole run instead
+    no inventory for 2026-03-27 18Z on NCEI; fetching the whole run instead
+    no inventory for 2026-03-28 00Z on NCEI; fetching the whole run instead
+    2022-11-27 12Z  absent from NCEI, served by AWS
+    2025-12-07 06Z  absent from NCEI, served by AWS
+    2025-12-07 12Z  absent from NCEI, served by AWS
+    2025-12-07 18Z  absent from NCEI, served by AWS
+    2025-12-08 00Z  absent from NCEI, served by AWS
+    2025-12-08 06Z  absent from NCEI, served by AWS
+    2025-12-08 12Z  absent from NCEI, served by AWS
+    2025-12-08 18Z  absent from NCEI, served by AWS
+    2025-12-09 00Z  absent from NCEI, served by AWS
+    2025-12-09 06Z  absent from NCEI, served by AWS
+    2025-12-09 12Z  absent from NCEI, served by AWS
+    2025-12-09 18Z  absent from NCEI, served by AWS
+    2025-12-10 00Z  absent from NCEI, served by AWS
+    2025-12-10 06Z  absent from NCEI, served by AWS
+    2025-12-10 12Z  absent from NCEI, served by AWS
+    2025-12-10 18Z  absent from NCEI, served by AWS
+    2025-12-11 00Z  absent from NCEI, served by AWS
+    2023-12-31 06Z  absent from NCEI, served by AWS
+    2023-12-31 12Z  absent from NCEI, served by AWS
+    2023-12-31 18Z  absent from NCEI, served by AWS
+    2024-01-01 00Z  absent from NCEI, served by AWS
+    2024-01-01 06Z  absent from NCEI, served by AWS
+    2024-01-01 12Z  absent from NCEI, served by AWS
+    2024-01-01 18Z  absent from NCEI, served by AWS
+    2024-01-02 00Z  absent from NCEI, served by AWS
+    2024-01-02 06Z  absent from NCEI, served by AWS
+    2024-01-02 12Z  absent from NCEI, served by AWS
+    2024-01-02 18Z  absent from NCEI, served by AWS
+    2024-01-03 00Z  absent from NCEI, served by AWS
+    2024-01-03 06Z  absent from NCEI, served by AWS
+    2024-01-03 12Z  absent from NCEI, served by AWS
+    2024-01-03 18Z  absent from NCEI, served by AWS
+    2024-01-04 00Z  absent from NCEI, served by AWS
+    2024-01-15 06Z  absent from NCEI, served by AWS
+    2024-01-15 12Z  absent from NCEI, served by AWS
+    2024-01-15 18Z  absent from NCEI, served by AWS
+    2024-01-16 00Z  absent from NCEI, served by AWS
+    2024-01-16 06Z  absent from NCEI, served by AWS
+    2024-01-16 12Z  absent from NCEI, served by AWS
+    2024-01-16 18Z  absent from NCEI, served by AWS
+    2024-01-17 00Z  absent from NCEI, served by AWS
+    2024-01-17 06Z  absent from NCEI, served by AWS
+    2024-01-17 12Z  absent from NCEI, served by AWS
+    2024-01-17 18Z  absent from NCEI, served by AWS
+    2024-01-18 00Z  absent from NCEI, served by AWS
+    2024-01-18 06Z  absent from NCEI, served by AWS
+    2024-01-18 12Z  absent from NCEI, served by AWS
+    2024-01-18 18Z  absent from NCEI, served by AWS
+    2024-01-19 00Z  absent from NCEI, served by AWS
+    2022-01-29 06Z  absent from NCEI, served by AWS
+    2024-02-06 06Z  absent from NCEI, served by AWS
+    2024-02-06 12Z  absent from NCEI, served by AWS
+    2024-02-06 18Z  absent from NCEI, served by AWS
+    2024-02-07 00Z  absent from NCEI, served by AWS
+    2024-02-07 06Z  absent from NCEI, served by AWS
+    2024-02-07 12Z  absent from NCEI, served by AWS
+    2024-02-07 18Z  absent from NCEI, served by AWS
+    2024-02-08 00Z  absent from NCEI, served by AWS
+    2024-02-08 06Z  absent from NCEI, served by AWS
+    2024-02-08 12Z  absent from NCEI, served by AWS
+    2024-02-08 18Z  absent from NCEI, served by AWS
+    2024-02-09 00Z  absent from NCEI, served by AWS
+    2024-02-09 06Z  absent from NCEI, served by AWS
+    2024-02-09 12Z  absent from NCEI, served by AWS
+    2024-02-09 18Z  absent from NCEI, served by AWS
+    2024-02-10 00Z  absent from NCEI, served by AWS
+    2024-02-21 06Z  absent from NCEI, served by AWS
+    2024-02-21 12Z  absent from NCEI, served by AWS
+    2024-02-21 18Z  absent from NCEI, served by AWS
+    2024-02-22 00Z  absent from NCEI, served by AWS
+    2024-02-22 06Z  absent from NCEI, served by AWS
+    2024-02-22 12Z  absent from NCEI, served by AWS
+    2024-02-22 18Z  absent from NCEI, served by AWS
+    2024-02-23 00Z  absent from NCEI, served by AWS
+    2024-02-23 06Z  absent from NCEI, served by AWS
+    2024-02-23 12Z  absent from NCEI, served by AWS
+    2024-02-23 18Z  absent from NCEI, served by AWS
+    2024-02-24 00Z  absent from NCEI, served by AWS
+    2024-02-24 06Z  absent from NCEI, served by AWS
+    2024-02-24 12Z  absent from NCEI, served by AWS
+    2024-02-24 18Z  absent from NCEI, served by AWS
+    2024-02-25 00Z  absent from NCEI, served by AWS
+    2022-03-07 18Z  absent from NCEI, served by AWS
+    2024-03-06 06Z  absent from NCEI, served by AWS
+    2024-03-06 12Z  absent from NCEI, served by AWS
+    2024-03-06 18Z  absent from NCEI, served by AWS
+    2024-03-07 00Z  absent from NCEI, served by AWS
+    2024-03-07 06Z  absent from NCEI, served by AWS
+    2024-03-07 12Z  absent from NCEI, served by AWS
+    2024-03-07 18Z  absent from NCEI, served by AWS
+    2024-03-08 00Z  absent from NCEI, served by AWS
+    2024-03-08 06Z  absent from NCEI, served by AWS
+    2024-03-08 12Z  absent from NCEI, served by AWS
+    2024-03-08 18Z  absent from NCEI, served by AWS
+    2024-03-09 00Z  absent from NCEI, served by AWS
+    2024-03-09 06Z  absent from NCEI, served by AWS
+    2024-03-09 12Z  absent from NCEI, served by AWS
+    2024-03-09 18Z  absent from NCEI, served by AWS
+    2024-03-10 00Z  absent from NCEI, served by AWS
+    no inventory for 2021-09-08 06Z on NCEI; fetching the whole run instead
+    no inventory for 2023-09-08 06Z on NCEI; fetching the whole run instead
+    2024-10-26 06Z  absent from NCEI, served by AWS
+    2024-10-26 12Z  absent from NCEI, served by AWS
+    2024-10-26 18Z  absent from NCEI, served by AWS
+    2024-10-27 00Z  absent from NCEI, served by AWS
+    2024-10-27 06Z  absent from NCEI, served by AWS
+    2024-10-27 12Z  absent from NCEI, served by AWS
+    2024-10-27 18Z  absent from NCEI, served by AWS
+    2024-10-28 00Z  absent from NCEI, served by AWS
+    2024-10-28 06Z  absent from NCEI, served by AWS
+    2024-10-28 12Z  absent from NCEI, served by AWS
+    2024-10-28 18Z  absent from NCEI, served by AWS
+    2024-10-29 00Z  absent from NCEI, served by AWS
+    2024-10-29 06Z  absent from NCEI, served by AWS
+    2024-10-29 12Z  absent from NCEI, served by AWS
+    2024-10-29 18Z  absent from NCEI, served by AWS
+    2024-10-30 00Z  absent from NCEI, served by AWS
+    2023-12-03 06Z  absent from NCEI, served by AWS
+    2023-12-03 12Z  absent from NCEI, served by AWS
+    2023-12-03 18Z  absent from NCEI, served by AWS
+    2023-12-04 00Z  absent from NCEI, served by AWS
+    2023-12-04 06Z  absent from NCEI, served by AWS
+    2023-12-04 12Z  absent from NCEI, served by AWS
+    2023-12-04 18Z  absent from NCEI, served by AWS
+    2023-12-05 00Z  absent from NCEI, served by AWS
+    2023-12-05 06Z  absent from NCEI, served by AWS
+    2023-12-05 12Z  absent from NCEI, served by AWS
+    2023-12-05 18Z  absent from NCEI, served by AWS
+    2023-12-06 00Z  absent from NCEI, served by AWS
+    2023-12-06 06Z  absent from NCEI, served by AWS
+    2023-12-06 12Z  absent from NCEI, served by AWS
+    2023-12-06 18Z  absent from NCEI, served by AWS
+    2023-12-07 00Z  absent from NCEI, served by AWS
+    2024-01-24 06Z  absent from NCEI, served by AWS
+    2024-01-24 12Z  absent from NCEI, served by AWS
+    2024-01-24 18Z  absent from NCEI, served by AWS
+    2024-01-25 00Z  absent from NCEI, served by AWS
+    2024-01-25 06Z  absent from NCEI, served by AWS
+    2024-01-25 12Z  absent from NCEI, served by AWS
+    2024-01-25 18Z  absent from NCEI, served by AWS
+    2024-01-26 00Z  absent from NCEI, served by AWS
+    2024-01-26 06Z  absent from NCEI, served by AWS
+    2024-01-26 12Z  absent from NCEI, served by AWS
+    2024-01-26 18Z  absent from NCEI, served by AWS
+    2024-01-27 00Z  absent from NCEI, served by AWS
+    2024-01-27 06Z  absent from NCEI, served by AWS
+    2024-01-27 12Z  absent from NCEI, served by AWS
+    2024-01-27 18Z  absent from NCEI, served by AWS
+    2024-01-28 00Z  absent from NCEI, served by AWS
+    no inventory for 2026-03-17 06Z on NCEI; fetching the whole run instead
+    no inventory for 2026-03-17 12Z on NCEI; fetching the whole run instead
+    no inventory for 2026-03-17 18Z on NCEI; fetching the whole run instead
+    no inventory for 2026-03-18 00Z on NCEI; fetching the whole run instead
+    no inventory for 2026-03-18 06Z on NCEI; fetching the whole run instead
+    no inventory for 2026-03-18 12Z on NCEI; fetching the whole run instead
+    no inventory for 2026-03-18 18Z on NCEI; fetching the whole run instead
+    no inventory for 2026-03-19 00Z on NCEI; fetching the whole run instead
+    no inventory for 2026-03-19 06Z on NCEI; fetching the whole run instead
+    no inventory for 2026-03-19 12Z on NCEI; fetching the whole run instead
+    no inventory for 2026-03-19 18Z on NCEI; fetching the whole run instead
+    no inventory for 2026-03-20 00Z on NCEI; fetching the whole run instead
+    no inventory for 2026-03-20 06Z on NCEI; fetching the whole run instead
+    no inventory for 2026-03-20 12Z on NCEI; fetching the whole run instead
+    no inventory for 2026-03-20 18Z on NCEI; fetching the whole run instead
+    no inventory for 2026-03-21 00Z on NCEI; fetching the whole run instead
+    2025-11-11 06Z  absent from NCEI, served by AWS
+    2025-11-11 12Z  absent from NCEI, served by AWS
+    2025-11-11 18Z  absent from NCEI, served by AWS
+    2025-11-12 00Z  absent from NCEI, served by AWS
+    2025-11-12 06Z  absent from NCEI, served by AWS
+    2025-11-12 12Z  absent from NCEI, served by AWS
+    2025-11-12 18Z  absent from NCEI, served by AWS
+    2025-11-13 00Z  absent from NCEI, served by AWS
+    2025-11-13 06Z  absent from NCEI, served by AWS
+    2025-11-13 12Z  absent from NCEI, served by AWS
+    2025-11-13 18Z  absent from NCEI, served by AWS
+    2025-11-14 00Z  absent from NCEI, served by AWS
+    2025-11-14 06Z  absent from NCEI, served by AWS
+    2025-11-14 12Z  absent from NCEI, served by AWS
+    2025-11-14 18Z  absent from NCEI, served by AWS
+    2025-11-15 00Z  absent from NCEI, served by AWS
+    2024-11-22 06Z  absent from NCEI, served by AWS
+    2024-11-22 12Z  absent from NCEI, served by AWS
+    2024-11-22 18Z  absent from NCEI, served by AWS
+    2024-11-23 00Z  absent from NCEI, served by AWS
+    2024-11-23 06Z  absent from NCEI, served by AWS
+    2024-11-23 12Z  absent from NCEI, served by AWS
+    2024-11-23 18Z  absent from NCEI, served by AWS
+    2024-11-24 00Z  absent from NCEI, served by AWS
+    2024-11-24 06Z  absent from NCEI, served by AWS
+    2024-11-24 12Z  absent from NCEI, served by AWS
+    2024-11-24 18Z  absent from NCEI, served by AWS
+    2024-11-25 00Z  absent from NCEI, served by AWS
+    2024-11-25 06Z  absent from NCEI, served by AWS
+    2024-11-25 12Z  absent from NCEI, served by AWS
+    2024-11-25 18Z  absent from NCEI, served by AWS
+    2024-11-26 00Z  absent from NCEI, served by AWS
+    2023-12-04 06Z  absent from NCEI, served by AWS
+    2023-12-04 12Z  absent from NCEI, served by AWS
+    2023-12-04 18Z  absent from NCEI, served by AWS
+    2023-12-05 00Z  absent from NCEI, served by AWS
+    2023-12-05 06Z  absent from NCEI, served by AWS
+    2023-12-05 12Z  absent from NCEI, served by AWS
+    2023-12-05 18Z  absent from NCEI, served by AWS
+    2023-12-06 00Z  absent from NCEI, served by AWS
+    2023-12-06 06Z  absent from NCEI, served by AWS
+    2023-12-06 12Z  absent from NCEI, served by AWS
+    2023-12-06 18Z  absent from NCEI, served by AWS
+    2023-12-07 00Z  absent from NCEI, served by AWS
+    2023-12-07 06Z  absent from NCEI, served by AWS
+    2023-12-07 12Z  absent from NCEI, served by AWS
+    2023-12-07 18Z  absent from NCEI, served by AWS
+    2023-12-08 00Z  absent from NCEI, served by AWS
+    2021-02-05 00Z  absent from NCEI, served by AWS
+    no inventory for 2026-02-03 06Z on NCEI; fetching the whole run instead
+    no inventory for 2026-02-03 12Z on NCEI; fetching the whole run instead
+    no inventory for 2026-02-03 18Z on NCEI; fetching the whole run instead
+    no inventory for 2026-02-04 00Z on NCEI; fetching the whole run instead
+    2026-02-04 06Z  absent from NCEI, served by AWS
+    no inventory for 2026-02-04 12Z on NCEI; fetching the whole run instead
+    no inventory for 2026-02-04 18Z on NCEI; fetching the whole run instead
+    no inventory for 2026-02-05 00Z on NCEI; fetching the whole run instead
+    no inventory for 2026-02-05 06Z on NCEI; fetching the whole run instead
+    no inventory for 2026-02-05 12Z on NCEI; fetching the whole run instead
+    no inventory for 2026-02-05 18Z on NCEI; fetching the whole run instead
+    no inventory for 2026-02-06 00Z on NCEI; fetching the whole run instead
+    no inventory for 2026-02-06 06Z on NCEI; fetching the whole run instead
+    no inventory for 2026-02-06 12Z on NCEI; fetching the whole run instead
+    no inventory for 2026-02-06 18Z on NCEI; fetching the whole run instead
+    no inventory for 2026-02-07 00Z on NCEI; fetching the whole run instead
+    2024-10-27 06Z  absent from NCEI, served by AWS
+    2024-10-27 12Z  absent from NCEI, served by AWS
+    2024-10-27 18Z  absent from NCEI, served by AWS
+    2024-10-28 00Z  absent from NCEI, served by AWS
+    2024-10-28 06Z  absent from NCEI, served by AWS
+    2024-10-28 12Z  absent from NCEI, served by AWS
+    2024-10-28 18Z  absent from NCEI, served by AWS
+    2024-10-29 00Z  absent from NCEI, served by AWS
+    2024-10-29 06Z  absent from NCEI, served by AWS
+    2024-10-29 12Z  absent from NCEI, served by AWS
+    2024-10-29 18Z  absent from NCEI, served by AWS
+    2024-10-30 00Z  absent from NCEI, served by AWS
+    2024-10-30 06Z  absent from NCEI, served by AWS
+    2024-10-30 12Z  absent from NCEI, served by AWS
+    2024-10-30 18Z  absent from NCEI, served by AWS
+    2024-10-31 00Z  absent from NCEI, served by AWS
+    2021-11-30 18Z  absent from NCEI, served by AWS
+    2025-11-30 06Z  absent from NCEI, served by AWS
+    2025-11-30 12Z  absent from NCEI, served by AWS
+    2025-11-30 18Z  absent from NCEI, served by AWS
+    2025-12-01 00Z  absent from NCEI, served by AWS
+    2025-12-01 06Z  absent from NCEI, served by AWS
+    2025-12-01 12Z  absent from NCEI, served by AWS
+    2025-12-01 18Z  absent from NCEI, served by AWS
+    2025-12-02 00Z  absent from NCEI, served by AWS
+    2025-12-02 06Z  absent from NCEI, served by AWS
+    2025-12-02 12Z  absent from NCEI, served by AWS
+    2025-12-02 18Z  absent from NCEI, served by AWS
+    2025-12-03 00Z  absent from NCEI, served by AWS
+    2025-12-03 06Z  absent from NCEI, served by AWS
+    2025-12-03 12Z  absent from NCEI, served by AWS
+    2025-12-03 18Z  absent from NCEI, served by AWS
+    2025-12-04 00Z  absent from NCEI, served by AWS
+    2023-12-10 06Z  absent from NCEI, served by AWS
+    2023-12-10 12Z  absent from NCEI, served by AWS
+    2023-12-10 18Z  absent from NCEI, served by AWS
+    2023-12-11 00Z  absent from NCEI, served by AWS
+    2023-12-11 06Z  absent from NCEI, served by AWS
+    2023-12-11 12Z  absent from NCEI, served by AWS
+    2023-12-11 18Z  absent from NCEI, served by AWS
+    2023-12-12 00Z  absent from NCEI, served by AWS
+    2023-12-12 06Z  absent from NCEI, served by AWS
+    2023-12-12 12Z  absent from NCEI, served by AWS
+    2023-12-12 18Z  absent from NCEI, served by AWS
+    2023-12-13 00Z  absent from NCEI, served by AWS
+    2023-12-13 06Z  absent from NCEI, served by AWS
+    2023-12-13 12Z  absent from NCEI, served by AWS
+    2023-12-13 18Z  absent from NCEI, served by AWS
+    2023-12-14 00Z  absent from NCEI, served by AWS
+    2021-01-12 00Z  absent from NCEI, served by AWS
+    no inventory for 2021-01-13 06Z on NCEI; fetching the whole run instead
+    2024-02-26 06Z  absent from NCEI, served by AWS
+    2024-02-26 12Z  absent from NCEI, served by AWS
+    2024-02-26 18Z  absent from NCEI, served by AWS
+    2024-02-27 00Z  absent from NCEI, served by AWS
+    2024-02-27 06Z  absent from NCEI, served by AWS
+    2024-02-27 12Z  absent from NCEI, served by AWS
+    2024-02-27 18Z  absent from NCEI, served by AWS
+    2024-02-28 00Z  absent from NCEI, served by AWS
+    2024-02-28 06Z  absent from NCEI, served by AWS
+    2024-02-28 12Z  absent from NCEI, served by AWS
+    2024-02-28 18Z  absent from NCEI, served by AWS
+    2024-02-29 00Z  absent from NCEI, served by AWS
+    2024-02-29 06Z  absent from NCEI, served by AWS
+    2024-02-29 12Z  absent from NCEI, served by AWS
+    2024-02-29 18Z  absent from NCEI, served by AWS
+    2024-03-01 00Z  absent from NCEI, served by AWS
+    2021-09-12 06Z  absent from NCEI, served by AWS
+    2025-09-11 06Z  absent from NCEI, served by AWS
+    2025-09-11 12Z  absent from NCEI, served by AWS
+    2025-09-11 18Z  absent from NCEI, served by AWS
+    2025-09-12 00Z  absent from NCEI, served by AWS
+    2025-09-12 06Z  absent from NCEI, served by AWS
+    2025-09-12 12Z  absent from NCEI, served by AWS
+    2025-09-12 18Z  absent from NCEI, served by AWS
+    2025-09-13 00Z  absent from NCEI, served by AWS
+    2025-09-13 06Z  absent from NCEI, served by AWS
+    2025-09-13 12Z  absent from NCEI, served by AWS
+    2025-09-13 18Z  absent from NCEI, served by AWS
+    2025-09-14 00Z  absent from NCEI, served by AWS
+    2025-09-14 06Z  absent from NCEI, served by AWS
+    2025-09-14 12Z  absent from NCEI, served by AWS
+    2025-09-14 18Z  absent from NCEI, served by AWS
+    2025-09-15 00Z  absent from NCEI, served by AWS
+    2024-09-30 06Z  absent from NCEI, served by AWS
+    2024-09-30 12Z  absent from NCEI, served by AWS
+    2024-09-30 18Z  absent from NCEI, served by AWS
+    2024-10-01 00Z  absent from NCEI, served by AWS
+    2024-10-01 06Z  absent from NCEI, served by AWS
+    2024-10-01 12Z  absent from NCEI, served by AWS
+    2024-10-01 18Z  absent from NCEI, served by AWS
+    2024-10-02 00Z  absent from NCEI, served by AWS
+    2024-10-02 06Z  absent from NCEI, served by AWS
+    2024-10-02 12Z  absent from NCEI, served by AWS
+    2024-10-02 18Z  absent from NCEI, served by AWS
+    2024-10-03 00Z  absent from NCEI, served by AWS
+    2024-10-03 06Z  absent from NCEI, served by AWS
+    2024-10-03 12Z  absent from NCEI, served by AWS
+    2024-10-03 18Z  absent from NCEI, served by AWS
+    2024-10-04 00Z  absent from NCEI, served by AWS
+    no inventory for 2025-10-09 06Z on NCEI; fetching the whole run instead
+    no inventory for 2025-10-09 12Z on NCEI; fetching the whole run instead
+    no inventory for 2025-10-09 18Z on NCEI; fetching the whole run instead
+    no inventory for 2025-10-10 00Z on NCEI; fetching the whole run instead
+    no inventory for 2025-10-10 06Z on NCEI; fetching the whole run instead
+    2025-10-10 12Z  absent from NCEI, served by AWS
+    2025-10-10 18Z  absent from NCEI, served by AWS
+    2025-10-11 00Z  absent from NCEI, served by AWS
+    2025-10-11 06Z  absent from NCEI, served by AWS
+    2025-10-11 12Z  absent from NCEI, served by AWS
+    2025-10-11 18Z  absent from NCEI, served by AWS
+    no inventory for 2025-10-12 00Z on NCEI; fetching the whole run instead
+    no inventory for 2025-10-12 06Z on NCEI; fetching the whole run instead
+    no inventory for 2025-10-12 12Z on NCEI; fetching the whole run instead
+    no inventory for 2025-10-12 18Z on NCEI; fetching the whole run instead
+    no inventory for 2025-10-13 00Z on NCEI; fetching the whole run instead
+    2025-12-03 06Z  absent from NCEI, served by AWS
+    2025-12-03 12Z  absent from NCEI, served by AWS
+    2025-12-03 18Z  absent from NCEI, served by AWS
+    2025-12-04 00Z  absent from NCEI, served by AWS
+    2025-12-04 06Z  absent from NCEI, served by AWS
+    2025-12-04 12Z  absent from NCEI, served by AWS
+    2025-12-04 18Z  absent from NCEI, served by AWS
+    2025-12-05 00Z  absent from NCEI, served by AWS
+    2025-12-05 06Z  absent from NCEI, served by AWS
+    2025-12-05 12Z  absent from NCEI, served by AWS
+    2025-12-05 18Z  absent from NCEI, served by AWS
+    2025-12-06 00Z  absent from NCEI, served by AWS
+    2025-12-06 06Z  absent from NCEI, served by AWS
+    2025-12-06 12Z  absent from NCEI, served by AWS
+    2025-12-06 18Z  absent from NCEI, served by AWS
+    2025-12-07 00Z  absent from NCEI, served by AWS
+    2024-12-25 06Z  absent from NCEI, served by AWS
+    2024-12-25 12Z  absent from NCEI, served by AWS
+    2024-12-25 18Z  absent from NCEI, served by AWS
+    2024-12-26 00Z  absent from NCEI, served by AWS
+    2024-12-26 06Z  absent from NCEI, served by AWS
+    2024-12-26 12Z  absent from NCEI, served by AWS
+    2024-12-26 18Z  absent from NCEI, served by AWS
+    2024-12-27 00Z  absent from NCEI, served by AWS
+    2024-12-27 06Z  absent from NCEI, served by AWS
+    2024-12-27 12Z  absent from NCEI, served by AWS
+    2024-12-27 18Z  absent from NCEI, served by AWS
+    2024-12-28 00Z  absent from NCEI, served by AWS
+    2024-12-28 06Z  absent from NCEI, served by AWS
+    2024-12-28 12Z  absent from NCEI, served by AWS
+    2024-12-28 18Z  absent from NCEI, served by AWS
+    2024-12-29 00Z  absent from NCEI, served by AWS
+    2023-01-08 06Z  absent from NCEI, served by AWS
+    2023-01-08 18Z  absent from NCEI, served by AWS
+    2026-01-17 06Z  absent from NCEI, served by AWS
+    2026-01-17 12Z  absent from NCEI, served by AWS
+    2026-01-17 18Z  absent from NCEI, served by AWS
+    2026-01-18 00Z  absent from NCEI, served by AWS
+    2026-01-18 06Z  absent from NCEI, served by AWS
+    2026-01-18 12Z  absent from NCEI, served by AWS
+    2026-01-18 18Z  absent from NCEI, served by AWS
+    2026-01-19 00Z  absent from NCEI, served by AWS
+    2026-01-19 06Z  absent from NCEI, served by AWS
+    2026-01-19 12Z  absent from NCEI, served by AWS
+    2026-01-19 18Z  absent from NCEI, served by AWS
+    2026-01-20 00Z  absent from NCEI, served by AWS
+    2026-01-20 06Z  absent from NCEI, served by AWS
+    2026-01-20 12Z  absent from NCEI, served by AWS
+    2026-01-20 18Z  absent from NCEI, served by AWS
+    2026-01-21 00Z  absent from NCEI, served by AWS
+    no inventory for 2026-02-03 06Z on NCEI; fetching the whole run instead
+    no inventory for 2026-02-03 12Z on NCEI; fetching the whole run instead
+    no inventory for 2026-02-03 18Z on NCEI; fetching the whole run instead
+    no inventory for 2026-02-04 00Z on NCEI; fetching the whole run instead
+    2026-02-04 06Z  absent from NCEI, served by AWS
+    no inventory for 2026-02-04 12Z on NCEI; fetching the whole run instead
+    no inventory for 2026-02-04 18Z on NCEI; fetching the whole run instead
+    no inventory for 2026-02-05 00Z on NCEI; fetching the whole run instead
+    no inventory for 2026-02-05 06Z on NCEI; fetching the whole run instead
+    no inventory for 2026-02-05 12Z on NCEI; fetching the whole run instead
+    no inventory for 2026-02-05 18Z on NCEI; fetching the whole run instead
+    no inventory for 2026-02-06 00Z on NCEI; fetching the whole run instead
+    no inventory for 2026-02-06 06Z on NCEI; fetching the whole run instead
+    no inventory for 2026-02-06 12Z on NCEI; fetching the whole run instead
+    no inventory for 2026-02-06 18Z on NCEI; fetching the whole run instead
+    no inventory for 2026-02-07 00Z on NCEI; fetching the whole run instead
+    2022-09-07 12Z  absent from NCEI, served by AWS
+    2025-09-06 06Z  absent from NCEI, served by AWS
+    2025-09-06 12Z  absent from NCEI, served by AWS
+    2025-09-06 18Z  absent from NCEI, served by AWS
+    2025-09-07 00Z  absent from NCEI, served by AWS
+    2025-09-07 06Z  absent from NCEI, served by AWS
+    2025-09-07 12Z  absent from NCEI, served by AWS
+    2025-09-07 18Z  absent from NCEI, served by AWS
+    2025-09-08 00Z  absent from NCEI, served by AWS
+    2025-09-08 06Z  absent from NCEI, served by AWS
+    2025-09-08 12Z  absent from NCEI, served by AWS
+    2025-09-08 18Z  absent from NCEI, served by AWS
+    2025-09-09 00Z  absent from NCEI, served by AWS
+    2025-09-09 06Z  absent from NCEI, served by AWS
+    2025-09-09 12Z  absent from NCEI, served by AWS
+    2025-09-09 18Z  absent from NCEI, served by AWS
+    2025-09-10 00Z  absent from NCEI, served by AWS
+    2022-10-04 00Z  absent from NCEI, served by AWS
+    no inventory for 2025-10-02 06Z on NCEI; fetching the whole run instead
+    no inventory for 2025-10-02 12Z on NCEI; fetching the whole run instead
+    no inventory for 2025-10-02 18Z on NCEI; fetching the whole run instead
+    no inventory for 2025-10-03 00Z on NCEI; fetching the whole run instead
+    no inventory for 2025-10-03 06Z on NCEI; fetching the whole run instead
+    no inventory for 2025-10-03 12Z on NCEI; fetching the whole run instead
+    no inventory for 2025-10-03 18Z on NCEI; fetching the whole run instead
+    no inventory for 2025-10-04 00Z on NCEI; fetching the whole run instead
+    no inventory for 2025-10-04 06Z on NCEI; fetching the whole run instead
+    no inventory for 2025-10-04 12Z on NCEI; fetching the whole run instead
+    no inventory for 2025-10-04 18Z on NCEI; fetching the whole run instead
+    no inventory for 2025-10-05 00Z on NCEI; fetching the whole run instead
+    no inventory for 2025-10-05 06Z on NCEI; fetching the whole run instead
+    no inventory for 2025-10-05 12Z on NCEI; fetching the whole run instead
+    no inventory for 2025-10-05 18Z on NCEI; fetching the whole run instead
+    no inventory for 2025-10-06 00Z on NCEI; fetching the whole run instead
+    2024-01-29 06Z  absent from NCEI, served by AWS
+    2024-01-29 12Z  absent from NCEI, served by AWS
+    2024-01-29 18Z  absent from NCEI, served by AWS
+    2024-01-30 00Z  absent from NCEI, served by AWS
+    2024-01-30 06Z  absent from NCEI, served by AWS
+    2024-01-30 12Z  absent from NCEI, served by AWS
+    2024-01-30 18Z  absent from NCEI, served by AWS
+    2024-01-31 00Z  absent from NCEI, served by AWS
+    2024-01-31 06Z  absent from NCEI, served by AWS
+    2024-01-31 12Z  absent from NCEI, served by AWS
+    2024-01-31 18Z  absent from NCEI, served by AWS
+    2024-02-01 00Z  absent from NCEI, served by AWS
+    2024-02-01 06Z  absent from NCEI, served by AWS
+    2024-02-01 12Z  absent from NCEI, served by AWS
+    2024-02-01 18Z  absent from NCEI, served by AWS
+    2024-02-02 00Z  absent from NCEI, served by AWS
+    no inventory for 2023-02-07 06Z on NCEI; fetching the whole run instead
+    no inventory for 2023-02-23 00Z on NCEI; fetching the whole run instead
+    2026-02-20 06Z  absent from NCEI, served by AWS
+    no inventory for 2026-02-20 12Z on NCEI; fetching the whole run instead
+    2026-02-20 18Z  absent from NCEI, served by AWS
+    no inventory for 2026-02-21 00Z on NCEI; fetching the whole run instead
+    no inventory for 2026-02-21 06Z on NCEI; fetching the whole run instead
+    no inventory for 2026-02-21 12Z on NCEI; fetching the whole run instead
+    no inventory for 2026-02-21 18Z on NCEI; fetching the whole run instead
+    no inventory for 2026-02-22 00Z on NCEI; fetching the whole run instead
+    no inventory for 2026-02-22 06Z on NCEI; fetching the whole run instead
+    no inventory for 2026-02-22 12Z on NCEI; fetching the whole run instead
+    no inventory for 2026-02-22 18Z on NCEI; fetching the whole run instead
+    no inventory for 2026-02-23 00Z on NCEI; fetching the whole run instead
+    no inventory for 2026-02-23 06Z on NCEI; fetching the whole run instead
+    2026-02-23 12Z  absent from NCEI, served by AWS
+    no inventory for 2026-02-23 18Z on NCEI; fetching the whole run instead
+    no inventory for 2026-02-24 00Z on NCEI; fetching the whole run instead
+    2021-10-28 00Z  absent from NCEI, served by AWS
+    no inventory for 2021-10-29 06Z on NCEI; fetching the whole run instead
+    2024-12-03 06Z  absent from NCEI, served by AWS
+    2024-12-03 12Z  absent from NCEI, served by AWS
+    2024-12-03 18Z  absent from NCEI, served by AWS
+    2024-12-04 00Z  absent from NCEI, served by AWS
+    2024-12-04 06Z  absent from NCEI, served by AWS
+    2024-12-04 12Z  absent from NCEI, served by AWS
+    2024-12-04 18Z  absent from NCEI, served by AWS
+    2024-12-05 00Z  absent from NCEI, served by AWS
+    2024-12-05 06Z  absent from NCEI, served by AWS
+    2024-12-05 12Z  absent from NCEI, served by AWS
+    2024-12-05 18Z  absent from NCEI, served by AWS
+    2024-12-06 00Z  absent from NCEI, served by AWS
+    2024-12-06 06Z  absent from NCEI, served by AWS
+    2024-12-06 12Z  absent from NCEI, served by AWS
+    2024-12-06 18Z  absent from NCEI, served by AWS
+    2024-12-07 00Z  absent from NCEI, served by AWS

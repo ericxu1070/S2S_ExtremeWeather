@@ -1,0 +1,53 @@
+[check] PNW_HeatDome_2021@wk4 : state valid 2021-05-31 00:00:00, 721x1440 global, 12 prognostic + 2 static
+  [walker] grid-node channels: inputs 176 + targets 168 + forcings 8; 2 step(s) from 2021-05-31 00:00:00
+[check] PNW_HeatDome_2021@wk4 : a 2-step segment builds cleanly (tail)
+  [walker] grid-node channels: inputs 176 + targets 504 + forcings 24; 6 step(s) from 2021-05-31 00:00:00
+[check] PNW_HeatDome_2021@wk4 : a 6-step segment builds cleanly (standard)
+[check] PNW_HeatDome_2021@wk4 : 10 segments tile 28 d exactly, landing on 2021-06-28 00:00:00
+[check] OK
+[check] PNW_HeatDome_2021@wk6 : state valid 2021-05-17 00:00:00, 721x1440 global, 12 prognostic + 2 static
+  [walker] grid-node channels: inputs 176 + targets 504 + forcings 24; 6 step(s) from 2021-05-17 00:00:00
+[check] PNW_HeatDome_2021@wk6 : a 6-step segment builds cleanly (standard)
+[check] PNW_HeatDome_2021@wk6 : 14 segments tile 42 d exactly, landing on 2021-06-28 00:00:00
+[check] OK
+[check] PNW_HeatDome_2021@wk8 : state valid 2021-05-03 00:00:00, 721x1440 global, 12 prognostic + 2 static
+  [walker] grid-node channels: inputs 176 + targets 336 + forcings 16; 4 step(s) from 2021-05-03 00:00:00
+[check] PNW_HeatDome_2021@wk8 : a 4-step segment builds cleanly (tail)
+  [walker] grid-node channels: inputs 176 + targets 504 + forcings 24; 6 step(s) from 2021-05-03 00:00:00
+[check] PNW_HeatDome_2021@wk8 : a 6-step segment builds cleanly (standard)
+[check] PNW_HeatDome_2021@wk8 : 19 segments tile 56 d exactly, landing on 2021-06-28 00:00:00
+[check] OK
+[check] PNW_HeatDome_2021@wk10: state valid 2021-04-19 00:00:00, 721x1440 global, 12 prognostic + 2 static
+  [walker] grid-node channels: inputs 176 + targets 168 + forcings 8; 2 step(s) from 2021-04-19 00:00:00
+[check] PNW_HeatDome_2021@wk10: a 2-step segment builds cleanly (tail)
+  [walker] grid-node channels: inputs 176 + targets 504 + forcings 24; 6 step(s) from 2021-04-19 00:00:00
+[check] PNW_HeatDome_2021@wk10: a 6-step segment builds cleanly (standard)
+[check] PNW_HeatDome_2021@wk10: 24 segments tile 70 d exactly, landing on 2021-06-28 00:00:00
+[check] OK
+[check] WinterStorm_Uri_2021@wk4 : state valid 2021-01-18 00:00:00, 721x1440 global, 12 prognostic + 2 static
+  [walker] grid-node channels: inputs 176 + targets 168 + forcings 8; 2 step(s) from 2021-01-18 00:00:00
+[check] WinterStorm_Uri_2021@wk4 : a 2-step segment builds cleanly (tail)
+  [walker] grid-node channels: inputs 176 + targets 504 + forcings 24; 6 step(s) from 2021-01-18 00:00:00
+[check] WinterStorm_Uri_2021@wk4 : a 6-step segment builds cleanly (standard)
+[check] WinterStorm_Uri_2021@wk4 : 10 segments tile 28 d exactly, landing on 2021-02-15 00:00:00
+[check] OK
+[check] WinterStorm_Uri_2021@wk6 : state valid 2021-01-04 00:00:00, 721x1440 global, 12 prognostic + 2 static
+  [walker] grid-node channels: inputs 176 + targets 504 + forcings 24; 6 step(s) from 2021-01-04 00:00:00
+[check] WinterStorm_Uri_2021@wk6 : a 6-step segment builds cleanly (standard)
+[check] WinterStorm_Uri_2021@wk6 : 14 segments tile 42 d exactly, landing on 2021-02-15 00:00:00
+[check] OK
+[check] WinterStorm_Uri_2021@wk8 : state valid 2020-12-21 00:00:00, 721x1440 global, 12 prognostic + 2 static
+  [walker] grid-node channels: inputs 176 + targets 336 + forcings 16; 4 step(s) from 2020-12-21 00:00:00
+[check] WinterStorm_Uri_2021@wk8 : a 4-step segment builds cleanly (tail)
+  [walker] grid-node channels: inputs 176 + targets 504 + forcings 24; 6 step(s) from 2020-12-21 00:00:00
+[check] WinterStorm_Uri_2021@wk8 : a 6-step segment builds cleanly (standard)
+[check] WinterStorm_Uri_2021@wk8 : 19 segments tile 56 d exactly, landing on 2021-02-15 00:00:00
+[check] OK
+[check] WinterStorm_Uri_2021@wk10: state valid 2020-12-07 00:00:00, 721x1440 global, 12 prognostic + 2 static
+  [walker] grid-node channels: inputs 176 + targets 168 + forcings 8; 2 step(s) from 2020-12-07 00:00:00
+[check] WinterStorm_Uri_2021@wk10: a 2-step segment builds cleanly (tail)
+  [walker] grid-node channels: inputs 176 + targets 504 + forcings 24; 6 step(s) from 2020-12-07 00:00:00
+[check] WinterStorm_Uri_2021@wk10: a 6-step segment builds cleanly (standard)
+[check] WinterStorm_Uri_2021@wk10: 24 segments tile 70 d exactly, landing on 2021-02-15 00:00:00
+[check] OK
+[check] OK over 8 chain(s)

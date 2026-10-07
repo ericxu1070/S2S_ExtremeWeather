@@ -1,0 +1,75 @@
+[walk] host=nucla3m-a3meganodeset-4 shard 0/8: ['PNW_HeatDome_2021@wk4 ', 'PNW_HeatDome_2021@wk20', 'WinterStorm_Uri_2021@wk18']
+[walk] PNW_HeatDome_2021@wk4 : 10 segment(s), 56 steps, init 2021-05-31 00:00:00 -> peak 2021-06-28 00:00:00
+[walk] PNW_HeatDome_2021@wk4 : final state pruned; landing verified from stab.json
+[walk] PNW_HeatDome_2021@wk4 : complete, landed exactly on the peak 2021-06-28 00:00:00 (0 s elapsed on this shard)
+[walk] PNW_HeatDome_2021@wk20: 1 segment(s), 6 steps, init 2021-02-08 00:00:00 -> the 3 d launch state 2021-02-11 00:00:00 (FCN3-extension lead; the peak 2021-06-28 00:00:00 is FCN3's to reach)
+  [walker] w08 step1: 6 x 12 h from 2021-02-08 00:00:00
+  [walker] loading 'GenCast 0p25deg <2019.npz' (0.25 deg)
+[model] serial infer on 1 device(s); ensemble=1 (1 sample(s), one at a time). task pressure levels: 13
+  [walker] model loaded in 15 s
+  [walker] grid-node channels: inputs 176 + targets 504 + forcings 24; 6 step(s) from 2021-02-08 00:00:00
+/home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/third_party/graphcast/graphcast/rollout.py:328: FutureWarning: The return type of `Dataset.dims` will be changed to return a set of dimension names in future, in order to be more consistent with `DataArray.dims`. To access a mapping from dimension names to lengths, please use `Dataset.sizes`.
+  num_target_steps = targets_template.dims["time"]
+/home/ubuntu/miniconda3/envs/moe/lib/python3.12/site-packages/scipy/sparse/_index.py:210: SparseEfficiencyWarning: Changing the sparsity structure of a csr_matrix is expensive. lil and dok are more efficient.
+  self._set_arrayXarray(i, j, x)
+/home/ubuntu/miniconda3/envs/moe/lib/python3.12/site-packages/scipy/sparse/_index.py:210: SparseEfficiencyWarning: Changing the sparsity structure of a csr_matrix is expensive. lil and dok are more efficient.
+  self._set_arrayXarray(i, j, x)
+/home/ubuntu/miniconda3/envs/moe/lib/python3.12/site-packages/jax/_src/compiler.py:833: UserWarning: Error writing persistent compilation cache entry for 'jit_apply_fn': JaxRuntimeError: RESOURCE_EXHAUSTED: Failed to serialize message of type xla.gpu.GpuExecutableProto because its size must be smaller than 2GiB: 4171376105; at byte 0; at uncompressed byte 0; at byte 2909
+	failed to serialize the rest of the fields in GpuExecutableProto split proto (all fields except asm_text, binary, dnn_compiled_graphs, and constants)
+  warnings.warn(
+/home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/third_party/graphcast/graphcast/rollout.py:435: FutureWarning: The return type of `Dataset.dims` will be changed to return a set of dimension names in future, in order to be more consistent with `DataArray.dims`. To access a mapping from dimension names to lengths, please use `Dataset.sizes`.
+  num_inputs = prev_inputs.dims["time"]
+/home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/third_party/graphcast/graphcast/rollout.py:437: FutureWarning: In a future version of xarray the default value for compat will change from compat='equals' to compat='override'. This change will result in the following ValueError: Cannot specify both data_vars='different' and compat='override'. The recommendation is to set compat explicitly for this case.
+  xarray.concat(
+  [walker w08 s1] step 1/6  valid 2021-02-08 12:00:00
+  [walker w08 s1] step 2/6  valid 2021-02-09 00:00:00
+  [walker w08 s1] step 3/6  valid 2021-02-09 12:00:00
+  [walker w08 s1] step 4/6  valid 2021-02-10 00:00:00
+  [walker w08 s1] step 5/6  valid 2021-02-10 12:00:00
+  [walker w08 s1] step 6/6  valid 2021-02-11 00:00:00
+Traceback (most recent call last):
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "/home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/astab/run.py", line 144, in <module>
+    sys.exit(main())
+             ^^^^^^
+  File "/home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/astab/run.py", line 124, in main
+    rc |= stage_walk(chs, a.shard, a.nshards,
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/astab/stages.py", line 556, in stage_walk
+    W.run_segment(get_bundle, ch.event, ch.walker, k, n_steps,
+  File "/home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/aires/walker.py", line 359, in run_segment
+    write_state(nxt, sp)
+  File "/home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/aires/walker.py", line 128, in write_state
+    ds.to_netcdf(tmp, encoding=enc)
+  File "/home/ubuntu/miniconda3/envs/moe/lib/python3.12/site-packages/xarray/core/dataset.py", line 2134, in to_netcdf
+    return to_netcdf(  # type: ignore[return-value]  # mypy cannot resolve the overloads:(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ubuntu/miniconda3/envs/moe/lib/python3.12/site-packages/xarray/backends/writers.py", line 441, in to_netcdf
+    dump_to_store(
+  File "/home/ubuntu/miniconda3/envs/moe/lib/python3.12/site-packages/xarray/backends/writers.py", line 491, in dump_to_store
+    store.store(variables, attrs, check_encoding, writer, unlimited_dims=unlimited_dims)
+  File "/home/ubuntu/miniconda3/envs/moe/lib/python3.12/site-packages/xarray/backends/common.py", line 537, in store
+    self.set_variables(
+  File "/home/ubuntu/miniconda3/envs/moe/lib/python3.12/site-packages/xarray/backends/common.py", line 579, in set_variables
+    writer.add(source, target)
+  File "/home/ubuntu/miniconda3/envs/moe/lib/python3.12/site-packages/xarray/backends/common.py", line 407, in add
+    target[...] = source
+    ~~~~~~^^^^^
+  File "/home/ubuntu/miniconda3/envs/moe/lib/python3.12/site-packages/xarray/backends/netCDF4_.py", line 96, in __setitem__
+    data[key] = value
+    ~~~~^^^^^
+  File "src/netCDF4/_netCDF4.pyx", line 5603, in netCDF4._netCDF4.Variable.__setitem__
+  File "/home/ubuntu/Vayuh/data/eric/S2S_ExtremeWeather/third_party/graphcast/graphcast/xarray_jax.py", line 505, in __array__
+    return np.asarray(self.jax_array, dtype=dtype)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ubuntu/miniconda3/envs/moe/lib/python3.12/site-packages/jax/_src/array.py", line 414, in __array__
+    return np.asarray(self._value, dtype=dtype, **kwds)  # pyrefly: ignore[no-matching-overload]
+                      ^^^^^^^^^^^
+  File "/home/ubuntu/miniconda3/envs/moe/lib/python3.12/site-packages/jax/_src/profiler.py", line 420, in wrapper
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ubuntu/miniconda3/envs/moe/lib/python3.12/site-packages/jax/_src/array.py", line 623, in _value
+    npy_value, did_copy = self._single_device_array_to_np_array_did_copy()
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+jax.errors.JaxRuntimeError: RESOURCE_EXHAUSTED: [0] Failed to load in-memory CUBIN (compiled for a different GPU?).: CUDA_ERROR_OUT_OF_MEMORY: out of memory [executable_name='jit_concatenate']
