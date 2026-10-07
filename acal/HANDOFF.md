@@ -823,3 +823,39 @@ goes the other way, so this is a tail-cell effect).
 1. Optional tighter bias: add +/-7 d and +/-14 d inits in the other years (~5x samples,
    ~3 h download).
 2. Non-event controls remain the route to real reliability for both forecasts.
+
+## AI+RES vs CFSv2 side by side (2026-10-07)
+
+Code: `acal/sidebyside.py` (docstring = the method), tests `acal/tests/test_sidebyside.py`.
+CPU only, reads what `acal.maps` and `acal.cfsbase` already built.
+
+    python -m acal.sidebyside --stage csi       # 6 figures, ~1 min
+    python -m acal.sidebyside --stage members   # ~40 min (reads every walker diag.nc)
+    python -m acal.sidebyside --stage figures   # redraw member maps from the .nc, ~2 min
+
+**Outputs.**
+- `figures/acal/sidebyside/csi_{heat,cold}_{2,3,4}K.png`: per threshold, rows 7-day / daily,
+  columns AI+RES | CFSv2 raw | difference. Same `maps.scores` as the existing CSI maps (the
+  land means reproduce them: +2 K 7-day 0.56 vs 0.30). Fixed scales ([0, 1], +/-0.6).
+- `figures/acal/sidebyside/members/<case>.png` (42) and `closest_member_summary.png`:
+  ERA5 | closest AI+RES walker | closest CFSv2 member, plus both ensemble means.
+- `runs/acal/analysis/closest_members.{csv,nc}`: per case the closest walker / member,
+  RMSE, pattern correlation, A_L, walker weight and rank, CFS member lead.
+
+**Method.** Closest = smallest cos(lat)-weighted RMSE of the 7-day-mean T2m anomaly vs ERA5
+over CONUS land (`maps.land_mask`). CFS raw. `res_min16_exp` = expected minimum walker RMSE
+over random 16-walker subsets (exact order statistic), the like-for-like comparison with
+16 CFS members.
+
+**Result (42 cases).**
+
+| | AI+RES | CFSv2 raw | AI+RES closer |
+|---|---|---|---|
+| closest-member RMSE, median | 2.28 K (E16 2.42 K) | 2.92 K | 38/42 (16 vs 16: 35/42) |
+| closest-member pattern r, median | 0.72 | 0.58 | 36/42 |
+| ensemble-mean RMSE | | | 34/42 |
+
+Heat 26/31 and cold 9/11 like-for-like. The closest walker is often a low-weight one (in the
+top 8 of 32 by weight in only 22/42 cases), so "the ensemble contains a physically close
+trajectory" is a weaker statement than "the forecast favoured it". CFS caveats as above
+(cold drift inside the raw score, ~0.94 deg resolution).
