@@ -294,6 +294,203 @@ def plot(skill: dict, res: dict, n_walkers: int, thresholds, out_path: Path) -> 
     print(f"  wrote {out_path}")
 
 
+# --------------------------------------------------------------------------- #
+# Where the schedule's answer actually comes from: rho at the first scored step
+# --------------------------------------------------------------------------- #
+def rho_sensitivity(skill: dict, n_walkers: int, repeats: int, thresholds,
+                    grid, schedules: dict, seed: int = 4242) -> dict:
+    """Sweep rho at the FIRST scored step, holding the rest of the measured curve fixed.
+
+    The recurring proposal is to switch the 6 d resampling off (``C_2 = 0``) and save its
+    score - the most expensive leg in the run, since its forecast is the longest. Whether
+    that helps depends entirely on ``rho_6d``, which Gate 3 measures at 0.53-0.76 but with
+    a standard error of ~0.28 at N = 16. So the decision-relevant quantity is not the point
+    estimate, it is the CROSSOVER: how low would rho_6d have to be before skipping wins.
+
+    Below the crossover the resampling is acting on noise, and the damage shows up as
+    occasional blow-ups rather than a steady drift - a walker that looks good at 6 d purely
+    by chance gets cloned, and the tail estimate inherits its error. That is why the
+    keep-6d rows here are NON-MONOTONIC in rho at the low end while the skip-6d rows are
+    flat: skipping is insensitive to a skill it never buys.
+    """
+    from scipy.stats import norm
+    exact = norm.sf(np.asarray(thresholds, dtype="float64"))
+    rho0 = np.asarray(skill["rho"], dtype="float64")
+    out = {}
+    for r in grid:
+        rho = rho0.copy()
+        rho[1] = r
+        rho = np.maximum.accumulate(np.clip(rho, 0.0, 0.999))
+        row = {}
+        for name, C in schedules.items():
+            rng = np.random.default_rng(seed)
+            ess, exc = [], []
+            for _ in range(repeats):
+                res, a = replay(rho, C, n_walkers, rng)
+                ess.append(res.ess_by_step[-1] / n_walkers)
+                exc.append(res.exceedance(a, thresholds))
+            exc = np.array(exc)
+            row[name] = dict(
+                ess_final=float(np.mean(ess)),
+                relerr=(np.abs(exc.mean(0) - exact) / exact).tolist(),
+                relsd=(exc.std(0, ddof=1) / exact).tolist())
+        out[f"{r:.2f}"] = row
+    return out
+
+
+# --------------------------------------------------------------------------- #
+# Can a production run stand in for a Gate 3 measurement?  No - checked, it cannot
+# --------------------------------------------------------------------------- #
+def production_skill(event: str, tag: str = "pilot", index: str = "box") -> dict:
+    """Estimate rho_k from a FINISHED production run, via its importance weights.
+
+    Tempting, because only three events have a Gate 3 tree while nine have a production
+    run. The population at leg k is tilted, but the weights undo exactly that tilt, so a
+    weighted correlation between each final walker's leg-k ancestor score and its realized
+    A_L is, in expectation, the prior skill.
+
+    **It does not survive its own validation, and must not be used.** Checked against Gate 3
+    on the three events that have both (``--validate-production``): mean |error| 0.263 over
+    the scored leads, which is the size of the quantity being measured. PNW at 6 d comes
+    back -0.369 against a measured +0.612 - a SIGN FLIP, not a noisy estimate.
+
+    The reason is visible in the runs' own diagnostics. Resampling drives the largest clone
+    multiplicity to 11-15, so the 64 final walkers descend from ~15 distinct leg-k
+    ancestors; the weighted correlation is then computed over a handful of distinct
+    (theta, A_L) pairs and is attenuated toward zero. Uri agrees to 0.012 at 6 d, but its
+    weight ESS is 2.2 - that is luck, not reliability, and it is exactly the kind of
+    agreement that would license the estimator if only one event had been checked.
+
+    Kept in the tree because the negative result is worth more than the function: a skill
+    curve for a new event costs a Gate 3 run (~2.2 h, ~18 H100-h), and there is no way to
+    read one off a production run after the fact.
+    """
+    import pandas as pd  # noqa: F401  (kept for a consistent import surface with aires)
+
+    res_dir = A.res_dir(event, tag) if hasattr(A, "res_dir") else None
+    base = res_dir if res_dir is not None else (A.AIRES_ROOT / event / "res" / tag)
+    cmp_ = json.loads((Path(base) / "compare.json").read_text())
+    res = json.loads((Path(base) / "res_result.json").read_text())
+
+    realized = np.asarray(cmp_["realized"][index], dtype="float64")
+    w = np.asarray(cmp_["weights"], dtype="float64")
+    lineage = cmp_["realized"]["lineage"]
+
+    def wcorr(x, y, wt):
+        wt = wt / wt.sum()
+        mx, my = np.sum(wt * x), np.sum(wt * y)
+        vx, vy = np.sum(wt * (x - mx) ** 2), np.sum(wt * (y - my) ** 2)
+        if vx <= 0 or vy <= 0:
+            return float("nan")
+        return float(np.sum(wt * (x - mx) * (y - my)) / np.sqrt(vx * vy))
+
+    leads, rho = [], []
+    for k, t in enumerate(res["theta"], start=1):
+        th = np.asarray(t[index], dtype="float64")
+        anc = np.array([lineage[i][str(k)] for i in range(realized.size)], dtype=int)
+        leads.append(float(t["lead_days"]))
+        rho.append(wcorr(th[anc], realized, w))
+    return dict(event=event, leads=leads, rho=np.asarray(rho),
+                ess=float(w.sum() ** 2 / np.sum(w ** 2)),
+                skipped=[t.get("backend") == "skipped(C=0)" for t in res["theta"]])
+
+
+def validate_production(events, index: str = "box") -> str:
+    """Print the production-run estimator against Gate 3 truth, event by event."""
+    L = [f"{'event':<26} {'lead':>5}  {'gate3':>7} {'production':>11}  {'diff':>7}",
+         "-" * 64]
+    errs = []
+    for ev in events:
+        try:
+            g, p = load_skill(ev, index), production_skill(ev, index=index)
+        except (SystemExit, FileNotFoundError) as e:
+            L.append(f"{ev:<26}  skipped: {e}")
+            continue
+        for k, lead in enumerate(g["leads"]):
+            gv, pv = g["rho_raw"][k], p["rho"][k]
+            note = "   (C=0, score not bought)" if p["skipped"][k] else ""
+            if k > 0:
+                errs.append(abs(pv - gv))
+            L.append(f"{ev:<26} {lead:5.0f}  {gv:+7.3f} {pv:+11.3f}  {pv - gv:+7.3f}{note}")
+        L.append(f"{'':<26} {'ESS':>5}  {'':>7} {p['ess']:11.1f}")
+        L.append("")
+    if errs:
+        L += [f"mean |diff| over the scored leads = {np.mean(errs):.3f}",
+              "",
+              "  VERDICT: the estimator does not survive this check. The error is the size",
+              "  of the quantity, and PNW at 6 d flips sign. A new event's skill curve costs",
+              "  a Gate 3 run; it cannot be recovered from a finished production run."]
+    return "\n".join(L)
+
+
+# --------------------------------------------------------------------------- #
+# Searching the schedule space, with and without the C_1 = C_2 = 0 constraint
+# --------------------------------------------------------------------------- #
+def _monotone(values, length, floor=0.0):
+    """Non-decreasing tuples - a schedule that tilts less as the forecast sharpens is
+    buying uncertainty at the wrong end, so the search does not consider one."""
+    out = []
+
+    def rec(prefix, lo):
+        if len(prefix) == length:
+            out.append(tuple(prefix))
+            return
+        for v in values:
+            if v >= lo:
+                rec(prefix + [v], v)
+    rec([], floor)
+    return out
+
+
+def score_schedule(rho, C, n_walkers, repeats, thresholds, exact, seed=4242) -> dict:
+    """One schedule's cost: relative RMSE of the tail estimate, plus population health.
+
+    relRMSE = sqrt(bias^2 + var) / p_true is what a SINGLE production run actually buys -
+    it charges a schedule for being wrong on average and for being unrepeatable, which
+    `relerr` and `relsd` each only half-measure.
+    """
+    rng = np.random.default_rng(seed)
+    ess, mult, exc = [], [], []
+    for _ in range(repeats):
+        res, a = replay(rho, C, n_walkers, rng)
+        ess.append(res.ess_by_step[-1] / n_walkers)
+        mult.append(np.max(res.max_multiplicity_by_step))
+        exc.append(res.exceedance(a, thresholds))
+    exc = np.array(exc)
+    bias = exc.mean(0) - exact
+    sd = exc.std(0, ddof=1)
+    rel_rmse = np.sqrt(bias ** 2 + sd ** 2) / exact
+    return dict(C=list(C), ess_final=float(np.mean(ess)), max_mult=float(np.mean(mult)),
+                rel_rmse=rel_rmse.tolist(), objective=float(np.mean(rel_rmse)))
+
+
+def search(skill: dict, n_walkers: int, repeats: int, thresholds, values,
+           refine_repeats: int, top: int = 5) -> dict:
+    """Best schedule with C_1 = C_2 = 0, and best with C_2 free, on one skill curve.
+
+    Two stages on purpose: a coarse pass ranks the whole grid cheaply, then the survivors
+    are re-scored with enough repeats that the ranking among them means something. A single
+    cheap pass would be choosing between schedules whose separation is smaller than the
+    Monte Carlo error on either.
+    """
+    from scipy.stats import norm
+    exact = norm.sf(np.asarray(thresholds, dtype="float64"))
+    rho = np.asarray(skill["rho"], dtype="float64")
+
+    fams = {"C1=C2=0": [(0.0, 0.0) + t for t in _monotone(values, 3)],
+            "C2 free": [(0.0,) + t for t in _monotone(values, 4) if t[0] > 0]}
+    out = {}
+    for fam, cands in fams.items():
+        coarse = [score_schedule(rho, C, n_walkers, repeats, thresholds, exact)
+                  for C in cands]
+        coarse.sort(key=lambda r: r["objective"])
+        fine = [score_schedule(rho, tuple(r["C"]), n_walkers, refine_repeats,
+                               thresholds, exact, seed=99) for r in coarse[:top]]
+        fine.sort(key=lambda r: r["objective"])
+        out[fam] = dict(n_candidates=len(cands), top=fine)
+    return out
+
+
 def main(argv=None) -> int:
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[0],
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
@@ -304,11 +501,87 @@ def main(argv=None) -> int:
     ap.add_argument("--thresholds", default="2.0,3.0,3.5,4.0")
     ap.add_argument("--check", action="store_true", help="print the model fit and stop")
     ap.add_argument("--no-plot", action="store_true")
+    ap.add_argument("--rho-sens", action="store_true",
+                    help="sweep rho at the first scored step; find the crossover where "
+                         "switching that resampling off starts to pay")
+    ap.add_argument("--rho-grid", default="0,0.15,0.3,0.45,0.6,0.75")
+    ap.add_argument("--validate-production", action="store_true",
+                    help="check the production-run skill estimator against Gate 3 truth")
+    ap.add_argument("--search", action="store_true",
+                    help="search the schedule grid, with and without C_1 = C_2 = 0")
+    ap.add_argument("--grid", default="0.4,0.8,1.2,1.6,2.0,2.4,2.8",
+                    help="C values the search may choose from")
+    ap.add_argument("--search-repeats", type=int, default=400,
+                    help="repeats in the coarse pass; the top few are re-scored at --repeats")
     a = ap.parse_args(argv)
+
+    if a.validate_production:
+        print(validate_production(
+            ["PNW_HeatDome_2021", "SCentral_HeatDome_2023", "WinterStorm_Uri_2021"],
+            a.index))
+        return 0
 
     skill = load_skill(a.event, a.index)
     print(check_model(skill))
     if a.check:
+        return 0
+
+    if a.rho_sens:
+        thresholds = [float(t) for t in a.thresholds.split(",")]
+        grid = [float(g) for g in a.rho_grid.split(",")]
+        sens = rho_sensitivity(skill, a.walkers, a.repeats, thresholds, grid,
+                               {n: SCHEDULES[n] for n in ("aires.md", "skip 6d", "gentle")})
+        print(f"\n  rho at the first scored step vs the schedule that assumes it "
+              f"(N = {a.walkers}, {a.repeats} repeats)")
+        print(f"  measured here: rho_6d = {skill['rho'][1]:.3f}\n")
+        names = ["aires.md", "skip 6d", "gentle"]
+        print(f"  {'rho_6d':>7} | " + " | ".join(f"{label(n):^30}" for n in names))
+        print(f"  {'':>7} | " + " | ".join(
+            f"{'ESS_f  ' + '  '.join(f'relsd{t:g}' for t in thresholds):^30}"
+            for _ in names))
+        for r, row in sens.items():
+            cells = [f"{row[n]['ess_final']:5.2f}  "
+                     + "  ".join(f"{v:7.2f}" for v in row[n]['relsd']) for n in names]
+            print(f"  {float(r):7.2f} | " + " | ".join(f"{c:^30}" for c in cells))
+        out = A.gate3_dir(a.event) / f"{a.event}_rho_sens.json"
+        out.parent.mkdir(parents=True, exist_ok=True)
+        out.write_text(json.dumps({"event": a.event, "measured_rho": skill["rho"].tolist(),
+                                   "thresholds": thresholds, "sens": sens}, indent=2))
+        print(f"\n  wrote {out}")
+        return 0
+
+    if a.search:
+        thresholds = [float(t) for t in a.thresholds.split(",")]
+        values = [float(v) for v in a.grid.split(",")]
+        sr = search(skill, a.walkers, a.search_repeats, thresholds, values, a.repeats)
+        print(f"\n  schedule search on {a.event} - objective is mean relative RMSE of the "
+              f"tail\n  estimate at {', '.join(f'{t:g}' for t in thresholds)} sigma "
+              f"(lower is better); N = {a.walkers}")
+        for fam, d in sr.items():
+            print(f"\n  {fam}  ({d['n_candidates']} monotone candidates)")
+            print(f"    {'C_k':<28} {'objective':>9} {'ESS_f':>6} {'maxmult':>8}  "
+                  + "  ".join(f"relRMSE{t:g}" for t in thresholds))
+            for r in d["top"]:
+                cs = ",".join(f"{c:g}" for c in r["C"])
+                print(f"    {cs:<28} {r['objective']:9.2f} {r['ess_final']:6.2f} "
+                      f"{r['max_mult']:8.1f}  "
+                      + "  ".join(f"{v:9.2f}" for v in r["rel_rmse"]))
+        base = {n: SCHEDULES[n] for n in ("aires.md", "skip 6d")}
+        from scipy.stats import norm
+        exact = norm.sf(np.asarray(thresholds, dtype="float64"))
+        print(f"\n    {'-- reference --':<28}")
+        for n, C in base.items():
+            r = score_schedule(np.asarray(skill["rho"]), C, a.walkers, a.repeats,
+                               thresholds, exact, seed=99)
+            cs = ",".join(f"{c:g}" for c in r["C"])
+            print(f"    {cs:<28} {r['objective']:9.2f} {r['ess_final']:6.2f} "
+                  f"{r['max_mult']:8.1f}  "
+                  + "  ".join(f"{v:9.2f}" for v in r["rel_rmse"]) + f"   ({n})")
+        out = A.gate3_dir(a.event) / f"{a.event}_csearch.json"
+        out.parent.mkdir(parents=True, exist_ok=True)
+        out.write_text(json.dumps({"event": a.event, "thresholds": thresholds,
+                                   "grid": values, "search": sr}, indent=2))
+        print(f"\n  wrote {out}")
         return 0
 
     thresholds = [float(t) for t in a.thresholds.split(",")]
