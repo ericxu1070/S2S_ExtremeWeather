@@ -1,0 +1,90 @@
+  e01_h2_20210119  obs +2.23  best walker w31 2.60 K (E16 2.68)  best CFS m03 2.47 K
+  e02_c4_20210218  obs -5.18  best walker w17 3.55 K (E16 3.59)  best CFS m15 4.72 K
+  e03_h2_20210411  obs +2.58  best walker w26 1.98 K (E16 2.41)  best CFS m13 3.33 K
+  e04_h2_20210610  obs +2.22  best walker w22 2.18 K (E16 2.30)  best CFS m05 3.00 K
+  e05_h2_20211011  obs +2.24  best walker w17 1.92 K (E16 1.98)  best CFS m08 2.26 K
+  e06_h2_20211206  obs +2.70  best walker w11 2.43 K (E16 2.51)  best CFS m08 2.94 K
+  e07_h2_20211217  obs +2.81  best walker w15 2.41 K (E16 2.45)  best CFS m06 2.65 K
+  e08_h2_20211229  obs +2.33  best walker w20 2.20 K (E16 2.62)  best CFS m11 4.02 K
+  e09_c2_20220228  obs -2.64  best walker w16 3.16 K (E16 3.36)  best CFS m12 2.90 K
+  e10_c2_20220314  obs -2.13  best walker w06 2.71 K (E16 2.98)  best CFS m13 3.21 K
+  e11_h2_20220321  obs +2.28  best walker w09 2.21 K (E16 2.28)  best CFS m04 2.60 K
+  e12_c3_20221121  obs -3.95  best walker w12 2.53 K (E16 2.62)  best CFS m09 4.30 K
+  e13_c3_20221225  obs -3.80  best walker w28 3.18 K (E16 3.37)  best CFS m11 5.16 K
+  e14_h4_20230104  obs +4.03  best walker w20 2.08 K (E16 2.37)  best CFS m06 2.72 K
+  e15_h2_20230118  obs +2.47  best walker w18 2.29 K (E16 2.34)  best CFS m07 2.29 K
+  e16_c2_20230205  obs -2.34  best walker w31 3.42 K (E16 3.79)  best CFS m02 3.64 K
+  e17_c2_20230322  obs -2.08  best walker w10 2.38 K (E16 2.56)  best CFS m02 3.15 K
+  e18_h2_20231006  obs +2.13  best walker w08 1.60 K (E16 1.79)  best CFS m09 2.39 K
+  e19_h2_20231025  obs +2.29  best walker w19 2.16 K (E16 2.17)  best CFS m00 2.46 K
+  e20_c2_20231103  obs -2.07  best walker w27 2.33 K (E16 2.71)  best CFS m07 2.90 K
+  e21_h2_20231120  obs +2.21  best walker w05 1.91 K (E16 2.06)  best CFS m03 2.00 K
+  e22_h2_20231210  obs +2.06  best walker w07 2.13 K (E16 2.21)  best CFS m15 2.42 K
+  e23_h3_20231228  obs +3.03  best walker w03 2.09 K (E16 2.19)  best CFS m12 2.70 K
+  e24_c3_20240119  obs -3.46  best walker w26 4.07 K (E16 4.11)  best CFS m15 4.97 K
+  e25_h3_20240131  obs +3.86  best walker w00 2.01 K (E16 2.15)  best CFS m11 4.00 K
+  e26_h2_20240211  obs +2.60  best walker w21 1.65 K (E16 1.74)  best CFS m15 2.28 K
+  e27_h2_20240228  obs +2.88  best walker w10 2.27 K (E16 2.42)  best CFS m09 4.50 K
+  e28_h2_20240318  obs +2.30  best walker w24 2.36 K (E16 2.44)  best CFS m01 3.25 K
+  e29_h2_20240418  obs +2.04  best walker w27 1.37 K (E16 1.57)  best CFS m13 3.23 K
+  e30_h2_20241001  obs +2.75  best walker w01 2.04 K (E16 2.10)  best CFS m14 2.39 K
+  e31_h2_20241027  obs +2.21  best walker w29 1.89 K (E16 2.13)  best CFS m07 2.38 K
+  e32_h2_20241221  obs +2.50  best walker w06 3.10 K (E16 3.21)  best CFS m11 3.15 K
+  e33_h4_20250101  obs +4.10  best walker w07 2.30 K (E16 2.38)  best CFS m05 2.44 K
+  e34_c4_20250125  obs -4.32  best walker w19 2.04 K (E16 2.31)  best CFS m08 3.71 K
+  e35_h2_20250209  obs +2.10  best walker w21 3.52 K (E16 4.34)  best CFS m04 5.06 K
+  e36_c3_20250223  obs -3.66  best walker w11 3.13 K (E16 3.21)  best CFS m01 4.44 K
+  e37_h3_20250302  obs +3.05  best walker w24 1.49 K (E16 1.58)  best CFS m15 2.40 K
+  e38_h2_20250317  obs +2.20  best walker w00 2.37 K (E16 2.55)  best CFS m04 3.61 K
+  e39_h2_20250331  obs +2.28  best walker w00 2.06 K (E16 2.23)  best CFS m03 2.88 K
+  e40_h2_20250930  obs +2.08  best walker w28 1.43 K (E16 1.49)  best CFS m12 1.99 K
+  e41_h2_20251120  obs +2.56  best walker w00 3.35 K (E16 3.40)  best CFS m13 2.83 K
+  e42_h4_20251228  obs +4.15  best walker w04 2.79 K (E16 2.89)  best CFS m04 4.22 K
+[sbs] wrote /glade/derecho/scratch/exu/S2S_ExtremeWeather/runs/acal/analysis/closest_members.csv
+[sbs] wrote /glade/derecho/scratch/exu/S2S_ExtremeWeather/runs/acal/analysis/closest_members.nc
+  wrote /glade/derecho/scratch/exu/S2S_ExtremeWeather/figures/acal/sidebyside/members/e01_h2_20210119.png (548 kB)
+  wrote /glade/derecho/scratch/exu/S2S_ExtremeWeather/figures/acal/sidebyside/members/e02_c4_20210218.png (511 kB)
+  wrote /glade/derecho/scratch/exu/S2S_ExtremeWeather/figures/acal/sidebyside/members/e03_h2_20210411.png (559 kB)
+  wrote /glade/derecho/scratch/exu/S2S_ExtremeWeather/figures/acal/sidebyside/members/e04_h2_20210610.png (566 kB)
+  wrote /glade/derecho/scratch/exu/S2S_ExtremeWeather/figures/acal/sidebyside/members/e05_h2_20211011.png (568 kB)
+  wrote /glade/derecho/scratch/exu/S2S_ExtremeWeather/figures/acal/sidebyside/members/e06_h2_20211206.png (576 kB)
+  wrote /glade/derecho/scratch/exu/S2S_ExtremeWeather/figures/acal/sidebyside/members/e07_h2_20211217.png (573 kB)
+  wrote /glade/derecho/scratch/exu/S2S_ExtremeWeather/figures/acal/sidebyside/members/e08_h2_20211229.png (550 kB)
+  wrote /glade/derecho/scratch/exu/S2S_ExtremeWeather/figures/acal/sidebyside/members/e09_c2_20220228.png (537 kB)
+  wrote /glade/derecho/scratch/exu/S2S_ExtremeWeather/figures/acal/sidebyside/members/e10_c2_20220314.png (576 kB)
+  wrote /glade/derecho/scratch/exu/S2S_ExtremeWeather/figures/acal/sidebyside/members/e11_h2_20220321.png (584 kB)
+  wrote /glade/derecho/scratch/exu/S2S_ExtremeWeather/figures/acal/sidebyside/members/e12_c3_20221121.png (549 kB)
+  wrote /glade/derecho/scratch/exu/S2S_ExtremeWeather/figures/acal/sidebyside/members/e13_c3_20221225.png (504 kB)
+  wrote /glade/derecho/scratch/exu/S2S_ExtremeWeather/figures/acal/sidebyside/members/e14_h4_20230104.png (533 kB)
+  wrote /glade/derecho/scratch/exu/S2S_ExtremeWeather/figures/acal/sidebyside/members/e15_h2_20230118.png (560 kB)
+  wrote /glade/derecho/scratch/exu/S2S_ExtremeWeather/figures/acal/sidebyside/members/e16_c2_20230205.png (568 kB)
+  wrote /glade/derecho/scratch/exu/S2S_ExtremeWeather/figures/acal/sidebyside/members/e17_c2_20230322.png (563 kB)
+  wrote /glade/derecho/scratch/exu/S2S_ExtremeWeather/figures/acal/sidebyside/members/e18_h2_20231006.png (558 kB)
+  wrote /glade/derecho/scratch/exu/S2S_ExtremeWeather/figures/acal/sidebyside/members/e19_h2_20231025.png (592 kB)
+  wrote /glade/derecho/scratch/exu/S2S_ExtremeWeather/figures/acal/sidebyside/members/e20_c2_20231103.png (551 kB)
+  wrote /glade/derecho/scratch/exu/S2S_ExtremeWeather/figures/acal/sidebyside/members/e21_h2_20231120.png (590 kB)
+  wrote /glade/derecho/scratch/exu/S2S_ExtremeWeather/figures/acal/sidebyside/members/e22_h2_20231210.png (580 kB)
+  wrote /glade/derecho/scratch/exu/S2S_ExtremeWeather/figures/acal/sidebyside/members/e23_h3_20231228.png (530 kB)
+  wrote /glade/derecho/scratch/exu/S2S_ExtremeWeather/figures/acal/sidebyside/members/e24_c3_20240119.png (511 kB)
+  wrote /glade/derecho/scratch/exu/S2S_ExtremeWeather/figures/acal/sidebyside/members/e25_h3_20240131.png (526 kB)
+  wrote /glade/derecho/scratch/exu/S2S_ExtremeWeather/figures/acal/sidebyside/members/e26_h2_20240211.png (514 kB)
+  wrote /glade/derecho/scratch/exu/S2S_ExtremeWeather/figures/acal/sidebyside/members/e27_h2_20240228.png (573 kB)
+  wrote /glade/derecho/scratch/exu/S2S_ExtremeWeather/figures/acal/sidebyside/members/e28_h2_20240318.png (580 kB)
+  wrote /glade/derecho/scratch/exu/S2S_ExtremeWeather/figures/acal/sidebyside/members/e29_h2_20240418.png (594 kB)
+  wrote /glade/derecho/scratch/exu/S2S_ExtremeWeather/figures/acal/sidebyside/members/e30_h2_20241001.png (565 kB)
+  wrote /glade/derecho/scratch/exu/S2S_ExtremeWeather/figures/acal/sidebyside/members/e31_h2_20241027.png (589 kB)
+  wrote /glade/derecho/scratch/exu/S2S_ExtremeWeather/figures/acal/sidebyside/members/e32_h2_20241221.png (583 kB)
+  wrote /glade/derecho/scratch/exu/S2S_ExtremeWeather/figures/acal/sidebyside/members/e33_h4_20250101.png (530 kB)
+  wrote /glade/derecho/scratch/exu/S2S_ExtremeWeather/figures/acal/sidebyside/members/e34_c4_20250125.png (557 kB)
+  wrote /glade/derecho/scratch/exu/S2S_ExtremeWeather/figures/acal/sidebyside/members/e35_h2_20250209.png (528 kB)
+  wrote /glade/derecho/scratch/exu/S2S_ExtremeWeather/figures/acal/sidebyside/members/e36_c3_20250223.png (530 kB)
+  wrote /glade/derecho/scratch/exu/S2S_ExtremeWeather/figures/acal/sidebyside/members/e37_h3_20250302.png (566 kB)
+  wrote /glade/derecho/scratch/exu/S2S_ExtremeWeather/figures/acal/sidebyside/members/e38_h2_20250317.png (578 kB)
+  wrote /glade/derecho/scratch/exu/S2S_ExtremeWeather/figures/acal/sidebyside/members/e39_h2_20250331.png (592 kB)
+  wrote /glade/derecho/scratch/exu/S2S_ExtremeWeather/figures/acal/sidebyside/members/e40_h2_20250930.png (581 kB)
+  wrote /glade/derecho/scratch/exu/S2S_ExtremeWeather/figures/acal/sidebyside/members/e41_h2_20251120.png (565 kB)
+  wrote /glade/derecho/scratch/exu/S2S_ExtremeWeather/figures/acal/sidebyside/members/e42_h4_20251228.png (543 kB)
+  wrote /glade/derecho/scratch/exu/S2S_ExtremeWeather/figures/acal/sidebyside/closest_member_summary.png (99 kB)
+  all   n=42  closest RMSE median: AI+RES 2.28 (E16 2.42) CFS 2.92  | AI+RES closer 32v16 38, 16v16 35, mean 34
+  cold  n=11  closest RMSE median: AI+RES 3.13 (E16 3.21) CFS 3.71  | AI+RES closer 32v16 10, 16v16 9, mean 7
+  heat  n=31  closest RMSE median: AI+RES 2.16 (E16 2.30) CFS 2.70  | AI+RES closer 32v16 28, 16v16 26, mean 27
