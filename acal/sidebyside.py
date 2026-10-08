@@ -92,11 +92,37 @@ def _wmean(da: xr.DataArray) -> float:
 # --------------------------------------------------------------------------- #
 # Stage: csi
 # --------------------------------------------------------------------------- #
-def csi_scores() -> dict:
-    """{tag: (AI+RES scores, CFS raw scores)} for the 7-day and daily files."""
+def source_field_files(source: str = "cfs", truth: str = "era5") -> tuple[Path, Path]:
+    """(7-day, daily) probability files of a forecast source: the published CFS files, or
+    `acal.s2sbase --stage maps` output under runs/acal/analysis/s2s/<truth>/."""
+    if source == "cfs" and truth == "era5":
+        return M.CFS_FIELDS, M.CFS_DAILY_FIELDS
+    from acal import s2sbase as S2
+    od = S2.ANALYSIS / truth
+    return od / f"maps_fields_{source}.nc", od / f"maps_daily_{source}.nc"
+
+
+_CTX = {"dir": FIG_DIR, "label": "ERA5"}     # members/csi(truth=...) repoint these
+
+
+def _truth_ctx(truth: str | None) -> dict:
+    """Figure dir + truth label for a truth (None = the published ERA5 figures)."""
+    if truth is None:
+        return {"dir": FIG_DIR, "label": "ERA5"}
+    from acal import truth as TR
+    tr = TR.get_truth(truth)
+    return {"dir": TR.fig_dir(tr) / "sidebyside", "label": TR.label_of(tr)}
+
+
+def csi_scores(source: str = "cfs", truth: str = "era5") -> dict:
+    """{tag: (AI+RES scores, source raw scores)} for the 7-day and daily files, both
+    scored against `truth` (a masked truth scores land AND its mask)."""
+    from acal import truth as TR
     out = {}
-    for tag, res_src, cfs_src in (("7d", M.FIELDS, M.CFS_FIELDS),
-                                  ("daily", M.DAILY_FIELDS, M.CFS_DAILY_FIELDS)):
+    tr = TR.get_truth(truth)
+    f7, fd = source_field_files(source, truth)
+    r7, rd = M.truth_base(tr, False), M.truth_base(tr, True)
+    for tag, res_src, cfs_src in (("7d", r7, f7), ("daily", rd, fd)):
         out[tag] = (M.scores(xr.open_dataset(res_src).load()),
                     M.scores(xr.open_dataset(cfs_src).load(), "prob_raw"))
     return out
@@ -145,12 +171,18 @@ def csi_figure(sc: dict, a: float) -> Path:
                  f"{a:+.0f} K   (yes = P ≥ 0.5; red in the difference = AI+RES better)",
                  fontsize=11, y=0.98)
     fig.text(0.5, 0.0, M.CFS_NOTE, ha="center", va="top", fontsize=8, color="0.3")
-    return _save(fig, FIG_DIR / f"csi_{fam}_{abs(a):.0f}K.png")
+    if _CTX["label"] != "ERA5":
+        fig.text(0.99, 0.99, f"truth: {_CTX['label']}", ha="right", va="top", fontsize=9)
+    return _save(fig, _CTX["dir"] / f"csi_{fam}_{abs(a):.0f}K.png")
 
 
-def csi() -> list[Path]:
-    sc = csi_scores()
-    return [csi_figure(sc, a) for a in M.THRESHOLDS]
+def csi(truth: str | None = None) -> list[Path]:
+    sc = csi_scores("cfs", truth or "era5")
+    _CTX.update(_truth_ctx(truth))
+    try:
+        return [csi_figure(sc, a) for a in M.THRESHOLDS]
+    finally:
+        _CTX.update(_truth_ctx(None))
 
 
 # --------------------------------------------------------------------------- #
@@ -180,10 +212,33 @@ def expected_min(x: np.ndarray, k: int) -> float:
     return float(sum(x[j] * comb(n - 1 - j, k - 1) for j in range(n - k + 1)) / comb(n, k))
 
 
-def members() -> Path:
+def members(source: str = "cfs", truth: str | None = None) -> Path:
+    """Closest member per case. `source` = any registry source (`acal.s2sbase`); a
+    non-CFS source writes closest_members_<source>.{csv,nc} under runs/acal/analysis/s2s/era5/
+    (column and panel names keep the `cfs_` prefix for the forecast source) and skips the
+    cases it has no cube for."""
+    csv_out, nc_out = CLOSEST_CSV, CLOSEST_NC
+    from acal import truth as TR
+    tr = TR.get_truth(truth or "era5")
+    mask = tr.mask()
+    if source != "cfs" or truth is not None:
+        od = TR.analysis_dir(tr)
+        od.mkdir(parents=True, exist_ok=True)
+        sfx = "" if source == "cfs" else f"_{source}"
+        csv_out, nc_out = od / f"closest_members{sfx}.csv", od / f"closest_members{sfx}.nc"
     df, cases = AN.load_all()
-    base = xr.open_dataset(M.FIELDS).load()
+    window = "13f"                       # a daily-mean source is verified on 12 frames
+    if source != "cfs":
+        from acal import s2sbase as S2
+        window = S2.get(source).obs_window
+    if mask is not None or window != "13f":   # walkers' A_L and obs on the mask / window
+        from acal import s2sbase as S2
+        byid = S2.aires_cases(tr, window)
+        cases = [byid[c.episode_id] for c in cases]
+    base = xr.open_dataset(M.truth_base(tr, False)).load()
     land = M.land_mask(base).values.astype(float)
+    if "valid" in base:                  # mask applied to truth AND forecasts alike
+        land = land * base["valid"].values.astype(float)
     coslat = np.cos(np.deg2rad(base["lat"].values))
     rows, maps = [], []
     for i, c in enumerate(cases):
@@ -192,8 +247,21 @@ def members() -> Path:
             raise SystemExit(f"[sbs] case order: {base['case'].values[i]} != {eid}")
         peak = pd.Timestamp(c.run["peak"])
         obs = base["truth"].isel(case=i).values
-        R = M.walker_fields(c)
-        C = M.cfs_member_fields(eid, peak, daily=False)
+        if window != "13f":                           # the truth on the source's window
+            obs = np.asarray(TR.frames_on(tr, eid, window).mean("time").values)
+            if mask is not None:
+                obs = np.where(base["valid"].values.astype(bool), obs, np.nan)
+        obs_map = obs
+        if mask is not None:
+            obs = np.nan_to_num(obs)                  # NaN outside the mask has weight 0
+        # non-CFS sources read the cached walker fields (`s2sbase.aires_fields`, the same
+        # 13 frames as `maps.walker_fields`, or the source's 12) instead of re-reading
+        # ~224 diag files per case for every source and truth
+        R = M.walker_fields(c) if source == "cfs" else S2.aires_fields(eid, window)[0]
+        C = (M.cfs_member_fields(eid, peak, daily=False) if source == "cfs"
+             else M.source_member_fields(source, eid, peak, daily=False))
+        if C is None:
+            continue
         w = c.weights / c.weights.sum()
         r_res = land_rmse(R.values, obs, land, coslat)
         r_cfs = land_rmse(C.values, obs, land, coslat)
@@ -208,22 +276,28 @@ def members() -> Path:
             episode_id=eid, family=df.family.iloc[i],
             peak=peak.date(), obs_al=c.obs,
             res_best=ib, res_best_rmse=r_res[ib], res_best_corr=cr[0],
-            res_best_al=cmp_conus[ib], res_best_weight=w[ib],
+            res_best_al=cmp_conus[ib] if (mask is None and window == "13f")
+            else float(c.al[ib]),
+            res_best_weight=w[ib],
             res_best_rank_weight=int((w > w[ib]).sum()) + 1,
             res_rmse_median=float(np.median(r_res)), res_min16_exp=expected_min(r_res, SUBSET),
             res_mean_rmse=rm[0], res_mean_corr=cr[2],
             cfs_best=jb, cfs_best_rmse=r_cfs[jb], cfs_best_corr=cr[1],
-            cfs_best_al=float(AI.area_mean(C.isel(member=jb))),
+            cfs_best_al=float(AI.area_mean(C.isel(member=jb))) if mask is None else
+            float(TR.area_mean(C.isel(member=jb), mask)),
             cfs_best_lead_days=float(C["member_lead_days"].values[jb])
             if "member_lead_days" in C.coords else np.nan,
             cfs_rmse_median=float(np.median(r_cfs)),
             cfs_mean_rmse=rm[1], cfs_mean_corr=cr[3]))
-        maps.append(np.stack([obs, R.values[ib], C.values[jb], res_mean, cfs_mean]))
+        panels = np.stack([obs_map, R.values[ib], C.values[jb], res_mean, cfs_mean])
+        if mask is not None:                          # every panel on the truth's mask
+            panels = np.where(base["valid"].values.astype(bool)[None], panels, np.nan)
+        maps.append(panels)
         print(f"  {eid}  obs {c.obs:+.2f}  best walker w{ib:02d} {r_res[ib]:.2f} K "
               f"(E16 {rows[-1]['res_min16_exp']:.2f})  best CFS m{jb:02d} {r_cfs[jb]:.2f} K",
               flush=True)
     out = pd.DataFrame(rows)
-    out.to_csv(CLOSEST_CSV, index=False, float_format="%.6g")
+    out.to_csv(csv_out, index=False, float_format="%.6g")
     ds = xr.Dataset(
         dict(field=(("case", "panel", "lat", "lon"), np.stack(maps).astype("float32")),
              land=(("lat", "lon"), land.astype("int8"))),
@@ -233,9 +307,14 @@ def members() -> Path:
         attrs=dict(note="7-day-mean T2m anomaly (K) ending at the peak; *_best = member "
                         "with the smallest cos-lat land RMSE vs era5; res_mean importance-"
                         "weighted, cfs_mean equal-weight, CFS raw"))
-    ds.to_netcdf(CLOSEST_NC)
-    print(f"[sbs] wrote {CLOSEST_CSV}\n[sbs] wrote {CLOSEST_NC}")
-    return CLOSEST_NC
+    if source != "cfs":
+        ds.attrs["source"] = source
+        ds.attrs["window"] = window
+    if truth is not None:
+        ds.attrs["truth"] = tr.name           # panel 'era5' holds this truth's field
+    ds.to_netcdf(nc_out)
+    print(f"[sbs] wrote {csv_out}\n[sbs] wrote {nc_out}")
+    return nc_out
 
 
 def member_figure(ds: xr.Dataset, row: pd.Series) -> Path:
@@ -253,7 +332,7 @@ def member_figure(ds: xr.Dataset, row: pd.Series) -> Path:
     lead = (f", {row.cfs_best_lead_days:.2f} d lead" if np.isfinite(row.cfs_best_lead_days)
             else "")
     titles = {
-        "era5": f"ERA5 observed   A_L {row.obs_al:+.2f} K",
+        "era5": f"{_CTX['label']} observed   A_L {row.obs_al:+.2f} K",
         "res_best": (f"AI+RES closest walker w{row.res_best:02d}   A_L {row.res_best_al:+.2f} K\n"
                      f"RMSE {row.res_best_rmse:.2f} K, r {row.res_best_corr:.2f}, "
                      f"weight {row.res_best_weight:.3f} (#{row.res_best_rank_weight} of 32)"),
@@ -271,7 +350,7 @@ def member_figure(ds: xr.Dataset, row: pd.Series) -> Path:
         axes[r, k].set_title(titles[p], fontsize=9)
     axes[1, 0].axis("off")
     better = "AI+RES" if row.res_min16_exp < row.cfs_best_rmse else "CFSv2"
-    txt = (f"Closest member = smallest cos(lat)-weighted\nRMSE vs ERA5 over CONUS land.\n\n"
+    txt = (f"Closest member = smallest cos(lat)-weighted\nRMSE vs {_CTX['label']} over CONUS land.\n\n"
            f"Median member RMSE\n  AI+RES {row.res_rmse_median:.2f} K   CFSv2 {row.cfs_rmse_median:.2f} K\n"
            f"Closest member RMSE\n  AI+RES {row.res_best_rmse:.2f} K (best of 32)\n"
            f"  AI+RES {row.res_min16_exp:.2f} K (expected best of 16)\n"
@@ -285,7 +364,7 @@ def member_figure(ds: xr.Dataset, row: pd.Series) -> Path:
     fig.suptitle(f"{row.episode_id}  ({fam}, week ending {row.peak}, 21 d lead)",
                  fontsize=11, y=0.97)
     fig.text(0.5, 0.01, M.CFS_NOTE, ha="center", va="top", fontsize=8, color="0.3")
-    return _save(fig, MEMBER_DIR / f"{row.episode_id}.png")
+    return _save(fig, _CTX["dir"] / "members" / f"{row.episode_id}.png")
 
 
 def summary_figure(df: pd.DataFrame) -> Path:
@@ -305,25 +384,34 @@ def summary_figure(df: pd.DataFrame) -> Path:
         ax.plot([0, hi], [0, hi], color="0.5", lw=0.8, zorder=1)
         ax.set_xlim(0, hi), ax.set_ylim(0, hi), ax.set_aspect("equal")
         win = int((df[x] < df[y]).sum())
-        ax.set_title(f"{t}\nAI+RES closer in {win} of {len(df)} cases", fontsize=9.5)
-        ax.set_xlabel("AI+RES land RMSE vs ERA5 (K)")
-        ax.set_ylabel("CFSv2 (raw) land RMSE vs ERA5 (K)")
-        ax.text(0.04, 0.96, "above line: AI+RES closer", transform=ax.transAxes,
-                fontsize=8, color="0.35", va="top")
+        # the "above line" key lives in the title: inside the axes a point can sit on it
+        ax.set_title(f"{t}\nAI+RES closer (above the line) in {win} of {len(df)} cases",
+                     fontsize=9.5)
+        ax.set_xlabel(f"AI+RES land RMSE vs {_CTX['label']} (K)")
+        ax.set_ylabel(f"CFSv2 (raw) land RMSE vs {_CTX['label']} (K)")
     axes[-1].legend(handles=[Line2D([], [], marker="o", ls="", color=C_HEAT, label="heat"),
                              Line2D([], [], marker="o", ls="", color=C_COLD, label="cold")],
                     loc="lower right", frameon=False)
-    fig.suptitle("7-day-mean T2m anomaly maps vs ERA5, 42 cases (cos(lat)-weighted RMSE "
+    fig.suptitle(f"7-day-mean T2m anomaly maps vs {_CTX['label']}, 42 cases (cos(lat)-weighted RMSE "
                  "over CONUS land)", fontsize=11)
     fig.tight_layout(rect=(0, 0, 1, 0.95))
-    return _save(fig, FIG_DIR / "closest_member_summary.png")
+    return _save(fig, _CTX["dir"] / "closest_member_summary.png")
 
 
-def member_figures() -> list[Path]:
-    df = pd.read_csv(CLOSEST_CSV)
-    ds = xr.open_dataset(CLOSEST_NC).load()
-    out = [member_figure(ds, r) for r in df.itertuples(index=False)]
-    out.append(summary_figure(df))
+def member_figures(truth: str | None = None) -> list[Path]:
+    csv_in, nc_in = CLOSEST_CSV, CLOSEST_NC
+    if truth is not None:
+        from acal import truth as TR
+        od = TR.analysis_dir(TR.get_truth(truth))
+        csv_in, nc_in = od / CLOSEST_CSV.name, od / CLOSEST_NC.name
+    df = pd.read_csv(csv_in)
+    ds = xr.open_dataset(nc_in).load()
+    _CTX.update(_truth_ctx(truth))
+    try:
+        out = [member_figure(ds, r) for r in df.itertuples(index=False)]
+        out.append(summary_figure(df))
+    finally:
+        _CTX.update(_truth_ctx(None))
     for fam, d in [("all", df)] + list(df.groupby("family")):
         print(f"  {fam:5s} n={len(d):2d}  closest RMSE median: AI+RES {d.res_best_rmse.median():.2f}"
               f" (E16 {d.res_min16_exp.median():.2f}) CFS {d.cfs_best_rmse.median():.2f}  | "
@@ -336,13 +424,22 @@ def member_figures() -> list[Path]:
 def main(argv=None) -> int:
     p = argparse.ArgumentParser(description=__doc__.split("\n")[0])
     p.add_argument("--stage", choices=("csi", "members", "figures", "all"), default="all")
+    p.add_argument("--truth", default=None,
+                   help="era5 | hrrr | hrrr_raw: tables to runs/acal/analysis/s2s/<truth>/, "
+                        "figures to the truth's figure dir; default: the published run")
+    p.add_argument("--source", default=None,
+                   help="a registry source other than cfs: its closest-member table only "
+                        "(runs/acal/analysis/s2s/<truth>/closest_members_<source>.{csv,nc})")
     a = p.parse_args(argv)
+    if a.source and a.source != "cfs":
+        members(a.source, a.truth or "era5")
+        return 0
     if a.stage in ("csi", "all"):
-        csi()
+        csi(a.truth)
     if a.stage in ("members", "all"):
-        members()
+        members("cfs", a.truth)
     if a.stage in ("members", "figures", "all"):
-        member_figures()
+        member_figures(a.truth)
     return 0
 
 

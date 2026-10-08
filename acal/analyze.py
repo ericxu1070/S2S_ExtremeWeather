@@ -352,29 +352,50 @@ def summarize(sc: pd.DataFrame) -> dict:
     return s
 
 
-def scorecard() -> pd.DataFrame:
-    df, cases = load_all()
-    daily = load_daily()
+def truth_inputs(truth=None):
+    """(df, cases, published_cases, daily, out_dir) scored against `truth`.
+
+    None = the published ERA5 run (slate obs, catalog pool, runs/acal/analysis/). A truth
+    (name or `acal.truth` provider) re-reduces the walkers on its mask
+    (`s2sbase.aires_cases`), takes obs from the truth (ERA5 keeps the slate's), pools its
+    own daily series clipped to the published span (`truth.pool_series`) and writes under
+    runs/acal/analysis/s2s/<truth>/. For 'era5' every number equals the published one.
+    """
+    df, pub = load_all()
+    if truth is None:
+        return df, pub, pub, load_daily(), OUT
+    from acal import s2sbase as S2  # noqa: PLC0415 - s2sbase imports this module
+    from acal import truth as TR  # noqa: PLC0415
+    tr = TR.get_truth(truth) if isinstance(truth, str) else truth
+    byid = S2.aires_cases(tr, "13f")
+    return df, [byid[e] for e in df.episode_id], pub, TR.pool_series(tr), TR.analysis_dir(tr)
+
+
+def scorecard(truth=None) -> pd.DataFrame:
+    df, cases, pub, daily, out = truth_inputs(truth)
     rows = []
-    for r, c in zip(df.itertuples(), cases):
+    for r, c, c0 in zip(df.itertuples(), cases, pub):
         row = dict(family=r.family, rung=int(r.rung), peak=r.peak)
         row.update(score_case(c, r.rung, r.peak, daily))
-        # Verification: the daily series at the peak IS the slate's observed value, so
-        # the climatology and the observation are the same statistic.
+        # Verification: the daily series at the peak IS the observed value, so the
+        # climatology and the observation are the same statistic (for ERA5, c.obs is the
+        # slate's a_l_conus).
         v = daily.get(pd.Timestamp(r.peak), np.nan)
         row["a_l_daily_at_peak"] = float(v)
-        row["catalog_match"] = bool(abs(v - r.a_l_conus) <= CATALOG_TOL)
-        row["curve_maxdiff"] = curve_check(c)
+        row["catalog_match"] = bool(abs(v - c.obs) <= CATALOG_TOL)
+        # the estimator check is on the published (unmasked) walkers, whatever the truth
+        row["curve_maxdiff"] = curve_check(c0)
         rows.append(row)
     sc = pd.DataFrame(rows)
     cols = ["episode_id", "family", "rung", "peak"]
     sc = sc[cols + [k for k in sc.columns if k not in cols]]
-    OUT.mkdir(parents=True, exist_ok=True)
-    sc.to_csv(SCORE_OUT, index=False, float_format="%.6g")
+    out.mkdir(parents=True, exist_ok=True)
+    score_out, summary_out = out / SCORE_OUT.name, out / SUMMARY_OUT.name
+    sc.to_csv(score_out, index=False, float_format="%.6g")
     s = summarize(sc)
-    with open(SUMMARY_OUT, "w") as f:
+    with open(summary_out, "w") as f:
         json.dump(s, f, indent=2)
-    print(f"[scorecard] {len(sc)} cases -> {SCORE_OUT}")
+    print(f"[scorecard] {len(sc)} cases -> {score_out}")
     print(f"  catalog match (|daily - a_l_conus| <= {CATALOG_TOL}): "
           f"{s['catalog_match']}/{len(sc)}")
     print(f"  max |res - compare_curve.csv| over all knots: {s['curve_maxdiff']:.2e}")
@@ -388,7 +409,7 @@ def scorecard() -> pd.DataFrame:
           f"climatology never reached obs: {s['n_clim_zero_obs']}")
     print(f"  lift > 1: raw {s['n_lift_gt1_raw']}/{s['n_lift_defined']}, "
           f"sn {s['n_lift_gt1_sn']}/{s['n_lift_defined']}")
-    print(f"  wrote {SUMMARY_OUT}")
+    print(f"  wrote {summary_out}")
     return sc
 
 
@@ -874,9 +895,8 @@ def sharpness_2k(df: pd.DataFrame, cases: list[Case], daily: pd.Series) -> pd.Da
     return pd.DataFrame(rows)
 
 
-def rungs() -> tuple[pd.DataFrame, dict]:
-    df, cases = load_all()
-    daily = load_daily()
+def rungs(truth=None) -> tuple[pd.DataFrame, dict]:
+    df, cases, _, daily, out = truth_inputs(truth)
     rc, boots = rungs_rows(df, cases, daily)
     sh = sharpness_2k(df, cases, daily)
     s = dict(n_cases=len(cases), n_boot=N_BOOT, interval=INTERVAL,
@@ -900,12 +920,16 @@ def rungs() -> tuple[pd.DataFrame, dict]:
                         ("cold", sh[sh.family == "cold"]))}
     # The forecasts that said "< 2 K was certain": a miss at the 2 K rung.
     s["undefined_q_2k"] = sh.episode_id[sh.F2_raw == 0].tolist()
-    OUT.mkdir(parents=True, exist_ok=True)
-    rc.to_csv(RUNGS_CASES_OUT, index=False, float_format="%.6g")
-    sh.to_csv(OUT / "rungs_sharpness_2k.csv", index=False, float_format="%.6g")
-    with open(RUNGS_SUMMARY_OUT, "w") as f:
+    below = [c.episode_id for c in cases if c.sign * c.obs < 2.0]
+    if below:       # only under a non-ERA5 truth: rung 2 is then not certain for these
+        s["below_2k"] = below
+    out.mkdir(parents=True, exist_ok=True)
+    cases_out, summ_out = out / RUNGS_CASES_OUT.name, out / RUNGS_SUMMARY_OUT.name
+    rc.to_csv(cases_out, index=False, float_format="%.6g")
+    sh.to_csv(out / "rungs_sharpness_2k.csv", index=False, float_format="%.6g")
+    with open(summ_out, "w") as f:
         json.dump(s, f, indent=2, default=float)
-    print(f"[rungs] {len(rc)} case x rung rows -> {RUNGS_CASES_OUT}")
+    print(f"[rungs] {len(rc)} case x rung rows -> {cases_out}")
     for spec, _, _ in RUNG_SPECS:
         for grp in ("all", "heat", "cold"):
             x = s["specs"][spec][grp]
@@ -922,7 +946,7 @@ def rungs() -> tuple[pd.DataFrame, dict]:
     print(f"  rung 2: F2_sn median {a2['F2_sn']['median']:.3f}  F2_raw median "
           f"{a2['F2_raw']['median']:.3f}  P_clim(2) median {a2['p_clim_2']['median']:.3f}"
           f"  lift_sn>1 {a2['n_lift2_sn_gt1']}/{a2['n']}  F2 == 0: {a2['F2_zero']}")
-    print(f"  wrote {RUNGS_SUMMARY_OUT}")
+    print(f"  wrote {summ_out}")
     return rc, s
 
 
@@ -1110,7 +1134,16 @@ def main(argv=None) -> int:
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     ap.add_argument("--stage", required=True,
                     choices=("collect", "scorecard", "figures", "rungs", "all"))
+    ap.add_argument("--truth", default=None,
+                    help="score against this truth (era5 | hrrr | hrrr_raw); tables go to "
+                         "runs/acal/analysis/s2s/<truth>/ (scorecard and rungs only). "
+                         "Default: the published ERA5 run")
     a = ap.parse_args(argv)
+    if a.truth is not None:
+        if a.stage not in ("scorecard", "rungs"):
+            raise SystemExit("[analyze] --truth applies to --stage scorecard / rungs only")
+        (scorecard if a.stage == "scorecard" else rungs)(a.truth)
+        return 0
     if a.stage in ("collect", "all"):
         collect()
     if a.stage in ("scorecard", "all"):

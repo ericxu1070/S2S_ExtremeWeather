@@ -109,6 +109,8 @@ ERA5_FIRST_PEAK = pd.Timestamp("2021-01-02")  # 2021 cube starts 2020-12-26 00Z;
 ERA5_LAST_PEAK = pd.Timestamp(ccfg.PEAK_END)
 MIN_YEARS = 4
 WINDOW_FRAMES = 13
+N_FIXED = 16                             # the multi-model board's fixed ensemble size
+SUB_SEED = 20261007                      # its subsample indices depend on N only
 
 
 def cube_path(eid: str) -> Path:
@@ -379,18 +381,37 @@ CI = 0.90
 N_RES = AN.N_WALKERS
 
 
+def fixed_subset(n: int, k: int = N_FIXED, seed: int = SUB_SEED) -> np.ndarray:
+    """Sorted indices of a fixed k-member subsample of an n-member ensemble (n > k).
+
+    Depends on n only: the members of one initialisation are exchangeable, so one fixed
+    draw per ensemble size is as fair as a per-case draw and needs no state.
+    """
+    if n <= k:
+        return np.arange(n)
+    return np.sort(np.random.default_rng(seed).choice(n, k, replace=False))
+
+
 def members(al, bias: float, variant: str) -> np.ndarray:
-    """The ensemble a variant scores: corrected = minus bias, `sub` = the last 4 members."""
+    """The ensemble a variant scores: corrected = minus bias, `sub` = the last 4 members,
+    `s16` = the fixed 16-member subsample (multi-model board, sources with N > 16)."""
     a = np.asarray(al, dtype=float)
     if variant.startswith("corr"):
         a = a - bias
     if variant.startswith("sub"):
         a = a[-N_SUBSET:]
+    if variant.startswith("s16"):
+        a = a[fixed_subset(a.size)]
     return a
 
 
-def n_floor(variant: str) -> int:
-    return N_SUBSET if variant.startswith("sub") else N_CYCLES
+def n_floor(variant: str, n_members: int = N_CYCLES) -> int:
+    """The ensemble size behind a variant's probability (its log-ratio floor is 1/(N+1))."""
+    if variant.startswith("sub"):
+        return N_SUBSET
+    if variant.startswith("s16"):
+        return min(N_FIXED, n_members)
+    return n_members
 
 
 def cfs_prob(al, a: float, sign: float, kind: str) -> float:
@@ -440,7 +461,7 @@ def load_cfs() -> pd.DataFrame:
     return pd.DataFrame(rows)
 
 
-def score_cfs_case(row, daily: pd.Series) -> dict:
+def score_cfs_case(row, daily: pd.Series, variants=VARIANTS) -> dict:
     """One cfs_scorecard row. Pure in the record and the daily series (tested)."""
     pool = AN.clim_pool(daily, row["peak"])
     pc, kc, nc = AN.p_clim(pool, row["obs"], row["sign"])
@@ -449,7 +470,7 @@ def score_cfs_case(row, daily: pd.Series) -> dict:
                n_members=len(row["al"]), bias_conus=row["bias"],
                cfs_mean=float(np.mean(row["al"])), cfs_sd=float(np.std(row["al"], ddof=1)),
                p_clim_obs=pc, k_clim_obs=kc, n_clim=nc)
-    for v in VARIANTS:
+    for v in variants:
         al, kind = members(row["al"], row["bias"], v), v.split("_")[1]
         p = cfs_prob(al, row["obs"], row["sign"], kind)
         out[f"p_obs_{v}"] = p
@@ -560,7 +581,7 @@ def paired_stats(d) -> dict:
     return out
 
 
-def paired_case(row, res_case) -> dict:
+def paired_case(row, res_case, variants=VARIANTS) -> dict:
     """Per-case paired record. `row` = CFS record, `res_case` = `analyze.Case`."""
     s, obs = row["sign"], row["obs"]
     out = dict(episode_id=row["episode_id"], family=row["family"], rung=row["rung"], obs=obs)
@@ -571,11 +592,11 @@ def paired_case(row, res_case) -> dict:
     for k in BRIER_K:
         out[f"o_{k:g}K"] = o[k]
         out[f"brier_res_{k:g}K"] = brier(res_p[k], o[k])
-    for v in VARIANTS:
+    for v in variants:
         al, kind = members(row["al"], row["bias"], v), v.split("_")[1]
         p_obs = cfs_prob(al, obs, s, kind)
         out[f"p_cfs_obs_{v}"] = p_obs
-        out[f"logratio_{v}"] = log_ratio(p_res_obs, p_obs, n_floor(v))
+        out[f"logratio_{v}"] = log_ratio(p_res_obs, p_obs, n_floor(v, len(row["al"])))
         for k in BRIER_K:
             b = brier(cfs_prob(al, s * k, s, kind), o[k])
             out[f"brier_{v}_{k:g}K"] = b
@@ -787,7 +808,22 @@ def main(argv=None) -> int:
     p.add_argument("--case", action="append", help="episode id; repeatable")
     p.add_argument("--force", action="store_true", help="re-download and rebuild")
     p.add_argument("--keep-grib", action="store_true")
+    p.add_argument("--truth", default=None,
+                   help="score/paired against this truth (era5 | hrrr | hrrr_raw) via "
+                        "acal.s2sbase -> runs/acal/analysis/s2s/<truth>/cfs_{scorecard,"
+                        "paired}.csv; default: the published ERA5 tables")
     a = p.parse_args(argv)
+    if a.truth is not None:
+        if a.stage not in ("score", "paired", "all"):
+            raise SystemExit("[cfs] --truth applies to --stage score / paired / all")
+        from acal import s2sbase as S2
+        from acal import truth as TR
+        src, tr = S2.get("cfs"), TR.get_truth(a.truth)
+        if a.stage in ("score", "all"):
+            S2.score(src, tr)
+        if a.stage in ("paired", "all"):
+            S2.paired(src, tr)
+        return 0
     if a.stage == "build":
         build(a.case, a.force, a.keep_grib)
     elif a.stage == "hind":

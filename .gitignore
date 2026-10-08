@@ -59,3 +59,13 @@ docs/aires_insights.html
 
 # Claude Code worktrees: nested working copies of this repo, not project content
 .claude/worktrees/
+
+# acal multi-model board: regenerable sensitivity / parity figures (scripts/acal_board_all.sh).
+# Committed: figures/acal/overall, per-model maps under figures/acal/s2s/{era5,hrrr}/<model>,
+# ERA5 per-case error maps, HRRR-truth maps/roc/reach/sidebyside summaries.
+figures/acal/hrrr/raw/
+figures/acal/hrrr/sidebyside/members/
+figures/acal/s2s/era5/sidebyside/
+figures/acal/s2s/era5/reach/
+figures/acal/s2s/errmaps/hrrr/
+figures/acal/s2s/errmaps/hrrr_raw/

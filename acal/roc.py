@@ -247,12 +247,23 @@ def checks(rc: pd.DataFrame) -> list[str]:
 PCOL = {m: f"p_{m}" for m in MODELS}
 
 
-def analyse(rc: pd.DataFrame) -> tuple[pd.DataFrame, dict]:
-    """AUC + paired-bootstrap CIs per (pool, threshold, model) and the AUC differences."""
+def analyse(rc: pd.DataFrame, models=MODELS, diffs=DIFFS,
+            skip_degenerate: bool = False) -> tuple[pd.DataFrame, dict]:
+    """AUC + paired-bootstrap CIs per (pool, threshold, model) and the AUC differences.
+
+    `models` / `diffs` default to the published CFS set; `models_for(source)` gives
+    another registry source's. `skip_degenerate` drops a (pool, threshold) with no hits
+    or no misses (a partial slate) instead of failing.
+    """
+    MODELS, DIFFS = models, diffs                    # noqa: N806 - shadow the defaults
+    PCOL = {m: f"p_{m}" for m in MODELS}             # noqa: N806
     rows, curves = [], {}
     for (pool, a), d in rc.groupby(["pool", "threshold_K"], sort=False):
         o = d.outcome.values.astype(bool)
         n_hit, n_miss = int(o.sum()), int((~o).sum())
+        if skip_degenerate and (n_hit == 0 or n_miss == 0):
+            print(f"[roc] {pool} {a:+.0f} K: {n_hit} hits / {n_miss} misses, skipped")
+            continue
         probs = {m: d[PCOL[m]].values for m in MODELS}
         bt = paired_boot(probs, o)
         base = dict(pool=pool, threshold_K=a, n_cases=len(d), n_hits=n_hit, n_misses=n_miss)
@@ -295,12 +306,53 @@ MODEL_STYLE = {
 }
 # Overlay: colour = threshold (darker = more extreme), within each pool's family.
 THRESH_COLOR = {3.0: "#E69F00", 4.0: "#A63A00", -3.0: "#56B4E9", -4.0: "#08427A"}
+# Per-source overlays: a warm/cold threshold ramp that reuses no MODEL_STYLE hex (the
+# published ramp above coincides with ECCC GEPS orange and BB-SUBS sky blue, so on the
+# board it would read as model identity). The published figure keeps THRESH_COLOR.
+THRESH_COLOR_BOARD = {3.0: "#FA8072", 4.0: "#99000D", -3.0: "#7B7FD4", -4.0: "#081D58"}
 FOOTNOTE = ("21-day lead; CONUS week-mean T2m anomaly; AI+RES 32 walkers (self-normalized), "
             "CFSv2 16 lagged members")
 TILT_NOTE = "AI+RES was tilted toward the observed tail direction; CFSv2 was not."
 SMALL_N_HITS = 3          # at or below: the bootstrap cannot show the real spread
 NO_SKILL = dict(color="0.55", lw=1.0, ls=(0, (2, 2)))
 POOL_TEXT = {"warm": ("Warm tail", "warm", "+"), "cold": ("Cold tail", "cold", "-")}
+
+# What the figure functions draw: the published CFS set by default; `source_ctx(source)`
+# swaps in any registry source (keys, labels, board colours, footnote, figure dir).
+_PUBLISHED = dict(corr="cfs_corr", raw="cfs_raw", style=MODEL_STYLE, fc="CFSv2",
+                  short="CFSv2", leg_fs=12, foot=FOOTNOTE, tilt=TILT_NOTE, dir=None)
+SHORT = {"cfs13": "CFSv2", "ec46": "EC46", "gefs": "GEFSv12", "geps": "GEPS"}  # overlay legend
+_CTX = dict(_PUBLISHED)
+
+
+def source_ctx(source: str, has_bias: bool, truth: str, fig_dir: Path) -> dict:
+    """Figure context of one registry source: AI+RES and the source in the board colours
+    (`s2sbase.MODEL_STYLE`; raw = the source's hue darkened), climatology grey."""
+    from acal import s2sbase as S2
+    from acal import truth as TR
+    src = S2.get(source)
+    st = S2.MODEL_STYLE.get(source, {"label": src.label, "color": "#0072B2"})
+    lab, col = st["label"], st["color"]
+    corr, raw = f"{source}_corr", f"{source}_raw"
+    style = {"ai_res": dict(label="AI+RES", color=S2.MODEL_STYLE["aires"]["color"], ls="-",
+                            lw=3.0, marker="o")}
+    if has_bias:
+        style[corr] = dict(label=f"{lab} bias-corrected", color=col, ls="--", lw=2.4,
+                           marker="s")
+    style[raw] = dict(label=f"{lab} raw", color=S2.shade(col), ls=":", lw=2.6, marker="^")
+    style["clim"] = dict(label="Climatology", color=S2.MODEL_STYLE["clim"]["color"],
+                         ls=(0, (5, 3)), lw=1.6, marker=None)
+    win = ("13 frames 00/12Z, peak-6d..peak" if src.obs_window == "13f" else
+           "UTC days peak-6..peak-1; truth and AI+RES on 12 frames")
+    mem, lead = S2.ens_text(source)      # per-case ranges from the json records
+    foot = (f"Lead to peak: AI+RES 21 d, {lab} {lead}. CONUS week-mean T2m anomaly ({win})",
+            f"Truth {TR.label_of(TR.get_truth(truth))}; AI+RES 32 walkers (self-normalized), "
+            f"{lab} {mem}")
+    tilt = f"AI+RES was tilted toward the observed tail direction; {lab} was not."
+    return dict(corr=corr if has_bias else None, raw=raw, style=style, fc=lab,
+                short=SHORT.get(source, lab), leg_fs=10.5, wrap=112, foot=foot, tilt=tilt,
+                thresh_color=THRESH_COLOR_BOARD,
+                dir=Path(fig_dir))
 
 
 def _style(plt) -> None:
@@ -312,8 +364,9 @@ def _style(plt) -> None:
 
 
 def _save(fig, name: str) -> Path:
-    FIG_DIR.mkdir(parents=True, exist_ok=True)
-    p = FIG_DIR / name
+    d = _CTX["dir"] or FIG_DIR
+    d.mkdir(parents=True, exist_ok=True)
+    p = d / name
     fig.savefig(p, dpi=200, facecolor="white")
     print(f"  wrote {p} ({p.stat().st_size / 1e3:.0f} kB)")
     return p
@@ -334,9 +387,24 @@ def _subtitle(pool: str, k: float, cv: dict, n_pool: int) -> str:
             f"question: which went on to {sg}{k:g} K")
 
 
+def _lines(x) -> tuple:
+    """A footnote entry as a tuple of lines (the published FOOTNOTE is one string)."""
+    return tuple(x) if isinstance(x, (tuple, list)) else (x,)
+
+
 def _foot(lines, width: int) -> str:
-    """Footnote block: each item wrapped at `width` characters, one item per line group."""
-    return "\n".join(textwrap.fill(t, width, break_on_hyphens=False) for t in lines)
+    """Footnote block: each item wrapped at `width` characters, one item per line group.
+    An item longer than `width` is wrapped into balanced lines (same line count, lines of
+    about equal length), so no single word is left alone on the last line."""
+    out = []
+    for t in lines:
+        n = -(-len(t) // width)
+        w = width if n <= 1 else min(width, -(-len(t) // n) + 8)
+        txt = textwrap.fill(t, w, break_on_hyphens=False)
+        if txt.count("\n") + 1 > n:                     # balancing cost a line: plain wrap
+            txt = textwrap.fill(t, width, break_on_hyphens=False)
+        out.append(txt)
+    return "\n".join(out)
 
 
 def fig_single(pool: str, a: float, cv: dict, plt) -> Path:
@@ -354,8 +422,9 @@ def fig_single(pool: str, a: float, cv: dict, plt) -> Path:
     y_ax = foot_h + leg_h + xlab_h
     ax = fig.add_axes([left / W, y_ax / H, side / W, side / H])
     _axes(ax)
-    for m in ("clim", "cfs_raw", "cfs_corr", "ai_res"):        # headline drawn last, on top
-        st, c = MODEL_STYLE[m], cv[m]
+    STY, corr, raw, fc = _CTX["style"], _CTX["corr"], _CTX["raw"], _CTX["fc"]  # noqa: N806
+    for m in [k for k in ("clim", raw, corr, "ai_res") if k]:   # headline drawn last, on top
+        st, c = STY[m], cv[m]
         if m != "clim":
             ax.fill_between(FAR_GRID, c["band"][0], c["band"][1], color=st["color"],
                             alpha=0.07 if m == "ai_res" else 0.10, lw=0, zorder=2)
@@ -363,8 +432,8 @@ def fig_single(pool: str, a: float, cv: dict, plt) -> Path:
                 marker=st["marker"], ms=6, mfc=st["color"], mec="white", mew=0.8,
                 zorder=4 if m == "ai_res" else 3, clip_on=False)
     handles = []
-    for m in MODEL_STYLE:
-        st, c = MODEL_STYLE[m], cv[m]
+    for m in STY:
+        st, c = STY[m], cv[m]
         handles.append(Line2D([], [], color=st["color"], ls=st["ls"], lw=st["lw"],
                               marker=st["marker"], ms=6, mfc=st["color"], mec="white",
                               label=f"{st['label']}  AUC {c['auc']:.2f} "
@@ -381,14 +450,16 @@ def fig_single(pool: str, a: float, cv: dict, plt) -> Path:
              + (f"; only {cv['n_hit']} hits: intervals understate uncertainty"
                 if cv["n_hit"] <= SMALL_N_HITS else ""),
              ha="center", va="top", fontsize=12.5, color="0.2", linespacing=1.35)
-    d1, d2 = cv["ai_res_minus_cfs_corr"], cv["ai_res_minus_cfs_raw"]
+    d2 = cv[f"ai_res_minus_{raw}"]
+    dtxt = f"raw {d2['value']:+.2f} [{d2['lo']:+.2f}, {d2['hi']:+.2f}]"
+    if corr:
+        d1 = cv[f"ai_res_minus_{corr}"]
+        dtxt = (f"corrected {d1['value']:+.2f} [{d1['lo']:+.2f}, {d1['hi']:+.2f}], " + dtxt)
     foot = _foot([
-        f"AUC difference, AI+RES minus CFSv2: corrected {d1['value']:+.2f} "
-        f"[{d1['lo']:+.2f}, {d1['hi']:+.2f}], raw {d2['value']:+.2f} "
-        f"[{d2['lo']:+.2f}, {d2['hi']:+.2f}]",
+        f"AUC difference, AI+RES minus {fc}: " + dtxt,
         f"Brackets and shading: 90% paired case bootstrap ({N_BOOT} resamples, hits and "
         "misses apart)",
-        FOOTNOTE, TILT_NOTE], 110)
+        *_lines(_CTX["foot"]), _CTX["tilt"]], _CTX.get("wrap", 110))
     fig.text(0.5, 0.10 / H, foot, ha="center", va="bottom", fontsize=9.2, color="0.25",
              linespacing=1.35)
     p = _save(fig, f"roc_{pool}_{k:g}K.png")
@@ -400,6 +471,7 @@ def fig_overlay(curves: dict, plt) -> Path:
     """Both pools side by side, every threshold and forecast, no bands. Legends sit
     BELOW each panel (two columns: one per threshold) so they never cover a curve."""
     from matplotlib.lines import Line2D
+    STY, corr, raw, fc = _CTX["style"], _CTX["corr"], _CTX["raw"], _CTX["fc"]  # noqa: N806
     W, side, gap = 13.6, 4.8, 2.6
     top_h, xlab_h, leg_h, foot_h = 1.70, 0.62, 1.05, 0.80
     H = top_h + side + xlab_h + leg_h + foot_h
@@ -414,19 +486,20 @@ def fig_overlay(curves: dict, plt) -> Path:
         handles = []
         for k in ths:
             a = sign * k
-            cv, col = curves[(pool, a)], THRESH_COLOR[a]
-            for m in ("cfs_raw", "cfs_corr", "ai_res"):
-                st = MODEL_STYLE[m]
+            cv, col = curves[(pool, a)], _CTX.get("thresh_color", THRESH_COLOR)[a]
+            for m in [k for k in (raw, corr, "ai_res") if k]:
+                st = STY[m]
                 ax.plot(cv[m]["far"], cv[m]["hr"], color=col, ls=st["ls"], lw=st["lw"],
                         marker=st["marker"], ms=6, mfc=col, mec="white", mew=0.8,
                         zorder=4 if m == "ai_res" else 3, clip_on=False)
-            for m in ("ai_res", "cfs_corr", "cfs_raw"):
-                st = MODEL_STYLE[m]
-                lab = {"ai_res": "AI+RES", "cfs_corr": "CFSv2 corr.", "cfs_raw": "CFSv2 raw"}[m]
+            for m in [k for k in ("ai_res", corr, raw) if k]:
+                st = STY[m]
+                sh = _CTX["short"]
+                lab = {"ai_res": "AI+RES", corr: f"{sh} corr.", raw: f"{sh} raw"}[m]
                 handles.append(Line2D([], [], color=col, ls=st["ls"], lw=st["lw"],
                                       marker=st["marker"], ms=6, mfc=col, mec="white",
                                       label=f"{sg}{k:g} K  {lab}  AUC {cv[m]['auc']:.2f}"))
-        fig.legend(handles=handles, loc="upper center", ncol=2, fontsize=12,
+        fig.legend(handles=handles, loc="upper center", ncol=2, fontsize=_CTX["leg_fs"],
                    frameon=False, handlelength=2.4, columnspacing=1.2, handletextpad=0.5,
                    bbox_to_anchor=((xl + side / 2) / W, (foot_h + leg_h) / H))
         n = curves[(pool, sign * ths[0])]["n"]
@@ -438,11 +511,12 @@ def fig_overlay(curves: dict, plt) -> Path:
         ax.text(0.5, 1.145, head, transform=ax.transAxes, ha="center", va="bottom",
                 fontsize=16, weight="bold")
     fig.text(0.5, 1 - 0.15 / H, "Which cases went on to the deeper threshold? "
-             "ROC, AI+RES vs CFSv2", ha="center", va="top", fontsize=18, weight="bold")
+             f"ROC, AI+RES vs {fc}", ha="center", va="top", fontsize=18, weight="bold")
+    ls_txt = (f"solid AI+RES, dashed {fc} bias-corrected, dotted {fc} raw" if corr else
+              f"solid AI+RES, dotted {fc} raw")
     foot = "\n".join([
-        "Line style = forecast (solid AI+RES, dashed CFSv2 bias-corrected, dotted CFSv2 "
-        "raw); colour = threshold, darker = more extreme; diagonal = no skill",
-        FOOTNOTE, TILT_NOTE])
+        f"Line style = forecast ({ls_txt}); colour = threshold, darker = more extreme; "
+        "diagonal = no skill", *_lines(_CTX["foot"]), _CTX["tilt"]])
     fig.text(0.5, 0.10 / H, foot, ha="center", va="bottom", fontsize=10.5, color="0.25",
              linespacing=1.35)
     p = _save(fig, "roc_overlay.png")
@@ -463,6 +537,93 @@ def figures(curves: dict) -> list[Path]:
 
 
 # --------------------------------------------------------------------------- #
+# --------------------------------------------------------------------------- #
+# Any registry source (acal.s2sbase): its own window, its own truth
+# --------------------------------------------------------------------------- #
+def models_for(source: str, has_bias: bool) -> tuple[tuple[str, ...], tuple]:
+    """(MODELS, DIFFS) for one source, in the published order: for 'cfs' with a bias
+    exactly `MODELS` / `DIFFS`."""
+    fc = ((f"{source}_corr",) if has_bias else ()) + (f"{source}_raw",)
+    return ("ai_res", *fc, "clim", "ai_res_raw"), tuple(("ai_res", m) for m in fc)
+
+
+def source_rows(source: str, truth: str = "era5") -> pd.DataFrame:
+    """`case_rows` for a registry source: outcome = truth on the source's window, AI+RES
+    re-reduced on that window (`s2sbase.aires_cases`), one row per (case, pool threshold)."""
+    from acal import s2sbase as S2
+    from acal import truth as TR
+    src, tr = S2.get(source), TR.get_truth(truth)
+    recs = S2.load(src, tr)
+    cases = S2.aires_cases(tr, src.obs_window)
+    daily = TR.pool_series(tr)
+    rows = []
+    for _, r in recs.iterrows():
+        c = cases[r["episode_id"]]
+        if abs(c.obs - r["obs"]) > 1e-9:
+            raise SystemExit(f"[roc] {r['episode_id']}: AI+RES obs != {source} obs")
+        pool = AN.clim_pool(daily, r["peak"])
+        raw = CB.members(r["al"], r["bias"], "raw_emp")
+        corr = CB.members(r["al"], r["bias"], "corr_emp")
+        for name, fam, sign, ths in POOLS:
+            if r["family"] != fam:
+                continue
+            for k in ths:
+                a = sign * k
+                pc, kc, nc = AN.p_clim(pool, a, sign)
+                rows.append({"source": source, "truth": tr.name, "window": src.obs_window,
+                             "episode_id": r["episode_id"], "family": r["family"],
+                             "rung": r["rung"], "peak": r["peak"], "pool": name,
+                             "threshold_K": a, "obs": r["obs"],
+                             "outcome": int(sign * r["obs"] >= k),
+                             "p_ai_res": p_ai_res(c, a), "p_ai_res_raw": c.p_raw(a),
+                             f"p_{source}_corr": (CB.cfs_prob(corr, a, sign, "emp")
+                                                  if np.isfinite(r["bias"]) else np.nan),
+                             f"p_{source}_raw": CB.cfs_prob(raw, a, sign, "emp"),
+                             "p_clim": pc, "n_members": len(raw), "k_clim": kc, "n_clim": nc})
+    return pd.DataFrame(rows)
+
+
+def run_source(source: str, truth: str = "era5", figs: bool = False,
+               fig_dir: Path | str | None = None) -> pd.DataFrame:
+    """AUC table for one registry source -> runs/acal/analysis/s2s/<truth>/roc_<source>_*.csv.
+    `figs` (or a `fig_dir`) also draws the ROC figure set for the source in the board
+    colours, to `fig_dir` (default figures/acal/s2s/<truth>/<source>/roc/)."""
+    from acal import s2sbase as S2
+    rc = source_rows(source, truth)
+    has_bias = bool(np.isfinite(rc[f"p_{source}_corr"]).all())
+    models, diffs = models_for(source, has_bias)
+    tab, curves = analyse(rc, models, diffs, skip_degenerate=True)
+    tab.insert(0, "source", source)
+    want = {(pool, sign * k) for pool, _, sign, ths in POOLS for k in ths}
+    if source == "cfs" and truth != "era5" and want <= set(curves):
+        # the published CFS figure set, against this truth, in its figure dir
+        global FIG_DIR
+        from acal import truth as TR
+        keep, FIG_DIR = FIG_DIR, TR.fig_dir(TR.get_truth(truth)) / "roc"
+        try:
+            figures(curves)
+        finally:
+            FIG_DIR = keep
+    if (figs or fig_dir is not None) and source != "cfs":
+        if not want <= set(curves):
+            print(f"[roc] {source} vs {truth}: a pool threshold is degenerate, no figures")
+        else:
+            d = Path(fig_dir) if fig_dir is not None else S2.fig_dir(source, truth) / "roc"
+            _CTX.update(source_ctx(source, has_bias, truth, d))
+            try:
+                figures(curves)
+            finally:
+                _CTX.clear()
+                _CTX.update(_PUBLISHED)
+    od = S2.ANALYSIS / truth
+    od.mkdir(parents=True, exist_ok=True)
+    rc.to_csv(od / f"roc_{source}_cases.csv", index=False, float_format="%.6g")
+    tab.to_csv(od / f"roc_{source}_auc.csv", index=False, float_format="%.6g")
+    print(f"[roc] {source} vs {truth}: {rc.episode_id.nunique()} cases -> "
+          f"{od / f'roc_{source}_auc.csv'}")
+    return tab
+
+
 def run() -> pd.DataFrame:
     rc = case_rows()
     n = rc.groupby("pool").episode_id.nunique().to_dict()
@@ -487,8 +648,21 @@ def run() -> pd.DataFrame:
 
 def main(argv=None) -> int:
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
-    ap.parse_args(argv)
-    run()
+    ap.add_argument("--source", help="a registry source (acal.s2sbase); default = the "
+                                     "published CFS ROC")
+    ap.add_argument("--truth", default=None,
+                    help="era5 | hrrr | hrrr_raw (default era5 with --source); a truth "
+                         "without --source scores CFS against it into "
+                         "runs/acal/analysis/s2s/<truth>/ - never the published files")
+    ap.add_argument("--figures", action="store_true",
+                    help="with --source (not cfs): draw the ROC figures to figures/acal/s2s/"
+                         "<truth>/<source>/roc/ (or --out-dir)")
+    ap.add_argument("--out-dir", default=None, help="figure dir for --figures")
+    a = ap.parse_args(argv)
+    if a.source or a.truth:
+        run_source(a.source or "cfs", a.truth or "era5", a.figures, a.out_dir)
+    else:
+        run()
     return 0
 
 
