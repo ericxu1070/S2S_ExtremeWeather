@@ -550,7 +550,11 @@ def merge_estimates(df: pd.DataFrame, rows_csv: Path = BBSUBS_ROWS_CSV,
         if c in est:
             est[c] = np.nan                     # an estimate never carries maps
     print(f"[board] merged {len(est)} BB-SUBS estimate rows from {rows_csv.name}", flush=True)
-    return pd.concat([df, est], ignore_index=True)
+    out = pd.concat([df, est], ignore_index=True)
+    for c in df.columns:        # keep integer columns integer (n_native is blank on estimates)
+        if pd.api.types.is_integer_dtype(df[c]) and not pd.api.types.is_integer_dtype(out[c]):
+            out[c] = out[c].astype("Int64")
+    return out
 
 
 def _sort(df: pd.DataFrame) -> pd.DataFrame:
@@ -564,6 +568,9 @@ def _sort(df: pd.DataFrame) -> pd.DataFrame:
         w=df.window.map({"13f": 0, "12f": 1}).fillna(9), e=df.estimate.astype(bool),
         v=df.variant.map(vorder).fillna(99), c=df.case_idx))
     return df.loc[k.sort_values(list(k.columns), kind="stable").index].reset_index(drop=True)
+
+
+INT_COLS = ("case_idx", "rung", "n_native", "n_members")
 
 
 def _atomic_csv(df: pd.DataFrame, p: Path) -> Path:
@@ -595,6 +602,9 @@ def collect(truths=TRUTHS, sources=SOURCES, fields: bool = True, workers: int = 
     if CASES_CSV.exists():
         old = pd.read_csv(CASES_CSV, float_precision="round_trip")
         old = old[~old.estimate.astype(bool)]
+        for c in INT_COLS:      # blank on the estimate rows just dropped -> read as float
+            if c in old and old[c].notna().all():
+                old[c] = old[c].astype("int64")
         keep = ~old.truth.isin(truths) | ~old.source.isin(set(new.source))
         new = pd.concat([old[keep], new], ignore_index=True)
     new = _sort(new)
@@ -677,6 +687,8 @@ def paired_table(pc: pd.DataFrame) -> pd.DataFrame:
                 ac = SIDE_COL[mname]
                 x = d[mname].to_numpy(dtype="float64")
                 ok = np.isfinite(x)
+                if est and not ok.any():
+                    continue        # an estimate carries error metrics only: no P(obs), no maps
                 st = CB.paired_stats(x)
                 rows.append(dict(truth=truth, source=source, label=g.label.iloc[0],
                                  estimate=bool(est), variant=variant,

@@ -5,7 +5,7 @@ file is what is **actually built**, not what is planned.
 
 Last updated 2026-10-08.
 
-The 42-case campaign finished 2026-09-30. The cross-case result is in "Campaign analysis (2026-10-01)" and the head-to-head against NCEP CFSv2 in "CFSv2 operational baseline (2026-10-05/06)". The multi-model board (CFSv2, GEFSv12 and ECCC GEPS scored; ECMWF IFS (EC46) and the BB-SUBS estimate pending the user's ECDS token) against ERA5 and HRRR truth is in "Multi-model board: CFSv2, GEFSv12, ECCC GEPS, ECMWF IFS (EC46, pending), BB-SUBS estimate (pending), ERA5 and HRRR truth (2026-10-07/08)", the last section of this file, with a one-page reader summary in `runs/acal/analysis/s2s/board/SUMMARY.md`. Read that section's steering caveat (tilt check) before quoting any AI+RES-vs-baseline log ratio.
+The 42-case campaign finished 2026-09-30. The cross-case result is in "Campaign analysis (2026-10-01)" and the head-to-head against NCEP CFSv2 in "CFSv2 operational baseline (2026-10-05/06)". The multi-model board (CFSv2, GEFSv12, ECCC GEPS and ECMWF IFS (EC46) scored, plus a BB-SUBS estimate from EC46) against ERA5 and HRRR truth is in "Multi-model board: CFSv2, GEFSv12, ECCC GEPS, ECMWF IFS (EC46), BB-SUBS estimate, ERA5 and HRRR truth (2026-10-07/08)", the last section of this file, with a one-page reader summary in `runs/acal/analysis/s2s/board/SUMMARY.md`. Read that section's steering caveat (tilt check) before quoting any AI+RES-vs-baseline log ratio.
 
 ## Built
 
@@ -864,7 +864,7 @@ top 8 of 32 by weight in only 22/42 cases), so "the ensemble contains a physical
 trajectory" is a weaker statement than "the forecast favoured it". CFS caveats as above
 (cold drift inside the raw score, ~0.94 deg resolution).
 
-## Multi-model board: CFSv2, GEFSv12, ECCC GEPS, ECMWF IFS (EC46, pending), BB-SUBS estimate (pending), ERA5 and HRRR truth (2026-10-07/08)
+## Multi-model board: CFSv2, GEFSv12, ECCC GEPS, ECMWF IFS (EC46), BB-SUBS estimate, ERA5 and HRRR truth (2026-10-07/08)
 
 **Built and run on the Derecho login node, CPU + internet, env `my-env`.** The question is whether, on the same
 42 cases, at the same 21 d lead and on the same CONUS `A_L`, AI+RES still puts more
@@ -875,9 +875,10 @@ truth to three. The reader-facing one-page version is
 `runs/acal/analysis/s2s/board/SUMMARY.md`.
 
 Board rows with data are AI+RES, CFSv2 (`cfs13`, the 16 published CFS members re-reduced on
-13 frames; the published 25-frame `cfs` rows are kept as a reference), GEFSv12 and ECCC
-GEPS. ECMWF IFS (EC46) and the BB-SUBS estimate are PENDING the user's ECDS token. Their
-code is written and tested, and no data exists yet. Truths are `era5`, `hrrr` (the headline
+13 frames; the published 25-frame `cfs` rows are kept as a reference), GEFSv12, ECCC
+GEPS and ECMWF IFS (EC46, downloaded and scored on 2026-10-08). The BB-SUBS row is an
+estimate (k x bias-corrected EC46 error metrics, `estimate` = True in every board file), not a
+forecast. Truths are `era5`, `hrrr` (the headline
 HRRR truth, offset-corrected) and `hrrr_raw` (sensitivity). The headline variant is raw
 (`raw_emp`); bias-corrected (`corr_emp`) is the sensitivity, as in the CFS section.
 
@@ -895,8 +896,9 @@ HRRR truth, offset-corrected) and `hrrr_raw` (sensitivity). The headline variant
   ROC/reach figures pixel-identically. Nothing under `runs/acal/cfs/`,
   `runs/acal/analysis/*.csv` or `figures/acal/*.png` was rewritten.
 - Tests are `acal/tests/test_{s2sbase,truth,hrrrtruth,s2s_gefs,s2s_geps,s2s_ec46,score_sources,board,overall,errmaps,bbsubs,tilt,daily_pairing}.py`
-  plus the existing files, 19 files in all. 259 passed on 2026-10-08, run in two groups of files
-  (124 + 135, ~25 s and ~38 s). Run per file or in groups; one pytest process over all of
+  plus the existing files, 19 files in all. 265 (129 + 136) passed on 2026-10-08 after the EC46
+  additions and the BB-SUBS pairing test in `test_tilt.py`, run in two groups of files (`--ignore-glob='acal/tests/test_multi_*'`; those files
+  belong to the separate side-by-side session). Run per file or in groups; one pytest process over all of
   `acal/tests` was OOM-killed on the login node once.
 
 The commands below run from the repo root in `my-env`, inputs first, then the driver.
@@ -929,10 +931,12 @@ The commands below run from the repo root in `my-env`, inputs first, then the dr
     python -m acal.errmaps --truth era5 --stage all          # also --truth hrrr, hrrr_raw
     python -m acal.bbsubs                                    # context chart, estimate, method note
 
-**EC46, one command once `~/.ecdsapirc` exists.** The file holds two lines,
-`url: https://ecds.ecmwf.int/api` and `key: <token>` (chmod 600), after the S2S licence is
-accepted on the Download tab of BOTH `s2s-forecasts` and `s2s-reforecasts`. It was absent on
-2026-10-08.
+**EC46, one command (run on 2026-10-08).** `~/.ecdsapirc` holds two lines,
+`url: https://ecds.ecmwf.int/api` and `key: <token>` (chmod 600), and the S2S licence must be
+accepted on the Download tab of BOTH `s2s-forecasts` and `s2s-reforecasts`. The fetch of
+2026-10-08 completed 168 of 168 requests with 0 failures, and verify passed on 42 of 42
+cubes (17 with 51 members, 25 with 101; leads 21 d in 33 cases, 22-24 d in 9) and 840
+reforecast hind cubes (42 cases x 20 years, 11 members each).
 
     setsid nohup python -m acal.s2s_ec46 --stage fetch --workers 4 \
         > runs/acal/s2s/ec46/logs/fetch.log 2>&1 < /dev/null &
@@ -941,13 +945,14 @@ accepted on the Download tab of BOTH `s2s-forecasts` and `s2s-reforecasts`. It w
     python -m acal.s2s_ec46 --stage verify
     bash scripts/acal_board_all.sh       # picks ec46 up via s2sbase --stage with_data; the
                                          # BB-SUBS estimate rows follow from acal.board
-    # then add "ec46" to acal.tilt.MODELS and rerun: python -m acal.tilt --stage all
+    python -m acal.bbsubs --stage estimate && python -m acal.bbsubs --stage method
+    python -m acal.tilt --stage all      # acal.tilt.MODELS includes ec46
 
-The request plan (`runs/acal/s2s/ec46/requests.csv`) was validated for e01 and e42 against
-the anonymous ECDS costing endpoint, and ERA5 at all 840 hindcast dates is already built
-(`runs/acal/s2s/ec46/era5_hdates/`), so only the download is missing.
+The request plan is `runs/acal/s2s/ec46/requests.csv`, and ERA5 at all 840 hindcast dates
+is in `runs/acal/s2s/ec46/era5_hdates/`. The decoder is pinned by two real-GRIB tests on
+message slices in `acal/tests/data/ec46_e01_{fc,rf}_cf_slice.grib` (4.5 KB each).
 
-**Coverage** (`board_summary.json` "coverage"; EC46 from `runs/acal/s2s/ec46/requests.csv`;
+**Coverage** (`board_summary.json` "coverage"; EC46 leads from `runs/acal/s2s/ec46/requests.csv`;
 BB-SUBS from `board/bbsubs_method.md`).
 
 | row | data | cases | members | lead to peak | scored window (truth window) | native grid | corrected variant |
@@ -956,8 +961,8 @@ BB-SUBS from `board/bbsubs_method.md`).
 | CFSv2 (`cfs13`) | NCEP operational 6-hourly tmp2m (NCEI/AWS) | 42 | 16 trailing 6-hourly cycles | 21.0-24.75 d | 13f (13f) | ~0.94 deg | published 25-frame LOYO bias |
 | GEFSv12 | AWS `noaa-gefs-pds`, 00Z, 0.5 deg pgrb2ap5 | 42 | 31 | 21 d (lag 0) | 13f (13f) | 0.5 deg | LOYO, 11-member hind, 4-5 other years |
 | ECCC GEPS 6/7/8 | IRIDL SubX daily-mean `tas` | 42 | 21 | 21-27 d | d6 = UTC days peak-6..peak-1 (12f) | 1 deg | LOYO, 4-5 other years |
-| ECMWF IFS (EC46) | ECDS `s2s-forecasts` | 0 of 42 (planned 42) | 51 (17 cases) or 101 (25 cases) | 21 d (33 cases), 22-24 d (9) | d6 (12f) | 1.5 deg | reforecast model climate, 11 members x 20 years |
-| BB-SUBS estimate | none (not public); k x EC46 corrected | 0 of 42 (planned 42) | product has 64 | n/a | n/a | 1.5 deg | error metrics only |
+| ECMWF IFS (EC46) | ECDS `s2s-forecasts`, origin ecmwf, daily-mean 2 m temperature; latest 00Z init on or before the AI+RES init | 42 | 51 (17 cases) or 101 (25 cases) | 21 d (33 cases), 22-24 d (9) | d6 (12f) | 1.5 deg | reforecast model climate, 11 members x 20 years |
+| BB-SUBS estimate | none (not public); k x EC46 corrected, per case | 42 (estimate) | product has 64 | EC46's (BB-SUBS itself starts daily, 21 d) | d6 (12f), via EC46 | 1.5 deg | error metrics only; Tier 2 P(obs) failed validation |
 
 13f = the 13 frames 00Z/12Z from peak-6d 00Z to peak 00Z; 12f = the same without the peak
 frame. A daily-mean source is scored on UTC days peak-6..peak-1 against the interval-mean
@@ -999,7 +1004,12 @@ floored at 1/(N+1), Brier at 2/3/4 K, CRPS of the forecast distribution, 90% cas
 CI (n = 5000), Wilcoxon p, and positive = AI+RES better. LOYO bias for GEFSv12 and GEPS uses the
 same (case, year) jobs as CFS (`cfsbase.hind_jobs`). Mean LOYO bias (`bias.csv`) is
 -0.63 K for GEFSv12 (range -1.70..+0.38, negative in 35/42), -1.20 K for GEPS
-(-2.98..+0.58, 40/42) and -0.67 K for CFSv2. The daily maps of daily-mean sources pair UTC
+(-2.98..+0.58, 40/42) and -0.67 K for CFSv2. EC46 is corrected with its reforecast model
+climate instead (`runs/acal/s2s/ec46/bias.csv`, 11 members x 20 years per case at the same
+calendar date and lead). Its mean bias is -0.73 K (-1.88..+0.35, 37/42), -0.65 K on heat
+cases and -0.96 K on cold cases. Subtracting a negative bias warms the forecast, so on the cold
+cases the correction moves EC46 further from the observed cold tail (mean signed error -2.27 K
+raw, -3.23 K corrected, ERA5). The daily maps of daily-mean sources pair UTC
 day D with the ERA5 frames (00Z D, 12Z D) (`s2sbase.DAILY_PAIR`, fixed 2026-10-08); the 7-day
 board files were byte-identical before and after that fix.
 
@@ -1007,9 +1017,10 @@ board files were byte-identical before and after that fix.
 - `runs/acal/s2s/{cfs,gefs,geps,ec46}/` cubes, json, hind, `bias.{nc,csv}`;
   `runs/acal/index_hrrr/` HRRR truth.
 - `runs/acal/analysis/s2s/<truth>/` per-source scorecard / paired / maps / ROC / reach /
-  closest-member tables; `runs/acal/analysis/s2s/board/` `board_cases.csv` (5040 rows),
+  closest-member tables; `runs/acal/analysis/s2s/board/` `board_cases.csv` (6678 rows),
   `board_paired.csv`, `board_paired_cases.csv`, `board_summary.json`, `overall_numbers.csv`,
-  `bbsubs_method.md`, `SUMMARY.md`; `tilt_check{,_paired}.csv`, `tilt_check.json`.
+  `bbsubs_method.md`, `bbsubs_rows.csv` (504 estimate rows), `bbsubs_tier2_validation.json`,
+  `SUMMARY.md`; `tilt_check{,_paired}.csv`, `tilt_check.json`.
 - `figures/acal/overall/` forest, scoreboard, hrrr_vs_era5, `errmap_<truth>`,
   `skillmaps_{bss,csi}_<truth>`, bbsubs_published, tilt_check;
   `figures/acal/s2s/<truth>/<source>/{maps,roc,reach}/`, `figures/acal/s2s/errmaps/<truth>/`
@@ -1029,6 +1040,9 @@ board files were byte-identical before and after that fix.
 | | ECCC GEPS (12f) | all | +0.66 [+0.32, +1.00] | 27/0/15, 0.0056 | +0.20 [-0.05, +0.43] | 25/0/17, 0.17 |
 | | | heat | +1.08 [+0.72, +1.44] | 25/0/6, 0.00011 | +0.19 [-0.12, +0.47] | 20/0/11, 0.21 |
 | | | cold | -0.52 [-0.93, -0.10] | 2/0/9, 0.078 | +0.23 [-0.15, +0.62] | 5/0/6, 0.35 |
+| | ECMWF IFS (EC46) (12f) | all | +1.12 [+0.80, +1.44] | 33/0/9, 1.2e-5 | +0.59 [+0.30, +0.85] | 31/0/11, 0.0010 |
+| | | heat | +1.51 [+1.19, +1.83] | 28/0/3, 4.1e-6 | +0.58 [+0.22, +0.91] | 22/0/9, 0.010 |
+| | | cold | +0.02 [-0.45, +0.50] | 5/0/6, 1.00 | +0.61 [+0.23, +1.00] | 9/0/2, 0.031 |
 | HRRR | CFSv2 (13f) | all 42 | +0.49 [+0.19, +0.79] | 24/0/18, 0.031 | +0.19 [-0.08, +0.44] | 25/0/17, 0.32 |
 | | | heat 31 | +0.77 [+0.40, +1.13] | 21/0/10, 0.0033 | +0.23 [-0.11, +0.54] | 19/0/12, 0.25 |
 | | | cold 11 | -0.29 [-0.58, +0.01] | 3/0/8, 0.14 | +0.08 [-0.29, +0.47] | 6/0/5, 0.56 |
@@ -1038,10 +1052,13 @@ board files were byte-identical before and after that fix.
 | | ECCC GEPS (12f) | all | +0.64 [+0.31, +0.97] | 25/0/17, 0.0038 | +0.26 [+0.01, +0.49] | 26/0/16, 0.079 |
 | | | heat | +1.06 [+0.72, +1.39] | 23/0/8, 7.5e-5 | +0.28 [-0.03, +0.56] | 21/0/10, 0.11 |
 | | | cold | -0.56 [-1.00, -0.12] | 2/0/9, 0.078 | +0.20 [-0.19, +0.61] | 5/0/6, 0.40 |
+| | ECMWF IFS (EC46) (12f) | all | +1.08 [+0.76, +1.40] | 34/0/8, 1.5e-5 | +0.58 [+0.30, +0.84] | 34/0/8, 0.00082 |
+| | | heat | +1.49 [+1.18, +1.80] | 29/0/2, 4.0e-8 | +0.60 [+0.27, +0.92] | 25/0/6, 0.0051 |
+| | | cold | -0.07 [-0.58, +0.45] | 5/0/6, 0.88 | +0.52 [+0.11, +0.93] | 9/0/2, 0.078 |
 
 Against HRRR raw (sensitivity, all 42, raw / corrected) the log ratios are CFSv2 +0.62 [+0.32, +0.92] / +0.26
 [-0.00, +0.52]; GEFSv12 +0.66 [+0.37, +0.95] / +0.42 [+0.12, +0.70]; GEPS +0.77 [+0.43, +1.11]
-/ +0.32 [+0.07, +0.56]. The published 25-frame CFS reference row gives +0.488 (ERA5),
+/ +0.32 [+0.07, +0.56]; EC46 +1.15 [+0.81, +1.49] / +0.59 [+0.33, +0.85]. The published 25-frame CFS reference row gives +0.488 (ERA5),
 +0.474 (HRRR) and +0.598 (HRRR raw), against +0.494 / +0.490 / +0.618 for `cfs13`.
 
 **CRPS and Brier at 3/4 K** (`board_paired.csv`, all 42 cases, model minus AI+RES, positive
@@ -1052,30 +1069,45 @@ Against HRRR raw (sensitivity, all 42, raw / corrected) the log ratios are CFSv2
 | ERA5 | CFSv2 | 0.939 / 1.592 | +0.65 [+0.40, +0.90] | 33/0/9 | +0.58 [+0.29, +0.86] | +0.021 [-0.043, +0.085] (14/3/25, 0.69) | +0.028 [-0.000, +0.067] (6/12/24, 0.11) | +0.005 / +0.011 |
 | | GEFSv12 | 0.939 / 1.456 | +0.52 [+0.29, +0.75] | 31/0/11 | +0.50 [+0.26, +0.75] | +0.005 [-0.057, +0.065] (15/3/24, 0.62) | +0.031 [+0.003, +0.067] (10/12/20, 0.75) | +0.002 / +0.025 |
 | | ECCC GEPS | 0.962 / 1.861 | +0.90 [+0.62, +1.19] | 33/0/9 | +0.67 [+0.43, +0.93] | +0.004 [-0.066, +0.074] (15/3/24, 0.47) | +0.043 [+0.006, +0.088] (10/12/20, 0.97) | -0.002 / +0.026 |
+| | ECMWF IFS (EC46) | 0.962 / 1.552 | +0.59 [+0.35, +0.83] | 34/0/8 | +0.38 [+0.18, +0.59] | -0.015 [-0.079, +0.046] (11/3/28, 0.17) | +0.036 [-0.000, +0.081] (10/12/20, 0.90) | -0.028 / +0.027 |
+| | BB-SUBS estimate | 0.962 / 1.261 | n/a | n/a | +0.30 [+0.10, +0.49] | n/a | n/a | -0.039 / +0.022 |
 | HRRR | CFSv2 | 0.975 / 1.635 | +0.66 [+0.39, +0.92] | 32/0/10 | +0.59 [+0.30, +0.88] | +0.018 [-0.054, +0.090] (15/3/24, 0.75) | +0.026 [-0.006, +0.066] (7/11/24, 0.125) | +0.002 / +0.014 |
 | | GEFSv12 | 0.975 / 1.487 | +0.51 [+0.28, +0.75] | 30/0/12 | +0.50 [+0.25, +0.75] | -0.005 [-0.075, +0.064] (15/2/25, 0.51) | +0.032 [+0.001, +0.071] (10/11/21, 0.50) | -0.007 / +0.023 |
 | | ECCC GEPS | 1.000 / 1.920 | +0.92 [+0.63, +1.22] | 33/0/9 | +0.69 [+0.44, +0.95] | -0.005 [-0.084, +0.076] (11/3/28, 0.18) | +0.042 [+0.005, +0.087] (13/11/18, 0.49) | -0.004 / +0.027 |
+| | ECMWF IFS (EC46) | 1.000 / 1.588 | +0.59 [+0.34, +0.83] | 33/0/9 | +0.38 [+0.17, +0.59] | -0.018 [-0.090, +0.051] (14/3/25, 0.44) | +0.023 [-0.015, +0.068] (9/11/22, 0.31) | -0.030 / +0.018 |
+| | BB-SUBS estimate | 1.000 / 1.297 | n/a | n/a | +0.30 [+0.09, +0.50] | n/a | n/a | -0.043 / +0.012 |
+
+EC46 and the BB-SUBS estimate are paired with AI+RES on 12f, so their AI+RES CRPS is the 12f
+value. The BB-SUBS rows are k x bias-corrected EC46 per case (k = 0.936 for CRPS, 0.947 for
+Brier), so they have corrected columns only; see "BB-SUBS estimate (Tier 1) and Tier 2" below.
 
 Split by family (raw, ERA5), dCRPS for heat is CFSv2 +0.86 [+0.63, +1.07] (28/0/3), GEFSv12 +0.72
 [+0.49, +0.95] (27/0/4), GEPS +1.31 [+1.07, +1.56] (29/0/2). For cold
 it is +0.08 [-0.55, +0.76]
 (5/0/6), -0.05 [-0.53, +0.47] (4/0/7), -0.25 [-0.72, +0.28] (4/0/7). HRRR gives heat
-+0.87 / +0.71 / +1.34 and cold +0.07 / -0.05 / -0.28.
++0.87 / +0.71 / +1.34 and cold +0.07 / -0.05 / -0.28. For EC46 (12f) heat is +0.87 [+0.67,
++1.07] (29/0/2) and cold -0.20 [-0.73, +0.32] (5/0/6) on ERA5, +0.87 and -0.21 on HRRR.
+Against bias-corrected EC46 the cold dCRPS is +0.55 [-0.06, +1.15] (7/0/4), because the
+reforecast correction warms the cold cases.
 
 The 4 K Brier means are positive for every model and the CIs for GEFSv12 and GEPS exclude
-zero, but the Wilcoxon p is 0.49 to 0.97. Eleven or twelve cases are ties and the mean is set
+zero (the EC46 interval touches zero, lower bound -0.00005), but the Wilcoxon p is 0.49 to 0.97. At 3 K raw
+EC46 has the lower Brier score than AI+RES (-0.015, ERA5), with the CI spanning zero (p 0.17). Eleven or twelve cases are ties and the mean is set
 by a few confident misses, so this is not a robust 4 K difference.
 
 **Where the forecasts sit** (`board_cases.csv`, ERA5, 42 cases; signed error = tail sign x
 (ensemble mean - obs), negative = short of the extreme).
 
-| ERA5 | AI+RES 13f | CFSv2 raw / corr | GEFSv12 raw / corr | GEPS raw / corr |
-|---|---|---|---|---|
-| mean signed error, all (K) | -0.97 | -2.21 / -2.04 | -2.08 / -1.99 | -2.58 / -2.25 |
-| heat / cold (K) | -0.56 / -2.12 | -2.06 / -2.62 (raw) | -1.99 / -2.34 (raw) | -2.73 / -2.15 (raw) |
-| median P(obs) | 0.116 | 0.062 / 0.062 | 0.048 / 0.097 | 0.048 / 0.095 |
-| cases with P(obs) = 0 | 2 | 20 / 15 | 10 / 10 | 17 / 11 |
-| mean spread (K) | 0.81 | 1.30 | 1.34 | 1.57 |
+| ERA5 | AI+RES 13f | CFSv2 raw / corr | GEFSv12 raw / corr | GEPS raw / corr | EC46 raw / corr (12f) |
+|---|---|---|---|---|---|
+| mean signed error, all (K) | -0.97 | -2.21 / -2.04 | -2.08 / -1.99 | -2.58 / -2.25 | -2.18 / -1.95 |
+| heat / cold (K) | -0.56 / -2.12 | -2.06 / -2.62 (raw) | -1.99 / -2.34 (raw) | -2.73 / -2.15 (raw) | -2.14 / -2.27 (raw); -1.50 / -3.23 (corr) |
+| median P(obs) | 0.116 | 0.062 / 0.062 | 0.048 / 0.097 | 0.048 / 0.095 | 0.030 / 0.089 |
+| cases with P(obs) = 0 | 2 | 20 / 15 | 10 / 10 | 17 / 11 | 12 / 7 |
+| mean spread (K) | 0.81 | 1.30 | 1.34 | 1.57 | 1.34 |
+
+On 12f, the window EC46 and GEPS are paired on, AI+RES has a mean signed error of -1.00 K, a
+median P(obs) of 0.127 and 2 cases with P(obs) = 0.
 
 **16-member sensitivity** (`board_paired.csv`, all 42 cases, log ratio, ERA5 / HRRR).
 `e16_raw_emp` is the expected score over random 16-member subsets on both sides (exact
@@ -1087,8 +1119,13 @@ fixed 16-member subset of the model against the native 32-walker AI+RES.
 | CFSv2 (N = 16) | +0.49 / +0.49 | +0.80 [+0.55, +1.04] 32/3/7 / +0.80 [+0.56, +1.05] 32/3/7 | n/a | +0.51 / +0.50 |
 | GEFSv12 (N = 31) | +0.69 / +0.63 | +0.68 [+0.43, +0.92] 32/1/9 / +0.66 [+0.42, +0.90] 32/2/8 | +0.45 [+0.11, +0.78] (p 0.088) / +0.39 [+0.06, +0.71] (p 0.105) | +0.44 / +0.43 |
 | ECCC GEPS (N = 21) | +0.66 / +0.64 | +0.77 [+0.50, +1.05] 31/3/8 / +0.77 [+0.51, +1.04] 30/3/9 | +0.50 [+0.18, +0.83] (p 0.043) / +0.48 [+0.15, +0.81] (p 0.042) | +0.42 / +0.48 |
+| EC46 (N = 51 or 101) | +1.12 / +1.08 | +0.71 [+0.48, +0.95] 31/4/7 / +0.69 [+0.47, +0.92] 31/4/7 | +0.40 [+0.12, +0.69] (p 0.088) / +0.39 [+0.11, +0.69] (p 0.077) | +0.51 / +0.52 |
 
-dCRPS at e16 (raw, ERA5) is +0.69 / +0.58 / +0.96 for CFSv2 / GEFSv12 / GEPS. The CFS last-4
+dCRPS at e16 (raw, ERA5) is +0.69 / +0.58 / +0.96 / +0.67 for CFSv2 / GEFSv12 / GEPS / EC46.
+EC46 has the largest native log ratio partly because of its floor. With N = 51 or 101 the
+floor is 1/52 or 1/102, and raw EC46 gives the observed outcome zero probability in 12 cases.
+At equal N (`e16_raw_emp`) its log ratio is +0.71, within the +0.68 to +0.80 of the other
+three. The CFS last-4
 subset (`sub_emp`) scores -0.52 [-0.80, -0.24]. Reducing a model to 16 members LOWERS the
 log ratio (GEFSv12 +0.69 to +0.45), because the floor 1/(N+1) rises from 1/32 to 1/17 and a
 case where no member reaches the observation costs the model less. The e16 AI+RES side
@@ -1106,30 +1143,32 @@ correlation of the composite with the truth composite; MAE over all 42 cases):
 | | CFSv2 | -2.94, 0.21 | +3.75, 0.07 | 3.93 |
 | | GEFSv12 | -2.67, 0.36 | +3.48, 0.55 | 3.53 |
 | | ECCC GEPS | -4.01, 0.32 | +3.04, 0.13 | 4.55 |
+| | ECMWF IFS (EC46) | -2.97, 0.40 | +3.50, 0.26 | 3.86 |
 | HRRR | AI+RES | -0.72, 0.90 | +3.24, 0.74 | 2.84 |
 | | CFSv2 | -2.91, 0.18 | +3.73, 0.07 | 3.93 |
 | | GEFSv12 | -2.64, 0.34 | +3.45, 0.54 | 3.52 |
 | | ECCC GEPS | -3.97, 0.33 | +3.01, 0.11 | 4.54 |
+| | ECMWF IFS (EC46) | -2.94, 0.42 | +3.47, 0.23 | 3.85 |
 
 The difference in per-case field RMSE of the ensemble mean (`board_paired.csv` dfield_rmse, ERA5, model minus
 AI+RES) is CFSv2 +1.23 [+0.86, +1.61] (34/0/8; 3.48 vs 4.71 K), GEFSv12 +0.78 [+0.43, +1.16]
-(26/0/16; 3.48 vs 4.26 K), GEPS +1.75 [+1.29, +2.21] (35/0/7, 12f; 3.58 vs 5.33 K). HRRR gives
-+1.23 / +0.77 / +1.74.
+(26/0/16; 3.48 vs 4.26 K), GEPS +1.75 [+1.29, +2.21] (35/0/7, 12f; 3.58 vs 5.33 K), EC46
++1.00 [+0.66, +1.34] (32/0/10, 12f; 3.58 vs 4.58 K). HRRR gives +1.23 / +0.77 / +1.74 / +0.99.
 
 Skill maps (`overall_numbers.csv`, figure scoreboard; BSS = land median, CSI = land mean, from
 `<truth>/maps_land_means_<source>.json`; AI+RES 13f, in brackets the 12f AI+RES that pairs
 with GEPS):
 
-| truth | score | AI+RES | CFSv2 raw | GEFSv12 raw | GEPS raw |
-|---|---|---|---|---|---|
-| ERA5 | BSS +2 K | 0.226 [0.243] | -0.094 | 0.015 | -0.243 |
-| | BSS -2 K | 0.221 [0.243] | 0.257 | 0.317 | 0.341 |
-| | CSI +2 K | 0.559 [0.568] | 0.302 | 0.315 | 0.185 |
-| | CSI -2 K | 0.321 [0.329] | 0.311 | 0.275 | 0.393 |
-| HRRR | BSS +2 K | 0.229 [0.237] | -0.106 | 0.024 | -0.238 |
-| | BSS -2 K | 0.222 [0.243] | 0.251 | 0.318 | 0.315 |
-| | CSI +2 K | 0.559 [0.566] | 0.298 | 0.316 | 0.184 |
-| | CSI -2 K | 0.320 [0.330] | 0.313 | 0.275 | 0.392 |
+| truth | score | AI+RES | CFSv2 raw | GEFSv12 raw | GEPS raw | EC46 raw |
+|---|---|---|---|---|---|---|
+| ERA5 | BSS +2 K | 0.226 [0.243] | -0.094 | 0.015 | -0.243 | -0.006 |
+| | BSS -2 K | 0.221 [0.243] | 0.257 | 0.317 | 0.341 | 0.356 |
+| | CSI +2 K | 0.559 [0.568] | 0.302 | 0.315 | 0.185 | 0.300 |
+| | CSI -2 K | 0.321 [0.329] | 0.311 | 0.275 | 0.393 | 0.363 |
+| HRRR | BSS +2 K | 0.229 [0.237] | -0.106 | 0.024 | -0.238 | -0.000 |
+| | BSS -2 K | 0.222 [0.243] | 0.251 | 0.318 | 0.315 | 0.349 |
+| | CSI +2 K | 0.559 [0.566] | 0.298 | 0.316 | 0.184 | 0.301 |
+| | CSI -2 K | 0.320 [0.330] | 0.313 | 0.275 | 0.392 | 0.361 |
 
 **Is AI+RES still better than CFSv2 against HRRR?** Yes, on the same measures and by the same
 amount as against ERA5, and with the same limits. Against the offset-corrected HRRR truth the
@@ -1150,86 +1189,171 @@ bound on the steering benefit. `untilted` is FCN3 launched at lead 6 d from the 
 pre-selection walker states (192 members). These are the only blind forecasts that reach the
 window, and they are FCN3 rather than GenCast over lead 6-21 d.
 
-| paired vs (ERA5 / HRRR) | CFSv2 | GEFSv12 | ECCC GEPS |
-|---|---|---|---|
-| log ratio, sn (published) | +0.49 / +0.49 | +0.69 / +0.63 | +0.66 / +0.64 |
-| log ratio, uniform | +1.97 / +1.98 | +2.16 / +2.11 | +2.13 / +2.12 |
-| log ratio, untilted | -0.13 [-0.43, +0.16] / -0.11 | +0.07 [-0.25, +0.37] / +0.02 | +0.01 [-0.33, +0.35] / -0.00 |
-| dCRPS, sn | +0.65 / +0.66 | +0.52 / +0.51 | +0.90 / +0.92 |
-| dCRPS, uniform | +0.92 / +0.92 | +0.78 / +0.77 | +1.19 / +1.21 |
-| dCRPS, untilted | +0.33 [+0.14, +0.50] / +0.33 | +0.19 [+0.01, +0.37] / +0.18 [-0.01, +0.37] | +0.56 [+0.30, +0.81] / +0.58 |
+| paired vs (ERA5 / HRRR) | CFSv2 | GEFSv12 | ECCC GEPS | EC46 (12f) |
+|---|---|---|---|---|
+| log ratio, sn (published) | +0.49 / +0.49 | +0.69 / +0.63 | +0.66 / +0.64 | +1.12 / +1.08 |
+| log ratio, uniform | +1.97 / +1.98 | +2.16 / +2.11 | +2.13 / +2.12 | +2.59 / +2.57 |
+| log ratio, untilted | -0.13 [-0.43, +0.16] / -0.11 | +0.07 [-0.25, +0.37] / +0.02 | +0.01 [-0.33, +0.35] / -0.00 | +0.47 [+0.10, +0.85] / +0.44 [+0.05, +0.82] |
+| dCRPS, sn | +0.65 / +0.66 | +0.52 / +0.51 | +0.90 / +0.92 | +0.59 / +0.59 |
+| dCRPS, uniform | +0.92 / +0.92 | +0.78 / +0.77 | +1.19 / +1.21 | +0.88 / +0.87 |
+| dCRPS, untilted | +0.33 [+0.14, +0.50] / +0.33 | +0.19 [+0.01, +0.37] / +0.18 [-0.01, +0.37] | +0.56 [+0.30, +0.81] / +0.58 | +0.25 [+0.03, +0.46] / +0.24 [+0.01, +0.46] |
 
 With equal weights the final walkers sit +0.55 K beyond the observed `A_L` on the tail side
 (ERA5, 42 cases). The importance weights pull the mean back by 1.52 K [1.32, 1.73] to -0.97 K;
 the untilted FCN3 forecasts are at -1.82 K. The correction is limited at N = 32. The Kish
 effective sample size is 5.3 on average (median 4.0) of 32, the largest normalized weight is
 0.41 on average, and on average 29.6 of the 32 walkers (minimum 26) lie on the tail side of
-the weighted mean. The published log ratio keeps 25-32% of the uniform one and the published
-dCRPS 66-76%.
+the weighted mean. The published log ratio keeps 25-32% of the uniform one (43% against
+EC46) and the published dCRPS 66-76%.
 
 The blind FCN3 forecasts (`untilted`, floor 1/193) have log ratios whose CIs all span zero
-against the raw baselines (table above). With the 32-member floor 1/33 (`untilted_f32`) they
+against raw CFSv2, GEFSv12 and GEPS (table above). With the 32-member floor 1/33 (`untilted_f32`) these three
 are +0.09 [-0.12, +0.32] / +0.29 [+0.03, +0.54] / +0.24 [-0.05, +0.51] on ERA5, so the GEFSv12
 one excludes zero. Against the bias-corrected baselines (`corr_emp`) the blind log ratio is
 -0.42 [-0.69, -0.15] / -0.24 [-0.48, -0.01] / -0.45 [-0.69, -0.22] on ERA5 (Wilcoxon p 0.026 /
 0.11 / 0.0085) and -0.42 / -0.25 / -0.39 on HRRR, every CI below zero, and -0.19 / -0.02 /
--0.23 with the 1/33 floor. The corrected log-ratio advantage of the published forecast (+0.20 /
-+0.38 / +0.20) therefore cannot be attributed to forecast quality with the existing runs.
+-0.23 with the 1/33 floor. At the 1/193 floor raw EC46 is the one baseline against which the
+blind log-ratio interval lies above zero, +0.47 [+0.10, +0.85] (25/0/17, Wilcoxon p 0.079, not significant at 5%) on ERA5 and +0.44
+[+0.05, +0.82] on HRRR, and +0.70 [+0.35, +1.04] with the 1/33 floor. Against bias-corrected
+EC46 the blind log ratio is -0.06 [-0.30, +0.18] (p 0.57) on ERA5 and -0.06 on HRRR (+0.16
+with the 1/33 floor). The corrected log-ratio advantage of the published forecast (+0.20 /
++0.38 / +0.20, and +0.59 against EC46) therefore cannot be attributed to forecast quality with
+the existing runs.
 
-Against the raw baselines the blind dCRPS keeps 37-62% of the published margin. It is
-significant against CFSv2 and GEPS (Wilcoxon p 0.008 / 0.001 on ERA5, 0.010 / 0.001 on HRRR)
-and not against GEFSv12 (+0.19 [+0.01, +0.37], 26/0/16, p 0.064 on ERA5; +0.18 [-0.01, +0.37],
+Against the raw baselines the blind dCRPS keeps 37-62% of the published margin (42% against
+EC46). It is significant against CFSv2, GEPS and raw EC46 (Wilcoxon p 0.008 / 0.001 / 0.039 on
+ERA5, 0.010 / 0.001 / 0.045 on HRRR; EC46 +0.25 [+0.03, +0.46], 28/0/14) and not against
+GEFSv12 (+0.19 [+0.01, +0.37], 26/0/16, p 0.064 on ERA5; +0.18 [-0.01, +0.37],
 p 0.076 on HRRR). The raw margin is confounded by family. It is +0.61 / +0.47 / +1.04 on the 31
 heat cases and -0.47 [-0.73, -0.21] / -0.60 [-0.87, -0.34] / -0.80 [-1.06, -0.53] on the 11
-cold cases. The blind chain's mean signed error is -1.35 K on heat and -3.13 K on cold (13f),
-against -2.06 / -2.62 K (CFSv2), -1.99 / -2.34 K (GEFSv12) and -2.73 / -2.15 K (GEPS, 12f).
+cold cases (EC46 +0.60 heat, -0.75 [-1.14, -0.36] cold). The blind chain's mean signed error
+is -1.35 K on heat and -3.13 K on cold (13f), against -2.06 / -2.62 K (CFSv2), -1.99 / -2.34 K
+(GEFSv12), -2.73 / -2.15 K (GEPS, 12f) and -2.14 / -2.27 K (EC46, 12f).
 That relative warm shift wins on a slate that is 31:11 heat to cold. Against the bias-corrected
 baselines the blind dCRPS is +0.25 [+0.07, +0.43] (p 0.033) / +0.17 [+0.01, +0.34] (p 0.21) /
-+0.33 [+0.18, +0.50] (p 0.003), positive in both families. The CRPS advantage therefore
-survives a blind forecast from the same GenCast-FCN3 chain against CFSv2 and GEPS, and it is
-not significant against GEFSv12. The blind control also removes much of the ensemble-mean
-advantage. It falls short by 1.82 K (13f; 1.87 K on 12f), so 69% / 76% / 55% of the published
-mean-error gap to CFSv2 / GEFSv12 / GEPS is absent without steering. The log-ratio advantage,
++0.33 [+0.18, +0.50] (p 0.003), positive in both families. Against bias-corrected EC46 it is
++0.04 [-0.09, +0.18] (p 0.67; heat +0.06, cold +0.00), and the blind mean CRPS on 12f (1.303 K)
+is close to that of corrected EC46 (1.347 K). The CRPS advantage therefore survives a blind
+forecast from the same GenCast-FCN3 chain against CFSv2 and GEPS, and it is not significant
+against GEFSv12 or against bias-corrected EC46. The blind control also removes much of the
+ensemble-mean advantage. It falls short by 1.82 K (13f; 1.87 K on 12f), so 69% / 76% / 55% /
+74% of the published mean-error gap to CFSv2 / GEFSv12 / GEPS / EC46 is absent without
+steering (GEPS and EC46 on 12f). The log-ratio advantage,
 which measures the probability placed on the observed extreme, cannot be separated from
 residual steering with the existing runs. The tilt check scores only the CONUS index (P(obs),
 CRPS, Brier, mean error). The maps, the field RMSE and the composites have no blind control.
 
+**BB-SUBS estimate (Tier 1) and Tier 2** (`acal/bbsubs.py`; `board/bbsubs_rows.csv`,
+`board/bbsubs_method.md`, `board/bbsubs_tier2_validation.json`). The BB-SUBS row is k x the
+bias-corrected EC46 score of each case, with k = 0.877 for squared error, 0.936 for CRPS and
+0.947 for Brier at week 3 (week 4, 0.926 / 0.962 / 0.963, is the sensitivity). It is paired
+with AI+RES on 12f, as EC46 is. Only dCRPS, dBrier at 2/3/4 K and the squared error of the
+ensemble mean are paired. P(obs), log ratio, field RMSE, PIT, ROC, CSI and maps are blank by
+design. The table is from `board_paired.csv` (model minus AI+RES, positive = AI+RES better).
+
+| truth | dCRPS (K) | dBrier 3 K | dBrier 4 K | d squared error of the ensemble mean (K^2) |
+|---|---|---|---|---|
+| ERA5 | +0.30 [+0.10, +0.49] (30/0/12, p 0.0077) | -0.039 [-0.093, +0.010] (15/2/25, p 0.17) | +0.022 [-0.002, +0.051] (14/12/16, p 0.78) | +2.03 [+0.95, +3.18] (31/0/11, p 0.00053) |
+| HRRR | +0.30 [+0.09, +0.50] (30/0/12, p 0.0094) | -0.043 [-0.105, +0.015] (17/1/24, p 0.29) | +0.012 [-0.013, +0.041] (12/11/19, p 0.34) | +2.13 [+0.95, +3.39] (33/0/9, p 0.00065) |
+
+Tier 2, a case-level P(obs) from a Gaussian signal-noise model, failed validation under all
+three truths, so the board has no BB-SUBS P(obs) and no BB-SUBS log ratio. With rho^2 = 0.179
+for debiased EC46 (from its reforecasts), the model gives a mean EC46 P(obs) of 0.060 on ERA5
+against the actual 0.115 (|log level miss| 0.65, tolerance 0.37). In the high-z half of the
+slate it gives 0.022, outside the actual 90% interval [0.082, 0.157]. HRRR fails the same way
+(0.056 against 0.116, miss 0.73, tolerance 0.40), and HRRR raw fails in both halves. The model
+puts less mass on large standardized anomalies than EC46 does (0.022 against 0.118 in the
+high-z half on ERA5), so it cannot transfer a P(obs) from EC46 to BB-SUBS.
+
+**AI+RES against the BB-SUBS estimate at a 3-week lead (the original ask).** BB-SUBS cannot
+be scored on these cases. The only comparison is with an estimate, k x bias-corrected EC46, for
+error scores on the CONUS 7-day index. On CRPS the published AI+RES is 0.30 K [0.10, 0.49] below
+the estimate (30/0/12, p 0.0077, ERA5, 12f). The blind control from the same GenCast-FCN3 chain
+does not differ from the estimate (-0.04 K [-0.18, +0.09], 21/0/21, p 0.68 on ERA5; -0.05 K
+[-0.19, +0.09], p 0.59 on HRRR), so the margin cannot be credited to forecast quality rather
+than steering. At 3 K the estimate has the lower Brier score, against published AI+RES
+(-0.039 [-0.093, +0.010], p 0.17, not detected) and against the blind control (-0.040 [-0.065,
+-0.019], 13/4/25, p 0.012). The board headline, the probability placed on the observed extreme,
+has no BB-SUBS value because Tier 2 failed validation. The paired blind rows are source
+`bbsubs` in `tilt_check_paired.csv`; the k and lead checks below are the `estimate` block of
+`tilt_check.json`.
+
+On the 42 cases (ERA5, 12f) the mean CRPS is 1.552 K for raw EC46, 1.347 K for bias-corrected
+EC46, 1.303 K for the blind control, 1.261 K for the BB-SUBS estimate (0.936 x corrected EC46)
+and 0.962 K for published AI+RES. The squared error of the ensemble mean is 2.45 K^2 for
+AI+RES and 4.48 K^2 for the estimate. Corrected EC46 itself has the lower 3 K Brier score than
+AI+RES (-0.028 [-0.082, +0.022]), and the blind gain over corrected EC46 is +0.04 K [-0.09,
++0.18] (p 0.67). The estimate is k x corrected EC46 case by case, so k sets its distance from
+EC46 by construction. Over the week-3 band of k for CRPS (0.923 to 0.949) and with the week-4 k
+(0.962), the published AI+RES margin is +0.28 to +0.33 K (p 0.0097 to 0.0038), and the blind
+control stays within -0.06 to -0.01 K of the estimate (p 0.54 to 1.0). Only the
+published-AI+RES ordering therefore holds at every k. BB-SUBS starts daily, but the estimate
+inherits EC46's 22-24 d lead on 9 cases (Monday/Thursday inits before 2023-06-27). On the 33
+cases with a 21 d EC46 lead the published margin is +0.32 K [+0.08, +0.56] (25/0/8, p 0.016)
+and the blind control differs from the estimate by -0.06 K [-0.22, +0.10] (p 0.58), so the
+lead does not change the comparison.
+
+The estimate carries every caveat of `bbsubs_method.md`. The BB-SUBS skill is vendor-reported.
+The ratios come from gridpoint (30-60N land) MSESS and global-land quintile RPSS, and here they
+are applied to a CONUS-mean index. The CRPS ratio 0.936 is our square root of the published
+squared-error ratio, not a published number. Brightband's EC46 debiasing is not stated; ours is
+the reforecast model climate. The interval on +0.30 K is case sampling only, with k fixed. Both
+published scores are unconditional, so the ratio describes average weather and is applied to
+tail events selected on the outcome. 38 of the 42 peaks fall in Oct-Mar, the season of the
+MSESS that sets the squared-error and CRPS ratios. 22 fall in DJF, the one season behind the
+RPSS that sets the Brier ratio. Four peaks lie outside any published season (two in April, one in June,
+one in September). 15 cases fall in winters before BB-SUBS's held-out ones and so probably inside its
+training. This does not affect the estimate, whose ratios come from held-out winters, but a
+scored BB-SUBS row on these 15 cases would be in-sample. Only Brightband's pilot data would turn
+the estimate into a scored forecast.
+
 **Reading.** On the 42 selected cases AI+RES puts more probability on the observed tail than
-raw CFSv2, GEFSv12 and ECCC GEPS (log ratio +0.49 to +0.69 on ERA5, every CI above zero), and
-has lower CRPS (by 0.52 to 0.90 K). The result is the same against HRRR truth. The gap comes
-from the heat cases. For cold cases the log ratio is negative against all three (-0.26 to
--0.52; the GEPS CI excludes zero, Wilcoxon p 0.078, n = 11). Bias correction of the baselines
-removes 58% / 45% / 70% of the log-ratio gap for CFSv2 / GEFSv12 / GEPS on ERA5. CFSv2 and GEPS
-fall to +0.20 with CIs straddling zero, and GEFSv12 to +0.38 [+0.08, +0.67] (p 0.040). The CRPS
-gap stays (+0.50 to +0.67 K). No AI+RES hindcast exists, so the correction removes the
-baselines' drift only. Against the corrected baselines the blind control scores below zero on
-log ratio (steering caveat above). No 3 K Brier difference was detected for any model (CIs span
-zero, p 0.18 to 0.75 over both truths). The ensemble mean of AI+RES is closer to the
-observation (signed error -0.97 K vs -2.08 to -2.58 K), but the blind control is at -1.82 K, so
-55-76% of that gap is absent without steering. The 7-day field of AI+RES has a lower RMSE and a
-higher heat-composite pattern correlation (0.90 vs 0.21 to 0.36). The maps and composites are
+raw CFSv2, GEFSv12, ECCC GEPS and ECMWF IFS (EC46) (log ratio +0.49 to +1.12 on ERA5, every
+CI above zero; the EC46 value is raised by its lower floor and is +0.71 at equal N), and has
+lower CRPS (by 0.52 to 0.90 K). The result is the same against HRRR truth. The gap comes from
+the heat cases. For cold cases the log ratio is negative against CFSv2, GEFSv12 and GEPS (-0.26
+to -0.52; the GEPS CI excludes zero, Wilcoxon p 0.078, n = 11) and +0.02 [-0.45, +0.50] against
+EC46. Bias correction of the baselines removes 58% / 45% / 70% / 48% of the log-ratio gap for
+CFSv2 / GEFSv12 / GEPS / EC46 on ERA5. CFSv2 and GEPS fall to +0.20 with CIs straddling zero,
+GEFSv12 to +0.38 [+0.08, +0.67] (p 0.040) and EC46 to +0.59 [+0.30, +0.85] (p 0.0010). The CRPS
+gap stays (+0.38 to +0.67 K). No AI+RES hindcast exists, so the correction removes the
+baselines' drift only. Against corrected CFSv2, GEFSv12 and GEPS the blind control scores below
+zero on log ratio, and against corrected EC46 it is -0.06 with a CI spanning zero (steering
+caveat above). No 3 K Brier difference was detected for any model (CIs span zero, p 0.17 to
+0.75 over both truths). The ensemble mean of AI+RES is closer to the observation (signed error
+-0.97 K vs -2.08 to -2.58 K), but the blind control is at -1.82 K, so 55-76% of that gap is
+absent without steering. The 7-day field of AI+RES has a lower RMSE and a higher heat-composite
+pattern correlation (0.90 vs 0.21 to 0.40). The maps and composites are
 family-matched on outcome-selected cases (+2 K is scored on the 31 heat cases only and -2 K on
 the 11 cold cases only, the cases the walkers were cloned toward), so they are conditional
 scores, not unconditional skill, and none has a blind control. At -2 K the baselines have the
-higher land-median BSS (0.257 to 0.341 vs 0.221). Of the baselines GEFSv12 has the lowest CRPS
-(1.456 K raw, 1.439 K corrected) and GEPS the highest (1.861 K raw). After correction GEFSv12
-is the only baseline AI+RES still beats on log ratio with a CI above zero, but at equal N
-(`e16_corr_emp`) the margins are +0.51 / +0.44 / +0.42, so no baseline ranks consistently on
-log ratio once N is equalized. The tilt check bounds the CONUS-index scores only. The CRPS
-margin survives the blind control against CFSv2 and GEPS and is not significant against
-GEFSv12. The log-ratio margin has no blind support.
+higher land-median BSS (0.257 to 0.356 vs 0.221). Of the baselines GEFSv12 has the lowest raw
+CRPS (1.456 K) and GEPS the highest (1.861 K raw). Bias-corrected EC46 has the lowest corrected
+CRPS (1.347 K on 12f, against 1.439 K for corrected GEFSv12 on 13f). Its correction is a
+20-year reforecast model climate, against 4-5-year leave-one-year-out corrections for the
+others, so this ranking also reflects the correction. After correction AI+RES
+still beats GEFSv12 and EC46 on log ratio with a CI above zero, but at equal N
+(`e16_corr_emp`) the margins are +0.51 / +0.44 / +0.42 / +0.51 (CFSv2 / GEFSv12 / GEPS / EC46),
+so no baseline ranks consistently on log ratio once N is equalized. The tilt check bounds the
+CONUS-index scores only. The CRPS margin survives the blind control against CFSv2, GEPS and raw
+EC46 and is not significant against GEFSv12 or against corrected EC46. The log-ratio margin has
+a blind interval above zero at the 1/193 floor only against raw EC46 (+0.47 [+0.10, +0.85],
+Wilcoxon p 0.079, not significant at 5%), the baseline with the lowest floor, and none against any bias-corrected baseline. Against the BB-SUBS estimate published AI+RES has the lower CRPS (+0.30 K), and the
+blind control does not differ from it (-0.04 K [-0.18, +0.09], p 0.68).
 
 **Caveats - state these wherever the numbers go.**
 1. **Selected on outcome** (all |A_L| >= 2 K). The board says which forecast put more mass on
    what happened, not which is calibrated; false alarms are not scored.
 2. **AI+RES was steered toward the observed tail** (tilt check above). The baselines were not.
    The log-ratio advantage is not separable from residual steering, and against the
-   bias-corrected baselines the blind control scores below zero. The CRPS advantage is kept by
-   a blind FCN3 control against CFSv2 and GEPS, not significantly against GEFSv12.
+   bias-corrected baselines the blind control scores below zero (against corrected EC46, -0.06
+   with a CI spanning zero). The CRPS advantage is kept by a blind FCN3 control against CFSv2,
+   GEPS and raw EC46, not significantly against GEFSv12 or corrected EC46.
 3. **Ensemble size, resolution, window and lead differ.** AI+RES is 32 importance-weighted
    walkers (Kish ESS ~5) at 0.25 deg; CFSv2 16 lagged members at ~0.94 deg with leads
    21.0-24.75 d; GEFSv12 31 members at 0.5 deg, lag 0; GEPS 21 members at 1 deg, daily means,
-   leads 21-27 d. The log-ratio floor depends on N (16-member table above). Coarse grids
+   leads 21-27 d; EC46 51 or 101 members at 1.5 deg, daily means, leads 21-24 d. The log-ratio
+   floor depends on N (16-member table above), which inflates the native EC46 log ratio. Coarse grids
    limit the gridpoint maps, not the CONUS index.
 4. **Bias corrections are noisy.** LOYO uses 4-5 other years per case; CFSv2 uses the
    25-frame bias on 13-frame members; under HRRR truths the `corr` variants use the full-box
@@ -1243,26 +1367,29 @@ GEFSv12. The log-ratio margin has no blind support.
    ERA5 climatology. It tests the analysis anomalies, not the climatology.
 
 **What could not be done, and why.**
-1. **ECMWF IFS (EC46).** Code, tests, the 168-request plan and the ERA5 at the hindcast dates
-   are done; the download needs the user's ECDS token (`~/.ecdsapirc` absent on 2026-10-08).
+1. **ECMWF IFS (EC46)** was pending the user's ECDS token until 2026-10-08. It is now
+   downloaded and on the board (above).
 2. **No separate "EC21".** At a 21 d lead the operational IFS forecast is EC46 (the IFS ENS
    extended range). IFS ENS medium range, HRES, AIFS Single, AIFS ENS and TIGGE stop at 15 d.
    SEAS5 starts on the 1st of the month, so its lead at the peak is 21-51 d (median 35 d),
    which is not a 3-week row; not built.
 3. **BB-SUBS is not public.** Its row is an estimate (k x bias-corrected EC46 error, k = 0.877
-   MSE, 0.936 CRPS, 0.947 Brier at week 3), so it waits on EC46. It covers error metrics, plus case P(obs) only if Tier 2 (a Gaussian
-   signal-noise model) reproduces EC46's own P(obs); never maps. The published BB-SUBS skill is vendor-reported and winter-only
-   (MSESS over the Oct-Mar winters 2023-26, RPSS over DJF 2025/26), while the slate is DJF 22,
-   SON 10, MAM 9, JJA 1. Both published scores are unconditional, so k is an average-weather
-   ratio applied to tail events selected on the outcome (method note, caveat 4). 15 cases fall in winters almost certainly inside BB-SUBS training and 5 have Apr-Sep
-   inits. Real forecasts need Brightband's 2-week pilot (the user). See `board/bbsubs_method.md`.
+   MSE, 0.936 CRPS, 0.947 Brier at week 3), computed on 2026-10-08. It covers error metrics
+   only, because Tier 2 (a Gaussian signal-noise model for case P(obs)) failed to reproduce
+   EC46's own P(obs) under every truth; never maps. The published BB-SUBS skill is vendor-reported.
+   38 of the 42 peaks fall in Oct-Mar, the season of the MSESS (winters 2023-26) that sets the
+   squared-error and CRPS ratios, and 22 in DJF, the one season (2025/26) behind the RPSS that
+   sets the Brier ratio. Four peaks lie outside any published season (two in April, one in June, one in September). Both published scores are unconditional, so k is an average-weather
+   ratio applied to tail events selected on the outcome (method note, caveat 4). 15 cases fall in winters before the held-out ones, probably inside BB-SUBS
+   training (this does not affect the estimate, but a scored BB-SUBS row on them would be
+   in-sample), and 5 have Apr-Sep inits. Real forecasts need Brightband's 2-week pilot (the user). See `board/bbsubs_method.md`.
 4. **AI S2S models.** None has a public 2022-2025 forecast archive at a 21 d lead. FuXi-S2S
    hindcasts end 2021-12-29 (8 of 42 cases); AI Weather Quest submissions (incl. AIFS-SUBS)
    are quintile probabilities for 3 of 42 cases; NeuralGCM, DLESyM and ACE2 are open weights
    only (GPU runs, out of scope on this box); GenCast, GraphCast, Pangu and Aurora public
    forecasts stop at 10-15 d.
-5. **S2S-database models** (UKMO GloSea6, JMA, KMA, CMA, CNRM and others) need the same ECDS
-   token, or an IRIDL login with the S2S terms.
+5. **S2S-database models** (UKMO GloSea6, JMA, KMA, CMA, CNRM and others) are in the same ECDS
+   `s2s-forecasts` dataset, for which the token and licence now exist. They were not built.
 6. Three anonymous sources were not built this round, the ERA5-initialised IFS reforecast (Planette,
    39 of 42 cases), NASA GEOS-S2S (SubX) and CESM2 (on Derecho disk, 20-21 of 42 cases).
 
@@ -1272,14 +1399,16 @@ GEFSv12. The log-ratio margin has no blind support.
 `importlib.metadata` on 2026-10-08). `cdsapi.Client(url=ECDS)` resolves to the
 `ecmwf.datastores` legacy client.
 
-**Disk.** `runs/acal/s2s/` 27 GB (of which `gefs/raw/` 19 GB of GRIB, deletable once the board
-is final; cubes rebuild from AWS in ~25 min), `runs/acal/index_hrrr/` 1.6 GB (incl. `work/`
-395 MB of build chunks, deletable), `runs/acal/analysis/s2s/` 7.6 GB.
+**Disk** (`du`, 2026-10-08). `runs/acal/s2s/` 33 GB (of which `gefs/raw/` 19 GB of GRIB,
+deletable once the board is final, since cubes rebuild from AWS in ~25 min; `ec46/` 6.5 GB, of
+which `hind/` 2.8 GB, `era5_hdates/` 410 MB, `raw/` 327 MB of GRIB and the 42 cubes the rest),
+`runs/acal/index_hrrr/` 1.6 GB (incl. `work/` 395 MB of build chunks, deletable),
+`runs/acal/analysis/s2s/` 9.5 GB, `figures/acal/s2s/{era5,hrrr}/ec46/` 9.4 + 9.9 MB.
 
 **Spot-checks** (12 numbers in this section re-read from the files on 2026-10-08 by a
 session script, `spotcheck.py` in the session scratchpad; all match at the printed precision).
 Board files are under `runs/acal/analysis/s2s/board/`, the other two under `runs/acal/`.
-The same script also confirmed `board_cases.csv` has 5040 rows, the e16 GEPS dCRPS (0.9555), the
+The same script also confirmed `board_cases.csv` had 5040 rows before EC46 (6678 after), the e16 GEPS dCRPS (0.9555), the
 AI+RES heat signed error (-0.5555 K), the AI+RES e16 signed error (-0.7635 K) and the untilted
 share of the published CRPS margin (0.500 / 0.369 / 0.621 for CFSv2 / GEFSv12 / GEPS).
 
@@ -1298,10 +1427,24 @@ share of the published CRPS margin (0.500 / 0.369 / 0.621 for CFSv2 / GEFSv12 / 
 | 11 | `board_summary.json` | members cfs13 / gefs / geps; GEPS lead | 16 / 31 / 21; 21-27 d | 16 / 31 / 21; 21-27 d | OK |
 | 12 | `board_paired.csv` | ERA5 e16 log ratio vs CFSv2 | +0.80 32/3/7 | +0.80 32/3/7 | OK |
 
+Rows 13-18 (EC46 and BB-SUBS) were re-read on 2026-10-08 by `ec46writeup/verify.py` in the
+session scratchpad; rows 19-20 were read from the rewritten tilt files the same day.
+
+| # | file | quantity | value read | value written | check |
+|---|---|---|---|---|---|
+| 13 | `board_paired.csv` | ERA5 log ratio vs EC46 raw / corr, all | +1.12 [+0.80, +1.44] 33/0/9 / +0.59 [+0.30, +0.85] | +1.12 [+0.80, +1.44] 33/0/9 / +0.59 [+0.30, +0.85] | OK |
+| 14 | `board_paired.csv` | ERA5 dCRPS vs BB-SUBS estimate; CRPS AI+RES / BB-SUBS | +0.30 [+0.10, +0.49]; 0.962 / 1.261 | +0.30 [+0.10, +0.49]; 0.962 / 1.261 | OK |
+| 15 | `tilt_check_paired.csv` | ERA5 untilted vs EC46 raw / corr, log ratio | +0.47 [+0.10, +0.85] / -0.06 [-0.30, +0.18] | +0.47 [+0.10, +0.85] / -0.06 [-0.30, +0.18] | OK |
+| 16 | `tilt_check.csv` | ERA5 12f mean CRPS sn / untilted | 0.962 / 1.303 | 0.962 / 1.303 | OK |
+| 17 | `bbsubs_tier2_validation.json` | ERA5 verdict, mean P(obs) actual / model | failed; 0.115 / 0.060 | failed; 0.115 / 0.060 | OK |
+| 18 | `board_cases.csv` | ERA5 EC46 raw median P(obs); P(obs) = 0 | 0.030; 12 | 0.030; 12 | OK |
+| 19 | `tilt_check_paired.csv` | ERA5 / HRRR dCRPS, BB-SUBS estimate minus blind (source bbsubs, untilted) | -0.042 [-0.177, +0.085] 21/0/21 p 0.68 / -0.046 [-0.187, +0.085] p 0.59 | -0.04 [-0.18, +0.09] p 0.68 / -0.05 [-0.19, +0.09] p 0.59 | OK |
+| 20 | `tilt_check.json` estimate | ERA5 lead-21 (n 33) dCRPS sn / untilted | +0.321 [+0.080, +0.558] p 0.016 / -0.059 [-0.222, +0.098] p 0.58 | +0.32 [+0.08, +0.56] p 0.016 / -0.06 [-0.22, +0.10] p 0.58 | OK |
+
 **Next steps.**
-1. EC46 (user, ~10 min). Create `~/.ecdsapirc`. Then the one command above (ECDS queue
-   1-3 h), the driver (~30 min) and `acal.tilt` with `ec46` in `MODELS`. The BB-SUBS estimate
-   rows and the EC46 rows in every overall figure follow without code changes.
+1. BB-SUBS as a scored forecast (user). Brightband's free two-week pilot (held-out winters
+   2023-26 and the reforecast archive) would replace the estimate on the 22 held-out cases.
+   EC46 is done (2026-10-08).
 2. Settle the steering question (GPU, a3mega). Rerun a subset of cases with the tail direction
    unknown (two-sided, one run per tail scored as one forecast, or the direction fixed before
    the outcome), add an all-C = 0 GenCast control to the peak, and apply the same protocol to

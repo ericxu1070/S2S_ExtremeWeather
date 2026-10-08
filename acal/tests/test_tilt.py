@@ -86,3 +86,29 @@ def test_untilted_lead6_matches_theta_and_counts():
     assert np.max(np.abs(got - np.asarray(rec["theta"][1]["conus"]))) < T.CHECK_TOL
     e = cs[(cs.truth == "era5") & (cs.window == "13f") & (cs.episode_id == eid)].iloc[0]
     assert e.fc_mean_untilted == pytest.approx(tab.al13.mean(), abs=1e-9)
+
+
+@needs
+def test_bbsubs_estimate_pairs_match_board_and_blind_json():
+    """The BB-SUBS estimate rows: 'sn' equals the board's own pairing, there is no log ratio
+    (the estimate has no P(obs)), and the json k=week-3 blind dCRPS equals the csv row."""
+    pt = pd.read_csv(T.PAIRED_OUT, float_precision="round_trip")
+    e = pt[pt.source == "bbsubs"]
+    assert set(e.variant) == {"corr_emp"} and set(e.window) == {"12f"}
+    assert "logratio" not in set(e.metric)
+    bp = pd.read_csv(BD.PAIRED_CSV, float_precision="round_trip")
+    bp = bp[(bp.source == "bbsubs") & (bp.variant == "corr_emp")]
+    ours = e[e.aires_variant == "sn"]
+    m = ours.merge(bp, on=["truth", "source", "variant", "subset", "metric"], suffixes=("", "_b"))
+    assert len(m) == len(ours) > 0
+    for k in ("mean", "ci_lo", "ci_hi", "win", "loss"):
+        assert np.allclose(m[k], m[f"{k}_b"], rtol=CSV_RTOL, atol=CSV_ATOL), k
+    js = json.loads(T.JSON_OUT.read_text())["estimate"]
+    assert js["k_crps"]["wk3_lo"] < js["k_crps"]["wk3"] < js["k_crps"]["wk3_hi"] < js["k_crps"]["wk4"]
+    for t in ("era5", "hrrr"):
+        r = e[(e.truth == t) & (e.aires_variant == "untilted") & (e.subset == "all")
+              & (e.metric == "dcrps")].iloc[0]
+        got = js[t]["dcrps_wk3_untilted"]
+        assert got["n"] == js[t]["n"] == 42 and 0 < js[t]["n_lead21"] < 42
+        for k in ("mean", "ci_lo", "ci_hi", "win", "loss"):
+            assert got[k] == pytest.approx(r[k], rel=CSV_RTOL, abs=CSV_ATOL), (t, k)

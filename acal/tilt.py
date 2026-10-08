@@ -35,6 +35,11 @@ untilted; every final walker descends from four tilted selections (C = 1, 1.4, 1
 Sign conventions follow the board: positive paired differences mean AI+RES better;
 `err_*` = s * (forecast mean - obs), so > 0 is a forecast beyond the observation on the
 tail side and < 0 one short of it.
+
+The BB-SUBS estimate (`acal/bbsubs.py`, k x bias-corrected EC46, error scores only) is paired
+the same way (source 'bbsubs', variant 'corr_emp', 12f; no log ratio, because it has no
+P(obs)). The json block `estimate` adds its CRPS pairing at every published k (week-3 band
+ends and week-4) and on the cases where the EC46 lead is 21 d, the BB-SUBS lead.
 """
 from __future__ import annotations
 
@@ -67,8 +72,11 @@ FIG_OUT = ROOT / "figures" / "acal" / "overall" / "tilt_check.png"
 
 TRUTHS = ("era5", "hrrr", "hrrr_raw")
 WINDOWS = BD.AIRES_WINDOWS                      # ('13f', '12f')
-MODELS = ("cfs13", "gefs", "geps")              # board rows with data (EC46 pending)
+MODELS = ("cfs13", "gefs", "geps", "ec46")      # board rows with data
 MODEL_VARIANTS = ("raw_emp", "corr_emp")        # headline + bias-corrected sensitivity
+ESTIMATES = {"bbsubs": ("corr_emp",)}           # board estimate rows paired here (error scores)
+ESTIMATE_ANCHOR = ("ec46", "corr_emp")          # BB-SUBS estimate = k x this row's CRPS
+ESTIMATE_LEAD_DAYS = 21                         # BB-SUBS starts daily: its lead to the peak
 VARIANTS = ("sn", "uniform", "untilted", "untilted_f32")
 FIG_VARIANTS = ("sn", "uniform", "untilted")
 METRICS = ("logratio", "dcrps", "dbrier_2K", "dbrier_3K", "dbrier_4K", "dsqerr")
@@ -218,10 +226,17 @@ def case_rows() -> pd.DataFrame:
 # --------------------------------------------------------------------------- #
 # Paired against the board's models
 # --------------------------------------------------------------------------- #
+def _paired_sources(df: pd.DataFrame) -> pd.DataFrame:
+    """Scored model rows (raw and corrected) plus the board's estimate rows in ESTIMATES."""
+    est = df.estimate.astype(bool)
+    keep = (df.source.isin(MODELS)) & (df.variant.isin(MODEL_VARIANTS)) & (~est)
+    for src, variants in ESTIMATES.items():
+        keep |= (df.source == src) & (df.variant.isin(variants)) & est
+    return df[keep]
+
+
 def _board_cases() -> pd.DataFrame:
-    df = pd.read_csv(BD.CASES_CSV, float_precision="round_trip")
-    return df[(df.source.isin(MODELS)) & (df.variant.isin(MODEL_VARIANTS))
-              & (~df.estimate.astype(bool))]
+    return _paired_sources(pd.read_csv(BD.CASES_CSV, float_precision="round_trip"))
 
 
 def paired_cases(cs: pd.DataFrame, models: pd.DataFrame) -> pd.DataFrame:
@@ -251,16 +266,18 @@ def paired_cases(cs: pd.DataFrame, models: pd.DataFrame) -> pd.DataFrame:
 
 def parity(pc: pd.DataFrame) -> float:
     """Max |difference| between our 'sn' pairs and the board's own (must be ~0)."""
-    bp = pd.read_csv(BD.PAIRED_CASES_CSV, float_precision="round_trip")
-    bp = bp[(bp.source.isin(MODELS)) & (bp.variant.isin(MODEL_VARIANTS))
-            & (~bp.estimate.astype(bool))]
+    bp = _paired_sources(pd.read_csv(BD.PAIRED_CASES_CSV, float_precision="round_trip"))
     ours = pc[pc.aires_variant == "sn"]
     m = ours.merge(bp, on=["truth", "source", "variant", "episode_id"], suffixes=("", "_b"))
     if len(m) != len(ours):
         raise SystemExit(f"[tilt] parity: {len(ours)} sn pairs, {len(m)} matched on the board")
     worst = 0.0
     for k in METRICS:
-        worst = max(worst, float(np.nanmax(np.abs(m[k] - m[f"{k}_b"]))))
+        d = np.abs(m[k] - m[f"{k}_b"]).to_numpy()
+        if np.isnan(m[k].to_numpy()).sum() != np.isnan(m[f"{k}_b"].to_numpy()).sum():
+            raise SystemExit(f"[tilt] parity: {k} is blank on one side only")
+        if np.isfinite(d).any():
+            worst = max(worst, float(np.nanmax(d)))
     if worst > PARITY_TOL:
         raise SystemExit(f"[tilt] parity: 'sn' pairs differ from the board by {worst:.3g}")
     return worst
@@ -272,10 +289,51 @@ def paired_table(pc: pd.DataFrame) -> pd.DataFrame:
         for sub in BD.SUBSETS:
             d = g if sub == "all" else g[g.family == sub]
             for mname in METRICS:
+                if not np.isfinite(g[mname].to_numpy()).any():
+                    continue                    # e.g. no log ratio for the BB-SUBS estimate
                 rows.append(dict(zip(("truth", "source", "variant", "aires_variant"), key),
                                  label=g.label.iloc[0], window=g.window.iloc[0], subset=sub,
                                  metric=mname, **CB.paired_stats(d[mname].to_numpy())))
     return pd.DataFrame(rows)
+
+
+def estimate_block(cs: pd.DataFrame) -> dict:
+    """dCRPS of the BB-SUBS estimate minus each AI+RES forecast ('sn' published, 'untilted'
+    blind; positive = AI+RES better) at every published CRPS ratio k (week-3 value and band
+    ends, week 4), and at the week-3 k on the cases whose EC46 lead is 21 d (BB-SUBS starts
+    daily, so its own lead would be 21 d on every case)."""
+    from acal import bbsubs as BB
+    from acal import s2s_ec46 as E
+    k = BB.derive_k()
+    ks = {"wk3": float(k[3]["crps"]), "wk3_lo": float(k[3]["crps_lo"]),
+          "wk3_hi": float(k[3]["crps_hi"]), "wk4": float(k[4]["crps"])}
+    bc = pd.read_csv(BD.CASES_CSV, float_precision="round_trip")
+    est_flag = bc.estimate.astype(bool)
+    lead = pd.read_csv(E.REQUESTS_CSV).set_index("episode_id").lead_days
+    out = dict(k_crps=ks, lead_days=ESTIMATE_LEAD_DAYS, anchor="/".join(ESTIMATE_ANCHOR))
+    src, var = ESTIMATE_ANCHOR
+    for tname in TRUTHS:
+        g = bc[(bc.truth == tname) & (bc.source == src) & (bc.variant == var) & ~est_flag]
+        e = bc[(bc.truth == tname) & (bc.source == "bbsubs") & (bc.variant == "corr_emp")
+               & est_flag]
+        if g.empty or e.empty:
+            continue
+        g = g.sort_values("case_idx").set_index("episode_id")
+        e = e.set_index("episode_id").loc[g.index]
+        win = g.window.iloc[0]
+        a = cs[(cs.truth == tname) & (cs.window == win)].set_index("episode_id").loc[g.index]
+        anchor = g.crps.to_numpy()
+        if not np.allclose(e.crps.to_numpy(), ks["wk3"] * anchor, rtol=1e-6, atol=0):
+            raise SystemExit(f"[tilt] {tname}: BB-SUBS estimate is not k x {src} {var} CRPS")
+        m21 = (lead.loc[g.index] == ESTIMATE_LEAD_DAYS).to_numpy()
+        blk = dict(window=win, n=int(len(g)), n_lead21=int(m21.sum()))
+        for v in ("sn", "untilted"):
+            side = a[f"crps_{v}"].to_numpy()
+            for kname, kv in ks.items():
+                blk[f"dcrps_{kname}_{v}"] = CB.paired_stats(kv * anchor - side)
+            blk[f"dcrps_lead21_{v}"] = CB.paired_stats((ks["wk3"] * anchor - side)[m21])
+        out[tname] = blk
+    return out
 
 
 # --------------------------------------------------------------------------- #
@@ -353,6 +411,9 @@ CONVENTIONS = dict(
           "W/T/L, Wilcoxon p",
     weight_effect="sn minus uniform per case (logp, -crps, -err): the model side cancels, so "
                   "it is the same against every baseline",
+    estimate="source 'bbsubs' rows are the BB-SUBS ESTIMATE (k x bias-corrected EC46 per case, "
+             "acal/bbsubs.py), not a forecast: error scores only, no logratio; json 'estimate' "
+             "= its dCRPS at each published k and on the EC46-lead-21 d cases",
 )
 
 
@@ -368,8 +429,9 @@ def table() -> tuple[pd.DataFrame, pd.DataFrame, dict]:
         os.replace(tmp, p)
     summ = dict(generated=str(pd.Timestamp.now(tz="UTC")), conventions=CONVENTIONS,
                 n_cases=int(cs.episode_id.nunique()), board_parity_max_abs=worst,
-                models=list(MODELS), truths=list(TRUTHS),
-                families=family_summary(cs), verdicts=verdicts(pt))
+                models=list(MODELS), estimates={k: list(v) for k, v in ESTIMATES.items()},
+                truths=list(TRUTHS), families=family_summary(cs), verdicts=verdicts(pt),
+                estimate=estimate_block(cs))
     tmp = JSON_OUT.with_suffix(".tmp.json")
     tmp.write_text(json.dumps(BD._clean(summ), indent=1))
     os.replace(tmp, JSON_OUT)
@@ -408,7 +470,7 @@ def figure(cs: pd.DataFrame | None = None, pt: pd.DataFrame | None = None) -> Pa
                          "ytick.labelcolor": INK, "axes.labelcolor": INK, "text.color": INK})
     fig = plt.figure(figsize=(10.0, 7.6), dpi=200)
     gs = fig.add_gridspec(2, 2, height_ratios=[1.0, 1.08], hspace=0.36, wspace=0.08,
-                          left=0.135, right=0.985, top=0.885, bottom=0.1)
+                          left=0.165, right=0.985, top=0.885, bottom=0.1)
 
     # (a) per-case signed mean error, ERA5 13f
     ax = fig.add_subplot(gs[0, :])
@@ -495,7 +557,7 @@ def figure(cs: pd.DataFrame | None = None, pt: pd.DataFrame | None = None) -> Pa
                  fontweight="bold", color=INK)
     fig.text(0.5, 0.008,
              "Bars: 90% case-bootstrap CI over 42 cases. HRRR = offset-corrected truth on the "
-             "HRRR mask. Baselines raw (no bias correction); GEPS paired on the 12-frame window."
+             "HRRR mask. Baselines raw (no bias correction); GEPS and EC46 paired on the 12-frame window."
              "\nUniform = the final 32 walkers with equal weights (all steering kept). Untilted = "
              "FCN3 forecasts from the 32 pre-selection day-6 walker states (not GenCast "
              "over lead 6-21 d).", ha="center", va="bottom", fontsize=7, color=INK2,

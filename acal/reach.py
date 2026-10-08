@@ -516,8 +516,10 @@ def source_ctx(source: str, truth: str, fig_dir: Path) -> dict:
     mem, lead_d = S2.ens_text(source)    # per-case ranges from the json records
     lead = (f"Lead to peak: AI+RES 21 d, {lab} {lead_d}; CONUS week-mean T2m anomaly{win}\n"
             f"AI+RES 32 walkers (self-normalized), {lab} {mem}")   # truth note follows
-    return {"dir": Path(fig_dir), "label": TR.label_of(tr), "style": style, "fc": lab,
-            "lead": lead, "clim_text": "#666666"}
+    # short name in the legend and the row labels ("ECMWF IFS (EC46) bias-corrected" does not
+    # fit either); the full label stays in the lead note
+    return {"dir": Path(fig_dir), "label": TR.label_of(tr), "style": style,
+            "fc": R.SHORT.get(source, lab), "lead": lead, "clim_text": "#666666"}
 
 
 def source_rows(source: str, truth: str) -> tuple[pd.DataFrame, dict, pd.DataFrame]:

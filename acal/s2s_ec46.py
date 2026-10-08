@@ -44,6 +44,10 @@ Credentials: ``~/.ecdsapirc`` with the two lines ``url: https://ecds.ecmwf.int/a
 printed. Client: ``cdsapi>=0.7.7`` (installed into my-env 2026-10-07). The user creates
 the token once: ECMWF account -> accept the S2S licence on the Download tab of BOTH
 ``s2s-forecasts`` and ``s2s-reforecasts`` -> token from https://ecds.ecmwf.int/how-to-api.
+Both datasets need the one licence ``s2s-licence``. A token without it authenticates, but
+every retrieve returns HTTP 403 "required licences not accepted" (seen 2026-10-08).
+``--stage fetch`` exits 3 without a token, 4 without the licence (no retries) and 5 when
+another fetch holds ``runs/acal/s2s/ec46/.fetch.lock``.
 
     python -m acal.s2s_ec46 --stage plan                 # runs/acal/s2s/ec46/requests.csv
     python -m acal.s2s_ec46 --stage era5 --workers 8     # ERA5 at the hindcast dates (no token)
@@ -66,6 +70,7 @@ import datetime as dt
 import json
 import os
 import sys
+import threading
 import time
 from concurrent.futures import ProcessPoolExecutor, ThreadPoolExecutor, as_completed
 from pathlib import Path
@@ -124,6 +129,21 @@ DAILY_PAIR = "00Z D + 12Z D"           # = s2sbase.DAILY_PAIR (ruling C2; no imp
 
 class TokenMissing(RuntimeError):
     """No ECDS credentials on this machine yet."""
+
+
+# One licence covers both datasets (ECDS catalogue, 2026-10-08: id s2s-licence, revision 5).
+LICENCE_ID = "s2s-licence"
+LICENCE_PAGE = f"https://ecds.ecmwf.int/datasets/{FC_DATASET}?tab=download#manage-licences"
+
+
+class LicenceMissing(RuntimeError):
+    """ECDS accepts the token, but the account has not accepted the S2S licence."""
+
+
+def is_licence_error(e: BaseException) -> bool:
+    """True for the HTTP 403 ECDS returns when a dataset licence is not accepted."""
+    s = str(e).lower()
+    return "licence" in s and "not accepted" in s
 
 
 # --------------------------------------------------------------------------- #
@@ -352,11 +372,16 @@ def is_cached(kind: str, plan: dict, ftype: str) -> bool:
     return rec.get("request") == request(kind, plan, ftype)[1]
 
 
+_REFUSED = threading.Event()                 # set by the first licence refusal of a fetch
+
+
 def fetch_one(job, url: str, key: str, attempts: int = 3) -> str:
     kind, plan, ftype = job
     out = raw_path(kind, plan, ftype)
     if is_cached(kind, plan, ftype):
         return f"cached {out.name}"
+    if _REFUSED.is_set():
+        raise LicenceMissing(f"{out.name}: not requested, ECDS already refused the licence")
     import cdsapi
     ds, req = request(kind, plan, ftype)
     out.parent.mkdir(parents=True, exist_ok=True)
@@ -382,6 +407,12 @@ def fetch_one(job, url: str, key: str, attempts: int = 3) -> str:
         except Exception as e:                       # noqa: BLE001 - retry, then report
             err = e
             part.unlink(missing_ok=True)
+            if is_licence_error(e):                  # a retry cannot fix this; stop at once
+                _REFUSED.set()
+                raise LicenceMissing(
+                    f"{ds} refuses the request: the ECDS account has not accepted the "
+                    f"'{LICENCE_ID}' licence. Accept it (logged in) at {LICENCE_PAGE}, "
+                    f"then rerun. ECDS said: {str(e).strip()[:400]}") from e
             if a + 1 < attempts:
                 time.sleep(30 * (a + 1))
     raise RuntimeError(f"{out.name}: {type(err).__name__}: {err}")
@@ -393,6 +424,7 @@ def fetch(cases: list[str] | None = None, workers: int = 4,
     url, key = read_token()
     jobs = [(k, p, f) for p in pl for k in kinds for f in FORECAST_TYPES]
     todo = [j for j in jobs if not is_cached(*j)]
+    _REFUSED.clear()
     print(f"[ec46] fetch: {len(jobs)} requests, {len(todo)} to run, {workers} in flight",
           flush=True)
     fails = []
@@ -401,6 +433,10 @@ def fetch(cases: list[str] | None = None, workers: int = 4,
         for i, f in enumerate(as_completed(fut), 1):
             try:
                 print(f"  [{i}/{len(todo)}] {f.result()}", flush=True)
+            except LicenceMissing:                   # every other request would fail too
+                for g in fut:
+                    g.cancel()
+                raise
             except Exception as e:                   # noqa: BLE001 - keep going
                 fails.append(fut[f])
                 print(f"  [{i}/{len(todo)}] FAILED {e}", flush=True)
@@ -965,7 +1001,13 @@ def hind(cases: list[str] | None = None, force: bool = False) -> list[str]:
 
 
 def verify() -> bool:
-    """Acceptance: 42 cubes on contract, 20 hindcast cubes each, bias files complete."""
+    """Acceptance: 42 cubes on contract, 20 hindcast cubes each, bias files complete.
+
+    A cube is on contract when it passes both this module's daily-mean checks and
+    ``s2sbase.check_cube`` (contract 2, the scorer's own gate), and its init and lead
+    are the planned ones (21-24 d by the init rule).
+    """
+    from acal import s2sbase as S                    # lazy: s2sbase imports sources lazily
     df = aprep.episodes()
     ok = True
     n_cube = 0
@@ -979,6 +1021,12 @@ def verify() -> bool:
         with xr.open_dataset(p) as c:
             try:
                 check_cube(c, plan["peak"])
+                S.check_cube(c, plan["peak"])
+                lead = float(c.attrs["lead_days"])
+                if pd.Timestamp(c.attrs["init"]) != plan["init"] or \
+                        lead != plan["lead_days"] or not 21 <= lead <= 24:
+                    raise ValueError(f"init {c.attrs['init']} lead {lead} d, planned "
+                                     f"{plan['init']:%Y-%m-%d} lead {plan['lead_days']} d")
                 if c.sizes["member"] != plan["n_members"]:
                     print(f"  {eid}: {c.sizes['member']} members, expected {plan['n_members']}")
                 n_cube += 1
@@ -1023,12 +1071,27 @@ def main(argv=None) -> int:
     if a.stage == "fetch":
         if not REQUESTS_CSV.exists():
             write_requests_csv(plans(None))
+        # One fetch at a time: two processes would share the .part files. The lock is
+        # released when the process exits, however it exits.
+        import fcntl
+        lock_path = RAW.parent / ".fetch.lock"
+        lock_path.parent.mkdir(parents=True, exist_ok=True)
+        lock = open(lock_path, "w")
+        try:
+            fcntl.flock(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
+        except OSError:
+            print(f"[ec46] another fetch holds {lock_path}; not starting a second one",
+                  flush=True)
+            return 5
         try:
             kinds = ("fc", "rf") if a.kind == "both" else (a.kind,)
             fails = fetch(cases, workers=a.workers, kinds=kinds)
         except TokenMissing as e:
             print(f"[ec46] waiting_token: {e}", flush=True)
             return 3
+        except LicenceMissing as e:
+            print(f"[ec46] waiting_licence: {e}", flush=True)
+            return 4
         if fails:
             print(f"[ec46] {len(fails)} request(s) failed; rerun the same command to resume")
             return 1

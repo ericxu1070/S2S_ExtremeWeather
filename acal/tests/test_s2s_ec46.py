@@ -176,6 +176,49 @@ def test_fetch_without_token_waits_and_touches_no_network(tmp_path, monkeypatch,
     assert (tmp_path / "requests.csv").exists() and not (tmp_path / "raw").exists()
 
 
+def test_fetch_stops_at_once_without_the_licence(tmp_path, monkeypatch, capsys):
+    """The HTTP 403 licence refusal is not retried and cancels the queued requests."""
+    import cdsapi
+    rc = tmp_path / "ecdsapirc"
+    rc.write_text("url: https://ecds.ecmwf.int/api\nkey: abc-123:secret\n\n\n")
+    monkeypatch.delenv("ECDS_KEY", raising=False)
+    monkeypatch.setattr(E, "TOKEN_FILE", rc)
+    monkeypatch.setattr(E, "REQUESTS_CSV", tmp_path / "requests.csv")
+    monkeypatch.setattr(E, "RAW", tmp_path / "raw")
+    monkeypatch.setattr(E.time, "sleep", lambda s: pytest.fail("a licence error was retried"))
+    calls = []
+
+    class Refusing:
+        def __init__(self, **kw):
+            pass
+
+        def retrieve(self, ds, req, target):
+            calls.append(ds)
+            raise RuntimeError(
+                "403 Client Error: Forbidden for url: https://ecds.ecmwf.int/api/retrieve/v1/"
+                f"processes/{ds}/execution\nrequired licences not accepted\nNot all the "
+                "required licences have been accepted")
+
+    monkeypatch.setattr(cdsapi, "Client", Refusing)
+    cases = ["e02_c4_20210218", "e03_h2_20210411", "e04_h2_20210610"]
+    argv = ["--stage", "fetch", "--workers", "1"] + [x for c in cases for x in ("--case", c)]
+    assert E.main(argv) == 4
+    out = capsys.readouterr().out
+    assert "waiting_licence" in out and E.LICENCE_ID in out and "secret" not in out
+    assert len(calls) == 1                           # 12 requests queued, one sent
+    assert not list((tmp_path / "raw").glob("*.grib*"))
+
+
+def test_a_second_fetch_refuses_to_start(tmp_path, monkeypatch, capsys):
+    import fcntl
+    monkeypatch.setattr(E, "REQUESTS_CSV", tmp_path / "requests.csv")
+    monkeypatch.setattr(E, "RAW", tmp_path / "raw")
+    with open(tmp_path / ".fetch.lock", "w") as held:
+        fcntl.flock(held, fcntl.LOCK_EX | fcntl.LOCK_NB)
+        assert E.main(["--stage", "fetch", "--case", "e02_c4_20210218"]) == 5
+    assert "another fetch" in capsys.readouterr().out
+
+
 def test_cache_is_keyed_on_the_request(tmp_path, monkeypatch):
     monkeypatch.setattr(E, "RAW", tmp_path)
     p = plan_of("e02")
@@ -418,3 +461,40 @@ def test_parity_with_the_s2sbase_daily_reducer():
     assert S.time_kind(c) == "daily_mean"
     src = S.get("ec46")
     assert src.time_kind == "daily_mean" and src.bias == "reforecast"
+
+
+# Two control-forecast messages each, copied byte for byte (no re-encoding) from the first
+# ECDS files of case e01 (s2s-forecasts / s2s-reforecasts, origin ecmf, init and reference
+# date 2020-12-28), 2026-10-08. ECMWF S2S data, used under the ECDS S2S licence.
+DATA = __import__("pathlib").Path(__file__).parent / "data"
+
+
+def test_real_ecds_forecast_grib_decodes_as_assumed():
+    """ECDS serves daily-mean 2 m T with the control as number 0 (PDT 11, no model version)."""
+    df = E.read_grib(DATA / "ec46_e01_fc_cf_slice.grib")
+    assert len(df) == 2
+    assert set(df.member) == {0}
+    assert set(df.init) == {pd.Timestamp("2020-12-28")}
+    assert sorted(df.lead_d) == [0, 21]
+    assert sorted(df.day) == [pd.Timestamp("2020-12-28"), pd.Timestamp("2021-01-18")]
+    assert df.model_version.isna().all()
+    lat, lon = df.lat.iloc[0], df.lon.iloc[0]
+    assert (lat.size, lon.size) == (23, 45)
+    assert (lat[0], lat[-1], lon[0], lon[-1]) == (54.0, 21.0, 231.0, 297.0)
+    v = np.stack(df["values"].to_list())
+    assert np.isfinite(v).all() and 220.0 < v.min() and v.max() < 320.0
+    nat = E.native_cube(df)
+    assert nat.lat.values[0] < nat.lat.values[-1]           # ascending after the sort
+
+
+def test_real_ecds_reforecast_grib_keys_the_hindcast_date():
+    """Reforecast: dataDate = hindcast date, modelVersionDate = reference date (PDT 61)."""
+    df = E.read_grib(DATA / "ec46_e01_rf_cf_slice.grib")
+    ref = pd.Timestamp("2020-12-28")
+    assert set(df.member) == {0}
+    assert set(df.model_version) == {ref}
+    assert sorted(df.init) == [E.hdate(ref, 2000), E.hdate(ref, 2019)]
+    assert sorted(df.lead_d) == [15, 22]
+    first = df.sort_values("init").iloc[0]
+    assert first.day == pd.Timestamp("2001-01-12")         # 2000-12-28 + 15 d
+    assert np.isfinite(np.stack(df["values"].to_list())).all()

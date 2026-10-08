@@ -245,3 +245,19 @@ def test_run_tier2_without_reforecasts(tmp_path):
     assert B.run_tier2(board, hind_csv=tmp_path / "none.csv", out_dir=tmp_path,
                        log=msgs.append) is None
     assert "no EC46 reforecast table" in msgs[-1]
+
+
+def test_tier2_sentence_reports_the_numbers():
+    det = dict(passed=False, mean_actual=0.115, mean_pred=0.060, log_level_miss=0.649,
+               log_tolerance=0.372, median_tier2_ratio=1.45,
+               halves=[dict(half="low_z", inside=True, mean_pred=0.099, ci90=[0.08, 0.14]),
+                       dict(half="high_z", inside=False, mean_pred=0.022, ci90=[0.082, 0.157])])
+    s = B._tier2_sentence(dict(rho2_ec46=0.179, detail={"era5": det, "hrrr": det}))
+    assert s.startswith("Tier 2 failed validation under every truth")
+    assert "0.179" in s and "era5 failed" in s and "hrrr failed" in s
+    assert "high-z half model 0.022 outside the 90% interval [0.082, 0.157]" in s
+    assert "low-z" not in s                                  # only the halves that missed
+    ok = dict(det, passed=True)
+    assert B._tier2_sentence(dict(rho2_ec46=0.2, detail={"era5": ok})).startswith(
+        "Tier 2 passed validation under every truth")
+    assert "only" in B._tier2_sentence(dict(rho2_ec46=0.2, detail={"era5": ok, "hrrr": det}))

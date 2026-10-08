@@ -598,6 +598,28 @@ def slate_coverage() -> pd.DataFrame:
     return df
 
 
+def _tier2_sentence(js: dict) -> str:
+    """The Tier 2 verdict with the numbers behind it, one sentence per truth."""
+    det = js.get("detail", {})
+    if not det:
+        return "Tier 2 has no validation result yet."
+    ok = [t for t, v in det.items() if v["passed"]]
+    head = ("Tier 2 passed validation under every truth" if len(ok) == len(det) else
+            "Tier 2 failed validation under every truth, so the board carries no case-level "
+            "BB-SUBS P(obs)" if not ok else
+            f"Tier 2 passed validation under {', '.join(ok)} only")
+    out = [f"{head} (rho^2 of debiased EC46 = {js.get('rho2_ec46', float('nan')):.3f})."]
+    for t, v in det.items():
+        txt = (f"{t} {'passed' if v['passed'] else 'failed'}, mean EC46 P(obs) "
+               f"{v['mean_actual']:.3f} against a model value of {v['mean_pred']:.3f} "
+               f"(|log level miss| {v['log_level_miss']:.2f}, tolerance {v['log_tolerance']:.2f})")
+        out_h = [f"{h['half'].replace('_', '-')} half model {h['mean_pred']:.3f} outside the 90% "
+                 f"interval [{h['ci90'][0]:.3f}, {h['ci90'][1]:.3f}]"
+                 for h in v.get("halves", []) if not h["inside"]]
+        out.append(txt + ("; " + "; ".join(out_h) if out_h else "") + ".")
+    return " ".join(out)
+
+
 def method_note(out: Path = METHOD_MD) -> Path:
     k = derive_k()
     cov = slate_coverage()
@@ -605,11 +627,16 @@ def method_note(out: Path = METHOD_MD) -> Path:
     ids = {c: " ".join(e[:3] for e in cov[cov.bb_class == c].episode_id)
            for c in cls.index}
     seas = cov.season.value_counts()
+    pk_month = pd.to_datetime(cov.peak).dt.month
+    pk_octmar = pk_month.isin([10, 11, 12, 1, 2, 3])
+    n_pk_octmar = int(pk_octmar.sum())
+    n_init_octmar = int((cov.bb_class != "apr_sep_no_backtest").sum())
+    out_months = ", ".join(f"{n} in {pd.Timestamp(2000, int(m), 1):%b}" for m, n in
+                           pk_month[~pk_octmar].value_counts().sort_index().items())
     k3, k4 = k[3], k[4]
     n_json = ec46_json_count()
     if TIER2_JSON.exists():
-        t2 = json.loads(TIER2_JSON.read_text()).get("status", {})
-        t2_status = "Tier 2 verdict per truth: " + ", ".join(f"{a} {b}" for a, b in t2.items())
+        t2_status = _tier2_sentence(json.loads(TIER2_JSON.read_text()))
     elif n_json == 0:
         t2_status = ("Status: EC46 not yet downloaded (ECDS token pending), so Tier 2 has not "
                      "been run.")
@@ -617,6 +644,16 @@ def method_note(out: Path = METHOD_MD) -> Path:
         t2_status = "Status: EC46 exists but Tier 2 has not been run yet (run the estimate stage)."
     rows_status = (f"`bbsubs_rows.csv` exists ({len(pd.read_csv(ROWS_CSV))} estimate rows)."
                    if ROWS_CSV.exists() else "`bbsubs_rows.csv` has not been written yet.")
+    est_status = ("`python -m acal.bbsubs --stage estimate` rewrites it from the bias-corrected "
+                  "ec46 rows of the board table (`board_cases.csv`)." if ROWS_CSV.exists() else
+                  "The estimator is a no-op until `runs/acal/s2s/ec46/*.json` exist and the board "
+                  "table (`board_cases.csv`) has bias-corrected ec46 rows; then "
+                  "`python -m acal.bbsubs --stage estimate` writes `bbsubs_rows.csv`.")
+    ratios = [v["median_tier2_ratio"] for v in
+              (json.loads(TIER2_JSON.read_text()).get("detail", {}) if TIER2_JSON.exists()
+               else {}).values()]
+    ratio_txt = (f"median ratio {min(ratios):.2f} to {max(ratios):.2f} across truths" if ratios
+                 else "computed per truth")
     txt = f"""# BB-SUBS estimate - method note
 
 Written by `python -m acal.bbsubs --stage method` (acal/bbsubs.py). Context figure:
@@ -657,10 +694,13 @@ holds within each published chart.
    independent verification; the AIWQ RPSS (0.112 / 0.072) was scored by Brightband after the
    fact with the open AIWQ code on held-out forecasts, not as a blind leaderboard submission.
    All non-BB AIWQ values match the official leaderboard.
-2. **Winter only.** The MSESS covers 3 held-out winters 2023-2026 (Oct-Mar); the RPSS one
-   season, DJF 2025/26 (13 Thursday inits). Our slate by peak season: DJF {seas.get('DJF', 0)},
-   SON {seas.get('SON', 0)}, MAM {seas.get('MAM', 0)}, JJA {seas.get('JJA', 0)}. Applying a winter
-   ratio to SON/MAM/JJA cases is an extrapolation.
+2. **Winter only.** The MSESS, which sets k for squared error and CRPS, covers 3 held-out
+   winters 2023-2026 (Oct-Mar). The RPSS, which sets k for Brier, covers one season, DJF 2025/26
+   (13 Thursday inits). {n_pk_octmar} of our {len(cov)} peaks ({n_init_octmar} of the inits) fall
+   in Oct-Mar, the MSESS season, and {seas.get('DJF', 0)} peaks fall in DJF, the RPSS season.
+   {len(cov) - n_pk_octmar} peaks ({out_months}) lie outside any published season, and applying a
+   winter ratio to them is an extrapolation. By meteorological season the slate is DJF
+   {seas.get('DJF', 0)}, SON {seas.get('SON', 0)}, MAM {seas.get('MAM', 0)}, JJA {seas.get('JJA', 0)}.
 3. **Region and scale.** MSESS: 30-60N land gridpoints; RPSS: global land (land fraction >= 0.5),
    1.5 deg quintiles. Ours: a CONUS box-mean 7-day anomaly A_L. Area averaging removes noise, so
    absolute skill levels do not transfer; only the RATIO is used, anchored on our EC46.
@@ -672,14 +712,18 @@ holds within each published chart.
    EC46 `corr` variant; raw EC46 is never scaled.
 6. **Sampling.** The RPSS is one 13-week season; EC46's own week-3 RPSS ranges 0.039-0.125 over
    the four completed AIWQ seasons (panel c of the context figure). The MSESS error bars
-   (+/-0.02, interval type not stated) understate cross-season variation.
+   (+/-0.02, interval type not stated) understate cross-season variation. The case-bootstrap
+   intervals on the board hold k fixed; the k band is a separate sensitivity.
 7. **Training overlap.** Using init = peak - 21 d: {cls.get('held_out_2023_26', 0)} cases fall in
    BB-SUBS's held-out winters 2023-26 ({ids.get('held_out_2023_26', '')});
-   {cls.get('reforecast_training_era', 0)} fall in Oct-Mar winters 2020-21 to 2022-23, almost
-   certainly inside BB-SUBS training ({ids.get('reforecast_training_era', '')});
+   {cls.get('reforecast_training_era', 0)} fall in Oct-Mar winters 2020-21 to 2022-23, before the
+   held-out winters and so probably inside BB-SUBS training
+   ({ids.get('reforecast_training_era', '')});
    {cls.get('apr_sep_no_backtest', 0)} have Apr-Sep inits, outside any published BB-SUBS
-   coverage ({ids.get('apr_sep_no_backtest', '')}). AI+RES (GenCast <2019, FCN3) is
-   out-of-sample on all 42.
+   coverage ({ids.get('apr_sep_no_backtest', '')}). The overlap does not change the estimate,
+   whose ratios come from held-out winters, but a scored BB-SUBS row on the
+   {cls.get('reforecast_training_era', 0)} earlier-winter cases would be in-sample. AI+RES
+   (GenCast <2019, FCN3) is out-of-sample on all 42.
 8. **Resolution.** BB-SUBS is 1.5 deg; no BB-SUBS maps are estimated.
 9. **Truth.** The same k is applied under ERA5, HRRR and HRRR-raw truth; the published ratios
    are ERA5(T)-verified.
@@ -695,16 +739,14 @@ reforecasts (debiased member mean vs ERA5, 20 years x 42 dates) and z_i = |A_L,i
 the median z, the predicted mean P(obs) must lie inside the 90% case-bootstrap interval of the
 actual mean (the z-dependence is what Tier 2 transfers); (2) the overall level miss
 |log(mean predicted / mean actual)| must be smaller than log of the median Tier-2 adjustment
-(about log 1.3), i.e. the model's own error must be smaller than the effect it would translate.
+({ratio_txt}), i.e. the model's own error must be smaller than the effect it would translate.
 {t2_status} The verdict ("passed" or "Tier 2 failed validation") is written to
 `bbsubs_tier2_validation.json`; per-case Tier 2 estimates (`bbsubs_tier2_<truth>.csv`) exist only
 for a truth that passed.
 
 ## Status
 
-EC46 case files: {n_json}. {rows_status} The estimator is a no-op until `runs/acal/s2s/ec46/*.json` exist and the board table
-(`board_cases.csv`) has bias-corrected ec46 rows; then `python -m acal.bbsubs --stage estimate`
-writes `bbsubs_rows.csv`. The real alternative to this estimate is Brightband's free 2-week
+EC46 case files: {n_json}. {rows_status} {est_status} The real alternative to this estimate is Brightband's free 2-week
 pilot (held-out winters 2023-26 and the 2003-2026 reforecast archive), which would let the
 {cls.get('held_out_2023_26', 0)} held-out cases be scored exactly like CFSv2; that needs the user.
 """

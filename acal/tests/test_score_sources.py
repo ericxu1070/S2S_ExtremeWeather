@@ -92,6 +92,10 @@ def test_reach_published_context_unchanged():
 def test_reach_source_context(tmp_path):
     ctx = RE.source_ctx("gefs", "era5", tmp_path)
     assert ctx["fc"] == "GEFSv12" and "GEFSv12 31 members" in ctx["lead"]
+    # legend and row labels use the short name (the long one overflowed the one-row legend);
+    # the full label stays in the lead note
+    ec = RE.source_ctx("ec46", "era5", tmp_path)
+    assert ec["fc"] == "EC46" and "ECMWF IFS (EC46)" in ec["lead"]
     keep = dict(RE._FIG)
     try:
         RE._FIG.update(ctx)

@@ -213,6 +213,17 @@ def test_merge_estimates_flags_and_staleness(tmp_path):
     pc = B.paired_cases(out)
     pe = pc[pc.estimate.astype(bool)]
     assert len(pe) == len(est) and pe.logratio.isna().all() and np.isfinite(pe.dcrps).all()
+    # the paired table carries an estimate only on the metrics it estimates (no P(obs), no maps)
+    pt = B.paired_table(pc)
+    ept, mpt = pt[pt.estimate.astype(bool)], pt[~pt.estimate.astype(bool)]
+    assert not ({"logratio", "dfield_rmse"} & set(ept.metric))
+    assert {"dcrps", "dsqerr", "dbrier_2K"} <= set(ept.metric) and (ept.n > 0).all()
+    assert {"logratio", "dfield_rmse"} <= set(mpt.metric)      # measured rows keep every metric
+    # integer columns stay integer although the estimate rows leave them blank
+    df2 = df.assign(n_native=16)
+    out2 = B.merge_estimates(df2, p)
+    assert pd.api.types.is_integer_dtype(out2.n_native)
+    assert out2.n_native[~out2.estimate.astype(bool)].eq(16).all()
     assert len(B.merge_estimates(df, p, not_before=time.time() + 10)) == len(df)
     assert len(B.merge_estimates(df, tmp_path / "absent.csv")) == len(df)
 

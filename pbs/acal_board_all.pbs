@@ -1,0 +1,29 @@
+#!/bin/bash
+# acal multi-model board on a Derecho CPU node: scripts/acal_board_all.sh with the three
+# truths (era5, hrrr, hrrr_raw) in parallel. On the login node the truths must run
+# serially (SERIAL=1; parallel HRRR maps runs died from memory there), ~55 min for 4
+# sources; a dedicated node runs them side by side in ~20-25 min.
+#
+#   qsub pbs/acal_board_all.pbs                                  # everything
+#   qsub -v SOURCES=ec46 pbs/acal_board_all.pbs                  # one source
+#   qsub -v TRUTHS=era5,SOURCES="gefs geps" pbs/acal_board_all.pbs
+#
+# Log: logs/Vayuh-s2s.o<jobid> plus the per-truth logs the driver writes.
+#PBS -N Vayuh-s2s
+#PBS -A UCSC0009
+#PBS -q develop
+#PBS -l select=1:ncpus=32:mem=200GB
+#PBS -l walltime=02:00:00
+#PBS -j oe
+#PBS -o logs/
+
+cd /glade/derecho/scratch/exu/S2S_ExtremeWeather || exit 99
+module load conda >/dev/null 2>&1
+conda activate my-env
+export OMP_NUM_THREADS=4
+unset SERIAL
+echo "=== $(date -u +%FT%TZ) host $(hostname) TRUTHS=${TRUTHS:-all} SOURCES=${SOURCES:-all}"
+bash scripts/acal_board_all.sh
+rc=$?
+echo "=== $(date -u +%FT%TZ) acal_board_all.sh rc=$rc"
+exit $rc
