@@ -1,0 +1,15 @@
+# FCN3 env (python 3.11) constraints, from the working Derecho/a3mega `fcn3` env
+# (`pip freeze`, 2026-10-15; HANDOFF.md "FCN3 environment"). Applied with -c to every pip
+# call after torch is in, so earth2studio's dependency resolution cannot move torch off the
+# cu128 build the torch-harmonics kernel is compiled against.
+torch==2.11.0+cu128
+torchvision==0.26.0+cu128
+numpy==2.4.2
+scipy==1.17.0
+pandas==3.0.3
+xarray==2026.7.0
+zarr==3.1.6
+netCDF4==1.7.2
+h5netcdf==1.8.1
+huggingface_hub==1.24.0
+nvidia-physicsnemo==2.1.1

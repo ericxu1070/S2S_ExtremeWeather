@@ -1,0 +1,28 @@
+# GenCast walker env (python 3.10). Pinned to the set that runs GenCast on Derecho's
+# my-env (`pip freeze`, 2026-10-15). graphcast itself is installed --no-deps from the
+# bundled, already-patched third_party/graphcast (see setup_env.sh for the patch).
+jax[cuda12]==0.6.2
+jaxlib==0.6.2
+dm-haiku==0.0.16
+chex==0.1.90
+jraph==0.0.6.dev0
+dm-tree==0.1.10
+trimesh==4.12.2
+rtree==1.4.1
+dinosaur-dycore==1.2.1
+tree-math==0.2.1
+jmp==0.0.4
+ml_dtypes==0.5.4
+xarray==2025.6.1
+xarray-tensorstore==0.3.0
+numpy==2.2.6
+pandas==2.3.3
+scipy==1.15.2
+netCDF4==1.7.4
+h5netcdf==1.8.1
+zarr==2.18.3
+dask==2026.7.0
+gcsfs==2026.7.0
+typing_extensions==4.16.0
+absl-py==2.5.0
+pytest
