@@ -57,7 +57,7 @@ put "runs/xres/0p25/week3/inputs/${EVENT}_inputs.nc"
 put "runs/xres/1p0/week3/inputs/${EVENT}_inputs.nc"
 put "runs/fcn3/week3/ic/${EVENT}_ic.nc"
 if [ "$WITH_WEIGHTS" -eq 1 ]; then
-  for f in runs/fcn3/.cache/e2s/fcn3/*; do put "$f"; done
+  for f in runs/fcn3/.cache/e2s/fcn3/*; do [ -f "$f" ] && put "$f"; done  # skip e2s's empty cache/ dir
 fi
 
 # --- manifest + tar ---------------------------------------------------------------------- #

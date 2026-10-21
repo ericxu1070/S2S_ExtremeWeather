@@ -16,14 +16,25 @@ layer means is in `wbench/__init__.py`.
    ```
 
    Output: `/glade/derecho/scratch/exu/wbench_bundle/wbench_bundle.tar` (~1.5 GB) plus
-   `.sha256`. Add `--with-fcn3-weights` (+2.85 GB) only if the VM cannot reach HuggingFace.
+   `.sha256`. Add `--with-fcn3-weights` (+2.7 GB) only if the VM cannot reach HuggingFace.
+   The bucket copy (2026-10-20) was built with it: 4.1 GB, sha256 `a570ccc4...`.
 
-2. **Copy it to the VM through your laptop (~5-15 min).** Run this on the laptop. The
-   first `ssh derecho` asks for Duo.
+2. **Stage it in the Nebius bucket, then pull it on the VM (~5-15 min).** The bucket is
+   `s3://wbench-bundle` (eu-north1, project `default-project-eu-north1`); the S3 key is
+   service account `wbench-s3`, saved on the laptop as `~/.aws` profile `nebius`
+   (expires 2027-01-31). On the laptop (the first `ssh derecho` asks for Duo):
 
    ```bash
-   scp 'derecho:/glade/derecho/scratch/exu/wbench_bundle/wbench_bundle.tar*' .
-   scp wbench_bundle.tar wbench_bundle.tar.sha256 <vm>:~/
+   rsync -a 'derecho:/glade/derecho/scratch/exu/wbench_bundle/wbench_bundle.tar*' ~/wbench_bundle/
+   uvx --from awscli aws --profile nebius s3 cp ~/wbench_bundle/ s3://wbench-bundle/ --recursive
+   scp ~/.aws/credentials ~/.aws/config <vm>:~/.aws/   # mkdir ~/.aws on the VM first
+   ```
+
+   On the VM (eu-north1, so the pull is in-region):
+
+   ```bash
+   pip install --user awscli
+   aws --profile nebius s3 cp s3://wbench-bundle/ ~/ --recursive
    ```
 
 3. **Unpack on the VM and start a tmux session (~1 min).** A dropped SSH connection

@@ -11,7 +11,7 @@
 #   sys        driver, compilers, git/curl, disk; apt-get installs what is missing (sudo)
 #   verify     the bundle's data files against MANIFEST.sha256
 #   mamba      micromamba binary -> $WB_HOME/bin
-#   gencast    env wb-gencast: python 3.10 + requirements-gencast.txt + bundled graphcast
+#   gencast    env wb-gencast: python 3.12 + requirements-gencast.txt + bundled graphcast
 #   fcn3       env wb-fcn3:   python 3.11 + CUDA 12.8 toolkit + torch cu128 + makani +
 #              earth2studio[fcn3], all at the commits the a3mega/Derecho env runs
 #   th         torch-harmonics v0.8.1 built from source WITH its DISCO CUDA kernel.
@@ -29,6 +29,8 @@ REPO=$(cd "$HERE/../.." && pwd)
 WB_HOME=${WB_HOME:-$(dirname "$REPO")}
 WB_ENVS=${WB_ENVS:-$WB_HOME/envs}
 export MAMBA_ROOT_PREFIX=${MAMBA_ROOT_PREFIX:-$WB_HOME/micromamba}
+# env.sh runs with this set; without it pip counts ~/.local packages as installed and skips them
+export PYTHONNOUSERSITE=1
 MM=$WB_HOME/bin/micromamba
 MARK=$WB_HOME/.setup
 mkdir -p "$MARK" "$WB_ENVS"
@@ -86,7 +88,7 @@ step_mamba() {
 step_gencast() {
   local env=$WB_ENVS/wb-gencast
   [ -d "$env" ] && rm -rf "$env"
-  "$MM" create -y -p "$env" -c conda-forge python=3.10 pip
+  "$MM" create -y -p "$env" -c conda-forge python=3.12 pip
   py_gc -m pip install --no-cache-dir -r "$HERE/requirements-gencast.txt"
   [ -f "$REPO/third_party/graphcast/setup.py" ] || die "bundled third_party/graphcast missing"
   grep -q "from jax.sharding import PartitionSpec as P" \
