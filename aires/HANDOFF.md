@@ -42,6 +42,7 @@ Visual summaries:
 | 5-scoping - FCN3-only extension to 20 weeks (140 d) | **DONE**, job **1194** (2 h 16 m, one node, 2026-08-28). **FCN3 stable through week 14 (98 d) on every rollout of both arms.** At week 16 and beyond the PNW rollouts diverge (ERA5-IC arm at 75 d of the 112-d chain and 129 d of the 140-d one; adapter-fed arm at 105-111 d on all three) while every Uri rollout is clean to 140 d. No GenCast verdict at these leads, by design. See "The FCN3-only extension" below |
 | 5-scoping - 100-member GenCast ensemble at week 8 (PNW) | **DONE**, job **1197** (4 nodes, 32 shards, 4 h 34 m, 113 GPU-h). **9 of 100 members diverged by 56 d (9%, Wilson 95% 5-16%); 100% clean through 36 d.** All nine loud, all starting on negative 850 hPa humidity at 39-54 d and growing into the stratospheric winds. Member 2 did NOT reproduce job 1189's 45 d blow-up on the same noise stream. See "The ensemble follow-up" below |
 | 4c - multi-event extension: 3 heat events + controls | **IN FLIGHT** (2026-08-24). Registry/boxes/tests landed; productions running for Southwest_HeatWave_2020 (job **1176**) and California_HeatWave_2022 (job **1177**); Gate 3 for SCentral_HeatDome_2023 (job **1178**). See "The multi-event extension (wave log)" below |
+| next - daily hindcast (90 d, then 3 yr), full TP/FP/FN/TN table | **PLANNED, nothing built** (2026-10-22). FCN3 is the walker (decided); a deterministic scorer, coarse models included, is to be tried and must cost <= one FCN3 member. Plan and open fixes in `aires/HINDCAST_TODO.md`; summary in "The daily hindcast plan" below |
 
 **Phases 1-4 are complete.** All three gates pass, the RES core is validated, the
 driver ran the pilot end to end on an 8xH100 node (job 1172) with its figures written
@@ -1634,6 +1635,30 @@ against the brute-force form.
   against `fcn3.fevents.ORDER` at run time, and
   `test_event_order_matches_the_slurm_array` parses the script before submission.
 
+## The daily hindcast plan (2026-10-22, PLANNED, nothing built)
+
+Full checklist: `aires/HINDCAST_TODO.md`. The point: acal's 42 cases were selected on the
+outcome, so they measured hits at the tails only, with no false-alarm rate and no view of
+near-mean weeks. One case per day for the most recent 90 days, then the most recent 3
+years, fills every cell of the contingency table.
+
+- **Cost has to fall first.** ~33 H100-h per case today: 90 cases ~2,970 H100-h, 3 years
+  ~36,000 (not runnable). Levers: persistent walk workers (~7 H100-h per case of GenCast
+  recompile, "Open problems" item 8), M=3 scoring (`gate3_msub.py`), FCN3 walker, and
+  deleting global states after scoring (10.16 GB per case otherwise, ~11 TB for 3 years).
+- **FCN3 is the walker (decided).** wbench small1: 10.2 vs 25.7 H100-h per case at N=32.
+  With an FCN3 scorer the adapter drops out. Before production: the wbench `clones` check
+  OOM'd at B=2, and restarting without the persisted noise state moves T2m by 0.64 K RMS.
+- **Deterministic scorer (to try).** Bar: as cheap as or cheaper than ONE FCN3 member
+  (3.94 s per simulated day, ~52 GB, one H100) and Gate 3 skill at least FCN3 M=1's
+  (rho_s 0.67 at 9 d, 0.93 at 12 d). Coarse models qualify, since `A_L` is a box mean:
+  ACE2, DLWP-HEALPix / DLESyM, NeuralGCM, plus SFNO, AFNO, Pangu, GraphCast-small. GenCast
+  1.0 deg is out (7.01 s per simulated day). Regrid, adapter and own-climatology costs count
+  against the bar. No candidate is timed yet.
+- **Undecided:** event definition and threshold, and which tail to tilt (a one-sided run
+  cannot forecast the other tail, `acal/HANDOFF.md` 2026-10-14). ARCO ERA5 coverage of the
+  last 90 days is unchecked.
+
 ## Verify state (run these, don't trust the table)
 
 ```bash
@@ -2821,6 +2846,7 @@ M = 6, N = 64, states pruned to the last 2 segments, no score bought where `C_k 
 | `aires/score.py` | the FCN3 score function: M forecasts from a walker checkpoint to the peak |
 | `aires/gate3.py` | Gate 3: `--stage {plan,walk,reduce}`, plus the physical check against the xres ensemble |
 | `aires/gate3_msub.py` | Gate 3 rho_s at M = 1..6 by subsampling the cached score cubes (CPU) |
+| `aires/HINDCAST_TODO.md` | the daily-hindcast plan: cost levers, FCN3 walker fixes, deterministic-scorer trial, evaluation |
 | `aires/dmc.py` | the RES core: splitting, pivotal sampling, genealogy, the unbiased estimator |
 | `aires/ctune.py` | replays the C_k schedule on a surrogate calibrated to the Gate 3 skill curve; `--rho-sens` finds the skill crossover where switching a resampling off starts to pay, `--search` optimises the schedule with and without `C_1 = C_2 = 0`, `--validate-production` records why a finished run cannot supply a skill curve |
 | `aires/aplots.py` | the Phase 4 figures: trajectory, exceedance, diagnostics, genealogy, composite |
