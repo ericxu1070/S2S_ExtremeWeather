@@ -1794,6 +1794,26 @@ at 9 d and 0.990 at 12 d, so FCN3 is running at 84% and 97% of its own ceiling. 
 binding at 3-6 d (ceiling 0.66/0.78), but the score has no skill there for unrelated
 reasons. Raising M would buy almost nothing at the leads AI+RES actually resamples at.
 
+**Lowering M costs almost nothing either (2026-10-22, CPU only, `aires/gate3_msub.py`).**
+Re-scoring the 80 cached cubes with every member subset of each size (subsets shared by
+all walkers, as common random numbers make a real M=k run) gives rho_s, mean over subsets
+(worst subset):
+
+| t_k | M=1 | M=2 | M=3 | M=6 |
+|---|---|---|---|---|
+| 6 d | 0.40 (0.06) | 0.47 (0.19) | 0.50 (0.25) | 0.61 |
+| 9 d | 0.67 (0.52) | 0.76 (0.65) | 0.79 (0.69) | 0.797 |
+| 12 d | 0.93 (0.89) | 0.94 (0.90) | 0.95 (0.91) | 0.959 |
+| 15 d | 0.98 (0.96) | 0.98 (0.96) | 0.98 (0.97) | 0.988 |
+
+Every subset passes the gate at 9 and 12 d, M=1 included. M=3 keeps ~99% of M=6's skill
+there; only 6 d loses real skill below M=6. Scoring is linear in M, so on wbench's FCN3-walker
+projection (N=64) M=3 takes a case from 20.4 to 11.5 H100-h, and M=3 at 6 d with M=1 after
+to 7.7. `rho_sens.json` cannot say whether rho_6d = 0.40 instead of 0.61 hurts the DMC
+estimate - its replay errors are non-monotonic in that range - so M=1 at 6 d is untested,
+not cleared. One event, N=16, and overlapping subsets of the same 6 members, so the
+worst-subset column is optimistic.
+
 **The direct-sampling baseline for Phase 4, and the gap AI+RES has to close.**
 
 | index | mean | sd | range | ERA5 observed | walkers reaching it |
@@ -2800,6 +2820,7 @@ M = 6, N = 64, states pruned to the last 2 segments, no score bought where `C_k 
 | `aires/aindex.py` | the observable `A_L`, the per-event boxes, the running index and the persistence score |
 | `aires/score.py` | the FCN3 score function: M forecasts from a walker checkpoint to the peak |
 | `aires/gate3.py` | Gate 3: `--stage {plan,walk,reduce}`, plus the physical check against the xres ensemble |
+| `aires/gate3_msub.py` | Gate 3 rho_s at M = 1..6 by subsampling the cached score cubes (CPU) |
 | `aires/dmc.py` | the RES core: splitting, pivotal sampling, genealogy, the unbiased estimator |
 | `aires/ctune.py` | replays the C_k schedule on a surrogate calibrated to the Gate 3 skill curve; `--rho-sens` finds the skill crossover where switching a resampling off starts to pay, `--search` optimises the schedule with and without `C_1 = C_2 = 0`, `--validate-production` records why a finished run cannot supply a skill curve |
 | `aires/aplots.py` | the Phase 4 figures: trajectory, exceedance, diagnostics, genealogy, composite |
