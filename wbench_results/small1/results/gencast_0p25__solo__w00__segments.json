@@ -1,0 +1,142 @@
+{
+ "schema": 1,
+ "written": "2026-10-21T23:06:44Z",
+ "config": "gencast_0p25",
+ "phase": "solo",
+ "worker": 0,
+ "kind": "segments",
+ "run_id": "adhoc",
+ "concurrency": 1,
+ "model": "gencast",
+ "res": "0p25",
+ "precision": "bf16",
+ "step_h": 12,
+ "seg_steps": 6,
+ "seg_days": 3.0,
+ "batch": 1,
+ "io": "nc-zlib4",
+ "jax": "0.10.2",
+ "device": "NVIDIA H100 80GB HBM3",
+ "startup": {
+  "import_s": 0.32,
+  "load_s": 2.33,
+  "first_forward_s": 388.59,
+  "compile_s": 360.88
+ },
+ "peak_gpu_gb": 22.73,
+ "gpu_limit_gb": 76.44,
+ "compute_s_per_step": {
+  "n": 6,
+  "median": 27.70755,
+  "mean": 27.71027,
+  "min": 27.6994,
+  "max": 27.7244,
+  "p10": 27.7013,
+  "p90": 27.72195
+ },
+ "roll_s_per_step": {
+  "n": 1,
+  "median": 28.439,
+  "mean": 28.439,
+  "min": 28.439,
+  "max": 28.439,
+  "p10": 28.439,
+  "p90": 28.439
+ },
+ "segment_wall_s": {
+  "n": 1,
+  "median": 187.6592,
+  "mean": 187.6592,
+  "min": 187.6592,
+  "max": 187.6592,
+  "p10": 187.6592,
+  "p90": 187.6592
+ },
+ "s_per_sim_day": {
+  "compute": 55.415,
+  "roll": 56.878,
+  "segment": 62.553
+ },
+ "all_finite": true,
+ "segments": [
+  {
+   "seg": 0,
+   "warm": true,
+   "steps": 6,
+   "phases": {
+    "roll": 532.0581,
+    "write_state": 13.7007,
+    "write_diag": 0.9758
+   },
+   "wall_s": 546.7346,
+   "forward_s": [
+    388.5879,
+    27.7003,
+    27.7077,
+    27.7088,
+    27.7081,
+    27.7478
+   ],
+   "state_bytes": 472373454,
+   "diag_bytes": 34762103,
+   "finite": true,
+   "t2m_global_mean_k": 279.735,
+   "valid_end": "2021-06-10 00:00:00"
+  },
+  {
+   "seg": 1,
+   "warm": false,
+   "steps": 6,
+   "phases": {
+    "read_state": 2.2713,
+    "roll": 170.634,
+    "write_state": 13.7549,
+    "write_diag": 0.9991
+   },
+   "wall_s": 187.6592,
+   "forward_s": [
+    27.7244,
+    27.7032,
+    27.7038,
+    27.6994,
+    27.7113,
+    27.7195
+   ],
+   "state_bytes": 473078804,
+   "diag_bytes": 34755273,
+   "finite": true,
+   "t2m_global_mean_k": 280.235,
+   "valid_end": "2021-06-13 00:00:00"
+  }
+ ],
+ "scratch_bytes": 507834077,
+ "total_wall_s": 745.32,
+ "host": {
+  "hostname": "computeinstance-e00qppddb3az6xc245",
+  "cpu_model": "Intel(R) Xeon(R) Platinum 8468",
+  "cpus_affinity": 16,
+  "cpus_node": 16,
+  "mem_total_gb": 206.1,
+  "gpus": [
+   {
+    "index": "0",
+    "name": "NVIDIA H100 80GB HBM3",
+    "mem_total_mib": "81559",
+    "mem_used_mib": "80568",
+    "driver": "550.163.01",
+    "sm_clock_max_mhz": "1980",
+    "power_limit_w": "700.00"
+   }
+  ],
+  "python": "3.12.15",
+  "env": {
+   "OMP_NUM_THREADS": "2",
+   "XRES_SERIAL_INFER": "1",
+   "XRES_BF16": "1",
+   "XLA_PYTHON_CLIENT_PREALLOCATE": "true",
+   "XLA_PYTHON_CLIENT_MEM_FRACTION": ".90",
+   "WB_QUICK": "1"
+  }
+ },
+ "note": "run 2026-10-21 outside run_all.sh (phase label set to solo after the fact; same 1 worker/GPU layout), GenCast env re-pinned to a3mega moe (jax 0.10.2, py3.12) - other records in this run used jax 0.6.2; peak host RSS 114.6 GiB (/usr/bin/time -v, logs/ramtest_0p25.log)"
+}

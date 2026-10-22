@@ -1,0 +1,59 @@
+[gencast_bench] gencast_0p25 worker 0 on NVIDIA H100 80GB HBM3 (jax 0.10.2), 1 timed segment(s) of 6 steps
+  [walker] loading 'GenCast 0p25deg <2019.npz' (0.25 deg)
+[model] serial infer on 1 device(s); ensemble=1 (1 sample(s), one at a time). task pressure levels: 13
+  [walker] grid-node channels: inputs 176 + targets 504 + forcings 24; 6 step(s) from 2021-06-07 00:00:00
+/wb/wbench/S2S_ExtremeWeather/third_party/graphcast/graphcast/rollout.py:328: FutureWarning: The return type of `Dataset.dims` will be changed to return a set of dimension names in future, in order to be more consistent with `DataArray.dims`. To access a mapping from dimension names to lengths, please use `Dataset.sizes`.
+  num_target_steps = targets_template.dims["time"]
+/wb/wbench/envs/wb-gencast/lib/python3.12/site-packages/scipy/sparse/_index.py:210: SparseEfficiencyWarning: Changing the sparsity structure of a csr_matrix is expensive. lil and dok are more efficient.
+  self._set_arrayXarray(i, j, x)
+/wb/wbench/envs/wb-gencast/lib/python3.12/site-packages/scipy/sparse/_index.py:210: SparseEfficiencyWarning: Changing the sparsity structure of a csr_matrix is expensive. lil and dok are more efficient.
+  self._set_arrayXarray(i, j, x)
+/wb/wbench/S2S_ExtremeWeather/third_party/graphcast/graphcast/rollout.py:435: FutureWarning: The return type of `Dataset.dims` will be changed to return a set of dimension names in future, in order to be more consistent with `DataArray.dims`. To access a mapping from dimension names to lengths, please use `Dataset.sizes`.
+  num_inputs = prev_inputs.dims["time"]
+/wb/wbench/S2S_ExtremeWeather/third_party/graphcast/graphcast/rollout.py:437: FutureWarning: In a future version of xarray the default value for compat will change from compat='equals' to compat='override'. This change will result in the following ValueError: Cannot specify both data_vars='different' and compat='override'. The recommendation is to set compat explicitly for this case.
+  xarray.concat(
+  [walker w00 s0] step 1/6  valid 2021-06-07 12:00:00
+  [walker w00 s0] step 2/6  valid 2021-06-08 00:00:00
+  [walker w00 s0] step 3/6  valid 2021-06-08 12:00:00
+  [walker w00 s0] step 4/6  valid 2021-06-09 00:00:00
+  [walker w00 s0] step 5/6  valid 2021-06-09 12:00:00
+  [walker w00 s0] step 6/6  valid 2021-06-10 00:00:00
+[gencast_bench] seg 0 (warm): wall 546.7 s = {'roll': 532.0581, 'write_state': 13.7007, 'write_diag': 0.9758}; forward median 27.71 s
+  [walker] grid-node channels: inputs 176 + targets 504 + forcings 24; 6 step(s) from 2021-06-10 00:00:00
+/wb/wbench/S2S_ExtremeWeather/third_party/graphcast/graphcast/rollout.py:328: FutureWarning: The return type of `Dataset.dims` will be changed to return a set of dimension names in future, in order to be more consistent with `DataArray.dims`. To access a mapping from dimension names to lengths, please use `Dataset.sizes`.
+  num_target_steps = targets_template.dims["time"]
+/wb/wbench/S2S_ExtremeWeather/third_party/graphcast/graphcast/rollout.py:435: FutureWarning: The return type of `Dataset.dims` will be changed to return a set of dimension names in future, in order to be more consistent with `DataArray.dims`. To access a mapping from dimension names to lengths, please use `Dataset.sizes`.
+  num_inputs = prev_inputs.dims["time"]
+/wb/wbench/S2S_ExtremeWeather/third_party/graphcast/graphcast/rollout.py:437: FutureWarning: In a future version of xarray the default value for compat will change from compat='equals' to compat='override'. This change will result in the following ValueError: Cannot specify both data_vars='different' and compat='override'. The recommendation is to set compat explicitly for this case.
+  xarray.concat(
+  [walker w00 s1] step 1/6  valid 2021-06-10 12:00:00
+  [walker w00 s1] step 2/6  valid 2021-06-11 00:00:00
+  [walker w00 s1] step 3/6  valid 2021-06-11 12:00:00
+  [walker w00 s1] step 4/6  valid 2021-06-12 00:00:00
+  [walker w00 s1] step 5/6  valid 2021-06-12 12:00:00
+  [walker w00 s1] step 6/6  valid 2021-06-13 00:00:00
+[gencast_bench] seg 1: wall 187.7 s = {'read_state': 2.2713, 'roll': 170.634, 'write_state': 13.7549, 'write_diag': 0.9991}; forward median 27.71 s
+[wbench] wrote runs/wbench/small1/results/gencast_0p25__adhoc__w00__segments.json
+	Command being timed: "bash wbench/vm/env.sh gencast python -m wbench.gencast_bench --config gencast_0p25 --run runs/wbench/small1 --worker 0"
+	User time (seconds): 630.86
+	System time (seconds): 241.78
+	Percent of CPU this job got: 116%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 12:27.35
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 120199152
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 344
+	Minor (reclaiming a frame) page faults: 28213182
+	Voluntary context switches: 159670
+	Involuntary context switches: 9378
+	Swaps: 0
+	File system inputs: 1881384
+	File system outputs: 2039008
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 0

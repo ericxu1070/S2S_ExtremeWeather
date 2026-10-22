@@ -1,0 +1,6 @@
+               total        used        free      shared  buff/cache   available
+Mem:             196           0         192           0           2         194
+Swap:              0           0           0
+Filesystem      Size  Used Avail Use% Mounted on
+/dev/vdc        196G   35G  152G  19% /wb
+Linux computeinstance-e00fjhc4cz8n2e69gz 5.15.0-198-generic #208-Ubuntu SMP Fri Sep 4 10:22:38 UTC 2026 x86_64 x86_64 x86_64 GNU/Linux

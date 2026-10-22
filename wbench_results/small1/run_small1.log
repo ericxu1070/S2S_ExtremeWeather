@@ -1,0 +1,35 @@
+[run_all 23:45:03] run small1: phases preflight solo report -> /wb/wbench/S2S_ExtremeWeather/runs/wbench/small1
+[run_all 23:45:03] preflight: 1 GPU(s), 16 CPUs, run small1
+[run_all 23:45:03] WARNING: 1 GPUs, not 8 - node8 becomes node1
+[run_all 23:45:03] free disk under runs/: 152 GB
+[run_all 23:45:36] preflight OK
+[run_all 23:45:36] phase preflight finished in 0 min
+[run_all 23:45:36] solo: one worker per config (~25 min; bounded by GenCast 0.25 deg)
+[run_all 23:45:36]   start  gencast_0p25_w0 on gpu0 (cpus 0-15)
+wbench/vm/run_all.sh: line 69:  2406 Killed                  CUDA_VISIBLE_DEVICES=$g WB_THREADS=$(ncpus "${CPUS[$g]}") taskset -c "${CPUS[$g]}" bash "$HERE/env.sh" "$env" "$@" > "$logf" 2>&1
+[run_all 23:50:56]   FAILED gencast_0p25_w0 (gpu0, rc=137, 320 s): /wb/wbench/S2S_ExtremeWeather/runs/wbench/small1/logs/solo__gencast_0p25_w0__gpu0.log
+[run_all 23:50:56]   start  gencast_0p25_w1 on gpu0 (cpus 0-15)
+[run_all 23:51:16]   FAILED gencast_0p25_w1 (gpu0, rc=143, 20 s): /wb/wbench/S2S_ExtremeWeather/runs/wbench/small1/logs/solo__gencast_0p25_w1__gpu0.log
+[run_all 23:51:16]   start  gencast_1p0_w0 on gpu0 (cpus 0-15)
+[run_all 23:52:56]   done   gencast_1p0_w0 (gpu0, 100 s)
+[run_all 23:52:56]   start  checks on gpu0 (cpus 0-15)
+[run_all 23:55:16]   FAILED checks (gpu0, rc=4, 140 s): /wb/wbench/S2S_ExtremeWeather/runs/wbench/small1/logs/solo__checks__gpu0.log
+[run_all 23:55:16]   start  native_sweep_w0 on gpu0 (cpus 0-15)
+[run_all 23:55:51]   done   native_sweep_w0 (gpu0, 35 s)
+[run_all 23:55:51]   start  native_sweep_w1 on gpu0 (cpus 0-15)
+[run_all 23:56:26]   done   native_sweep_w1 (gpu0, 35 s)
+[run_all 23:56:26]   start  e2s_sweep_w0 on gpu0 (cpus 0-15)
+[run_all 23:57:11]   done   e2s_sweep_w0 (gpu0, 45 s)
+[run_all 23:57:11]   start  native_seg_nc on gpu0 (cpus 0-15)
+[run_all 23:58:22]   done   native_seg_nc (gpu0, 71 s)
+[run_all 23:58:22]   start  native_seg_npz on gpu0 (cpus 0-15)
+[run_all 23:59:17]   done   native_seg_npz (gpu0, 55 s)
+[run_all 23:59:17]   start  e2s_seg_nc on gpu0 (cpus 0-15)
+[run_all 00:00:22]   done   e2s_seg_nc (gpu0, 65 s)
+[run_all 00:00:22] phase solo finished in 14 min
+[run_all 00:00:22] report: /wb/wbench/S2S_ExtremeWeather/runs/wbench/small1/REPORT.md
+[run_all 00:00:22] phase report finished in 0 min
+[run_all 00:00:22] all phases done in 15 min
+[run_all 00:00:22] 3 step(s) failed: solo/gencast_0p25_w0 solo/gencast_0p25_w1 solo/checks
+[run_all 00:00:22] copy home:  rsync -av <vm>:/wb/wbench/S2S_ExtremeWeather/runs/wbench/small1/ ./wbench_small1/   (REPORT.md, results/, logs/)
+EXIT=1

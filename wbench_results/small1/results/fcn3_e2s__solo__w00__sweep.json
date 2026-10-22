@@ -1,0 +1,92 @@
+{
+  "schema": 1,
+  "written": "2026-10-20T23:57:07Z",
+  "config": "fcn3_e2s",
+  "phase": "solo",
+  "worker": 0,
+  "kind": "sweep",
+  "run_id": "small1",
+  "concurrency": 1,
+  "model": "fcn3",
+  "path": "e2s",
+  "step_h": 6,
+  "torch": "2.11.0+cu128",
+  "device": "NVIDIA H100 80GB HBM3",
+  "disco_kernel": true,
+  "startup": {
+    "import_s": 0.92,
+    "load_s": 2.75,
+    "first_step_s": 2.486
+  },
+  "warm_steps": 2,
+  "timed_steps": 4,
+  "rows": [
+    {
+      "batch": 1,
+      "oom": false,
+      "step_s": {
+        "n": 4,
+        "median": 0.98498,
+        "mean": 0.98489,
+        "min": 0.98351,
+        "max": 0.98612,
+        "p10": 0.98365,
+        "p90": 0.98607
+      },
+      "walker_steps_per_s": 1.0153,
+      "s_per_walker_sim_day": 3.9399,
+      "finite": true,
+      "peak_alloc_gb": 52.64,
+      "peak_reserved_gb": 69.78,
+      "total_gb": 84.93
+    },
+    {
+      "batch": 2,
+      "oom": false,
+      "step_s": {
+        "n": 4,
+        "median": 1.95558,
+        "mean": 1.95652,
+        "min": 1.95433,
+        "max": 1.96058,
+        "p10": 1.95453,
+        "p90": 1.95925
+      },
+      "walker_steps_per_s": 1.0227,
+      "s_per_walker_sim_day": 3.9112,
+      "finite": true,
+      "peak_alloc_gb": 52.95,
+      "peak_reserved_gb": 70.11,
+      "total_gb": 84.93
+    }
+  ],
+  "best_batch": 2,
+  "best_gain_vs_b1": 1.0073,
+  "host": {
+    "hostname": "computeinstance-e00fjhc4cz8n2e69gz",
+    "cpu_model": "Intel(R) Xeon(R) Platinum 8468",
+    "cpus_affinity": 16,
+    "cpus_node": 16,
+    "mem_total_gb": 206.1,
+    "gpus": [
+      {
+        "index": "0",
+        "name": "NVIDIA H100 80GB HBM3",
+        "mem_total_mib": "81559",
+        "mem_used_mib": "4998",
+        "driver": "550.163.01",
+        "sm_clock_max_mhz": "1980",
+        "power_limit_w": "700.00"
+      }
+    ],
+    "python": "3.11.17",
+    "env": {
+      "CUDA_VISIBLE_DEVICES": "0",
+      "OMP_NUM_THREADS": "16",
+      "WB_RUN_ID": "small1",
+      "WB_PHASE": "solo",
+      "WB_CONCURRENCY": "1",
+      "WB_QUICK": "1"
+    }
+  }
+}

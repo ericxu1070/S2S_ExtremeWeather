@@ -1,0 +1,556 @@
+{
+  "run": "small1",
+  "layer1": [
+    {
+      "config": "gencast_0p25",
+      "label": "GenCast 0.25 deg (production walker)",
+      "measured": true,
+      "precision": "bf16",
+      "step_h": 12,
+      "n_runs": 1,
+      "compute_s_per_step": 27.708,
+      "roll_s_per_step": 28.439,
+      "s_per_sim_day_compute": 55.415,
+      "s_per_sim_day_roll": 56.878,
+      "peak_gpu_gb": 22.7,
+      "startup_s": 390.92,
+      "compile_s": 360.88,
+      "speedup_compute": 1.0
+    },
+    {
+      "config": "gencast_1p0",
+      "label": "GenCast 1.0 deg",
+      "measured": true,
+      "precision": "fp32",
+      "step_h": 12,
+      "n_runs": 1,
+      "compute_s_per_step": 3.507,
+      "roll_s_per_step": 3.559,
+      "s_per_sim_day_compute": 7.015,
+      "s_per_sim_day_roll": 7.117,
+      "peak_gpu_gb": 3.0,
+      "startup_s": 50.27,
+      "compile_s": 44.48,
+      "speedup_compute": 7.9
+    },
+    {
+      "config": "fcn3_e2s",
+      "label": "FCN3 via earth2studio",
+      "measured": true,
+      "precision": "bf16-autocast",
+      "step_h": 6,
+      "n_runs": 2,
+      "compute_s_per_step": 0.985,
+      "roll_s_per_step": 0.986,
+      "s_per_sim_day_compute": 3.94,
+      "s_per_sim_day_roll": 3.942,
+      "peak_gpu_gb": 52.6,
+      "startup_s": 5.228,
+      "compile_s": null,
+      "speedup_compute": 14.06
+    },
+    {
+      "config": "fcn3_native",
+      "label": "FCN3 native batched",
+      "measured": true,
+      "precision": "bf16-autocast",
+      "step_h": 6,
+      "n_runs": 4,
+      "compute_s_per_step": 0.986,
+      "roll_s_per_step": 0.987,
+      "s_per_sim_day_compute": 3.942,
+      "s_per_sim_day_roll": 3.947,
+      "peak_gpu_gb": 53.0,
+      "startup_s": 5.192,
+      "compile_s": null,
+      "speedup_compute": 14.06
+    }
+  ],
+  "sweep": [
+    {
+      "config": "fcn3_e2s",
+      "worker": 0,
+      "phase": "solo",
+      "batch": 1,
+      "oom": false,
+      "peak_alloc_gb": 52.64,
+      "step_s": 0.98498,
+      "walker_steps_per_s": 1.0153,
+      "s_per_walker_sim_day": 3.9399,
+      "gain_vs_b1": 1.0
+    },
+    {
+      "config": "fcn3_e2s",
+      "worker": 0,
+      "phase": "solo",
+      "batch": 2,
+      "oom": false,
+      "peak_alloc_gb": 52.95,
+      "step_s": 1.95558,
+      "walker_steps_per_s": 1.0227,
+      "s_per_walker_sim_day": 3.9112,
+      "gain_vs_b1": 1.007
+    },
+    {
+      "config": "fcn3_native",
+      "worker": 0,
+      "phase": "solo",
+      "batch": 1,
+      "oom": false,
+      "peak_alloc_gb": 52.95,
+      "step_s": 0.98595,
+      "walker_steps_per_s": 1.0143,
+      "s_per_walker_sim_day": 3.9438,
+      "gain_vs_b1": 1.0
+    },
+    {
+      "config": "fcn3_native",
+      "worker": 0,
+      "phase": "solo",
+      "batch": 2,
+      "oom": true,
+      "peak_alloc_gb": 58.01
+    },
+    {
+      "config": "fcn3_native",
+      "worker": 1,
+      "phase": "solo",
+      "batch": 1,
+      "oom": false,
+      "peak_alloc_gb": 52.95,
+      "step_s": 0.98523,
+      "walker_steps_per_s": 1.015,
+      "s_per_walker_sim_day": 3.9409,
+      "gain_vs_b1": 1.0
+    },
+    {
+      "config": "fcn3_native",
+      "worker": 1,
+      "phase": "solo",
+      "batch": 2,
+      "oom": true,
+      "peak_alloc_gb": 58.01
+    }
+  ],
+  "layer2": [
+    {
+      "config": "gencast_0p25",
+      "phase": "solo",
+      "batch": 1,
+      "io": "nc-zlib4",
+      "n_workers": 1,
+      "concurrency": 1,
+      "s_per_sim_day_segment": 62.553,
+      "range": [
+        62.553,
+        62.553
+      ],
+      "s_per_sim_day_roll": 56.878,
+      "phases_per_walker_segment_s": {
+        "read_state": 2.271,
+        "roll": 170.634,
+        "write_state": 13.755,
+        "write_diag": 0.999
+      },
+      "state_mb": 472.7,
+      "startup_s": 390.92,
+      "noise_persisted": null,
+      "all_finite": true,
+      "speedup_vs_gencast_0p25_same_phase": 1.0
+    },
+    {
+      "config": "gencast_1p0",
+      "phase": "solo",
+      "batch": 1,
+      "io": "nc-zlib4",
+      "n_workers": 1,
+      "concurrency": 1,
+      "s_per_sim_day_segment": 7.526,
+      "range": [
+        7.526,
+        7.526
+      ],
+      "s_per_sim_day_roll": 7.117,
+      "phases_per_walker_segment_s": {
+        "read_state": 0.148,
+        "roll": 21.352,
+        "write_state": 0.988,
+        "write_diag": 0.091
+      },
+      "state_mb": 31.2,
+      "startup_s": 50.27,
+      "noise_persisted": null,
+      "all_finite": true,
+      "speedup_vs_gencast_0p25_same_phase": 8.31
+    },
+    {
+      "config": "fcn3_e2s",
+      "phase": "solo",
+      "batch": 1,
+      "io": "nc-zlib4",
+      "n_workers": 1,
+      "concurrency": 1,
+      "s_per_sim_day_segment": 6.908,
+      "range": [
+        6.908,
+        6.908
+      ],
+      "s_per_sim_day_roll": 3.942,
+      "phases_per_walker_segment_s": {
+        "read_state": 0.949,
+        "h2d": 0.031,
+        "roll": 11.826,
+        "d2h_state": 0.16,
+        "write_state": 5.99,
+        "write_diag": 1.768
+      },
+      "state_mb": 192.1,
+      "startup_s": 5.228,
+      "noise_persisted": false,
+      "all_finite": true,
+      "speedup_vs_gencast_0p25_same_phase": 9.06
+    },
+    {
+      "config": "fcn3_native",
+      "phase": "solo",
+      "batch": 1,
+      "io": "nc-zlib4",
+      "n_workers": 1,
+      "concurrency": 1,
+      "s_per_sim_day_segment": 7.055,
+      "range": [
+        7.055,
+        7.055
+      ],
+      "s_per_sim_day_roll": 3.952,
+      "phases_per_walker_segment_s": {
+        "read_state": 1.1,
+        "h2d": 0.034,
+        "roll": 11.855,
+        "d2h_state": 0.166,
+        "write_state": 6.21,
+        "write_diag": 1.802
+      },
+      "state_mb": 196.2,
+      "startup_s": 5.205,
+      "noise_persisted": true,
+      "all_finite": true,
+      "speedup_vs_gencast_0p25_same_phase": 8.87
+    },
+    {
+      "config": "fcn3_native",
+      "phase": "solo",
+      "batch": 1,
+      "io": "npz-raw",
+      "n_workers": 1,
+      "concurrency": 1,
+      "s_per_sim_day_segment": 4.79,
+      "range": [
+        4.79,
+        4.79
+      ],
+      "s_per_sim_day_roll": 3.943,
+      "phases_per_walker_segment_s": {
+        "read_state": 0.248,
+        "h2d": 0.031,
+        "roll": 11.829,
+        "d2h_state": 0.161,
+        "write_state": 0.323,
+        "write_diag": 1.778
+      },
+      "state_mb": 307.4,
+      "startup_s": 5.179,
+      "noise_persisted": true,
+      "all_finite": true,
+      "speedup_vs_gencast_0p25_same_phase": 13.06
+    }
+  ],
+  "layer3": {
+    "score_s_per_member_step": 0.985,
+    "score_rate_source": "measured (fcn3_e2s, B=1)",
+    "score_member_steps": {
+      "32": 32256,
+      "64": 64512
+    },
+    "horizon_days": 21.0,
+    "legs": 6,
+    "m_members": 6,
+    "lead_days": [
+      3.0,
+      6.0,
+      9.0,
+      12.0,
+      15.0
+    ],
+    "c_k": [
+      0.0,
+      1.0,
+      1.4,
+      1.8,
+      2.0
+    ],
+    "cases": [
+      {
+        "n_walkers": 32,
+        "walker": "gencast_0p25",
+        "batch": 1,
+        "phase": "solo",
+        "s_per_walker_day": 62.553,
+        "startup_s": 390.92,
+        "walk_h": 11.68,
+        "score_h": 8.83,
+        "startup_relaunch_h": 5.21,
+        "startup_persistent_h": 0.87,
+        "total_relaunch_h": 25.71,
+        "total_persistent_h": 21.37,
+        "node_wall_relaunch_h": 3.21
+      },
+      {
+        "n_walkers": 32,
+        "walker": "gencast_1p0",
+        "batch": 1,
+        "phase": "solo",
+        "s_per_walker_day": 7.526,
+        "startup_s": 50.27,
+        "walk_h": 1.4,
+        "score_h": 8.83,
+        "startup_relaunch_h": 0.67,
+        "startup_persistent_h": 0.11,
+        "total_relaunch_h": 10.9,
+        "total_persistent_h": 10.34,
+        "node_wall_relaunch_h": 1.36
+      },
+      {
+        "n_walkers": 32,
+        "walker": "fcn3_e2s",
+        "batch": 1,
+        "phase": "solo",
+        "s_per_walker_day": 6.908,
+        "startup_s": 5.228,
+        "walk_h": 1.29,
+        "score_h": 8.83,
+        "startup_relaunch_h": 0.07,
+        "startup_persistent_h": 0.01,
+        "total_relaunch_h": 10.18,
+        "total_persistent_h": 10.13,
+        "node_wall_relaunch_h": 1.27
+      },
+      {
+        "n_walkers": 32,
+        "walker": "fcn3_native",
+        "batch": 1,
+        "phase": "solo",
+        "s_per_walker_day": 7.055,
+        "startup_s": 5.205,
+        "walk_h": 1.32,
+        "score_h": 8.83,
+        "startup_relaunch_h": 0.07,
+        "startup_persistent_h": 0.01,
+        "total_relaunch_h": 10.21,
+        "total_persistent_h": 10.15,
+        "node_wall_relaunch_h": 1.28
+      },
+      {
+        "n_walkers": 32,
+        "walker": "gencast_0p25 @ a3mega rates",
+        "batch": 1,
+        "phase": "reference",
+        "s_per_walker_day": 104.0,
+        "startup_s": 900.0,
+        "walk_h": 19.41,
+        "score_h": 12.54,
+        "startup_relaunch_h": 12.0,
+        "startup_persistent_h": 2.0,
+        "total_relaunch_h": 43.96,
+        "total_persistent_h": 33.96,
+        "node_wall_relaunch_h": 5.49
+      },
+      {
+        "n_walkers": 64,
+        "walker": "gencast_0p25",
+        "batch": 1,
+        "phase": "solo",
+        "s_per_walker_day": 62.553,
+        "startup_s": 390.92,
+        "walk_h": 23.35,
+        "score_h": 17.65,
+        "startup_relaunch_h": 5.21,
+        "startup_persistent_h": 0.87,
+        "total_relaunch_h": 46.22,
+        "total_persistent_h": 41.87,
+        "node_wall_relaunch_h": 5.78
+      },
+      {
+        "n_walkers": 64,
+        "walker": "gencast_1p0",
+        "batch": 1,
+        "phase": "solo",
+        "s_per_walker_day": 7.526,
+        "startup_s": 50.27,
+        "walk_h": 2.81,
+        "score_h": 17.65,
+        "startup_relaunch_h": 0.67,
+        "startup_persistent_h": 0.11,
+        "total_relaunch_h": 21.13,
+        "total_persistent_h": 20.57,
+        "node_wall_relaunch_h": 2.64
+      },
+      {
+        "n_walkers": 64,
+        "walker": "fcn3_e2s",
+        "batch": 1,
+        "phase": "solo",
+        "s_per_walker_day": 6.908,
+        "startup_s": 5.228,
+        "walk_h": 2.58,
+        "score_h": 17.65,
+        "startup_relaunch_h": 0.07,
+        "startup_persistent_h": 0.01,
+        "total_relaunch_h": 20.3,
+        "total_persistent_h": 20.24,
+        "node_wall_relaunch_h": 2.54
+      },
+      {
+        "n_walkers": 64,
+        "walker": "fcn3_native",
+        "batch": 1,
+        "phase": "solo",
+        "s_per_walker_day": 7.055,
+        "startup_s": 5.205,
+        "walk_h": 2.63,
+        "score_h": 17.65,
+        "startup_relaunch_h": 0.07,
+        "startup_persistent_h": 0.01,
+        "total_relaunch_h": 20.35,
+        "total_persistent_h": 20.3,
+        "node_wall_relaunch_h": 2.54
+      },
+      {
+        "n_walkers": 64,
+        "walker": "gencast_0p25 @ a3mega rates",
+        "batch": 1,
+        "phase": "reference",
+        "s_per_walker_day": 104.0,
+        "startup_s": 900.0,
+        "walk_h": 38.83,
+        "score_h": 25.09,
+        "startup_relaunch_h": 12.0,
+        "startup_persistent_h": 2.0,
+        "total_relaunch_h": 75.91,
+        "total_persistent_h": 65.91,
+        "node_wall_relaunch_h": 9.49
+      }
+    ]
+  },
+  "checks": [
+    [
+      {
+        "name": "native_matches_e2s",
+        "verdict": "PASS",
+        "steps": 4,
+        "bitwise": [
+          true,
+          true,
+          true,
+          true
+        ],
+        "max_abs_diff": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "t2m_rms_k": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "note": "WARN = same model to rounding (different kernel order), not bitwise",
+        "seconds": 15.2
+      },
+      {
+        "name": "determinism",
+        "verdict": "PASS",
+        "bitwise": true,
+        "max_abs_diff": 0.0,
+        "seconds": 26.2
+      },
+      {
+        "name": "restart_exact_nc",
+        "verdict": "PASS",
+        "roundtrip_bitwise": true,
+        "continuation_bitwise": true,
+        "max_abs_diff": 0.0,
+        "t2m_rms_k": 0.0,
+        "state_bytes": 196469310,
+        "write_read_s": 7.58,
+        "seconds": 26.2
+      },
+      {
+        "name": "restart_exact_npz",
+        "verdict": "PASS",
+        "roundtrip_bitwise": true,
+        "continuation_bitwise": true,
+        "max_abs_diff": 0.0,
+        "t2m_rms_k": 0.0,
+        "state_bytes": 307374244,
+        "write_read_s": 0.73,
+        "seconds": 26.2
+      },
+      {
+        "name": "noise_renewal",
+        "verdict": "INFO",
+        "t2m_rms_k_after_segment": 0.6399236073965024,
+        "note": "restart without the persisted noise state vs with it, same seeds; compare with clone_divergence at the same lead",
+        "seconds": 26.2
+      },
+      {
+        "name": "clones",
+        "verdict": "ERROR",
+        "error": "OutOfMemoryError: CUDA out of memory. Tried to allocate 40.73 GiB. GPU 0 has a total capacity of 79.10 GiB of which 6.57 GiB is free. Including non-PyTorch memory, this process has 72.52 GiB memory in use. Of the allocated memory 54.32 GiB is allocated by PyTorch, and 17.53 GiB is reserved by PyTorch but unallocated. If reserved but unallocated memory is large try setting PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True to avoid fragmentation.  See documentation for Memory Management  (https://d",
+        "seconds": 5.7
+      },
+      {
+        "name": "batch_invariance",
+        "verdict": "SKIP",
+        "note": "B=2 does not fit on this card",
+        "seconds": 0.7
+      },
+      {
+        "name": "state_integrity",
+        "verdict": "PASS",
+        "problems": [],
+        "ranges": {
+          "t2m": [
+            201.76510620117188,
+            317.85528564453125
+          ],
+          "z500": [
+            45431.19921875,
+            58443.8046875
+          ],
+          "tcwv": [
+            0.0,
+            74.0308609008789
+          ],
+          "msl": [
+            94767.640625,
+            103434.265625
+          ]
+        },
+        "noise_shape": [
+          1,
+          8,
+          361,
+          361,
+          2
+        ],
+        "state_bytes": 196194542,
+        "seconds": 21.3
+      }
+    ]
+  ],
+  "best_batch": 1,
+  "written": "2026-10-21T23:07:30Z"
+}

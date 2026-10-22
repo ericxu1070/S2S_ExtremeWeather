@@ -1,0 +1,81 @@
+{
+  "schema": 1,
+  "written": "2026-10-20T23:55:48Z",
+  "config": "fcn3_native",
+  "phase": "solo",
+  "worker": 0,
+  "kind": "sweep",
+  "run_id": "small1",
+  "concurrency": 1,
+  "model": "fcn3",
+  "path": "native",
+  "step_h": 6,
+  "torch": "2.11.0+cu128",
+  "device": "NVIDIA H100 80GB HBM3",
+  "disco_kernel": true,
+  "startup": {
+    "import_s": 0.93,
+    "load_s": 2.91,
+    "first_step_s": 2.514
+  },
+  "warm_steps": 2,
+  "timed_steps": 4,
+  "rows": [
+    {
+      "batch": 1,
+      "oom": false,
+      "step_s": {
+        "n": 4,
+        "median": 0.98595,
+        "mean": 0.98594,
+        "min": 0.98552,
+        "max": 0.98634,
+        "p10": 0.98554,
+        "p90": 0.98634
+      },
+      "walker_steps_per_s": 1.0143,
+      "s_per_walker_sim_day": 3.9438,
+      "finite": true,
+      "peak_alloc_gb": 52.95,
+      "peak_reserved_gb": 69.78,
+      "total_gb": 84.93
+    },
+    {
+      "batch": 2,
+      "oom": true,
+      "error": "CUDA out of memory. Tried to allocate 40.73 GiB. GPU 0 has a total capacity of 79.10 GiB of which 16.32 GiB is free. Including non-PyTorch memory, this process has 62.77 GiB memory in use. Of the allocated memory 54.03 GiB is allocated by PyTorch, and 8.07 GiB is reserved by PyTorch but unallocated.",
+      "peak_alloc_gb": 58.01,
+      "peak_reserved_gb": 66.67,
+      "total_gb": 84.93
+    }
+  ],
+  "best_batch": 1,
+  "best_gain_vs_b1": 1.0,
+  "host": {
+    "hostname": "computeinstance-e00fjhc4cz8n2e69gz",
+    "cpu_model": "Intel(R) Xeon(R) Platinum 8468",
+    "cpus_affinity": 16,
+    "cpus_node": 16,
+    "mem_total_gb": 206.1,
+    "gpus": [
+      {
+        "index": "0",
+        "name": "NVIDIA H100 80GB HBM3",
+        "mem_total_mib": "81559",
+        "mem_used_mib": "4998",
+        "driver": "550.163.01",
+        "sm_clock_max_mhz": "1980",
+        "power_limit_w": "700.00"
+      }
+    ],
+    "python": "3.11.17",
+    "env": {
+      "CUDA_VISIBLE_DEVICES": "0",
+      "OMP_NUM_THREADS": "16",
+      "WB_RUN_ID": "small1",
+      "WB_PHASE": "solo",
+      "WB_CONCURRENCY": "1",
+      "WB_QUICK": "1"
+    }
+  }
+}

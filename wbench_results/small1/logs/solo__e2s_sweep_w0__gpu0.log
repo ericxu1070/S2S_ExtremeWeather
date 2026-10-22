@@ -1,0 +1,11 @@
+Warp 1.18.0 initialized:
+   CUDA Toolkit 13.4, Driver 12.4 (insufficient CUDA driver version!)
+   Devices:
+     "cpu"      : "x86_64"
+   Kernel cache:
+     /home/ubuntu/.cache/warp/1.18.0
+[model] loaded cache fcn3_model_2.11.0+cu128_th0.8.1_a305be3ecd79.pt in 2.1 s
+[fcn3_bench] sweep e2s: B in [1, 2], 2 warm + 4 timed steps each
+[fcn3_bench]   B=1: 0.985 s/step, 1.015 walker-steps/s, peak 52.64 GB
+[fcn3_bench]   B=2: 1.956 s/step, 1.023 walker-steps/s, peak 52.95 GB
+[wbench] wrote /wb/wbench/S2S_ExtremeWeather/runs/wbench/small1/results/fcn3_e2s__solo__w00__sweep.json

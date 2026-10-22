@@ -1,0 +1,10 @@
+solo	gencast_0p25_w0	0	137	320
+solo	gencast_0p25_w1	0	143	20
+solo	gencast_1p0_w0	0	0	100
+solo	checks	0	4	140
+solo	native_sweep_w0	0	0	35
+solo	native_sweep_w1	0	0	35
+solo	e2s_sweep_w0	0	0	45
+solo	native_seg_nc	0	0	71
+solo	native_seg_npz	0	0	55
+solo	e2s_seg_nc	0	0	65

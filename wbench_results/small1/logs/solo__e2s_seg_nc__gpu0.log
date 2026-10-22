@@ -1,0 +1,11 @@
+Warp 1.18.0 initialized:
+   CUDA Toolkit 13.4, Driver 12.4 (insufficient CUDA driver version!)
+   Devices:
+     "cpu"      : "x86_64"
+   Kernel cache:
+     /home/ubuntu/.cache/warp/1.18.0
+[model] loaded cache fcn3_model_2.11.0+cu128_th0.8.1_a305be3ecd79.pt in 2.0 s
+[fcn3_bench] segments e2s: worker 0, walkers [0], 1 timed x 12 steps, io=nc
+[fcn3_bench] seg 0 (warm): wall 21.4 s for 1 walker(s) = {'h2d': 0.0313, 'roll': 13.374, 'd2h_state': 0.1594, 'write_state': 6.091, 'write_diag': 1.7789}
+[fcn3_bench] seg 1: wall 20.7 s for 1 walker(s) = {'read_state': 0.9486, 'h2d': 0.0307, 'roll': 11.8265, 'd2h_state': 0.1597, 'write_state': 5.9897, 'write_diag': 1.7676}
+[wbench] wrote /wb/wbench/S2S_ExtremeWeather/runs/wbench/small1/results/fcn3_e2s__solo__w00__segments_b1_nc.json

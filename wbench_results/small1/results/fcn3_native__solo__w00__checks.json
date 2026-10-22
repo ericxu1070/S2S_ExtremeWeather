@@ -1,0 +1,149 @@
+{
+  "schema": 1,
+  "written": "2026-10-20T23:55:12Z",
+  "config": "fcn3_native",
+  "phase": "solo",
+  "worker": 0,
+  "kind": "checks",
+  "run_id": "small1",
+  "device": "NVIDIA H100 80GB HBM3",
+  "torch": "2.11.0+cu128",
+  "disco_kernel": true,
+  "checks": [
+    {
+      "name": "native_matches_e2s",
+      "verdict": "PASS",
+      "steps": 4,
+      "bitwise": [
+        true,
+        true,
+        true,
+        true
+      ],
+      "max_abs_diff": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "t2m_rms_k": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "note": "WARN = same model to rounding (different kernel order), not bitwise",
+      "seconds": 15.2
+    },
+    {
+      "name": "determinism",
+      "verdict": "PASS",
+      "bitwise": true,
+      "max_abs_diff": 0.0,
+      "seconds": 26.2
+    },
+    {
+      "name": "restart_exact_nc",
+      "verdict": "PASS",
+      "roundtrip_bitwise": true,
+      "continuation_bitwise": true,
+      "max_abs_diff": 0.0,
+      "t2m_rms_k": 0.0,
+      "state_bytes": 196469310,
+      "write_read_s": 7.58,
+      "seconds": 26.2
+    },
+    {
+      "name": "restart_exact_npz",
+      "verdict": "PASS",
+      "roundtrip_bitwise": true,
+      "continuation_bitwise": true,
+      "max_abs_diff": 0.0,
+      "t2m_rms_k": 0.0,
+      "state_bytes": 307374244,
+      "write_read_s": 0.73,
+      "seconds": 26.2
+    },
+    {
+      "name": "noise_renewal",
+      "verdict": "INFO",
+      "t2m_rms_k_after_segment": 0.6399236073965024,
+      "note": "restart without the persisted noise state vs with it, same seeds; compare with clone_divergence at the same lead",
+      "seconds": 26.2
+    },
+    {
+      "name": "clones",
+      "verdict": "ERROR",
+      "error": "OutOfMemoryError: CUDA out of memory. Tried to allocate 40.73 GiB. GPU 0 has a total capacity of 79.10 GiB of which 6.57 GiB is free. Including non-PyTorch memory, this process has 72.52 GiB memory in use. Of the allocated memory 54.32 GiB is allocated by PyTorch, and 17.53 GiB is reserved by PyTorch but unallocated. If reserved but unallocated memory is large try setting PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True to avoid fragmentation.  See documentation for Memory Management  (https://d",
+      "seconds": 5.7
+    },
+    {
+      "name": "batch_invariance",
+      "verdict": "SKIP",
+      "note": "B=2 does not fit on this card",
+      "seconds": 0.7
+    },
+    {
+      "name": "state_integrity",
+      "verdict": "PASS",
+      "problems": [],
+      "ranges": {
+        "t2m": [
+          201.76510620117188,
+          317.85528564453125
+        ],
+        "z500": [
+          45431.19921875,
+          58443.8046875
+        ],
+        "tcwv": [
+          0.0,
+          74.0308609008789
+        ],
+        "msl": [
+          94767.640625,
+          103434.265625
+        ]
+      },
+      "noise_shape": [
+        1,
+        8,
+        361,
+        361,
+        2
+      ],
+      "state_bytes": 196194542,
+      "seconds": 21.3
+    }
+  ],
+  "n_fail": 1,
+  "n_warn": 0,
+  "total_wall_s": 109.4,
+  "host": {
+    "hostname": "computeinstance-e00fjhc4cz8n2e69gz",
+    "cpu_model": "Intel(R) Xeon(R) Platinum 8468",
+    "cpus_affinity": 16,
+    "cpus_node": 16,
+    "mem_total_gb": 206.1,
+    "gpus": [
+      {
+        "index": "0",
+        "name": "NVIDIA H100 80GB HBM3",
+        "mem_total_mib": "81559",
+        "mem_used_mib": "71716",
+        "driver": "550.163.01",
+        "sm_clock_max_mhz": "1980",
+        "power_limit_w": "700.00"
+      }
+    ],
+    "python": "3.11.17",
+    "env": {
+      "CUDA_VISIBLE_DEVICES": "0",
+      "OMP_NUM_THREADS": "16",
+      "WB_RUN_ID": "small1",
+      "WB_PHASE": "solo",
+      "WB_CONCURRENCY": "1",
+      "WB_QUICK": "1"
+    }
+  }
+}

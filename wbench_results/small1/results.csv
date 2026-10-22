@@ -1,0 +1,10 @@
+layer,config,phase,batch,io,s_per_walker_sim_day,s_per_step_compute,s_per_step_roll,n
+1,gencast_0p25,solo,1,,55.415,27.708,28.439,1
+1,gencast_1p0,solo,1,,7.015,3.507,3.559,1
+1,fcn3_e2s,solo,1,,3.94,0.985,0.986,2
+1,fcn3_native,solo,1,,3.942,0.986,0.987,4
+2,gencast_0p25,solo,1,nc-zlib4,62.553,,,1
+2,gencast_1p0,solo,1,nc-zlib4,7.526,,,1
+2,fcn3_e2s,solo,1,nc-zlib4,6.908,,,1
+2,fcn3_native,solo,1,nc-zlib4,7.055,,,1
+2,fcn3_native,solo,1,npz-raw,4.79,,,1

@@ -1,0 +1,189 @@
+{
+  "schema": 1,
+  "written": "2026-10-20T23:59:12Z",
+  "config": "fcn3_native",
+  "phase": "solo",
+  "worker": 0,
+  "kind": "segments_b1_npz",
+  "run_id": "small1",
+  "concurrency": 1,
+  "model": "fcn3",
+  "path": "native",
+  "step_h": 6,
+  "seg_steps": 12,
+  "seg_days": 3.0,
+  "batch": 1,
+  "walkers": [
+    0
+  ],
+  "io": "npz-raw",
+  "noise_persisted": true,
+  "torch": "2.11.0+cu128",
+  "device": "NVIDIA H100 80GB HBM3",
+  "disco_kernel": true,
+  "startup": {
+    "import_s": 0.94,
+    "load_s": 2.75,
+    "first_step_s": 2.429
+  },
+  "compute_s_per_step": {
+    "n": 12,
+    "median": 0.98465,
+    "mean": 0.98484,
+    "min": 0.9843,
+    "max": 0.9859,
+    "p10": 0.9846,
+    "p90": 0.98528
+  },
+  "roll_s_per_step": {
+    "n": 1,
+    "median": 0.98578,
+    "mean": 0.98578,
+    "min": 0.98578,
+    "max": 0.98578,
+    "p10": 0.98578,
+    "p90": 0.98578
+  },
+  "segment_wall_s": {
+    "n": 1,
+    "median": 14.3702,
+    "mean": 14.3702,
+    "min": 14.3702,
+    "max": 14.3702,
+    "p10": 14.3702,
+    "p90": 14.3702
+  },
+  "s_per_sim_day": {
+    "compute": 3.939,
+    "roll": 3.943,
+    "segment": 4.79
+  },
+  "all_finite": true,
+  "segments": [
+    {
+      "seg": 0,
+      "warm": true,
+      "steps": 12,
+      "batch": 1,
+      "phases": {
+        "h2d": 0.0315,
+        "roll": 13.329,
+        "d2h_state": 0.1643,
+        "write_state": 0.3147,
+        "write_diag": 1.869
+      },
+      "wall_s": 15.7085,
+      "step_compute_s": [
+        2.4248,
+        0.9889,
+        0.9854,
+        0.9861,
+        0.9849,
+        0.9874,
+        0.9851,
+        0.9847,
+        0.9848,
+        0.9845,
+        0.9857,
+        0.9846
+      ],
+      "step_total_s": [
+        2.429,
+        0.9897,
+        0.9862,
+        0.9869,
+        0.9857,
+        0.9882,
+        0.9859,
+        0.9855,
+        0.9855,
+        0.9852,
+        0.9866,
+        0.9853
+      ],
+      "state_bytes_per_walker": 307374412,
+      "diag_bytes_per_walker": 58309291,
+      "finite": true,
+      "t2m_global_mean_k": 279.911,
+      "valid_end": "2021-06-10 00:00:00"
+    },
+    {
+      "seg": 1,
+      "warm": false,
+      "steps": 12,
+      "batch": 1,
+      "phases": {
+        "read_state": 0.2478,
+        "h2d": 0.0314,
+        "roll": 11.8294,
+        "d2h_state": 0.1612,
+        "write_state": 0.3228,
+        "write_diag": 1.7775
+      },
+      "wall_s": 14.3702,
+      "step_compute_s": [
+        0.985,
+        0.9853,
+        0.9846,
+        0.9843,
+        0.9848,
+        0.9847,
+        0.9846,
+        0.9851,
+        0.9846,
+        0.9859,
+        0.9846,
+        0.9846
+      ],
+      "step_total_s": [
+        0.9858,
+        0.986,
+        0.9854,
+        0.9851,
+        0.9856,
+        0.9855,
+        0.9854,
+        0.986,
+        0.9854,
+        0.9867,
+        0.9854,
+        0.9854
+      ],
+      "state_bytes_per_walker": 307374412,
+      "diag_bytes_per_walker": 58279191,
+      "finite": true,
+      "t2m_global_mean_k": 279.979,
+      "valid_end": "2021-06-13 00:00:00"
+    }
+  ],
+  "peak_alloc_gb": 52.95,
+  "peak_reserved_gb": 69.83,
+  "total_gb": 84.93,
+  "host": {
+    "hostname": "computeinstance-e00fjhc4cz8n2e69gz",
+    "cpu_model": "Intel(R) Xeon(R) Platinum 8468",
+    "cpus_affinity": 16,
+    "cpus_node": 16,
+    "mem_total_gb": 206.1,
+    "gpus": [
+      {
+        "index": "0",
+        "name": "NVIDIA H100 80GB HBM3",
+        "mem_total_mib": "81559",
+        "mem_used_mib": "67290",
+        "driver": "550.163.01",
+        "sm_clock_max_mhz": "1980",
+        "power_limit_w": "700.00"
+      }
+    ],
+    "python": "3.11.17",
+    "env": {
+      "CUDA_VISIBLE_DEVICES": "0",
+      "OMP_NUM_THREADS": "16",
+      "WB_RUN_ID": "small1",
+      "WB_PHASE": "solo",
+      "WB_CONCURRENCY": "1",
+      "WB_QUICK": "1"
+    }
+  }
+}
