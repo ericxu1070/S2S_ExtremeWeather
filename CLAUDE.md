@@ -57,7 +57,7 @@ Traps this split sets:
   Never launch infer directly on the login node (no GPU), and note the HRRR overlay build
   (`xhrrr`, `C.HRRR_NC`) is still Derecho-only (`/glade` path) — the synced
   `runs/observations/*_hrrr_verif_*.nc` files cover it here.
-- **AI+RES (branch `aires`) is a3mega-native.** Its scorer is FCN3, which needs ~64 GB of
+- **AI+RES (`aires/`, on `main` since the 2026-10-07 merge) is a3mega-native.** Its scorer is FCN3, which needs ~64 GB of
   VRAM and therefore an 80 GB H100 — a Derecho A100-40GB OOMs (confirmed, job 6857923). On
   Derecho you can do the CPU half (the adapter, the calibration, Gate 1, and re-scoring
   Gate 2 from cached cubes) but you cannot produce any new FCN3 or 0.25° GenCast output.
@@ -188,7 +188,7 @@ is exactly why the machine check above matters. FCN3 is the exception — it nee
 `fcn3` env, so anything spanning GenCast and FCN3 hands off through disk.) Figure out which
 one you are working on before touching anything:
 
-| | **GenCast S2S** (original) | **AI+RES** (`aires`, branch) | **Downscaler** (extension) |
+| | **GenCast S2S** (original) | **AI+RES** (`aires/`, merged to `main`) | **Downscaler** (extension) |
 |---|---|---|---|
 | Dirs | `gencast_s2s/`, `xres/`, `pbs/`, `runs/` | `aires/`, `fcn3/`, `astab/` | `downscaler/` (self-contained) |
 | Framework | JAX / GraphCast | JAX walker + PyTorch/earth2studio scorer | PyTorch (DDP) |
@@ -219,7 +219,7 @@ climatology, ERA5 truth under `runs/observations/`), but writes to a separate tr
 already built, known failure modes, and per-job triage steps. Update it after resubmitting
 jobs.
 
-### 1b. AI+RES rare-event sampling (`aires/`, branch `aires`) — GenCast walkers, FCN3 score
+### 1b. AI+RES rare-event sampling (`aires/`, merged to `main` 2026-10-07) — GenCast walkers, FCN3 score
 
 A port of Lancelin et al.'s AI+RES (arXiv:2510.27066, PRL 2026) with the roles inverted:
 GenCast is the **walker** (the thing being propagated and resampled) and FourCastNet 3 is

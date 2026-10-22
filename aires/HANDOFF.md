@@ -4,8 +4,15 @@ Read `aires.md` (repo root) for the experiment design. This file is the state of
 work, updated as phases complete. **Trust the commands in "Verify state" over any prose
 here** - doc claims rot, `ls` does not.
 
-Branch: `aires`. Machine split: Derecho for CPU work, a3mega H100 for anything touching
-FCN3 or GenCast inference.
+Last updated 2026-10-22.
+
+Branch: `main`. The `aires` branch (with `adapter-test` inside it) was merged into `main` on
+2026-10-07 (merge `369753f`); there is no separate branch to check out any more. Machine
+split: Derecho for CPU work, a3mega H100 for anything touching FCN3 or GenCast inference.
+
+**Start here for new work:** `aires/HINDCAST_TODO.md` (the daily hindcast, see "The daily
+hindcast plan" below). The 42-case calibration campaign that ran on this machinery after the
+waves lives in `acal/` and its state in `acal/HANDOFF.md`, not here.
 
 Visual summaries:
 - plan, adapter, Gate 1 (design, derivations, open problems):
@@ -36,19 +43,21 @@ Visual summaries:
 | 3 - workers + Slurm driver | **done**, smoke-tested on the hardware (job **1161**, 30.7 min). `aires/run_aires.py`, `slurm/aires_res.slurm`, `slurm/aires_env.sh`. The loop rolled clones, resampled on real FCN3 scores, pruned states, and replayed bit-identically in 2 s. See "What Phase 3 established" |
 | 4 - run the pilot + figures | **done**, job **1172** (7 h 45 m). AI+RES reaches the observed dome (42/64 walkers) where 40 direct GenCast members do not (0/40); P = 0.054. See "What Phase 4 established" |
 | 4b - rebuild the pilot's probabilities as binned PDFs vs ERA5 | **done**, job **1174** (45 s, debug CPU node). The weighted spatial PDF reaches ERA5's tail: box P(point >= +9 K) = 0.0505 vs ERA5's 0.0848, where 24 direct members give 0.0011. See "The pilot's probabilities as binned PDFs" |
-| 5 | not started |
+| 5 - Stage B, seasonal return periods (`aires.md`) | not started |
 | follow-up - adapter skill vs truth, 6 events + 4 null controls (branch `adapter-test`) | **DONE.** 10/10 cases rolled and scored (jobs 1162, 1167, 1171). Pooled effect **+0.23% [-5.20, +5.65]**, sign 6/10, extreme-vs-null contrast p 0.505 - no effect detectable at +-5.4%, no regime dependence. See "The adapter test" below |
 | 5-scoping - lead-time stability sweep (weeks 4/6/8/10) | **DONE**, job **1189** (1 h 47 m, one node). **GenCast stable through week 6 (42 d) on every chain; FCN3 through week 10 (70 d) on every rollout, both arms.** 3 of 8 GenCast chains diverged, not monotonically in lead - and TWO of the three did so in the polar stratosphere (1211 K at 50 hPa) while CONUS stayed normal, invisible to every calibrated CONUS diagnostic. See "The lead-time stability sweep" below |
 | 5-scoping - FCN3-only extension to 20 weeks (140 d) | **DONE**, job **1194** (2 h 16 m, one node, 2026-08-28). **FCN3 stable through week 14 (98 d) on every rollout of both arms.** At week 16 and beyond the PNW rollouts diverge (ERA5-IC arm at 75 d of the 112-d chain and 129 d of the 140-d one; adapter-fed arm at 105-111 d on all three) while every Uri rollout is clean to 140 d. No GenCast verdict at these leads, by design. See "The FCN3-only extension" below |
 | 5-scoping - 100-member GenCast ensemble at week 8 (PNW) | **DONE**, job **1197** (4 nodes, 32 shards, 4 h 34 m, 113 GPU-h). **9 of 100 members diverged by 56 d (9%, Wilson 95% 5-16%); 100% clean through 36 d.** All nine loud, all starting on negative 850 hPa humidity at 39-54 d and growing into the stratospheric winds. Member 2 did NOT reproduce job 1189's 45 d blow-up on the same noise stream. See "The ensemble follow-up" below |
-| 4c - multi-event extension: 3 heat events + controls | **IN FLIGHT** (2026-08-24). Registry/boxes/tests landed; productions running for Southwest_HeatWave_2020 (job **1176**) and California_HeatWave_2022 (job **1177**); Gate 3 for SCentral_HeatDome_2023 (job **1178**). See "The multi-event extension (wave log)" below |
+| 4c - multi-event extension, wave 1: 3 heat events + persistence control | **DONE** (2026-08-25, jobs 1176-1180). Hits on PNW, SCentral, California; honest miss on Southwest (+3.3 sigma); persistence-RES 0/64, so the FCN3 score is the ingredient. See "The multi-event extension (wave log)" below |
+| 4d - wave 2: two cold extremes + the low end of the ladder | **DONE** (2026-08-26, jobs 1181-1186). Both cold events reached; calibration anchor inside the direct CI; median check passes at 0.00 sigma, estimator pinned (silently) below the median. See "Wave 2" below |
+| acal - 42-case calibration campaign (2021-2025 CONUS episodes) | **DONE** 2026-09-30, plus multi-model board and opposite-tail check (to 2026-10-14). State in `acal/HANDOFF.md` |
 | next - daily hindcast (90 d, then 3 yr), full TP/FP/FN/TN table | **PLANNED, nothing built** (2026-10-22). FCN3 is the walker (decided); a deterministic scorer, coarse models included, is to be tried and must cost <= one FCN3 member. Plan and open fixes in `aires/HINDCAST_TODO.md`; summary in "The daily hindcast plan" below |
 
 **Phases 1-4 are complete.** All three gates pass, the RES core is validated, the
 driver ran the pilot end to end on an 8xH100 node (job 1172) with its figures written
 (see "What Phase 4 established"), and the pilot's probabilities are rebuilt as binned
-PDFs against ERA5 (job 1174). What is left is Phase 5 (gated, exploratory) and the
-un-run persistence-backend control. a3mega holds the calibration, the Gate 2 cubes, the 16
+PDFs against ERA5 (job 1174). The persistence-backend control ran too (job 1180, wave 1).
+What is left is Phase 5 (gated, exploratory) and the daily hindcast. a3mega holds the calibration, the Gate 2 cubes, the 16
 walker trajectories and the H100s. The full Gate 2 data tree is mirrored on Derecho as well and
 re-scores there identically, so Derecho can do CPU analysis, but it is not required again
 until Phase 5.
@@ -167,7 +176,7 @@ productions):
   ensemble by construction), records `gencast_xres_source="gate3"` in pdf_fields.nc,
   relabels the curve, and validates G13 against the ds key the ensemble was recorded
   under. Suite green after: 202 passed, 1 skipped.
-- [ ] wave 3 (optional, user's call): p90_20240802 at N=32 tag `pilot32` (~29 GPU-h).
+- [ ] wave 3 (optional, user's call; never run, superseded by the acal campaign): p90_20240802 at N=32 tag `pilot32` (~29 GPU-h).
   With SW's curve-agreement calibration + the nulls' role in the adapter test, the
   amplitude-scaling question may already be answered well enough - the four-run set
   (PNW hit / CA hit / SCentral hit / SW honest miss + persistence control) is a
@@ -188,7 +197,7 @@ absolute anomaly; the honest miss (SW) plus the mid-curve calibration agreement 
 three curves is what makes the three hits believable; the persistence control attributes
 the entire gain to the FCN3 score. Total spent: ~232 H100-h across 5 runs + 1 Gate 3.
 
-## Wave 2 - cold regimes and the low end of the ladder - 2026-08-25 (IN FLIGHT)
+## Wave 2 - cold regimes and the low end of the ladder - 2026-08-25/26 (DONE)
 
 Wave 1 answered one question in one regime at the top of the severity scale: every
 production was a warm, high-tail T2m heat event. Two things were untested as a result.
@@ -363,7 +372,7 @@ moment `compare.json` exists):
   direct 0.0042, unweighted 0.0907. `pdf_box` was skipped as a deliberate duplicate:
   a p90 case's scored region IS CONUS, so the two panels would be one picture under two
   filenames.
-- [ ] job **1183** Uri production (submitted 2026-08-25 23:44, after the gate passed).
+- [x] job **1183** Uri production (submitted 2026-08-25 23:44, after the gate passed; result in the next item).
   **THE NEGATIVE-TAIL PATH IS NOW EXERCISED END TO END IN A PRODUCTION RUN** - the gap
   this whole wave exists to close. Checked on leg 2's live `theta.json` (the run's FIRST
   real FCN3-scored resampling; leg 1 is `skipped(C=0)` and sets `used` to all zeros, so
@@ -451,7 +460,7 @@ moment `compare.json` exists):
   tree, and Elliott is not one of the six head-to-head events so there is no FCN3 cube).
   Both `apdfs` and `amaps` handled that through the optional-baseline path the wave-1
   extension added, with no code change needed.
-- [ ] Elliott and the two remaining p90 cases skip Gate 3, on the wave-1 argument: their
+- [x] (decision, applied) Elliott and the two remaining p90 cases skip Gate 3, on the wave-1 argument: their
   cached 24-member xres cubes ARE the DS baseline, and once Uri passes, Elliott inherits
   the cold-T2m skill argument. Residual-risk checks are free - the first resampling
   (3 d, C=0) is the identity, so walkers are still i.i.d. at 6 d and a post-hoc
@@ -579,11 +588,9 @@ What wave 2 establishes, in the order the plan asked the questions:
 
 Cost: **~318 H100-h** - 5 x ~62 productions plus ~18 for Uri's Gate 3 - over ~24 h
 elapsed at 2 concurrent nodes (jobs 1181-1186). Uri's Gate 3 seeding saved ~2.8 H100-h.
-- [ ] `python -m aires.alift` has NOT been run over the wave-2 slate. It is another
-  session's in-flight work (`aires/alift.py` + `aires/aclim.py`, written 2026-08-26
-  21:15) and it redraws the whole slate from every `compare.json` it finds, so it will
-  pick up all five new runs whenever its author runs it.
-- [ ] wave 3 (optional): p90_20240802 at N=32 tag `pilot32` as the mild control
+- [x] `python -m aires.alift` has been run over the wave-2 slate (2026-08-26; running it is
+  how the Elliott climatology bug below was found, commit `a20df05`).
+- [ ] wave 3 (optional, never run): p90_20240802 at N=32 tag `pilot32` as the mild control
 - [ ] after each finished+compared run: `--stage ds`, `--stage compare`, apdfs/aplots/amaps,
   then `PYTHONPATH=. python -m aires.alift` and `PYTHONPATH=. python -m aires.awalkers`
   (both cross-event, both redraw the whole slate from every `compare.json` they find -
@@ -601,7 +608,8 @@ elapsed at 2 concurrent nodes (jobs 1181-1186). Uri's Gate 3 seeding saved ~2.8 
 - [x] pruned via the guarded `--stage prune`: PNW pilot states (192 files, 91 GB) and
   Southwest pilot states (192 files, 91 GB) - both only after res_result.json AND
   compare.json existed. 339 GB free after.
-- [ ] **two deletions still pending the user** (raw `rm`/`find -delete` is blocked by
+- [ ] **two deletions pending the user as of 2026-08-26; not re-checked since, so look on
+  a3mega before acting** (raw `rm`/`find -delete` is blocked by
   the permission classifier; only the guarded python prune passes): PNW Gate 3
   step03-07 states, 80 files / 38 GB (`find runs/aires/PNW_HeatDome_2021/walkers -path
   '*step0[3-7]/state.nc' -delete` - KEEPS step01/02, which the persistence control
@@ -1662,11 +1670,11 @@ years, fills every cell of the contingency table.
 ## Verify state (run these, don't trust the table)
 
 ```bash
-# a3mega (this machine): conda activate moe; cd .../S2S_ExtremeWeather
+# a3mega: conda activate moe; cd .../S2S_ExtremeWeather (runs/ exists only on a3mega and Derecho)
 # Derecho: module load conda && conda activate my-env; cd /glade/derecho/scratch/exu/...
 
 ls -l runs/aires/calib/derived_calib.nc              # calibration built? (~48 MB)
-PYTHONPATH=. python -m pytest aires/tests/ -q        # 110 pass, 1 skipped (~2 min)
+PYTHONPATH=. python -m pytest aires/tests/ -q        # all pass, 1 skipped (293 on 2026-09-03; ~2 min)
 PYTHONPATH=. python -m aires.calibrate --gate1       # re-scores Gate 1 on the held-out ICs
 PYTHONPATH=. python -m aires.gate2 --stage score     # re-scores Gate 2 from cached cubes
 ls runs/aires/gate2/cache/*_adapter_cube.nc          # Gate 2 adapter ensemble (24 members)
@@ -2730,15 +2738,14 @@ Two facts found while writing it, both worth keeping:
    exist; the per-event boxes `aires.md` deferred to Phase 3 are defined in
    `aires/aindex.py::EVENT_BOXES`. Measured cost for the whole gate on one 8xH100 node:
    **2 h 08 m** (walk 38 min incl. a ~15 min XLA compile with 8 concurrent workers, score
-   ~85 min), 57 GB of walker states + 80 score cubes. ~~Phase 2 is the next work.~~
-   Phases 2 and 3 are also done; **Phase 4 (submit the pilot, write `aires/aplots.py`) is
-   the next work.**
+   ~85 min), 57 GB of walker states + 80 score cubes. Phases 2-4 are done too.
 2. ~~Gate 2's G2b criterion needs amending~~ - **done 2026-08-18**. `aires.md` now
    specifies G2b as a >= 7 d rank-equivalence horizon and requires G2c; `aires/gate2.py`
    implements it and `--stage score` exits 0. Gate 2 is recorded as PASS.
-3. **The calibration was fitted on ERA5, but production inputs are GenCast forecasts** at
-   3-15 day lead, which are smoother than analysis. Gate 3 is what measures whether that
-   matters; Gate 1 cannot see it, and Gate 2 could not either (both ICs there are ERA5).
+3. ~~The calibration was fitted on ERA5, but production inputs are GenCast forecasts~~ -
+   **answered**: Gate 3 passed on adapter-fed GenCast states (rho_s 0.797 / 0.959), and the
+   ten-case adapter test bounds the adapter's skill cost under ~5%. Moot entirely if the
+   FCN3 walker is adopted (no adapter).
 4. **The tcwv residual (~4%) is close to the floor** for any linear function of 13 q
    levels - the sub-1000 hPa moisture is not in the state. Whether 4% matters at all is
    Gate 2's question, not something to optimise further blind.
@@ -2748,10 +2755,10 @@ Two facts found while writing it, both worth keeping:
    mean dominated by its smallest term, and `dmc.py`'s own docstring records a standard
    deviation of ~0.5 on the reference OU problem at N=256. At the pilot's N=64 and K=5 it
    is worth watching across the two backend runs, not diagnosing from one number.
-6. **The pilot has one event.** Everything from Gate 3 onward - the skill curve the C_k
-   schedule was tuned on, the box, the DS gap - is PNW_HeatDome_2021. Uri and Ian have
-   boxes defined and would run unchanged (Uri exercises the cold-tail sign, which is
-   currently only pinned by a test), but neither has walkers.
+6. ~~The pilot has one event.~~ - **closed**: waves 1 and 2 ran nine more productions
+   (incl. Uri and Elliott on the cold-tail path, Gate 3 on SCentral and Uri), and acal ran
+   42 more cases. What is still open is the outcome-selected sample: every case so far was
+   picked because something happened. The daily hindcast is the fix.
 7. **Calibration seasonal coverage is thin in summer**: the 90 p90 ICs have 0 June and 2
    July frames. The held-out June 7 PNW case passed anyway, so it generalises, but a
    summer-heavy fit would be a cheap improvement if Gate 2 disappoints.
@@ -2778,29 +2785,25 @@ Two facts found while writing it, both worth keeping:
    plus a one-node smoke test comparing walker states against a cached acal case. Worth
    doing before the non-event controls (acal next step 1). Splitting the executable to get
    under 2 GiB is not a realistic alternative.
+   2026-10-22: moot for the daily hindcast if the FCN3 walker is adopted (FCN3 starts in
+   ~5 s, wbench small1); still applies to any further GenCast-walker run.
 
-## Start here for Phase 4 (on a3mega)
+## Running a production (the pilot's recipe, still valid)
 
-Phases 1-3 are closed. The adapter is exact where it can be, an adapter IC forecasts like
-a native one, the FCN3 score ranks walkers, the DMC core is validated against an analytic
-problem, and the driver that runs it on real walkers has been exercised end to end on an
-8xH100 node. What is left is to submit the pilot and draw the figures.
+Phases 1-4 are closed (see the status table). This is the command sequence every
+production since the pilot has used; for what to run NEXT see `aires/HINDCAST_TODO.md`.
 
 ```bash
-# a3mega, GenCast env (moe), repo root
-cd .../S2S_ExtremeWeather && git fetch && git checkout aires && git pull
+# a3mega, GenCast env (moe), repo root, branch main
+cd .../S2S_ExtremeWeather && git pull
 
 # confirm Phases 1-3 still stand (all CPU, ~6 min)
-PYTHONPATH=. python -m pytest aires/tests/ -q            # 133 pass, 1 skipped
+PYTHONPATH=. python -m pytest aires/tests/ -q            # all pass, 1 skipped
 PYTHONPATH=. python -m aires.gate2 --stage score         # GATE 2: PASS, exit 0
 PYTHONPATH=. python -m aires.gate3 --stage reduce        # GATE 3: PASS, exit 0
 PYTHONPATH=. python -m aires.ctune --check               # the surrogate's fit to Gate 3
-PYTHONPATH=. python -m aires.ctune --rho-sens            # how low rho_6d must go before C_2=0 pays
-PYTHONPATH=. python -m aires.ctune --validate-production # why rho cannot be read off a production run
-PYTHONPATH=. python -m aires.ctune --search \
-    --thresholds 3.0,3.5                                 # best schedule with and without C_1=C_2=0
 
-# the pilot: readiness, budget, disk, and the Gate 3 seeding -- must print READY: yes
+# readiness, budget, disk, and the Gate 3 seeding -- must print READY: yes
 PYTHONPATH=. python -m aires.run_aires --stage prep
 ```
 
@@ -2809,28 +2812,24 @@ Gate 3 already rolled, prints the budget from MEASURED rates, checks the project
 against what is actually free, and freezes the configuration in `run.json`. Run it on the
 LOGIN node - it is CPU-only, and a GPU job must be a pure cache-hit-then-compute.
 
-Then the pilot itself, ~44 H100-h / ~5.6 h on one node:
-
 ```bash
 sbatch slurm/aires_res.slurm                             # N=64, fcn3 backend
-# and the control, which costs only its walkers (no FCN3 at all):
+# the Standard-RES control, which costs only its walkers (no FCN3 at all):
 AIRES_RES_TAG=persist AIRES_BACKEND=persistence sbatch --export=ALL slurm/aires_res.slurm
 
 # afterwards, login node, moe:
-PYTHONPATH=. python -m aires.run_aires --stage ds        # already built; re-run is free
+PYTHONPATH=. python -m aires.run_aires --stage ds
 PYTHONPATH=. python -m aires.run_aires --stage compare   # -> compare.json + compare_curve.csv
+# then figures (apdfs / aplots / amaps), alift + awalkers, and --stage prune (see the wave log)
 ```
 
 A walltime kill is resumed by **resubmitting the same script**: every finished leg replays
 in seconds and no GPU pool is launched for it. Do not start a new tag to resume.
 
-Then Phase 4's actual new work, `aires/aplots.py` (six figures, listed in `aires.md`).
-`--stage compare` already writes everything they need: the exceedance curve for AI+RES and
-each direct-sampling source, the per-step ESS and multiplicities, the genealogy, the
-per-walker running index, and the ancestry of every final walker.
-
 Settled by Phases 2-3, do not re-litigate: `C_k = (0, 1.0, 1.4, 1.8, 2.0)` as written,
-M = 6, N = 64, states pruned to the last 2 segments, no score bought where `C_k = 0`.
+N = 64, states pruned to the last 2 segments, no score bought where `C_k = 0`. M = 6 was
+the production value; `gate3_msub.py` (2026-10-22) shows M = 3 keeps ~99% of the skill at
+9/12 d, which the hindcast plan intends to use.
 
 ## Files
 
@@ -2852,13 +2851,20 @@ M = 6, N = 64, states pruned to the last 2 segments, no score bought where `C_k 
 | `aires/aplots.py` | the Phase 4 figures: trajectory, exceedance, diagnostics, genealogy, composite |
 | `aires/cfs.py` | the CFSv2 operational baseline: range-fetches NCEI's archive, regrids to the 0.25 deg CONUS grid, reports `A_L` at the 21 d lead. `--event NAME` / `--all`. Needs internet, no GPU |
 | `aires/apdfs.py` | the pilot's PDFs: `--stage {build,figs,all}` - lineage-stitched walker fields, weighted binned PDFs (CONUS + box), the 3-panel map |
+| `aires/akde.py` | the population as a density: Gaussian KDE of `A_L`, weighted / unweighted / direct |
+| `aires/amaps.py` | Phase 4 maps: the pilot's tail in space, against truth and baselines |
+| `aires/alift.py`, `aires/aclim.py` | the cross-event lift figure (forecast vs climatology) and the climatology cache it reads; rebuild the cache after registering a box |
+| `aires/aceiling.py` | the model ceiling: is AI+RES's probability limited by the sampler or by GenCast? |
+| `aires/aera5.py` | the ERA5 running index, 6-hourly over the whole lead (ERA5 as a trajectory) |
+| `aires/ainsights.py`, `aires/INSIGHTS_PLAN.md` | the figures the insights deck needs, and that deck's plan |
+| `aires/adaptest.py`, `aires/fig_adapter_vs_native.py` | the ten-case adapter test and the Gate 2 adapter-vs-native maps |
 | `aires/awalkers.py` | the population figure: every surviving walker's `A_L` and its mass `p_i = Z w_i/N`, per run and across the slate, + `runs/aires/aires_walkers.csv` |
 | `astab/` | the lead-time stability sweep, **its own package and its own tree since 2026-08-27** (it was `aires/astab.py` writing into the `stab` tag of `runs/aires/<event>/res/`). Driver `python -m astab.run --stage {plan,check,refs,calibrate,walk,score,reduce,figs,maps,prune}`. See `astab/__init__.py` |
 | `astab/sconfig.py` | the only place the tree is decided; `AIRES_STAB_RUNS`/`AIRES_STAB_FIGS` move either root |
 | `astab/schedule.py` | `chain_schedule` is pure arithmetic on `horizon % 3` - no per-chain tail table |
 | `astab/refs.py` | ERA5: the scalar series AND the CONUS T2m truth fields. `_wb2_frame` reads WeatherBench-2 through raw zarr because `data.open_anon` does not fit in this login node's 15 GB |
 | `astab/maps.py` | the lead-by-lead T2m maps: forecast / ERA5 / difference, one figure per (event, model, init). Fixed scales - +-12 K difference everywhere, one absolute scale per event - so figures are comparable |
-| `astab/tests/` | 101 tests: the tail table, the horizon exclusion, the prune rule, the job-1155 signature on a synthetic cube, the measured bounds, that a chain reads its OWN week's init frames, and that the maps refuse a grid mismatch rather than aligning it |
+| `astab/tests/` | the tail table, the horizon exclusion, the prune rule, the job-1155 signature on a synthetic cube, the measured bounds, that a chain reads its OWN week's init frames, and that the maps refuse a grid mismatch rather than aligning it |
 | `slurm/aires_stab.slurm` | the sweep: walk (moe) + score free/fed (fcn3) on ONE allocation, 8 GPUs, retried; `AIRES_STAB_MAX_SEGMENTS` is the smoke path |
 | `runs/astab/refs/` | `bands.json` (measured operating ranges), `gate3_panel.csv` (the 224 samples behind them), `<event>_era5_ref.nc` (scalar series), `<event>_era5_t2m.nc` (the truth fields) |
 | `runs/astab/stability.csv`, `figures/astab/stability.png` | the sweep's long table and its four panels |
@@ -2892,6 +2898,7 @@ M = 6, N = 64, states pruned to the last 2 segments, no score bought where `C_k 
 | `runs/aires/<event>/cfs/` | the CFSv2 baseline cube + its `A_L` JSON (tag-independent; ~17 MB/event, gitignored, ~10 s rebuild) |
 | `docs/aires_gate2.html` | published Gate 2 summary (artifact source) |
 | `docs/aires_gate3.html` | published Gate 3 summary (artifact source) |
+| `docs/aires_pilot.html`, `docs/aires_event_slate.html`, `docs/aires_adapter_skill.html`, `docs/aires_reading_the_figures.html`, `docs/aires_writeup/` | the other published summaries and the writeup |
 
 Everything `aires.md` names is written, including the pilot's own output (job 1172:
 `compare.json` and the four figures drawn from it) and the PDF rebuild on top of it

@@ -10,7 +10,7 @@ Everything **runs** on **this box** (a3mega Slurm / H100). Derecho runs none of 
 of 2026-08-17 it holds a **full copy of the results** for offline analysis — see "Artifact
 sync to Derecho" below.
 
-> **This experiment is complete.** Live work has moved to the **`aires` branch** (AI+RES:
+> **This experiment is complete.** Live work has moved to **AI+RES** (`aires/`, merged into `main` 2026-10-07;
 > GenCast walkers, FCN3 score), which reuses this stack's cubes, ICs and event registry.
 > Its state lives in **`aires/HANDOFF.md`** and its design in **`aires.md`** — read those,
 > not this file, for anything AI+RES. The section "AI+RES — what a Derecho session can do"
@@ -468,10 +468,10 @@ bash scripts/sync_a3mega_to_derecho.sh                   # then verify BYTES, no
 # 2. ON Derecho
 module load conda && conda activate my-env
 cd /glade/derecho/scratch/exu/S2S_ExtremeWeather
-git fetch && git checkout aires && git pull
+git checkout main && git pull
 
 ncdump -h runs/models/clim_1990_2019_t2m_conus.nc | sed -n '2,8p'   # expect lat=105 lon=237
-PYTHONPATH=. python -m pytest aires/tests/ -q            # 48 pass, 1 skipped, ~100 s
+PYTHONPATH=. python -m pytest aires/tests/ -q            # all pass, 1 skipped, ~100 s
 PYTHONPATH=. python -m aires.calibrate --fit --gate1     # ~2 min, must reproduce Gate 1
 PYTHONPATH=. python -m aires.gate2 --stage score         # re-derives the Gate 2 verdict
 ```
