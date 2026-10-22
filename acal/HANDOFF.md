@@ -3,9 +3,9 @@
 Read `acal/__init__.py` for what this package is for and `ccfg.py` for the knobs. This
 file is what is **actually built**, not what is planned.
 
-Last updated 2026-10-08.
+Last updated 2026-10-14.
 
-The 42-case campaign finished 2026-09-30. The cross-case result is in "Campaign analysis (2026-10-01)" and the head-to-head against NCEP CFSv2 in "CFSv2 operational baseline (2026-10-05/06)". The multi-model board (CFSv2, GEFSv12, ECCC GEPS and ECMWF IFS (EC46) scored, plus a BB-SUBS estimate from EC46) against ERA5 and HRRR truth is in "Multi-model board: CFSv2, GEFSv12, ECCC GEPS, ECMWF IFS (EC46), BB-SUBS estimate, ERA5 and HRRR truth (2026-10-07/08)", the last section of this file, with a one-page reader summary in `runs/acal/analysis/s2s/board/SUMMARY.md`. Read that section's steering caveat (tilt check) before quoting any AI+RES-vs-baseline log ratio.
+The 42-case campaign finished 2026-09-30. The cross-case result is in "Campaign analysis (2026-10-01)" and the head-to-head against NCEP CFSv2 in "CFSv2 operational baseline (2026-10-05/06)". The multi-model board (CFSv2, GEFSv12, ECCC GEPS and ECMWF IFS (EC46) scored, plus a BB-SUBS estimate from EC46) against ERA5 and HRRR truth is in "Multi-model board: CFSv2, GEFSv12, ECCC GEPS, ECMWF IFS (EC46), BB-SUBS estimate, ERA5 and HRRR truth (2026-10-07/08)", the last section of this file, with a one-page reader summary in `runs/acal/analysis/s2s/board/SUMMARY.md`. Read that section's steering caveat (tilt check) before quoting any AI+RES-vs-baseline log ratio. Whether AI+RES ever forecasts the opposite tail (it cannot as run), and the proposed two-sided splitting function, are in "Opposite-tail check and a two-sided splitting function (2026-10-14)" at the end.
 
 ## Built
 
@@ -1451,3 +1451,92 @@ session scratchpad; rows 19-20 were read from the rewritten tilt files the same 
    non-event control dates.
 3. Non-event controls remain the route to reliability for every row.
 4. Optional anonymous rows are the IFS reforecast (Planette) and NASA GEOS-S2S.
+
+## Opposite-tail check and a two-sided splitting function (2026-10-14, NOTE, nothing built)
+
+Question asked: does AI+RES ever forecast a cold wave where there was none (or a heat wave
+on a cold case)? If not, could the score encourage some walkers into the other tail, and
+could ROC calibrate that? Analysis only, Derecho login node, from files that already exist.
+Nothing was run or changed.
+
+**Answer: no, and the campaign cannot.** Every run cloned toward the tail its event actually
+reached (`run.json` tail_sign = observed sign, applied to the score at
+`aires/run_aires.py:659`). Of the 1,344 final walkers (42 x 32), **none** sits in the opposite
+tail at 2 K, so AI+RES's opposite-tail P is exactly 0 on every case. At 1 K, 0 of 992 walkers
+on the heat cases and 2 of 352 on the cold cases are there (both in e20_c2, max +1.61 K). Those
+2 walkers carry **55%** of e20's self-normalized weight. A walker that survives against the tilt
+is heavily weighted, so the estimator can see the other tail, but only if some walker ends
+up there.
+
+**The model does forecast the other tail.** The only unsteered forecasts that reach the
+window are the lead-6 FCN3 score forecasts (`runs/acal/analysis/s2s/tilt_lead6/<case>.csv`,
+column `al13`, 192 per case; see `tilt.py` for why they are untilted and why they are NOT
+AI+RES):
+
+| | heat cases (31): P(A_L <= -2 K) | cold cases (11): P(A_L >= +2 K) |
+|---|---|---|
+| cases with P > 0 | 17/31 | 10/11 |
+| median / max | 0.005 / 0.146 (e11) | 0.073 / 0.188 (e36) |
+| same at 1 K: median | 0.031 | 0.234 |
+
+Without the sign, that forecast separates the directions well. Across all 42 cases, P(<= -2 K)
+ranks the 11 cold cases above the 31 heat cases with **AUC 0.92** (Mann-Whitney, one-sided
+p 1e-5), and P(>= +2 K) ranks heat above cold with **AUC 0.84** (p 5e-4). That is optimistic:
+the "misses" are opposite-direction extremes, not ordinary weeks. e36_c3 (obs -3.66 K) has more
+untilted mass on the warm tail (0.188) than on the cold one (0.094).
+
+Recompute: final walkers and weights from `analyze.load_all()` (`Case.al`, `Case.weights`),
+self-normalized P = sum(w 1[-s A >= a]) / sum(w); untilted P = fraction of the 192 `al13`
+values beyond the threshold. The session script was `opp_tail.py` (session scratchpad, ~10 s).
+
+**What the tilt does and does not change.** The importance weights undo the tilt in
+expectation, so a cold bonus does not make the forecast colder. It decides where the walkers
+go, which makes the cold-tail P measurable instead of a structural 0. The steered design
+also cannot produce a false alarm, so its ROC at 2 K is undefined (every case is a hit in its
+own direction; see `roc.py`).
+
+**Proposed splitting function (decided: symmetric, a = 0.5).**
+
+    V_k = log( a e^{C_k z} + (1 - a) e^{-C_k z} ),  a = 0.5  ->  V_k = log cosh(C_k z)
+
+where z is the standardized raw CONUS A_L, no sign applied. Properties:
+
+- V depends on the state only, so the weights still telescope along a lineage to
+  w = exp(-V_K) = 1 / cosh(C_K z_K). `C_k = 0` still gives V = 0 exactly, i.e. direct
+  sampling (the `test_dmc.py` invariant).
+- It is even in z: about C^2 z^2 / 2 near zero, so it barely tilts the bulk, and about
+  C|z| - log 2 in the tails. Each tail is cloned at half the one-sided multiplicity, so at
+  N = 32 expect ~16 walkers per tail.
+- `a` is fixed and not taken from the observation, so the run is blind to the outcome.
+  That removes the steering caveat that `tilt.py` measures and makes ROC defined at
+  +/-2/3/4 K across all cases. Any `a` derived from the observed sign would keep the leak.
+- Standardizing z still makes the scheme self-interacting (consistent, not unbiased), and a
+  population that splits into two clumps inflates the SD and shrinks z. The OU-walker test
+  has to cover the two-clump case.
+
+Code touch points (estimate ~2 h CPU incl. tests): `aires/dmc.py:424` (`V = Ck * z` ->
+a `tilt="one_sided"|"two_sided"` option, default unchanged); `aires/run_aires.py:659` (no
+`ctx.sign` when two-sided); record the tilt in `run.json`; `analyze.load_case` hard-fails
+when tail_sign != family, so two-sided runs need their own marker; any-sign exceedance from
+the same weights.
+
+**Do NOT tune a or C on ROC.** There are 11 cold hits and 2-6 hits per curve, so tuning on
+AUC would just fit these cases. `a` and `C` control estimator variance. Size them on
+quantities that ignore the outcome (ESS >= N/4 per `aires.md`, walkers per tail, bootstrap
+variance of P(tail) on the OU walker), then use two-sided ROC + reliability as the
+evaluation. If AUC still moves with C once ties at P = 0 are resolved, that is tilt leaking
+into the forecast, not skill.
+
+**Run design: OPEN (user decision).** Each run is ~33 H100-h (median 4.2 h wall on one
+8 x H100 node; ~7 H100-h of that is the per-leg GenCast recompile, see the 2026-09 compile
+note, not fixed). On a3mega only.
+
+| option | runs | H100-h | gives |
+|---|---|---|---|
+| two-sided: the 42 + quiet-week controls (\|A_L\| < 2 K) | ~84 | ~2,800 | one design for hits and misses; a true false-alarm rate |
+| two-sided: the 42 only | 42 | ~1,400 | two-sided ROC, false alarms only against opposite-direction extremes; ~16 walkers per tail |
+| complementary: opposite sign on each of the 42, keep the existing runs | 42 | ~1,400 | 32 walkers per tail; forecast = warm tail from the warm run + cold tail from the cold run; controls then cost 2 runs each |
+| offline only | 0 | 0 | the code above, OU tests, a/C sizing by ESS; switch default off |
+
+This refines "Next steps" item 2 of the multi-model board section ("settle the steering
+question").
