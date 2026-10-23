@@ -13,3 +13,6 @@ netCDF4==1.7.2
 h5netcdf==1.8.1
 huggingface_hub==1.24.0
 nvidia-physicsnemo==2.1.1
+# Pangu's runtime. 1.24+ is built for CUDA 13 (libcublasLt.so.13) and cannot load its CUDA
+# provider against cu128; 1.23.2 is the last CUDA 12 build (Nebius det1, 2026-10-23)
+onnxruntime-gpu==1.23.2

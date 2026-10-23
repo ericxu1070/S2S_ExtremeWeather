@@ -173,9 +173,21 @@ step_det() {
   py_f3 -m pip install --no-cache-dir "${C[@]}" \
     "earth2studio[pangu,sfno] @ git+https://github.com/NVIDIA/earth2studio.git@$E2S_REF"
   py_f3 -c "import torch; assert torch.__version__.startswith('2.11.0'), torch.__version__"
-  # Pangu runs in onnxruntime; without its CUDA provider it falls back to CPU silently
-  py_f3 -c "import onnxruntime as o; p = o.get_available_providers(); \
-assert 'CUDAExecutionProvider' in p, p; print('onnxruntime', o.__version__, p)"
+  # Pangu runs in onnxruntime; without its CUDA provider it falls back to CPU silently.
+  # get_available_providers() lists CUDA even when the provider library cannot load, so
+  # open a real session and check it kept CUDA
+  bash "$HERE/env.sh" fcn3 python - <<'PY'
+import numpy as np, onnxruntime as o
+from onnx import helper, TensorProto
+g = helper.make_graph([helper.make_node("MatMul", ["a", "a"], ["b"])], "t",
+    [helper.make_tensor_value_info("a", TensorProto.FLOAT, [8, 8])],
+    [helper.make_tensor_value_info("b", TensorProto.FLOAT, [8, 8])])
+m = helper.make_model(g, opset_imports=[helper.make_opsetid("", 17)]); m.ir_version = 9
+s = o.InferenceSession(m.SerializeToString(), providers=["CUDAExecutionProvider"])
+s.run(None, {"a": np.ones((8, 8), np.float32)})
+assert s.get_providers()[0] == "CUDAExecutionProvider", s.get_providers()
+print("onnxruntime", o.__version__, s.get_providers())
+PY
   bash "$HERE/env.sh" fcn3 python - <<'PY'
 import time
 from earth2studio.models.px import Pangu24, SFNO

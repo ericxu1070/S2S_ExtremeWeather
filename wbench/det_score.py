@@ -123,7 +123,8 @@ class ICFile:
     """earth2studio DataSource over one cached IC (the same Protocol GenCastICSource uses)."""
 
     def __init__(self, path: Path):
-        self.da = xr.open_dataarray(path)
+        # eager: a lazy read would land inside the timed deterministic() call (~22 s per IC)
+        self.da = xr.open_dataarray(path).load()
 
     def __call__(self, time, variable) -> xr.DataArray:
         t = np.atleast_1d(np.asarray(time, dtype="datetime64[ns]"))
