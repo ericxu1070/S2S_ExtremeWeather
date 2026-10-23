@@ -32,7 +32,7 @@ Read this before booking or cleaning up a Nebius VM.
 - **R2:** bucket `vayuh` is in Cloudflare account "Arunabh@vayuh.ai's Account" (`1b35b28518577975c68c10385f71a1f6`), not Eric's own (R2 is disabled there). The laptop's `~/.aws` profile `r2` holds an Object Read & Write token for `vayuh`; copy it to the VM with the README's `scp ~/.aws` step. The `cf` CLI exists only on Derecho; set `CLOUDFLARE_ACCOUNT_ID=1b35b28518577975c68c10385f71a1f6` to reach `vayuh`. `cf r2 objects put` caps objects at 300 MB, so bulk data goes through `aws --profile r2`.
 - **End-of-run rule:** an idle 200 GiB disk costs ~$14/month. Before deleting the GPU VM, stream outputs from it straight to R2, then delete VM and data disk together (prefer a managed data disk so it dies with the VM). Use the split upload below, with `export AWS_REQUEST_CHECKSUM_CALCULATION=when_required AWS_RESPONSE_CHECKSUM_VALIDATION=when_required` set.
 
-- **Agents can't create Nebius VMs** (Claude Code auto mode blocks paid launches, and attaching a data disk read-write). Write the command and have Eric run it. Deleting a VM or disk Eric asked to delete went through.
+- **Agents can create Nebius VMs** when Eric asks (det1 was created by an agent, 2026-10-23). State cost and ETA first.
 - **R2 multipart gotcha:** one 35 GB streamed `aws s3 cp -` failed at `CompleteMultipartUpload` with `InvalidPart` after 24 min. Splitting the stream into 2 GiB pieces, each staged on local disk and uploaded with retries, worked first time. For anything over ~5 GB, use the split form:
 
   ```bash
@@ -160,7 +160,7 @@ Ordered by how much a failure would cost on the VM:
     wbench/vm/                README.md runbook, make_bundle.sh, setup_vm.sh, env.sh, run_all.sh,
                               cpu_slices.py, requirements-gencast.txt, constraints-fcn3.txt
 
-## Deterministic AI+RES scorers on Nebius: Pangu24 and SFNO (built 2026-10-23, NOT RUN)
+## Deterministic AI+RES scorers on Nebius: Pangu24 and SFNO (RAN 2026-10-23, run `det1`)
 
 **The question.** Can ONE deterministic forecast per walker replace FCN3's M-member score?
 `aires/score_noise.py` (aires/HANDOFF.md "What M buys") says what that would be worth: a
@@ -186,8 +186,8 @@ the pairs disagree (`wbench/tests/test_det_score.py` pins the direction).
 | `sp` for SFNO (GenCast has none) | **validated against ERA5** (`--stage sp-check`, 2021-06-13 00Z): integrating down from the lowest pressure level above ground gives RMSE 0.40 hPa over land, 0.99 hPa above 1500 m, p99 2.8 hPa. The msl-only formula was 4.0 / 13.9 / 35 hPa, so it is used only where the ground is below the 1000 hPa surface |
 | tests | `wbench/tests/test_det_score.py`, 7 CPU tests (sp, the v estimator incl. the shared-error bias, IC source, shard balance, cost). All of `wbench/tests` passes in `my-env` on Derecho |
 | reduce | end-to-end tested on Derecho with a stand-in model (FCN3 member 0); see "Verified" below |
-| GPU path (`--stage infer` without `--dry`) | **never run.** Pangu24/SFNO load, `earth2studio.run.deterministic` and the zarr -> cube assembly are untested until the VM |
-| Nebius run | **not started** |
+| GPU path (`--stage infer` without `--dry`) | **ran** on Nebius 1x H100 after two fixes (`e5e872b`): onnxruntime-gpu pinned to 1.23.2 (1.24+ is CUDA 13; `get_available_providers` listed CUDA anyway, so the old check passed while Pangu would have run on CPU), and ICs loaded eagerly (the lazy read sat inside the timed call: 28 s -> 7.6 s per Pangu case) |
+| Nebius run | **done**, `det1`. Results in R2 `vayuh/eric/wbench/det1/` and `wbench_results/det1/`; VM and disk deleted |
 
 ### Verified (2026-10-23, Derecho login node, no GPU)
 
@@ -205,8 +205,6 @@ the pairs disagree (`wbench/tests/test_det_score.py` pins the direction).
   down as it should. Stand-in artifacts deleted.
 
 ### Run it (~1.5 h, ~$3-4 on one preemptible H100)
-
-Agents cannot create Nebius resources, so every `nebius` command is Eric's.
 
 1. **Bundle (Derecho login node, ~10 min, needs the 64 ICs).** **DONE 2026-10-23** from
    `ef16f99`: `/glade/derecho/scratch/exu/wbench_bundle/wbench_det_bundle.tar`, 13 GB, sha256
@@ -227,6 +225,32 @@ Agents cannot create Nebius resources, so every `nebius` command is Eric's.
 6. **Bring it home, then delete the VM and its disk:** `runs/aires/PNW_HeatDome_2021/det/`
    minus `ic/` (cubes are CONUS t2m only, small) to R2
    `vayuh/eric/wbench/det1/`. `det_reduce.json` and `logs/reduce.log` are the answer.
+
+### Result (det1, 2026-10-23, 1x H100 preemptible eu-north1)
+
+Pangu24 64 cases in 466 s, SFNO in 591 s. Inference only (IC read excluded): Pangu24
+0.50 s/sim-day, SFNO 0.74, against FCN3's 3.94. `logs/reduce.log`:
+
+```
+   lead        pangu24 rho_s/r  v       sfno rho_s/r  v       FCN3 M=1        FCN3 M=6
+     6d       -0.04 / +0.07  v 0.27   +0.24 / +0.22  v 1.57   +0.40 / +0.36   +0.61 / +0.61
+     9d       +0.40 / +0.43  v 0.62   +0.62 / +0.62  v 0.67   +0.67 / +0.68   +0.80 / +0.82
+    12d       +0.91 / +0.93  v 0.94   +0.91 / +0.96  v 0.96   +0.93 / +0.91   +0.96 / +0.95
+    15d       +0.97 / +0.98  v 1.00   +0.96 / +0.99  v 0.99   +0.98 / +0.99   +0.99 / +1.00
+  pangu24  frac=0  N_eq 3 sd 72  (0.97x DS)    sfno  frac=0  N_eq 3 sd 123 (1.57x DS)
+  pangu24  frac=.5 N_eq 3 sd 54  (0.73x DS)    sfno  frac=.5 N_eq 3 sd 80  (1.02x DS)
+  pair pangu24xsfno: v = 0.04 / 0.58 / 0.97 / 1.01
+```
+
+1. **Gate 3:** Pangu24 fails (rho_s 0.40 at 9 d). SFNO clears the 0.5 bar (0.62 / 0.91) but
+   sits below FCN3 M=1 at 9 d (0.67), so by this section's rule it is a worse scorer, not
+   a cheaper one.
+2. **Cost:** both are 5-8x cheaper per sim-day than one FCN3 member, but the case cost is
+   ~3.1-3.2 H100-h either way, so the scorer's speed barely moves it.
+3. **v / frac:** at 9 d the three pairs agree (0.62 / 0.67 / 0.58); at 6 d they do not
+   (0.27 / 1.57 / 0.04, with rho near zero the ratio is noise), so `frac` is not pinned at
+   6 d. SFNO's "own frac 1.00" comes from that 6 d point. Bootstrap CIs were not printed.
+4. **N_eq:** SFNO at frac=0 gives 123 at 3 sd, 1.57x direct sampling, below FCN3 M=1's 224.
 
 ### What the answer looks like
 
