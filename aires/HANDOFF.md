@@ -1886,6 +1886,8 @@ conditional mean does (1.4-1.5x); at 3.5 sd M=1 (1.26x) and the mixed schedule (
 just clear it. So `frac` - how much of FCN3's score error is
 model error, not member noise - is now the number that decides the scoring design. It is
 not identifiable from one model; a second scorer's Gate 3 curve would pin it.
+Figure: `figures/aires/PNW_HeatDome_2021/score_noise_PNW_HeatDome_2021.png` (N_eq against
+H100-h per case, direct sampling as the line to beat; redraw with `--plot-only`).
 
 **The direct-sampling baseline for Phase 4, and the gap AI+RES has to close.**
 

@@ -39,3 +39,12 @@ def test_default_replay_is_bit_identical_to_explicit_one_minus_rho():
     b = ctune.replay(rho, ctune.SCHEDULES["aires.md"], 32, np.random.default_rng(5),
                      noise_var=1.0 - rho)[1]
     assert np.array_equal(a, b)
+
+
+def test_case_cost_matches_the_handoff_table():
+    cost = {label: SN.case_cost(ms) for label, ms in SN.SCHEMES}
+    assert abs(cost["M=6 (today)"] - 20.35) < 0.01
+    assert abs(cost["M=3"] - 11.525) < 0.01
+    assert abs(cost["M=1"] - 5.642) < 0.01
+    assert abs(cost["M=3 at 6d, M=1 after"] - 7.743) < 0.01
+    assert cost["perfect (cond. mean)"] == cost["M=1"]   # priced at one member, by design

@@ -49,6 +49,19 @@ SCHEMES = [("M=1", (1, 1, 1, 1, 1)), ("M=3", (3, 3, 3, 3, 3)), ("M=6 (today)", (
 THRESHOLDS = (2.0, 3.0, 3.5)
 SEEDS = (4242, 777, 31)
 
+# H100-h per N=64 case, FCN3 walker (wbench small1 layer 3): walk 2.70, M=6 score 17.65
+# split by each score forecast's length to the 21 d peak (15/12/9/6 d from t_k = 6..15 d).
+# The deterministic rows are priced at ONE FCN3 member - the hindcast plan's bar, not a
+# measured model.
+_WALK, _SCORE6, _DAYS = 2.70, 17.65, {6.0: 15, 9.0: 12, 12.0: 9, 15.0: 6}
+DS_PER_H100H = 64 / 2.63          # direct-sampling members per H100-h, same walker
+
+
+def case_cost(ms) -> float:
+    per = _SCORE6 / 6 / sum(_DAYS.values())          # H100-h per member per day of forecast
+    return _WALK + sum(per * d * (1 if m in (0, INF) else m)
+                       for (l, d), m in zip(_DAYS.items(), ms[1:]))
+
 
 def subset_rho(df: pd.DataFrame) -> dict[float, np.ndarray]:
     """Pearson rho(theta_M, A_L) for M = 1..6, mean over every member subset, per lead."""
@@ -104,14 +117,92 @@ def _job(args):
                 n_eq=[(1 - p) / (p * e ** 2) for p, e in zip(exact, r["rel_rmse"])])
 
 
+def plot(t: pd.DataFrame, event: str, out) -> None:
+    """N_eq against H100-h per case, one panel per threshold, direct sampling as the bar."""
+    import matplotlib
+    matplotlib.use("Agg")
+    import matplotlib.pyplot as plt
+    from matplotlib.lines import Line2D
+
+    colors = {0.0: "#2a78d6", 0.5: "#eb6834"}
+    ink, muted = "#0b0b0b", "#52514e"
+    det = {"M=inf (FCN3 mean)", "perfect (cond. mean)"}
+    ms = dict(SCHEMES)
+    short = {"M=1": "M=1", "M=3": "M=3", "M=6 (today)": "M=6 (today)",
+             "M=3 at 6d, M=1 after": "M=3 at 6 d,\nM=1 after", "M=24": "M=24"}
+    plt.rcParams.update({"font.size": 9, "axes.edgecolor": muted, "axes.labelcolor": ink,
+                         "xtick.color": muted, "ytick.color": muted})
+    fig, axes = plt.subplots(1, 2, figsize=(11, 4.8), sharey=True)
+    xs = np.array([4, 90])
+    for ax, thr in zip(axes, (3.0, 3.5)):
+        col = f"N_eq_{thr:g}sd"
+        ax.plot(xs, DS_PER_H100H * xs, color=muted, lw=1.5, ls="--", zorder=1)
+        ax.fill_between(xs, DS_PER_H100H * xs, 2000, color="#2a78d6", alpha=0.05, lw=0, zorder=0)
+        for frac, g in t.groupby("frac"):
+            for label, s in g.groupby("scheme", sort=False):
+                x = case_cost(ms[label])
+                y, lo, hi = s[col].mean(), s[col].min(), s[col].max()
+                hollow = label in det
+                ax.errorbar(x, y, yerr=[[y - lo], [hi - y]], fmt="o", ms=8, mew=2,
+                            color=colors[frac], mfc="white" if hollow else colors[frac],
+                            mec=colors[frac], ecolor=colors[frac], elinewidth=1.5, capsize=0,
+                            zorder=3 if hollow else 4)
+                if frac == 0.0 and label in short:
+                    # just above the direct-sampling line, a right-hand label would cross it
+                    left = 1.0 < y / (DS_PER_H100H * x) < 1.5
+                    ax.annotate(short[label], (x, y), xytext=(-7 if left else 7, 0),
+                                textcoords="offset points", va="center",
+                                ha="right" if left else "left", fontsize=8, color=ink)
+            dy = g[g.scheme.isin(det)][col]
+            if frac == 0.0 and len(dy):
+                ax.annotate("deterministic, as good as\nFCN3's mean (cost assumed)",
+                            (case_cost(ms["perfect (cond. mean)"]), dy.max()), xytext=(7, 10),
+                            textcoords="offset points", fontsize=8, color=ink)
+        ax.set_xscale("log"); ax.set_yscale("log")
+        ax.set_xlim(*xs); ax.set_ylim(90, 1200)
+        ax.set_xticks([5, 10, 20, 50]); ax.set_xticklabels(["5", "10", "20", "50"])
+        ax.set_yticks([100, 200, 500, 1000]); ax.set_yticklabels(["100", "200", "500", "1000"])
+        ax.grid(True, which="major", color="#e8e7e3", lw=0.8, zorder=0)
+        for sp in ("top", "right"):
+            ax.spines[sp].set_visible(False)
+        ax.set_title(f"{thr:g} sd tail  (p = {norm.sf(thr):.1e})", color=ink, fontsize=10, loc="left")
+        ax.set_xlabel("H100-h per AI+RES case (N = 64)")
+    axes[0].set_ylabel("N_eq: direct-sampling members one AI+RES run equals")
+    handles = [Line2D([], [], marker="o", ls="", ms=8, color=colors[0.0],
+                      label="frac = 0: FCN3's ensemble mean is the conditional mean"),
+               Line2D([], [], marker="o", ls="", ms=8, color=colors[0.5],
+                      label="frac = 0.5: half the room is FCN3 model error"),
+               Line2D([], [], marker="o", ls="", ms=8, mew=2, mfc="white", color=muted,
+                      label="deterministic scorer, priced at one FCN3 member"),
+               Line2D([], [], ls="--", lw=1.5, color=muted, label="direct sampling: above it, AI+RES wins")]
+    fig.legend(handles=handles, loc="lower center", ncol=2, frameon=False, fontsize=8.5,
+               bbox_to_anchor=(0.5, 0.0))
+    fig.suptitle(f"Less score noise buys tail accuracy, but cost grows faster - {event}",
+                 x=0.06, ha="left", fontsize=11.5, color=ink)
+    fig.text(0.06, 0.905, "ctune surrogate with the atmosphere held fixed (aires/score_noise.py); "
+             "aires.md C_k; bars = min-max over 3 seeds x 30k repeats. Costs from wbench small1.",
+             fontsize=8, color=muted)
+    fig.subplots_adjust(left=0.08, right=0.98, top=0.84, bottom=0.22, wspace=0.08)
+    fig.savefig(out, dpi=150, facecolor="#fcfcfb")
+    plt.close(fig)
+    print(f"  wrote {out}")
+
+
 def main(argv=None) -> int:
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     ap.add_argument("--event", default="PNW_HeatDome_2021")
     ap.add_argument("--fracs", default="0,0.5")
     ap.add_argument("--repeats", type=int, default=30000)
     ap.add_argument("--procs", type=int, default=6)
+    ap.add_argument("--plot-only", action="store_true", help="redraw from the saved CSV")
     a = ap.parse_args(argv)
     ev = G._event(a.event)
+    csv = A.gate3_dir(ev.name) / f"{ev.name}_score_noise.csv"
+    fig = A.fig_dir(ev.name) / f"score_noise_{ev.name}.png"
+    if a.plot_only:
+        fig.parent.mkdir(parents=True, exist_ok=True)
+        plot(pd.read_csv(csv), ev.name, fig)
+        return 0
     res = json.loads(G.result_path(ev).read_text())
     fitted = fit(subset_rho(MS.members(ev, res)))
     leads = sorted(fitted)
@@ -148,7 +239,7 @@ def main(argv=None) -> int:
                              rho=np.round(rho, 3).tolist(), ess=o["ess"], max_mult=o["max_mult"],
                              **{f"N_eq_{t:g}sd": n for t, n in zip(THRESHOLDS, o["n_eq"])}))
     t = pd.DataFrame(rows)
-    path = A.gate3_dir(ev.name) / f"{ev.name}_score_noise.csv"
+    path = csv
     t.to_csv(path, index=False)
 
     cols = ["ess"] + [f"N_eq_{x:g}sd" for x in THRESHOLDS]
@@ -161,6 +252,8 @@ def main(argv=None) -> int:
     with pd.option_context("display.width", 250):
         print("\n" + show.to_string())
     print(f"\n  wrote {path}")
+    fig.parent.mkdir(parents=True, exist_ok=True)
+    plot(t, ev.name, fig)
     return 0
 
 
