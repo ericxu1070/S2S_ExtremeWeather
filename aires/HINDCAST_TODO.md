@@ -68,6 +68,11 @@ Levers already measured, in order of payoff:
         not, so recheck `rho_sens.json` before trusting it.
   - [ ] Free fallback: FCN3 at M=1 is already "one member" and passes Gate 3 at 9/12 d. A
         deterministic model must beat that on cost, not just match it.
+  - [ ] What its rho is worth (`aires/score_noise.py`, HANDOFF "What M buys"): N_eq at 3 sd
+        runs 224 at FCN3 M=1's curve to 418 at FCN3's ensemble mean (frac=0). So a
+        deterministic scorer at one member's cost pays off in proportion to how close its
+        Gate 3 curve gets to rho_inf = 0.77 / 0.86 / 0.96 at 6 / 9 / 12 d. Its curve also
+        pins `frac`, which one model cannot.
 - [ ] **Storage**: 10.16 GB per case at 21 d lead (0.66 GB init + 9.5 GB run output) means
       ~0.9 TB for 90 cases and ~11 TB for 3 years. Keep only CONUS score cubes + walker
       weights per case; delete global walker states once a case is scored.

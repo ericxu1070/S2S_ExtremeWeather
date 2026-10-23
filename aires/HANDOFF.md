@@ -1847,6 +1847,46 @@ estimate - its replay errors are non-monotonic in that range - so M=1 at 6 d is 
 not cleared. One event, N=16, and overlapping subsets of the same 6 members, so the
 worst-subset column is optimistic.
 
+**What M buys in direct-sampling members (2026-10-23, CPU, `aires/score_noise.py`).**
+`ctune.replay` cannot answer "is a less noisy score worth more?": one curve rho_k sets both
+the score's noise (1 - rho_k) and the walker's predictability (Var(m_k) = rho_k), so a
+sharper score also makes the simulated outcome more decided at t_k and leaves clones less
+room to diverge. Fed the de-noised M=6 curve it returned a *lower* N_eq (206 vs 305 at
+3 sd), and uniformly rescaling C_k (0.4-1.2) did not undo it - an artifact, not a finding.
+It also made M=1 look as good as M=6; treat any M or scorer comparison run through the
+coupled replay (including `rho_sens.json`) as unverified.
+
+`score_noise.py` fixes the atmosphere and varies only the score noise
+(`ctune.replay(..., noise_var=)`, default path byte-identical). The 1/M noise model
+`1/rho_M^2 = a + b/M` fits Gate 3's subsets to <= 0.002 at every lead. The measured
+member spread cannot be used for `b`: common random numbers make part of each member's
+noise common to all walkers, so it drops out of the ranking (taking it at face value gives
+negative model error at 6/9 d). That leaves one assumption, `frac`: 0 = FCN3's ensemble
+mean is the conditional mean, so predictability v = 0.59 / 0.75 / 0.92 / 0.99 at
+6/9/12/15 d; 0.5 = half the remaining room is FCN3 model error (v = 0.80 / 0.87 / 0.96 /
+1.00). N=64, `aires.md` C_k, 3 seeds x 30k repeats, N_eq at 3 sd (3.5 sd):
+
+| scorer | rho 6/9/12/15 d | frac=0 | frac=0.5 | H100-h/case | frac=0 vs DS per H100-h, 3 sd |
+|---|---|---|---|---|---|
+| FCN3 M=1 | .36/.68/.91/.99 | 224 (355) | 124 (173) | 5.6 | 1.63x |
+| M=3 at 6 d, M=1 after | .52/.68/.91/.99 | 271 (430) | 151 (201) | 7.7 | 1.44x |
+| FCN3 M=3 | .52/.79/.94/.99 | 324 (528) | 166 (221) | 11.5 | 1.16x |
+| FCN3 M=6 (today) | .61/.82/.95/1.0 | 368 (598) | 180 (237) | 20.4 | 0.74x |
+| FCN3 mean (M=inf) | .77/.86/.96/1.0 | 418 (684) | 196 (260) | 5.6 if one deterministic run | 3.05x |
+| perfect conditional mean | frac-dependent | 418 (684) | 207 (272) | same | 3.05x |
+
+Seed spread is +-3% at 3 sd. So less score noise DOES buy N_eq (M=1 to M=6: +64% at
+3 sd), but cost grows faster, and per H100-h the cheapest scorer wins; with an FCN3 walker
+(direct sampling = 24.3 members/H100-h) M=6 scoring loses to plain direct sampling at 3 sd.
+A deterministic scorer at one member's cost that tracks the conditional mean as well as
+FCN3's ensemble mean would be worth ~3x direct sampling per H100-h; one only as good as
+FCN3 M=1 is worth what M=1 is. Under frac=0.5 every number roughly halves: at 3 sd no FCN3
+scheme beats direct sampling (M=1 0.90x) and only a deterministic scorer near the
+conditional mean does (1.4-1.5x); at 3.5 sd M=1 (1.26x) and the mixed schedule (1.07x)
+just clear it. So `frac` - how much of FCN3's score error is
+model error, not member noise - is now the number that decides the scoring design. It is
+not identifiable from one model; a second scorer's Gate 3 curve would pin it.
+
 **The direct-sampling baseline for Phase 4, and the gap AI+RES has to close.**
 
 | index | mean | sd | range | ERA5 observed | walkers reaching it |
@@ -2845,6 +2885,7 @@ the production value; `gate3_msub.py` (2026-10-22) shows M = 3 keeps ~99% of the
 | `aires/score.py` | the FCN3 score function: M forecasts from a walker checkpoint to the peak |
 | `aires/gate3.py` | Gate 3: `--stage {plan,walk,reduce}`, plus the physical check against the xres ensemble |
 | `aires/gate3_msub.py` | Gate 3 rho_s at M = 1..6 by subsampling the cached score cubes (CPU) |
+| `aires/score_noise.py` | N_eq vs score noise on a FIXED atmosphere: fits 1/rho_M^2 = a + b/M, replays M = 1..inf and a perfect scorer (CPU) |
 | `aires/HINDCAST_TODO.md` | the daily-hindcast plan: cost levers, FCN3 walker fixes, deterministic-scorer trial, evaluation |
 | `aires/dmc.py` | the RES core: splitting, pivotal sampling, genealogy, the unbiased estimator |
 | `aires/ctune.py` | replays the C_k schedule on a surrogate calibrated to the Gate 3 skill curve; `--rho-sens` finds the skill crossover where switching a resampling off starts to pay, `--search` optimises the schedule with and without `C_1 = C_2 = 0`, `--validate-production` records why a finished run cannot supply a skill curve |

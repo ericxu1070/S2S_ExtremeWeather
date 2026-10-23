@@ -146,10 +146,18 @@ def check_model(skill: dict) -> str:
 # --------------------------------------------------------------------------- #
 # The replay
 # --------------------------------------------------------------------------- #
-def replay(rho, C, n_walkers: int, rng: np.random.Generator) -> tuple:
-    """One DMC run on the surrogate. Returns (result, realized A_L per walker)."""
+def replay(rho, C, n_walkers: int, rng: np.random.Generator, noise_var=None) -> tuple:
+    """One DMC run on the surrogate. Returns (result, realized A_L per walker).
+
+    ``noise_var`` (per resampling time) decouples the score's error from the atmosphere:
+    ``rho`` then sets only ``Var(m_k)``, the predictability, and the score is ``m_k`` plus
+    noise of that variance. Left as None, the noise is ``1 - rho_k`` - one curve for both,
+    which is what makes a sharper score also mean a more predictable atmosphere
+    (`aires/score_noise.py` is the decoupled use).
+    """
     v = np.asarray(rho, dtype="float64")            # Var(m_k) = rho_k
     K = len(v)
+    nv = np.maximum(1.0 - v, 0.0) if noise_var is None else np.asarray(noise_var, dtype="float64")
 
     def propagate(k, parents, states):
         m = np.zeros(n_walkers) if states is None else states[parents]
@@ -162,8 +170,7 @@ def replay(rho, C, n_walkers: int, rng: np.random.Generator) -> tuple:
         return m + rng.normal(scale=np.sqrt(step_var), size=n_walkers)
 
     def score(k, states):
-        return states + rng.normal(scale=np.sqrt(max(1.0 - v[k - 1], 0.0)),
-                                   size=n_walkers)
+        return states + rng.normal(scale=np.sqrt(nv[k - 1]), size=n_walkers)
 
     res = dmc.run(n_walkers, C, propagate, score, rng=rng, standardize_scores=True)
     return res, np.asarray(res.states, dtype="float64")
@@ -442,7 +449,8 @@ def _monotone(values, length, floor=0.0):
     return out
 
 
-def score_schedule(rho, C, n_walkers, repeats, thresholds, exact, seed=4242) -> dict:
+def score_schedule(rho, C, n_walkers, repeats, thresholds, exact, seed=4242,
+                   noise_var=None) -> dict:
     """One schedule's cost: relative RMSE of the tail estimate, plus population health.
 
     relRMSE = sqrt(bias^2 + var) / p_true is what a SINGLE production run actually buys -
@@ -452,7 +460,7 @@ def score_schedule(rho, C, n_walkers, repeats, thresholds, exact, seed=4242) -> 
     rng = np.random.default_rng(seed)
     ess, mult, exc = [], [], []
     for _ in range(repeats):
-        res, a = replay(rho, C, n_walkers, rng)
+        res, a = replay(rho, C, n_walkers, rng, noise_var)
         ess.append(res.ess_by_step[-1] / n_walkers)
         mult.append(np.max(res.max_multiplicity_by_step))
         exc.append(res.exceedance(a, thresholds))
