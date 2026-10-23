@@ -208,9 +208,10 @@ the pairs disagree (`wbench/tests/test_det_score.py` pins the direction).
 
 Agents cannot create Nebius resources, so every `nebius` command is Eric's.
 
-1. **Bundle (Derecho login node, ~10 min, needs the 64 ICs).**
-   `bash wbench/vm/make_bundle.sh --det` -> `/glade/derecho/scratch/exu/wbench_bundle/wbench_det_bundle.tar`
-   (~13 GB) + `.sha256`.
+1. **Bundle (Derecho login node, ~10 min, needs the 64 ICs).** **DONE 2026-10-23** from
+   `ef16f99`: `/glade/derecho/scratch/exu/wbench_bundle/wbench_det_bundle.tar`, 13 GB, sha256
+   `7fc769e1...` (full hash in the `.sha256` beside it). Rebuild with
+   `bash wbench/vm/make_bundle.sh --det` only if the code changes.
 2. **Stage it** in `s3://wbench-bundle` as in `vm/README.md` step 2 (laptop relay; with 13 GB
    the laptop leg dominates). Pull on the VM in-region.
 3. **VM: one H100, preemptible**, `default-project-eu-north1`, spot max-price policy
