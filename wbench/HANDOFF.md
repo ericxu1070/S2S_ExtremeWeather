@@ -18,7 +18,35 @@ not touched.
 | VM scripts (`wbench/vm/`) | **written.** `run_all.sh` dry-run tested on the login node; `setup_vm.sh` and `make_bundle.sh` **never executed** |
 | GPU-path review | **interrupted mid-way.** Was re-reading `fcn3_walker.py` at `NativeFCN3.roll` (line ~214); `fcn3_bench.py` and `checks.py` not yet re-read |
 | bundle | **not built** |
-| Nebius run | **not started** |
+| Nebius run | **`small1` ran 2026-10-21** (1xH100, eu-north1, speed only). Results in R2 `vayuh/eric/wbench/small1/` (35 files). The rows above predate it; the follow-ups live in the vault note "Nebius experiments - FCN3 AI+RES" |
+
+## Nebius and R2 operations (learned 2026-10-23)
+
+Read this before booking or cleaning up a Nebius VM.
+
+- **Tenant:** `olive-wolf-tenant-2zm`, CLI profile `eric`. One default project per region; **H100 exists only in `default-project-eu-north1`** (`project-e00g90k7pr0032bsy9gfff`). Pass that `--parent-id`; the profile default is us-central1, which has no H100.
+- **No CPU-only VMs:** quota `compute.instance.non-gpu.vcpu` is 0 tenant-wide. The cheapest box is `gpu-l40s-a` / `1gpu-8vcpu-32gb` (~$0.75/h spot, $1.55/h on-demand, 2026-10-23).
+- **Preemptible flags:** `--preemptible-on-preemption stop` plus a pricing model (`--follows-spot-price` or `--spot-pricing-policy-id`) plus `--recovery-policy fail`. Each one missing is a separate API error.
+- **Spot cap goes away 2026-11-02.** After that, "follow spot price" has no ceiling. Use the max-price policy `h100-max-2` (`pricingpolicy-e00nf9i4ktm3hily5azuy`, $2/GPU-h, eu-north1): `--spot-pricing-policy-id pricingpolicy-e00nf9i4ktm3hily5azuy`. If spot rises above $2 the VM is stopped, so checkpoint.
+- **Disks can't attach read-only** (API rejects it). To read a disk safely, attach read-write and `mount -o ro,noload`.
+- **R2:** bucket `vayuh` is in Cloudflare account "Arunabh@vayuh.ai's Account" (`1b35b28518577975c68c10385f71a1f6`), not Eric's own (R2 is disabled there). The laptop's `~/.aws` profile `r2` holds an Object Read & Write token for `vayuh`; copy it to the VM with the README's `scp ~/.aws` step. The `cf` CLI exists only on Derecho; set `CLOUDFLARE_ACCOUNT_ID=1b35b28518577975c68c10385f71a1f6` to reach `vayuh`. `cf r2 objects put` caps objects at 300 MB, so bulk data goes through `aws --profile r2`.
+- **End-of-run rule:** an idle 200 GiB disk costs ~$14/month. Before deleting the GPU VM, stream outputs from it straight to R2, then delete VM and data disk together (prefer a managed data disk so it dies with the VM). Use the split upload below, with `export AWS_REQUEST_CHECKSUM_CALCULATION=when_required AWS_RESPONSE_CHECKSUM_VALIDATION=when_required` set.
+
+- **Agents can't create Nebius VMs** (Claude Code auto mode blocks paid launches, and attaching a data disk read-write). Write the command and have Eric run it. Deleting a VM or disk Eric asked to delete went through.
+- **R2 multipart gotcha:** one 35 GB streamed `aws s3 cp -` failed at `CompleteMultipartUpload` with `InvalidPart` after 24 min. Splitting the stream into 2 GiB pieces, each staged on local disk and uploaded with retries, worked first time. For anything over ~5 GB, use the split form:
+
+  ```bash
+  aws configure set profile.r2.s3.multipart_chunksize 64MB
+  sudo tar -C <data dir> -cf - . | zstd -T0 -3 | tee >(sha256sum > up.sha256) \
+    | split -b 2G -d -a 3 --filter='cat > $FILE && aws --profile r2 s3 cp $FILE s3://vayuh/eric/<path>.tar.zst.d/$FILE && rm $FILE' - part.
+  ```
+
+- **2026-10-23 cleanup, done:** the leftover `wbench-data` disk (200 GiB, 35 GB used: envs, micromamba, FCN3 caches, `wbench_bundle.tar`, `runs/`) is backed up to `s3://vayuh/eric/wbench/wbench-data.tar.zst.d/` (11 pieces, 21.0 GiB, stream sha256 `63d5f5294dd3bc601d8d13b60dc46b02f1cbe8db0632e7c13c175f598dadf78c`). Verified by streaming it back: sha256 matches and `tar -t` lists 160,946 entries, the same as `find` on the disk. The disk and the temporary VM are deleted; no instances or disks remain in any project. Still in Nebius: bucket `s3://wbench-bundle` (the 4.1 GB bundle). Restore:
+
+  ```bash
+  aws --profile r2 s3 cp --recursive s3://vayuh/eric/wbench/wbench-data.tar.zst.d/ parts/
+  cat parts/part.* | zstd -d | tar -xf - -C <dest>
+  ```
 
 ## Verified (2026-10-15, Derecho login node)
 
