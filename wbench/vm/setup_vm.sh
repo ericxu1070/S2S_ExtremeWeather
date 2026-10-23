@@ -22,6 +22,10 @@
 #   pickle     build the FCN3 module once and pickle it (fcn3/model_cache.py), so the
 #              benchmark times a load, as production does, not a ~2 min CPU build
 #   check      tests in both envs, GenCast batch checks, GPU visible from both envs
+#   det        earth2studio's pangu + sfno extras into wb-fcn3, then Pangu24 and SFNO
+#              loaded once on the GPU so their weights download now, not in the timed run
+#              (wbench/det_score.py). A deterministic-scorer-only VM needs just:
+#                bash wbench/vm/setup_vm.sh sys verify mamba fcn3 det
 set -euo pipefail
 
 HERE=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
@@ -164,6 +168,26 @@ print("weights ->", got, f"{os.path.getsize(got) / 1e9:.2f} GB")
 PY
 }
 
+step_det() {
+  local C=(-c "$HERE/constraints-fcn3.txt" --extra-index-url "$TORCH_INDEX")
+  py_f3 -m pip install --no-cache-dir "${C[@]}" \
+    "earth2studio[pangu,sfno] @ git+https://github.com/NVIDIA/earth2studio.git@$E2S_REF"
+  py_f3 -c "import torch; assert torch.__version__.startswith('2.11.0'), torch.__version__"
+  # Pangu runs in onnxruntime; without its CUDA provider it falls back to CPU silently
+  py_f3 -c "import onnxruntime as o; p = o.get_available_providers(); \
+assert 'CUDAExecutionProvider' in p, p; print('onnxruntime', o.__version__, p)"
+  bash "$HERE/env.sh" fcn3 python - <<'PY'
+import time
+from earth2studio.models.px import Pangu24, SFNO
+for cls in (Pangu24, SFNO):
+    t = time.perf_counter()
+    m = cls.load_model(cls.load_default_package()).to("cuda")
+    print(f"{cls.__name__}: loaded on cuda in {time.perf_counter() - t:.0f} s, "
+          f"{len(m.input_coords()['variable'])} input channels")
+    del m
+PY
+}
+
 step_pickle() {
   bash "$HERE/env.sh" fcn3 python -c \
     "from wbench import fcn3_walker as FW; px = FW.load_px('cpu'); print('FCN3 ready:', len(px.variables), 'variables')"
@@ -184,7 +208,7 @@ step_check() {
   log "setup complete - next: bash wbench/vm/run_all.sh"
 }
 
-ALL=(sys verify mamba gencast fcn3 th weights pickle check)
+ALL=(sys verify mamba gencast fcn3 th weights pickle check det)
 STEPS=("$@")
 FORCE=1
 if [ "${#STEPS[@]}" -eq 0 ]; then STEPS=("${ALL[@]}"); FORCE=0; fi

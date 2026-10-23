@@ -6,6 +6,10 @@ layer means is in `wbench/__init__.py`.
 
 **Total: ~1 h of setup (unattended) + ~1.5 h of benchmark.**
 
+**Deterministic-scorer run (Pangu24, SFNO) is a separate, smaller job:** one H100,
+`make_bundle.sh --det`, `setup_vm.sh sys verify mamba fcn3 det`, `run_det.sh`. Runbook in
+`wbench/HANDOFF.md` "Deterministic AI+RES scorers on Nebius".
+
 ## Steps
 
 1. **Build the bundle on Derecho (~3 min, login node, no GPU).**
@@ -126,6 +130,7 @@ Phases can be run alone, in order: `bash wbench/vm/run_all.sh solo node8 report`
     setup_vm.sh             VM: both envs, torch-harmonics kernel, FCN3 weights + pickle
     env.sh                  VM: put one env on PATH (gencast | fcn3), pin threads
     run_all.sh              VM: preflight -> solo -> node8 -> report, with GPU slot scheduling
+    run_det.sh              VM: Pangu24 + SFNO as AI+RES scorers on the Gate 3 walkers, then reduce
     cpu_slices.py           NUMA-local CPU slice per GPU (from nvidia-smi topo)
     requirements-gencast.txt, constraints-fcn3.txt   the pinned env contents
     MANIFEST.sha256         written by make_bundle.sh, checked by setup_vm.sh

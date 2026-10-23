@@ -159,3 +159,99 @@ Ordered by how much a failure would cost on the VM:
     wbench/tests/             test_wconfig, test_report, test_fcn3_walker (CPU)
     wbench/vm/                README.md runbook, make_bundle.sh, setup_vm.sh, env.sh, run_all.sh,
                               cpu_slices.py, requirements-gencast.txt, constraints-fcn3.txt
+
+## Deterministic AI+RES scorers on Nebius: Pangu24 and SFNO (built 2026-10-23, NOT RUN)
+
+**The question.** Can ONE deterministic forecast per walker replace FCN3's M-member score?
+`aires/score_noise.py` (aires/HANDOFF.md "What M buys") says what that would be worth: a
+scorer at one member's cost that tracks the conditional mean as well as FCN3's ensemble
+mean gives N_eq 418 at 3 sd against M=6's 368, ~3x direct sampling per H100-h; one only as
+good as FCN3 M=1 gives 224. Those are surrogate numbers about a hypothetical scorer. This
+run puts two real ones on the same 64 cases Gate 3 scored (16 walkers x t_k = 6/9/12/15 d,
+PNW_HeatDome_2021) and times them on an H100.
+
+It also measures `frac` - the share of FCN3's score error that is model error, the number
+that halves or keeps every N_eq above. One scorer's rho cannot pin it; two scorers with
+independent errors can: `v = rho_A rho_B / corr(theta_A, theta_B)`. With FCN3, Pangu and
+SFNO there are three such pairs, so the independence assumption is checked, not assumed:
+an error two scorers share biases that pair's v DOWN, to v^2 / (v + shared variance), so
+the pairs disagree (`wbench/tests/test_det_score.py` pins the direction).
+
+**Code:** `wbench/det_score.py` (stages `sp-check`, `ic`, `infer`, `reduce`),
+`wbench/vm/run_det.sh`, `setup_vm.sh` step `det`, `make_bundle.sh --det`.
+
+| piece | state |
+|---|---|
+| ICs (64, FCN3's 72 adapter channels + `sp`) | **built on Derecho** (`det_score --stage ic`), `runs/aires/PNW_HeatDome_2021/det/ic/`, 199 MB each |
+| `sp` for SFNO (GenCast has none) | **validated against ERA5** (`--stage sp-check`, 2021-06-13 00Z): integrating down from the lowest pressure level above ground gives RMSE 0.40 hPa over land, 0.99 hPa above 1500 m, p99 2.8 hPa. The msl-only formula was 4.0 / 13.9 / 35 hPa, so it is used only where the ground is below the 1000 hPa surface |
+| tests | `wbench/tests/test_det_score.py`, 7 CPU tests (sp, the v estimator incl. the shared-error bias, IC source, shard balance, cost). All of `wbench/tests` passes in `my-env` on Derecho |
+| reduce | end-to-end tested on Derecho with a stand-in model (FCN3 member 0); see "Verified" below |
+| GPU path (`--stage infer` without `--dry`) | **never run.** Pangu24/SFNO load, `earth2studio.run.deterministic` and the zarr -> cube assembly are untested until the VM |
+| Nebius run | **not started** |
+
+### Verified (2026-10-23, Derecho login node, no GPU)
+
+- **ICs:** 64 of 64, (1, 73, 721, 1440), all finite, 199 MB each, 12 GB. `sp` exceeds `msl`
+  only on 5759 cells, all at or below 1 m height (down to -141 m, the Caspian and such):
+  ground below sea level, where it must.
+- **`--dry` for both models in the Derecho `fcn3` env** (earth2studio 0.17.0a0, the VM's
+  commit): Pangu24 takes 69 of the 73 IC channels, SFNO all 73; step counts 15 x 24 h
+  (t_k = 6 d) down to 6 x 24 h, and 60 x 6 h down to 24 x 6 h.
+- **Reduce, end to end, in the `fcn3` env** with a stand-in model (FCN3 member 0 of each
+  Gate 3 cube, t2m only, written where a det cube goes): its Pearson r equals member 0's
+  to 6 decimals at every lead, and the FCN3 reference columns reproduce Gate 3 (M=6 rho_s
+  0.61 / 0.80 / 0.96 / 0.99, M=1 0.67 at 9 d). The stand-in's v is low (0.52 at 6 d vs
+  frac=0's 0.59) because member 0 is inside FCN3's M=6 mean - a shared error, biasing v
+  down as it should. Stand-in artifacts deleted.
+
+### Run it (~1.5 h, ~$3-4 on one preemptible H100)
+
+Agents cannot create Nebius resources, so every `nebius` command is Eric's.
+
+1. **Bundle (Derecho login node, ~10 min, needs the 64 ICs).**
+   `bash wbench/vm/make_bundle.sh --det` -> `/glade/derecho/scratch/exu/wbench_bundle/wbench_det_bundle.tar`
+   (~13 GB) + `.sha256`.
+2. **Stage it** in `s3://wbench-bundle` as in `vm/README.md` step 2 (laptop relay; with 13 GB
+   the laptop leg dominates). Pull on the VM in-region.
+3. **VM: one H100, preemptible**, `default-project-eu-north1`, spot max-price policy
+   `h100-max-2` (see "Nebius and R2 operations" above for the three preemptible flags). One
+   GPU is enough - 64 forecasts - and keeps the timings comparable with `small1`'s solo
+   rows. The run is cache-aware, so a preemption costs only the forecast in flight.
+4. **Setup (~30 min):** `bash wbench/vm/setup_vm.sh sys verify mamba fcn3 det`. No GenCast
+   env, no torch-harmonics build, no FCN3 weights: neither model needs them, and the
+   reduce imports nothing from JAX. Step `det` asserts onnxruntime's CUDA provider and
+   loads both models once on the GPU so the weights download now.
+5. **Run (~30-45 min, unmeasured):** `WB_NGPU=1 bash wbench/vm/run_det.sh` in tmux. It runs
+   `--dry` first (input contract + step counts), then Pangu24, then SFNO, then the reduce.
+6. **Bring it home, then delete the VM and its disk:** `runs/aires/PNW_HeatDome_2021/det/`
+   minus `ic/` (cubes are CONUS t2m only, small) to R2
+   `vayuh/eric/wbench/det1/`. `det_reduce.json` and `logs/reduce.log` are the answer.
+
+### What the answer looks like
+
+`reduce.log` prints, per model and t_k: rho_s against the walkers' realized A_L next to
+FCN3 M=1 and M=6 (the Gate 3 bar: rho_s >= 0.5 at 9 and 12 d; FCN3 M=1 gives 0.67 / 0.93),
+the predictability v estimated from each pair, and N_eq at 3 / 3.5 sd with the measured
+H100-h per case at frac = 0, 0.5 and the model's own estimate. Read it in this order:
+
+1. **Does it pass Gate 3?** If rho_s at 9 d is below FCN3 M=1's 0.67, it is not a cheaper
+   scorer, it is a worse one, whatever its speed.
+2. **Is it cheaper than one FCN3 member?** FCN3 is 3.94 s per simulated day on an H100.
+3. **Do the three v estimates agree?** If FCN3 x Pangu, FCN3 x SFNO and Pangu x SFNO differ
+   by more than their bootstrap CIs, the independent-error assumption fails and `frac` is
+   not measured - say so rather than averaging. The lowest pair is the one with the most
+   shared error (Pangu x SFNO, both trained on ERA5 with similar losses, is the suspect).
+
+### Things that could break on the VM
+
+- **onnxruntime-gpu against the cu128 torch stack** (step `det`). If the CUDA provider is
+  missing, Pangu runs on the CPU at minutes per step; the step fails loudly instead.
+- **`deterministic()` output layout.** `assemble()` expects zarr `t2m` as
+  (time, lead_time, lat, lon) with lat descending, as FCN3's `ensemble()` output has
+  minus the ensemble dim. `aindex.check_window` will refuse a cube whose 7-day window does
+  not hold 7 (Pangu24) or 25 (SFNO) frames, so a wrong layout fails, it does not mislead.
+- **Pangu24's 7 daily frames** are a 00Z-only week mean. A_L is an anomaly against the
+  00Z climatology, so the diurnal sampling is consistent, but it is not the 6-hourly mean
+  FCN3 is scored on. Rank skill is what Gate 3 measures; note it if Pangu lands close.
+- **Model memory.** Neither is expected near 80 GB; `timing_shard0.json` records torch peak
+  (SFNO) and `nvidia-smi` used memory (both, since Pangu's onnx session is outside torch).
