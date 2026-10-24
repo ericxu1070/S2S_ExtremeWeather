@@ -11,7 +11,9 @@ Branch: `main`. The `aires` branch (with `adapter-test` inside it) was merged in
 split: Derecho for CPU work, a3mega H100 for anything touching FCN3 or GenCast inference.
 
 **Start here for new work:** `aires/HINDCAST_TODO.md` (the daily hindcast, see "The daily
-hindcast plan" below). The 42-case calibration campaign that ran on this machinery after the
+hindcast plan" below). Newer models that could replace the walker or scorer (WeatherNext 2,
+AIFS-ENS v2, AIFS-SUBS, AI Weather Quest notes; scan of 2026-10-23, nothing built):
+`aires/MODEL_CANDIDATES.md`. The 42-case calibration campaign that ran on this machinery after the
 waves lives in `acal/` and its state in `acal/HANDOFF.md`, not here.
 
 Visual summaries:
